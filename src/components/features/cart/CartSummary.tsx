@@ -2,16 +2,21 @@
  * 장바구니 주문 요약 컴포넌트
  */
 
+import { useNavigate } from 'react-router-dom';
 import type { CartSummary as CartSummaryType } from '../../../types/cart';
 import { useToast } from '../../common/Toast';
+import { useCartStore } from '../../../stores/useCartStore';
+import { useOrderStore } from '../../../stores/useOrderStore';
 
 interface CartSummaryProps {
   summary: CartSummaryType;
-  onOrder: () => void;
 }
 
-const CartSummary = ({ summary, onOrder }: CartSummaryProps) => {
+const CartSummary = ({ summary }: CartSummaryProps) => {
+  const navigate = useNavigate();
   const { showToast } = useToast();
+  const { getSelectedItems } = useCartStore();
+  const { setOrderItems } = useOrderStore();
 
   // 가격 포맷팅
   const formatPrice = (price: number) => {
@@ -24,9 +29,12 @@ const CartSummary = ({ summary, onOrder }: CartSummaryProps) => {
       return;
     }
     
-    // TODO: 주문 페이지 구현 후 연결
-    showToast('주문 기능은 준비 중입니다', 'info');
-    onOrder();
+    // 선택된 상품을 주문 Store에 저장
+    const selectedItems = getSelectedItems();
+    setOrderItems(selectedItems);
+    
+    // 주문 페이지로 이동
+    navigate('/order');
   };
 
   return (

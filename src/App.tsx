@@ -14,10 +14,10 @@ const MyPage = lazy(() => import('./pages/MyPage'));
 const OrderHistoryPage = lazy(() => import('./pages/OrderHistoryPage'));
 const LikedProductsPage = lazy(() => import('./pages/LikedProductsPage'));
 const ShopPage = lazy(() => import('./pages/ShopPage'));
+const OrderPage = lazy(() => import('./pages/OrderPage'));
+const OrderCompletePage = lazy(() => import('./pages/OrderCompletePage'));
 
 import { ToastProvider } from '@/components/common/Toast';
-
-// ...
 
 function App() {
   return (
@@ -37,6 +37,8 @@ function App() {
               <Route path="mypage/orders" element={<OrderHistoryPage />} />
               <Route path="mypage/likes" element={<LikedProductsPage />} />
               <Route path="shop/:shopId" element={<ShopPage />} />
+              <Route path="order" element={<OrderPage />} />
+              <Route path="order/complete" element={<OrderCompletePage />} />
             </Route>
           </Routes>
         </Suspense>
