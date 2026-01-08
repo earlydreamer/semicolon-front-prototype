@@ -40,6 +40,7 @@
 |------|------|------|
 | API 엔드포인트 | `md/api-endpoints.md` | 모든 API 경로 정의 |
 | 주요 변수명 | `md/naming-conventions.md` | 핵심 변수/상수명 사전 |
+| **디자인 시스템** | `md/design-system.md` | 컬러, 타이포, 간격, 접근성 가이드 |
 | 타입 정의 | `src/types/` | TypeScript 인터페이스 |
 | 상수 정의 | `src/constants/` | 하드코딩 대신 상수 참조 |
 
@@ -251,33 +252,43 @@ fix(auth): 로그인 토큰 만료 처리 수정
 
 ## 🎨 UI/UX 가이드라인
 
+> [!IMPORTANT]
+> **상세한 디자인 시스템은 [`md/design-system.md`](file:///d:/Projects/Programmers/Semi-Project/frontend/md/design-system.md) 참조**
+
 ### 디자인 원칙
 1. **직관적인 네비게이션**: 사용자가 원하는 상품을 3클릭 내 도달
 2. **일관된 UI**: 컴포넌트 재사용으로 일관된 경험 제공
-3. **모바일 우선**: 반응형 디자인 필수
-4. **접근성**: WCAG 2.1 AA 기준 준수
+3. **모바일 우선**: 터치 친화적 반응형 디자인 필수
+4. **접근성**: WCAG 2.1 AA 기준 100% 준수
 
-### 색상 팔레트 (예시)
+### 핵심 컬러 (Very Peri 베이스)
 ```css
 :root {
-  --primary: #6366F1;      /* 메인 컬러 */
-  --primary-dark: #4F46E5;
-  --secondary: #10B981;    /* 보조 컬러 */
-  --danger: #EF4444;       /* 경고/삭제 */
-  --warning: #F59E0B;      /* 주의 */
-  --gray-50: #F9FAFB;
-  --gray-900: #111827;
+  /* 키 컬러: 2022 Pantone Very Peri 기반 */
+  --color-primary-500: #6667AB;   /* 메인 키 컬러 */
+  --color-primary-600: #5758A0;   /* 호버/강조 */
+  
+  /* 배경: 웜톤 오프화이트 */
+  --color-neutral-0: #FFFCF9;     /* 메인 배경 */
+  --color-neutral-900: #1F1B17;   /* 제목 텍스트 */
 }
 ```
 
+### 접근성 핵심 요구사항
+- **명암비**: 텍스트 4.5:1, 대형 텍스트 3:1 이상 (WCAG 2.1)
+- **터치 영역**: 최소 44×44px
+- **Hover/Touch 대응**: 모든 hover 효과에 터치 대응 구현
+- **포커스 표시**: 키보드 탐색 시 명확한 포커스 링
+- **모션 감소**: `prefers-reduced-motion` 미디어 쿼리 지원
+
 ### 반응형 브레이크포인트
 ```css
-/* TailwindCSS 기본값 사용 */
-sm: 640px   /* 모바일 가로 */
-md: 768px   /* 태블릿 */
-lg: 1024px  /* 소형 데스크톱 */
-xl: 1280px  /* 대형 데스크톱 */
-2xl: 1536px /* 초대형 */
+/* Mobile First 접근 - TailwindCSS 기본값 */
+sm: 640px   /* 태블릿 세로 */
+md: 768px   /* 태블릿 가로 */
+lg: 1024px  /* 노트북 */
+xl: 1280px  /* 데스크톱 */
+2xl: 1536px /* 대형 화면 */
 ```
 
 ---
