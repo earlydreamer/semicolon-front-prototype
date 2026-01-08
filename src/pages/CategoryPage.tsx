@@ -11,19 +11,27 @@ export default function CategoryPage() {
   const { categoryId } = useParams();
   const [sort, setSort] = useState<SortOption>('latest');
 
-  // Find current category name and path
-  const currentCategoryName = useMemo(() => {
-    if (!categoryId) return '전체 상품';
-    
-    // Simple BFS to find category name
-    const queue = [...MOCK_CATEGORIES];
-    while (queue.length > 0) {
-      const node = queue.shift();
-      if (node?.id === categoryId) return node.name;
-      if (node?.children) queue.push(...node.children);
-    }
-    return categoryId;
+  // Find current category path
+  const categoryPath = useMemo(() => {
+    if (!categoryId) return [];
+
+    const findPath = (categories: import('@/mocks/categories').Category[], targetId: string, currentPath: import('@/mocks/categories').Category[]): import('@/mocks/categories').Category[] | null => {
+      for (const cat of categories) {
+        if (cat.id === targetId) {
+          return [...currentPath, cat];
+        }
+        if (cat.children) {
+          const path = findPath(cat.children, targetId, [...currentPath, cat]);
+          if (path) return path;
+        }
+      }
+      return null;
+    };
+
+    return findPath(MOCK_CATEGORIES, categoryId, []) || [];
   }, [categoryId]);
+
+  const currentCategoryName = categoryPath.length > 0 ? categoryPath[categoryPath.length - 1].name : '전체 상품';
 
   // Filter and Sort Products
   const filteredProducts = useMemo(() => {
@@ -89,8 +97,14 @@ export default function CategoryPage() {
       <div className="mb-8">
         <div className="flex items-center gap-2 text-sm text-neutral-500 mb-2">
           <Link to="/" className="hover:text-neutral-900">홈</Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="font-medium text-neutral-900">{currentCategoryName}</span>
+          {categoryPath.map((cat) => (
+            <div key={cat.id} className="flex items-center gap-2">
+              <ChevronRight className="h-3 w-3" />
+              <Link to={`/categories/${cat.id}`} className="hover:text-neutral-900">
+                {cat.name}
+              </Link>
+            </div>
+          ))}
         </div>
         <h1 className="text-2xl font-bold text-neutral-900">{currentCategoryName}</h1>
       </div>
