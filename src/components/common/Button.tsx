@@ -34,7 +34,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(
-          // Base styles
+          // ... (styles remain same)
           "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-neutral-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
           
           // Variants
@@ -56,16 +56,20 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isLoading || disabled}
         {...props}
       >
-        {isLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : leftIcon ? (
-          <span className="mr-2">{leftIcon}</span>
-        ) : null}
-        
-        {children}
+        {asChild ? children : (
+          <>
+            {isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : leftIcon ? (
+              <span className="mr-2">{leftIcon}</span>
+            ) : null}
+            
+            {children}
 
-        {!isLoading && rightIcon && (
-          <span className="ml-2">{rightIcon}</span>
+            {!isLoading && rightIcon && (
+              <span className="ml-2">{rightIcon}</span>
+            )}
+          </>
         )}
       </Comp>
     );
