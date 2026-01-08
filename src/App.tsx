@@ -9,6 +9,7 @@ const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const DesignSystemPage = lazy(() => import('./pages/DesignSystemPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignupPage = lazy(() => import('./pages/SignupPage'));
+const CartPage = lazy(() => import('./pages/CartPage'));
 
 import { ToastProvider } from '@/components/common/Toast';
 
@@ -27,6 +28,7 @@ function App() {
               <Route path="design" element={<DesignSystemPage />} />
               <Route path="login" element={<LoginPage />} />
               <Route path="signup" element={<SignupPage />} />
+              <Route path="cart" element={<CartPage />} />
             </Route>
           </Routes>
         </Suspense>
