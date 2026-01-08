@@ -4,10 +4,14 @@ import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Card } from '@/components/common/Card';
 import { Search } from 'lucide-react';
+import { LoginPage } from '@/pages/LoginPage';
+import { SignupPage } from '@/pages/SignupPage';
 
 function DesignSystemPage() {
+  // ... (DesignSystemPage Content remains same for now)
   return (
     <div className="container mx-auto space-y-8 px-4 py-8">
+      {/* ... Content ... */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold">Buttons</h2>
         <div className="flex flex-wrap gap-4">
@@ -57,6 +61,8 @@ function App() {
       <Routes>
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<DesignSystemPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
