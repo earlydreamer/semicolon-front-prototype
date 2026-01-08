@@ -177,9 +177,11 @@ export default function ProductDetailPage() {
                     </div>
                     <div className="text-xs text-gray-400">판매자 신뢰지수</div>
                 </div>
-                <Button size="sm" variant="outline" className="h-8 text-xs">
+                <Link to={`/shop/${seller.id}`}>
+                  <Button size="sm" variant="outline" className="h-8 text-xs">
                     상점 보기
-                </Button>
+                  </Button>
+                </Link>
               </div>
             </div>
 
