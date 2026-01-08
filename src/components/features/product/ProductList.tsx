@@ -1,4 +1,4 @@
-import { Product } from '@/mocks/products';
+import type { Product } from '@/mocks/products';
 import { ProductCard } from './ProductCard';
 
 interface ProductListProps {

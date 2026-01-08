@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ShieldCheck } from 'lucide-react';
 import { Card } from '@/components/common/Card';
-import { Product } from '@/mocks/products';
+import type { Product } from '@/mocks/products';
 
 interface ProductCardProps {
   product: Product;
