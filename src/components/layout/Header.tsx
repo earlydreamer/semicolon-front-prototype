@@ -4,6 +4,7 @@ import { Menu, Search, ShoppingBag, Bell, X, User as UserIcon } from 'lucide-rea
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useCartStore } from '@/stores/useCartStore';
 import { CategoryNav } from '@/components/features/category/CategoryNav';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
 
@@ -12,6 +13,7 @@ export function Header() {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   
   const { isAuthenticated, user, logout } = useAuthStore();
+  const cartItemCount = useCartStore((state) => state.getTotalCount());
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -77,9 +79,17 @@ export function Header() {
                  <Bell className="h-5 w-5" />
                  <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-red-500" />
                </Button>
-               <Button variant="ghost" size="icon" className="text-neutral-900">
-                 <ShoppingBag className="h-5 w-5" />
-               </Button>
+               <Link to="/cart" className="relative">
+                 <Button variant="ghost" size="icon" className="text-neutral-900">
+                   <ShoppingBag className="h-5 w-5" />
+                 </Button>
+                 {cartItemCount > 0 && (
+                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center
+                                    text-[10px] font-bold text-white bg-primary-500 rounded-full">
+                     {cartItemCount > 99 ? '99+' : cartItemCount}
+                   </span>
+                 )}
+               </Link>
                <div className="hidden md:flex items-center gap-2 bg-neutral-100 rounded-full pl-1 pr-3 py-1">
                  <div className="w-6 h-6 rounded-full bg-neutral-300 flex items-center justify-center">
                    <UserIcon className="h-4 w-4 text-white" />

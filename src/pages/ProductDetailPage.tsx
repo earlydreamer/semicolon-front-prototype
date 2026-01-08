@@ -9,11 +9,13 @@ import { findCategoryPath } from '@/utils/category';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
+import { useCartStore } from '@/stores/useCartStore';
 
 export default function ProductDetailPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const addToCart = useCartStore((state) => state.addItem);
   const product = MOCK_PRODUCTS.find((p) => p.id === productId);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -27,7 +29,13 @@ export default function ProductDetailPage() {
   };
 
   const handleAddToCart = () => {
-    showToast('장바구니에 담았습니다.', 'success');
+    if (!product) return;
+    const added = addToCart(product);
+    if (added) {
+      showToast('장바구니에 담았습니다.', 'success');
+    } else {
+      showToast('이미 장바구니에 담긴 상품입니다.', 'info');
+    }
   };
 
   const handlePurchase = () => {
