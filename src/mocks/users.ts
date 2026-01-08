@@ -190,3 +190,73 @@ export const MOCK_SALES_PRODUCTS = [
     images: ['https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=800'],
   },
 ];
+
+/**
+ * 상점 정보 인터페이스
+ */
+export interface Shop {
+  id: string;
+  userId: string;
+  name: string;
+  intro?: string;
+  avatar?: string;
+  rating: number;
+  salesCount: number;
+  activeListingCount: number;
+  followerCount: number;
+  createdAt: string;
+}
+
+/**
+ * Mock 상점 데이터
+ */
+export const MOCK_SHOPS: Shop[] = [
+  {
+    id: 's1',
+    userId: 'u1',
+    name: '애플러버',
+    intro: '애플 제품 전문 상점입니다. 정품만 취급합니다.',
+    avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=100',
+    rating: 4.5,
+    salesCount: 52,
+    activeListingCount: 3,
+    followerCount: 128,
+    createdAt: '2023-06-15T00:00:00.000Z',
+  },
+  {
+    id: 's2',
+    userId: 'u2',
+    name: '음향기기덕후',
+    intro: '오디오 장비 전문입니다. 헤드폰, 이어폰, 스피커 등',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100',
+    rating: 3.5,
+    salesCount: 5,
+    activeListingCount: 1,
+    followerCount: 23,
+    createdAt: '2024-01-20T00:00:00.000Z',
+  },
+  {
+    id: 's3',
+    userId: 'u3',
+    name: '캠핑매니아',
+    intro: '캠핑 장비 전문 매장! 텐트, 타프, 체어 등 다양한 장비 판매중',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=100',
+    rating: 4.8,
+    salesCount: 89,
+    activeListingCount: 12,
+    followerCount: 456,
+    createdAt: '2022-11-01T00:00:00.000Z',
+  },
+  {
+    id: 's8',
+    userId: 'u8',
+    name: '버니즈',
+    intro: '아이돌 앨범/굿즈 전문! 뉴진스, 에스파, 르세라핌 등',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=100',
+    rating: 4.9,
+    salesCount: 120,
+    activeListingCount: 15,
+    followerCount: 892,
+    createdAt: '2023-03-10T00:00:00.000Z',
+  },
+];
