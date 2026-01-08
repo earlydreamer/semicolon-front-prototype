@@ -18,22 +18,26 @@ URL 파라미터(`/categories/:categoryId`)를 기반으로 상품을 필터링�
 
 ### 3. 카테고리 페이지 (`CategoryPage.tsx`)
 - **레이아웃**:
-    - **Sidebar**: 번개장터 스타일의 데스크탑용 좌측 카테고리 네비게이션 배치.
+    - **Sidebar**: `CategorySidebar` 컴포넌트 적용. 계층형(Accordion) 구조로 상위/하위 카테고리 탐색 가능.
     - **Main Area**: 상단 툴바(총 개수, 정렬) + 상품 그리드(`ProductList`) 배치.
 - **로직**:
     - `useParams`로 `categoryId` 추출.
-    - `useMemo`를 사용하여 ID에 일치하는 상품 필터링 및 정렬 로직 처리 (Mock Client-side logic).
-    - `MOCK_CATEGORIES`를 탐색하여 현재 카테고리 이름 표시 (BFS 탐색).
+    - **재귀적 필터링**: 선택된 카테고리뿐만 아니라 그 하위 카테고리에 속한 모든 상품을 포함하도록 필터링 로직 개선 (BFS 탐색).
+    - **브레드크럼**: `홈 > 상위 > 하위 > 현재` 순서의 전체 경로 표시 로직 구현 (재귀적 경로 탐색).
 
 ### 4. 라우팅 (`App.tsx`)
 - `/categories/:categoryId` 경로에 `CategoryPage` 컴포넌트 연결 (`lazy` loading 적용).
+- `DesignSystemPage` 코드를 별도 파일로 분리하여 `App.tsx` 구조 개선.
 
 ## 결과 화면
-- [x] **라우팅 확인**: `/categories/tent` 접속 시 텐트 관련 상품만 필터링되어 표시.
-- [x] **빈 상태 처리**: 상품이 없는 카테고리(`tent-dome` 등) 접속 시 "등록된 상품이 없습니다" 메시지 표시.
-- [x] **정렬 동작**: 저가순/고가순 선택 시 가격 기준으로 목록이 재정렬됨.
-- [x] **네비게이션**: 좌측 사이드바 링크 클릭 시 해당 카테고리로 부드럽게 이동.
+- [x] **계층형 탐색**: 사이드바에서 상위 카테고리를 펼쳐 하위 카테고리로 이동 가능.
+- [x] **재귀적 필터링**: '캠핑/레저' 선택 시 하위의 '텐트', '가구' 관련 상품이 모두 노출됨.
+- [x] **브레드크럼**: 현재 위치한 카테고리의 전체 경로가 상단에 표시됨.
+- [x] **정렬 동작**: 저가순/고가순 및 최신순 정렬 동작 확인.
 
-## 향후 개선 사항
-- **API 연동**: 실제 백엔드 API 연동 시 `useEffect` 내에서 데이터 페칭으로 변경 필요.
-- **필터 고도화**: 가격 범위, 상품 상태 등 상세 필터 추가.
+## 트러블슈팅
+### 1. App.tsx 구문 오류 및 Lazy Loading 이슈
+- **증상**: 중복된 코드와 `React.lazy` 사용 시 `default export` 누락으로 런타임 에러 발생.
+- **해결**:
+    - `App.tsx` 내 중복 코드 제거 및 `DesignSystemPage` 분리.
+    - 페이지 컴포넌트(`HomePage`, `LoginPage`, `SignupPage`)를 `export function`에서 `export default function`으로 변경하여 `React.lazy` 호환성 확보.
