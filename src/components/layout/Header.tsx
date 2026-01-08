@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Search, ShoppingBag, Bell, X, User as UserIcon, LogOut } from 'lucide-react';
+import { Menu, Search, ShoppingBag, Bell, X, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { useAuthStore } from '@/stores/useAuthStore';
