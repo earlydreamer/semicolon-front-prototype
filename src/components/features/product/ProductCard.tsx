@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ShieldCheck } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import type { Product } from '@/mocks/products';
+import { formatTimeAgo } from '@/utils/date';
 
 interface ProductCardProps {
   product: Product;
@@ -41,7 +42,7 @@ export function ProductCard({ product }: ProductCardProps) {
               {product.price.toLocaleString()}원
             </span>
             <span className="text-xs text-neutral-500">
-              {product.timeAgo}
+              {formatTimeAgo(product.createdAt)}
             </span>
           </div>
           
