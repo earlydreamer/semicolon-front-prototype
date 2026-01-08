@@ -10,6 +10,9 @@ const DesignSystemPage = lazy(() => import('./pages/DesignSystemPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignupPage = lazy(() => import('./pages/SignupPage'));
 const CartPage = lazy(() => import('./pages/CartPage'));
+const MyPage = lazy(() => import('./pages/MyPage'));
+const OrderHistoryPage = lazy(() => import('./pages/OrderHistoryPage'));
+const LikedProductsPage = lazy(() => import('./pages/LikedProductsPage'));
 
 import { ToastProvider } from '@/components/common/Toast';
 
@@ -29,6 +32,9 @@ function App() {
               <Route path="login" element={<LoginPage />} />
               <Route path="signup" element={<SignupPage />} />
               <Route path="cart" element={<CartPage />} />
+              <Route path="mypage" element={<MyPage />} />
+              <Route path="mypage/orders" element={<OrderHistoryPage />} />
+              <Route path="mypage/likes" element={<LikedProductsPage />} />
             </Route>
           </Routes>
         </Suspense>
