@@ -10,21 +10,26 @@ import { MOCK_CATEGORIES } from '@/mocks/categories';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 import { useCartStore } from '@/stores/useCartStore';
+import { useLikeStore } from '@/stores/useLikeStore';
 
 export default function ProductDetailPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const addToCart = useCartStore((state) => state.addItem);
+  const { isLiked: checkIsLiked, toggleLike } = useLikeStore();
   const product = MOCK_PRODUCTS.find((p) => p.id === productId);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
+  
+  // 좋아요 상태는 Store에서 관리
+  const isLiked = productId ? checkIsLiked(productId) : false;
 
   const handleLike = () => {
-    setIsLiked((prev) => !prev);
+    if (!productId) return;
+    const nowLiked = toggleLike(productId);
     showToast(
-      isLiked ? '관심 상품에서 제거되었습니다.' : '관심 상품에 추가되었습니다.',
-      isLiked ? 'info' : 'success'
+      nowLiked ? '관심 상품에 추가되었습니다.' : '관심 상품에서 제거되었습니다.',
+      nowLiked ? 'success' : 'info'
     );
   };
 

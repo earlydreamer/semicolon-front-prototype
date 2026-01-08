@@ -90,12 +90,12 @@ export function Header() {
                    </span>
                  )}
                </Link>
-               <div className="hidden md:flex items-center gap-2 bg-neutral-100 rounded-full pl-1 pr-3 py-1">
+               <Link to="/mypage" className="hidden md:flex items-center gap-2 bg-neutral-100 rounded-full pl-1 pr-3 py-1 hover:bg-neutral-200 transition-colors cursor-pointer">
                  <div className="w-6 h-6 rounded-full bg-neutral-300 flex items-center justify-center">
                    <UserIcon className="h-4 w-4 text-white" />
                  </div>
                  <span className="text-xs font-semibold">{user?.name}님</span>
-               </div>
+               </Link>
                <Button 
                   variant="ghost" 
                   size="sm" 
