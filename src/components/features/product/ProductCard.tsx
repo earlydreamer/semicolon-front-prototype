@@ -1,0 +1,57 @@
+import { Link } from 'react-router-dom';
+import { ShieldCheck } from 'lucide-react';
+import { Card } from '@/components/common/Card';
+import { Product } from '@/mocks/products';
+
+interface ProductCardProps {
+  product: Product;
+}
+
+export function ProductCard({ product }: ProductCardProps) {
+  return (
+    <Link to={`/products/${product.id}`} className="group block">
+      <Card 
+        variant="elevated" 
+        className="h-full overflow-hidden transition-shadow duration-300 hover:shadow-lg"
+      >
+        {/* Image */}
+        <div className="relative aspect-square w-full overflow-hidden bg-neutral-100">
+          <img
+            src={product.image}
+            alt={product.title}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            loading="lazy"
+          />
+          {product.isSafe && (
+            <div className="absolute top-2 left-2 flex items-center gap-1 rounded bg-neutral-900/70 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+              <ShieldCheck className="h-3 w-3" />
+              <span>안전결제</span>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex flex-col gap-1 p-3">
+          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium text-neutral-900">
+            {product.title}
+          </h3>
+          
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold text-neutral-900">
+              {product.price.toLocaleString()}원
+            </span>
+            <span className="text-xs text-neutral-500">
+              {product.timeAgo}
+            </span>
+          </div>
+          
+          <div className="mt-1 flex items-center gap-1">
+            <span className="text-xs text-neutral-500">
+              {product.location}
+            </span>
+          </div>
+        </div>
+      </Card>
+    </Link>
+  );
+}

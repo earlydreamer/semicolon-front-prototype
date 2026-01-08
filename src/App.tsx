@@ -6,12 +6,13 @@ import { Card } from '@/components/common/Card';
 import { Search } from 'lucide-react';
 import { LoginPage } from '@/pages/LoginPage';
 import { SignupPage } from '@/pages/SignupPage';
+import { HomePage } from '@/pages/HomePage';
 
 function DesignSystemPage() {
-  // ... (DesignSystemPage Content remains same for now)
+  // ... (DesignSystemPage Content remains same)
   return (
     <div className="container mx-auto space-y-8 px-4 py-8">
-      {/* ... Content ... */}
+      {/* Buttons */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold">Buttons</h2>
         <div className="flex flex-wrap gap-4">
@@ -25,6 +26,7 @@ function DesignSystemPage() {
         </div>
       </section>
 
+      {/* Inputs */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold">Inputs</h2>
         <div className="grid max-w-md gap-4">
@@ -34,6 +36,7 @@ function DesignSystemPage() {
         </div>
       </section>
 
+      {/* Cards */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold">Cards</h2>
         <div className="grid gap-4 md:grid-cols-3">
@@ -60,7 +63,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<DefaultLayout />}>
-          <Route path="/" element={<DesignSystemPage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/design" element={<DesignSystemPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
         </Route>
