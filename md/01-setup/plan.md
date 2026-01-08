@@ -7,29 +7,29 @@
 ## 구현 체크리스트
 
 ### Phase 1: 프로젝트 초기화
-- [ ] Vite + React 19 + TypeScript 프로젝트 생성
-- [ ] TailwindCSS 설치 및 설정
-- [ ] ESLint + Prettier 설정
-- [ ] 폴더 구조 생성
+- [x] Vite + React 19 + TypeScript 프로젝트 생성
+- [x] TailwindCSS 설치 및 설정
+- [x] ESLint + Prettier 설정
+- [x] 폴더 구조 생성
 
 ### Phase 2: 공통 설정
-- [ ] 경로 alias 설정 (@/ → src/)
-- [ ] 환경 변수 설정 (.env)
-- [ ] 글로벌 스타일 설정
-- [ ] 색상 팔레트 정의
+- [x] 경로 alias 설정 (@/ → src/)
+- [x] 환경 변수 설정 (.env)
+- [x] 글로벌 스타일 설정
+- [x] 색상 팔레트 정의
 
 ### Phase 3: 기본 라이브러리 설치
-- [ ] React Router v7 설치
-- [ ] Zustand (상태관리) 설치
-- [ ] React Query (서버상태) 설치
-- [ ] Axios 설치
-- [ ] React Hook Form + Zod 설치
+- [x] React Router v7 설치
+- [x] Zustand (상태관리) 설치
+- [x] React Query (서버상태) 설치
+- [x] Axios 설치
+- [x] React Hook Form + Zod 설치
 
 ### Phase 4: 공통 컴포넌트
-- [ ] Button 컴포넌트
-- [ ] Input 컴포넌트
+- [x] Button 컴포넌트
+- [x] Input 컴포넌트
 - [ ] Modal 컴포넌트
-- [ ] Loading 컴포넌트
+- [x] Loading 컴포넌트 (Button 내장)
 - [ ] Toast/Alert 컴포넌트
 
 ## 설치 명령어
