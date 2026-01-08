@@ -2,7 +2,7 @@ import { HeroBanner } from '@/components/features/home/HeroBanner';
 import { ProductList } from '@/components/features/product/ProductList';
 import { MOCK_PRODUCTS } from '@/mocks/products';
 
-export function HomePage() {
+export default function HomePage() {
   return (
     <div className="min-h-screen bg-neutral-0">
       <HeroBanner />

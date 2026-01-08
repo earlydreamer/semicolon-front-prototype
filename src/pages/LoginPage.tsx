@@ -3,7 +3,7 @@ import { Card } from '@/components/common/Card';
 import { LoginForm } from '@/components/features/auth/LoginForm';
 import { SocialLoginButtons } from '@/components/features/auth/SocialLoginButtons';
 
-export function LoginPage() {
+export default function LoginPage() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12">
       <div className="w-full max-w-md space-y-8 px-4">

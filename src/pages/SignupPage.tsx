@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Card } from '@/components/common/Card';
 import { SignupForm } from '@/components/features/auth/SignupForm';
 
-export function SignupPage() {
+export default function SignupPage() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12">
       <div className="w-full max-w-md space-y-8 px-4">
