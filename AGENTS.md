@@ -62,16 +62,22 @@
 ## 🛠 기술 스택
 
 ### Frontend
-| 항목 | 기술 |
-|------|------|
-| Framework | React 19 |
-| Build Tool | Vite |
-| Language | TypeScript |
-| Styling | TailwindCSS |
-| State Management | Zustand / React Query |
-| Routing | React Router v7 |
-| HTTP Client | Axios |
-| Form | React Hook Form + Zod |
+| 항목 | 기술 | 상세 버전/정책 |
+|------|------|----------------|
+| Framework | React 19 | `^19.0.0` (Canary/RC 아님, Stable 사용) |
+| Build Tool | Vite | `^6.0.0` (ESM 기반 설정 필수 `vite.config.ts`) |
+| Language | TypeScript | `^5.0.0` (Strict 모드 필수) |
+| Styling | TailwindCSS | **`^4.0.0`** (PostCSS 플러그인 `@tailwindcss/postcss` 사용 필수) |
+| State Management | Zustand / React Query | - |
+| Routing | React Router v7 | - |
+| HTTP Client | Axios | - |
+| Form | React Hook Form + Zod | - |
+
+> [!WARNING]
+> **라이브러리 버전 정책**:
+> - **Tailwind CSS v4**: `@import "tailwindcss";` 문법 사용. `postcss.config.js`에 `@tailwindcss/postcss` 등록 필수.
+> - **Vite & ESM**: `vite.config.ts`에서 `__dirname` 대신 `import.meta.url` 기반 경로 해결 사용.
+> - 패키지 설치 시 항상 최신 Stable 버전을 기준으로 하며, **메이저 버전 변경 시** 문법 호환성 반드시 확인.
 
 ### Backend (참조)
 | 항목 | 기술 |
@@ -221,6 +227,8 @@ fix(auth): 로그인 토큰 만료 처리 수정
 - `implementation.md`: 구현 상세
 - `api.md`: API 연동 명세
 - `changelog.md`: 변경 이력
+- `planning-history/`: 제미니(AI)와의 플래닝/의사결정 히스토리 보관
+- `troubleshooting/`: 에러 발생 원인 및 해결 과정 아카이빙 (재발 방지 목적)
 
 ### 문서 작성 템플릿
 ```markdown
