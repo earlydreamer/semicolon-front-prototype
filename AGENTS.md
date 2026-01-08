@@ -230,6 +230,12 @@ fix(auth): 로그인 토큰 만료 처리 수정
 - `planning-history/`: 제미니(AI)와의 플래닝/의사결정 히스토리 보관
 - `troubleshooting/`: 에러 발생 원인 및 해결 과정 아카이빙 (재발 방지 목적)
 
+> [!IMPORTANT]
+> **문서 갱신 원칙**:
+> 1. 작업 시작 시 해당 기능의 `md/xx-feature/plan.md` 파일 내 체크리스트를 갱신한다. (`[ ]` -> `[/]` -> `[x]`)
+> 2. 중요한 의사결정이나 변경사항은 `md/planning-history/`에 기록한다.
+
+
 ### 문서 작성 템플릿
 ```markdown
 # [기능명]
