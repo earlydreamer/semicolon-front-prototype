@@ -30,9 +30,39 @@ export default function CategoryPage() {
     let products = [...MOCK_PRODUCTS];
 
     if (categoryId) {
-      // In a real app, this would be backend filtering or recursive check
-      // Here we just match the exact categoryId for simplicity, or partial check if needed
-      products = products.filter(p => p.categoryId === categoryId);
+      // Find all descendant category IDs
+      const targetIds = new Set<string>();
+      targetIds.add(categoryId);
+
+      // Helper to find node and collect descendants
+      const queue = [...MOCK_CATEGORIES];
+      let targetNode = null;
+
+      // 1. Find the target node
+      while (queue.length > 0) {
+        const node = queue.shift();
+        if (node?.id === categoryId) {
+          targetNode = node;
+          break;
+        }
+        if (node?.children) queue.push(...node.children);
+      }
+
+      // 2. If found, collect all children IDs
+      if (targetNode) {
+        const childQueue = [targetNode];
+        while (childQueue.length > 0) {
+          const node = childQueue.shift();
+          if (node) {
+            targetIds.add(node.id);
+            if (node.children) {
+              childQueue.push(...node.children);
+            }
+          }
+        }
+      }
+
+      products = products.filter(p => p.categoryId && targetIds.has(p.categoryId));
     }
 
     switch (sort) {
