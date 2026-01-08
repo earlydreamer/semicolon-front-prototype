@@ -1,118 +1,177 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, Search, ShoppingCart, User, LogOut } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, Search, ShoppingBag, Bell, X, User as UserIcon, LogOut } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { CategoryNav } from '@/components/features/category/CategoryNav';
+import { MOCK_CATEGORIES } from '@/mocks/categories';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuthStore();
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  
+  const { isAuthenticated, user, logout } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    if (confirm('로그아웃 하시겠습니까?')) {
-      logout();
-    }
+    logout();
+    navigate('/');
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-neutral-0/80 backdrop-blur-md">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold text-primary-600">Semicolon;</span>
-        </Link>
+    <header className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-white/80 backdrop-blur-md">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
+        {/* Left Section: Logo & Category */}
+        <div className="flex items-center gap-4 md:gap-8">
+          <Link to="/" className="text-xl font-black italic tracking-tighter text-neutral-900">
+            Semicolon<span className="text-primary-600">;</span>
+          </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden flex-1 items-center justify-center px-8 md:flex">
-          <div className="w-full max-w-md">
-            <Input 
-              placeholder="어떤 취미를 찾으시나요?" 
-              rightIcon={<Search className="h-4 w-4" />}
-            />
+          {/* Desktop Category Trigger */}
+          <div 
+            className="hidden md:block relative"
+            onMouseEnter={() => setIsCategoryOpen(true)}
+            onMouseLeave={() => setIsCategoryOpen(false)}
+          >
+            <button 
+              className="flex items-center gap-2 text-sm font-medium text-neutral-900 hover:text-primary-600"
+            >
+              <Menu className="h-5 w-5" />
+              카테고리
+            </button>
+            
+            {/* Category Dropdown Overlay */}
+            {isCategoryOpen && (
+              <div className="absolute top-full left-[-20px] pt-4 w-screen max-w-screen-xl">
+                 {/* The CategoryNav needs to handle its own positioning relative to container if w-screen is used, 
+                     but here we are inside a relative container. 
+                     Let's adjust CategoryNav to be able to render properly. 
+                     Actually, strictly following the plan, it renders below.
+                 */}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Desktop Actions */}
-        <div className="hidden items-center space-x-2 md:flex">
-          {isAuthenticated ? (
-            <>
-              <Button variant="ghost" size="icon">
-                <ShoppingCart className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <Link to="/mypage">
-                  <User className="h-5 w-5" />
-                </Link>
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleLogout} className="ml-2">
-                <LogOut className="mr-2 h-4 w-4" />
-                로그아웃
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/login">로그인</Link>
-              </Button>
-              <Button variant="primary" size="sm" asChild>
-                <Link to="/signup">회원가입</Link>
-              </Button>
-            </>
-          )}
+        {/* Center Section: Search */}
+        <div className="hidden flex-1 max-w-md md:block">
+          <div className="relative">
+             <Input 
+               placeholder="상품명, 지역명, @상점명 입력" 
+               className="h-10 w-full bg-neutral-100 border-none focus:bg-white focus:ring-1 focus:ring-primary-500 transition-all"
+               rightIcon={<Search className="h-4 w-4 text-neutral-400" />}
+             />
+          </div>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? (
-            <X className="h-6 w-6 text-neutral-800" />
+        {/* Right Section: Actions */}
+        <div className="flex items-center gap-2 md:gap-4">
+          <button className="md:hidden p-2">
+            <Search className="h-5 w-5 text-neutral-900" />
+          </button>
+
+          {isAuthenticated ? (
+             <>
+               <Button variant="ghost" size="icon" className="text-neutral-900 relative">
+                 <Bell className="h-5 w-5" />
+                 <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-red-500" />
+               </Button>
+               <Button variant="ghost" size="icon" className="text-neutral-900">
+                 <ShoppingBag className="h-5 w-5" />
+               </Button>
+               <div className="hidden md:flex items-center gap-2 bg-neutral-100 rounded-full pl-1 pr-3 py-1">
+                 <div className="w-6 h-6 rounded-full bg-neutral-300 flex items-center justify-center">
+                   <UserIcon className="h-4 w-4 text-white" />
+                 </div>
+                 <span className="text-xs font-semibold">{user?.name}님</span>
+               </div>
+               <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleLogout}
+                  className="hidden md:flex text-neutral-500 hover:text-red-600"
+                >
+                 로그아웃
+               </Button>
+             </>
           ) : (
-            <Menu className="h-6 w-6 text-neutral-800" />
+            <div className="hidden items-center gap-2 md:flex">
+              <Link to="/login">
+                <Button variant="ghost" size="sm">로그인</Button>
+              </Link>
+              <Link to="/signup">
+                <Button size="sm">회원가입</Button>
+              </Link>
+            </div>
           )}
-        </button>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            className="md:hidden p-2"
+            onClick={() => setIsMenuOpen(true)}
+          >
+            <Menu className="h-6 w-6 text-neutral-900" />
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Desktop Category Nav Overlay - Positioned outside the flex container to be full width relative to header if needed */}
+      <div 
+        className={`absolute top-full left-0 w-full transition-all duration-300 ${isCategoryOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+        onMouseEnter={() => setIsCategoryOpen(true)}
+        onMouseLeave={() => setIsCategoryOpen(false)}
+      >
+        <CategoryNav 
+          categories={MOCK_CATEGORIES} 
+          onClose={() => setIsCategoryOpen(false)}
+        />
+      </div>
+
+      {/* Mobile Menu Drawer */}
       {isMenuOpen && (
-        <div className="border-t border-neutral-200 bg-neutral-0 px-4 py-4 md:hidden">
-          <div className="space-y-4">
-            <Input 
-              placeholder="검색어를 입력하세요" 
-            />
-            <nav className="flex flex-col space-y-2">
-              <Link to="/categories" className="py-2 text-neutral-700 hover:text-primary-600">
-                카테고리
-              </Link>
-              {isAuthenticated && (
-                <>
-                  <Link to="/mypage" className="py-2 text-neutral-700 hover:text-primary-600">
-                    마이페이지
+        <div className="fixed inset-0 z-50 bg-black/50 md:hidden">
+          <div className="absolute top-0 right-0 h-full w-[80%] max-w-[300px] bg-white shadow-xl animate-in slide-in-from-right">
+            <div className="flex items-center justify-between p-4 border-b border-neutral-100">
+              <h2 className="text-lg font-bold">메뉴</h2>
+              <button onClick={() => setIsMenuOpen(false)}>
+                <X className="h-6 w-6 text-neutral-900" />
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-6 overflow-y-auto h-[calc(100vh-60px)]">
+              {isAuthenticated ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center">
+                       <UserIcon className="h-6 w-6 text-neutral-500" />
+                    </div>
+                    <div>
+                      <p className="font-bold">{user?.name}</p>
+                      <p className="text-xs text-neutral-500">{user?.email}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" className="w-full justify-center">마이페이지</Button>
+                    <Button variant="outline" className="w-full justify-center" onClick={handleLogout}>로그아웃</Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="w-full justify-center">로그인 / 회원가입</Button>
                   </Link>
-                  <Link to="/cart" className="py-2 text-neutral-700 hover:text-primary-600">
-                    장바구니
-                  </Link>
-                  <button 
-                    onClick={handleLogout}
-                    className="py-2 text-left text-neutral-700 hover:text-error-600"
-                  >
-                    로그아웃
-                  </button>
-                </>
+                </div>
               )}
-            </nav>
-            {!isAuthenticated && (
-              <div className="flex gap-2">
-                 <Button className="flex-1" variant="ghost" asChild>
-                  <Link to="/login">로그인</Link>
-                </Button>
-                <Button className="flex-1" variant="primary" asChild>
-                  <Link to="/signup">회원가입</Link>
-                </Button>
+
+              <div className="pt-4 border-t border-neutral-100">
+                <h3 className="mb-4 text-sm font-bold text-neutral-500">카테고리</h3>
+                <CategoryNav 
+                  variant="mobile" 
+                  categories={MOCK_CATEGORIES} 
+                />
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}
