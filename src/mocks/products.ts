@@ -7,6 +7,7 @@ export interface Product {
   timeAgo: string;
   isSafe: boolean;
   isAd?: boolean;
+  categoryId?: string;
 }
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -18,6 +19,7 @@ export const MOCK_PRODUCTS: Product[] = [
     location: '서울시 강남구',
     timeAgo: '1분 전',
     isSafe: true,
+    categoryId: 'smartphone',
   },
   {
     id: '2',
@@ -27,6 +29,7 @@ export const MOCK_PRODUCTS: Product[] = [
     location: '서울시 마포구',
     timeAgo: '5분 전',
     isSafe: true,
+    categoryId: 'audio',
   },
   {
     id: '3',
@@ -36,6 +39,7 @@ export const MOCK_PRODUCTS: Product[] = [
     location: '부산시 해운대구',
     timeAgo: '10분 전',
     isSafe: true,
+    categoryId: 'laptop',
   },
   {
     id: '4',
@@ -45,6 +49,7 @@ export const MOCK_PRODUCTS: Product[] = [
     location: '경기도 성남시',
     timeAgo: '30분 전',
     isSafe: false,
+    categoryId: 'game',
   },
   {
     id: '5',
@@ -54,6 +59,7 @@ export const MOCK_PRODUCTS: Product[] = [
     location: '강원도 춘천시',
     timeAgo: '1시간 전',
     isSafe: true,
+    categoryId: 'tent',
   },
   {
     id: '6',
@@ -63,6 +69,7 @@ export const MOCK_PRODUCTS: Product[] = [
     location: '서울시 종로구',
     timeAgo: '2시간 전',
     isSafe: false,
+    categoryId: 'guitar-elec',
   },
   {
     id: '7',
@@ -72,6 +79,7 @@ export const MOCK_PRODUCTS: Product[] = [
     location: '경기도 수원시',
     timeAgo: '3시간 전',
     isSafe: true,
+    categoryId: 'dslr-mirrorless',
   },
   {
     id: '8',
@@ -81,6 +89,7 @@ export const MOCK_PRODUCTS: Product[] = [
     location: '인천시 연수구',
     timeAgo: '4시간 전',
     isSafe: false,
+    categoryId: 'idol-girl',
   },
   {
     id: '9',
@@ -90,6 +99,7 @@ export const MOCK_PRODUCTS: Product[] = [
     location: '대구시 중구',
     timeAgo: '5시간 전',
     isSafe: true,
+    categoryId: 'shoes',
   },
   {
     id: '10',
@@ -99,5 +109,6 @@ export const MOCK_PRODUCTS: Product[] = [
     location: '서울시 송파구',
     timeAgo: '6시간 전',
     isSafe: true,
+    categoryId: 'game',
   },
 ];
