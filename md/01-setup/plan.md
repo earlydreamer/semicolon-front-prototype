@@ -30,7 +30,7 @@
 - [x] Input 컴포넌트
 - [ ] Modal 컴포넌트
 - [x] Loading 컴포넌트 (Button 내장)
-- [ ] Toast/Alert 컴포넌트
+- [x] Toast/Alert 컴포넌트
 
 ## 설치 명령어
 
