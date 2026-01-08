@@ -6,6 +6,7 @@ import { ProductSortDropdown, type SortOption } from '@/components/features/prod
 import { MOCK_PRODUCTS } from '@/mocks/products';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
+import { findCategoryPath } from '@/utils/category';
 
 export default function CategoryPage() {
   const { categoryId } = useParams();
@@ -14,21 +15,7 @@ export default function CategoryPage() {
   // Find current category path
   const categoryPath = useMemo(() => {
     if (!categoryId) return [];
-
-    const findPath = (categories: import('@/mocks/categories').Category[], targetId: string, currentPath: import('@/mocks/categories').Category[]): import('@/mocks/categories').Category[] | null => {
-      for (const cat of categories) {
-        if (cat.id === targetId) {
-          return [...currentPath, cat];
-        }
-        if (cat.children) {
-          const path = findPath(cat.children, targetId, [...currentPath, cat]);
-          if (path) return path;
-        }
-      }
-      return null;
-    };
-
-    return findPath(MOCK_CATEGORIES, categoryId, []) || [];
+    return findCategoryPath(MOCK_CATEGORIES, categoryId) || [];
   }, [categoryId]);
 
   const currentCategoryName = categoryPath.length > 0 ? categoryPath[categoryPath.length - 1].name : '전체 상품';
