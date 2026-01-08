@@ -5,7 +5,7 @@ import { ProductList } from '@/components/features/product/ProductList';
 import { ProductSortDropdown, type SortOption } from '@/components/features/product/ProductSortDropdown';
 import { MOCK_PRODUCTS } from '@/mocks/products';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
-import { CategoryNav } from '@/components/features/category/CategoryNav';
+import { CategorySidebar } from '@/components/features/category/CategorySidebar';
 
 export default function CategoryPage() {
   const { categoryId } = useParams();
@@ -97,29 +97,12 @@ export default function CategoryPage() {
 
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar (Category Nav) */}
-        <aside className="hidden md:block w-60 flex-shrink-0">
-          <div className="sticky top-24 border border-neutral-200 rounded-lg bg-white overflow-hidden">
-             <div className="p-4 border-b border-neutral-100 font-bold bg-neutral-50">
-               카테고리
-             </div>
-             {/* Reusing CategoryNav in sidebar mode or just simple list */}
-             {/* For now, just listing 1st depth for simplicity or reusing CategoryNav logic? 
-                 Let's make a simple vertical list here since CategoryNav is designed for Overlay/Mobile 
-             */}
-             <div className="flex flex-col">
-               {MOCK_CATEGORIES.map((cat) => (
-                 <Link 
-                   key={cat.id} 
-                   to={`/categories/${cat.id}`}
-                   className={`px-4 py-3 text-sm hover:bg-neutral-50 flex justify-between items-center ${cat.id === categoryId ? 'text-primary-600 font-bold bg-neutral-50' : 'text-neutral-600'}`}
-                 >
-                   {cat.name}
-                   {/* <ChevronRight className="h-3 w-3 text-neutral-300" /> */}
-                 </Link>
-               ))}
-             </div>
+        {/* Sidebar (Category Nav) */}
+        <div className="hidden md:block w-64 flex-shrink-0">
+          <div className="sticky top-24">
+            <CategorySidebar />
           </div>
-        </aside>
+        </div>
 
         {/* Main Content */}
         <main className="flex-1">
