@@ -13,8 +13,15 @@ const loginSchema = z.object({
 
 type LoginSchema = z.infer<typeof loginSchema>;
 
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/stores/useAuthStore';
+
+// ... (Schema definition remains same)
+
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuthStore();
 
   const {
     register,
@@ -29,11 +36,20 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginSchema) => {
     setIsLoading(true);
-    // Mock API Call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log('Login attempt:', data);
-    alert('로그인 성공 (Mock)');
+    // [MOCK] API Call Simulation
+    console.log('[MOCK] Login Request:', data);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+    // [MOCK] Login Success
+    login({
+      id: 'mock-user-001',
+      email: data.email,
+      name: 'Mock User',
+    });
+    
+    alert('로그인되었습니다. (Mock)');
     setIsLoading(false);
+    navigate('/'); // Redirect to Home
   };
 
   return (

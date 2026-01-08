@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Search, ShoppingCart, User } from 'lucide-react';
+import { Menu, X, Search, ShoppingCart, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuthStore();
+
+  const handleLogout = () => {
+    if (confirm('로그아웃 하시겠습니까?')) {
+      logout();
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-neutral-0/80 backdrop-blur-md">
@@ -27,15 +35,31 @@ export function Header() {
 
         {/* Desktop Actions */}
         <div className="hidden items-center space-x-2 md:flex">
-          <Button variant="ghost" size="icon">
-            <ShoppingCart className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
-          <Button variant="primary" size="sm">
-            판매하기
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <Button variant="ghost" size="icon">
+                <ShoppingCart className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/mypage">
+                  <User className="h-5 w-5" />
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="ml-2">
+                <LogOut className="mr-2 h-4 w-4" />
+                로그아웃
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">로그인</Link>
+              </Button>
+              <Button variant="primary" size="sm" asChild>
+                <Link to="/signup">회원가입</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -62,16 +86,33 @@ export function Header() {
               <Link to="/categories" className="py-2 text-neutral-700 hover:text-primary-600">
                 카테고리
               </Link>
-              <Link to="/mypage" className="py-2 text-neutral-700 hover:text-primary-600">
-                마이페이지
-              </Link>
-              <Link to="/cart" className="py-2 text-neutral-700 hover:text-primary-600">
-                장바구니
-              </Link>
+              {isAuthenticated && (
+                <>
+                  <Link to="/mypage" className="py-2 text-neutral-700 hover:text-primary-600">
+                    마이페이지
+                  </Link>
+                  <Link to="/cart" className="py-2 text-neutral-700 hover:text-primary-600">
+                    장바구니
+                  </Link>
+                  <button 
+                    onClick={handleLogout}
+                    className="py-2 text-left text-neutral-700 hover:text-error-600"
+                  >
+                    로그아웃
+                  </button>
+                </>
+              )}
             </nav>
-            <Button className="w-full" variant="primary">
-              판매하기
-            </Button>
+            {!isAuthenticated && (
+              <div className="flex gap-2">
+                 <Button className="flex-1" variant="ghost" asChild>
+                  <Link to="/login">로그인</Link>
+                </Button>
+                <Button className="flex-1" variant="primary" asChild>
+                  <Link to="/signup">회원가입</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
