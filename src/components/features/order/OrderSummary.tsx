@@ -7,6 +7,7 @@ import { Button } from '../../common/Button';
 interface OrderSummaryProps {
   productPrice: number;
   shippingFee: number;
+  couponDiscount?: number;
   finalPrice: number;
   disabled?: boolean;
   onPayment: () => void;
@@ -16,6 +17,7 @@ interface OrderSummaryProps {
 const OrderSummary = ({ 
   productPrice, 
   shippingFee, 
+  couponDiscount = 0,
   finalPrice, 
   disabled = false, 
   onPayment,
@@ -36,6 +38,12 @@ const OrderSummary = ({
           <span>배송비</span>
           <span>+{shippingFee.toLocaleString('ko-KR')}원</span>
         </div>
+        {couponDiscount > 0 && (
+          <div className="flex justify-between text-primary-600">
+            <span>쿠폰 할인</span>
+            <span>-{couponDiscount.toLocaleString('ko-KR')}원</span>
+          </div>
+        )}
         <div className="pt-3 border-t border-dashed border-neutral-200 flex justify-between items-center">
           <span className="font-bold text-neutral-900">최종 결제 금액</span>
           <span className="text-xl font-bold text-primary-600">
@@ -62,3 +70,4 @@ const OrderSummary = ({
 };
 
 export default OrderSummary;
+

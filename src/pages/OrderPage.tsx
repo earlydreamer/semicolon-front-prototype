@@ -12,6 +12,7 @@ import OrderItemList from '../components/features/order/OrderItemList';
 import AddressSelector from '../components/features/order/AddressSelector';
 import PaymentMethodSelector from '../components/features/order/PaymentMethodSelector';
 import OrderSummary from '../components/features/order/OrderSummary';
+import { CouponSelector, calculateCouponDiscount, type UserCoupon } from '../components/features/order/CouponSelector';
 import { useToast } from '../components/common/Toast';
 
 const OrderPage = () => {
@@ -29,6 +30,7 @@ const OrderPage = () => {
   } = useOrderStore();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<UserCoupon | null>(null);
 
   // 주문할 상품이 없으면 홈으로 리다이렉트
   useEffect(() => {
@@ -48,6 +50,11 @@ const OrderPage = () => {
   }
 
   const { totalProductPrice, totalShippingFee, finalPrice } = getOrderSummary();
+  
+  // 쿠폰 할인 계산
+  const couponDiscount = calculateCouponDiscount(selectedCoupon, totalProductPrice);
+  const finalPriceWithCoupon = finalPrice - couponDiscount;
+  
   const isFormValid = shippingInfo !== null && paymentMethod !== null;
 
   const handlePayment = async () => {
@@ -94,6 +101,13 @@ const OrderPage = () => {
             {/* 주문 상품 */}
             <OrderItemList items={orderItems} />
 
+            {/* 쿠폰 적용 */}
+            <CouponSelector
+              orderAmount={totalProductPrice}
+              selectedCoupon={selectedCoupon}
+              onSelectCoupon={setSelectedCoupon}
+            />
+
             {/* 결제 수단 */}
             <PaymentMethodSelector 
               selectedMethod={paymentMethod} 
@@ -106,7 +120,8 @@ const OrderPage = () => {
             <OrderSummary
               productPrice={totalProductPrice}
               shippingFee={totalShippingFee}
-              finalPrice={finalPrice}
+              couponDiscount={couponDiscount}
+              finalPrice={finalPriceWithCoupon}
               disabled={!isFormValid}
               onPayment={handlePayment}
               isLoading={isLoading}
@@ -119,3 +134,4 @@ const OrderPage = () => {
 };
 
 export default OrderPage;
+
