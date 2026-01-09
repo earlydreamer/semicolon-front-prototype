@@ -21,6 +21,13 @@ const ProductRegisterPage = lazy(() => import('./pages/ProductRegisterPage'));
 const ProductEditPage = lazy(() => import('./pages/ProductEditPage'));
 const MyShopSettingsPage = lazy(() => import('./pages/MyShopSettingsPage'));
 
+// Admin pages
+const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
+const ProductManagePage = lazy(() => import('./pages/admin/ProductManagePage'));
+const UserManagePage = lazy(() => import('./pages/admin/UserManagePage'));
+const CategoryManagePage = lazy(() => import('./pages/admin/CategoryManagePage'));
+
 import { ToastProvider } from '@/components/common/Toast';
 
 // GitHub Pages 배포 시 base URL 설정
@@ -32,6 +39,7 @@ function App() {
       <ToastProvider>
         <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
           <Routes>
+            {/* 일반 사용자 페이지 */}
             <Route element={<DefaultLayout />}>
               <Route index element={<HomePage />} />
               <Route path="categories/:categoryId" element={<CategoryPage />} />
@@ -51,6 +59,14 @@ function App() {
               <Route path="seller/products/:productId/edit" element={<ProductEditPage />} />
               <Route path="seller/shop" element={<MyShopSettingsPage />} />
             </Route>
+
+            {/* 관리자 페이지 */}
+            <Route path="admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboardPage />} />
+              <Route path="products" element={<ProductManagePage />} />
+              <Route path="users" element={<UserManagePage />} />
+              <Route path="categories" element={<CategoryManagePage />} />
+            </Route>
           </Routes>
         </Suspense>
       </ToastProvider>
@@ -59,3 +75,4 @@ function App() {
 }
 
 export default App;
+
