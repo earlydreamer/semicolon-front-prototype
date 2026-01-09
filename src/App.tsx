@@ -16,6 +16,10 @@ const LikedProductsPage = lazy(() => import('./pages/LikedProductsPage'));
 const ShopPage = lazy(() => import('./pages/ShopPage'));
 const OrderPage = lazy(() => import('./pages/OrderPage'));
 const OrderCompletePage = lazy(() => import('./pages/OrderCompletePage'));
+const SellerPage = lazy(() => import('./pages/SellerPage'));
+const ProductRegisterPage = lazy(() => import('./pages/ProductRegisterPage'));
+const ProductEditPage = lazy(() => import('./pages/ProductEditPage'));
+const MyShopSettingsPage = lazy(() => import('./pages/MyShopSettingsPage'));
 
 import { ToastProvider } from '@/components/common/Toast';
 
@@ -39,6 +43,10 @@ function App() {
               <Route path="shop/:shopId" element={<ShopPage />} />
               <Route path="order" element={<OrderPage />} />
               <Route path="order/complete" element={<OrderCompletePage />} />
+              <Route path="seller" element={<SellerPage />} />
+              <Route path="seller/products/new" element={<ProductRegisterPage />} />
+              <Route path="seller/products/:productId/edit" element={<ProductEditPage />} />
+              <Route path="seller/shop" element={<MyShopSettingsPage />} />
             </Route>
           </Routes>
         </Suspense>

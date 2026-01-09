@@ -34,7 +34,7 @@ const MyPageNav = ({ likeCount, orderCount }: MyPageNavProps) => {
     {
       icon: Package,
       label: '판매 관리',
-      href: '/mypage/sales',
+      href: '/seller',
     },
     {
       icon: Settings,
