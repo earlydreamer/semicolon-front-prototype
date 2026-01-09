@@ -2,12 +2,15 @@
  * 장바구니 페이지
  */
 
+import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../stores/useCartStore';
+import { useOrderStore } from '../stores/useOrderStore';
 import { useToast } from '../components/common/Toast';
 import CartList from '../components/features/cart/CartList';
 import CartSummary from '../components/features/cart/CartSummary';
 
 const CartPage = () => {
+  const navigate = useNavigate();
   const { showToast } = useToast();
   
   const items = useCartStore((state) => state.items);
@@ -16,6 +19,8 @@ const CartPage = () => {
   const selectAll = useCartStore((state) => state.selectAll);
   const removeSelectedItems = useCartStore((state) => state.removeSelectedItems);
   const getCartSummary = useCartStore((state) => state.getCartSummary);
+  const getSelectedItems = useCartStore((state) => state.getSelectedItems);
+  const { setOrderItems } = useOrderStore();
 
   const summary = getCartSummary();
   const allSelected = items.length > 0 && items.every((item) => item.selected);
@@ -33,11 +38,17 @@ const CartPage = () => {
     showToast(`${selectedCount}개 상품이 삭제되었습니다`, 'success');
   };
 
-  // 주문하기 핸들러 (placeholder)
+  // 주문하기 핸들러 (모바일용)
   const handleOrder = () => {
-    // TODO: 주문 페이지로 이동
-    console.log('Order:', items.filter((i) => i.selected));
+    if (summary.selectedCount === 0) {
+      showToast('주문할 상품을 선택해주세요', 'error');
+      return;
+    }
+    const selectedItems = getSelectedItems();
+    setOrderItems(selectedItems);
+    navigate('/order');
   };
+
 
   return (
     <div className="min-h-screen bg-neutral-50 py-8">
@@ -85,7 +96,7 @@ const CartPage = () => {
           {/* 우측: 주문 요약 (데스크톱) */}
           {items.length > 0 && (
             <div className="w-full lg:w-80 flex-shrink-0">
-              <CartSummary summary={summary} onOrder={handleOrder} />
+              <CartSummary summary={summary} />
             </div>
           )}
         </div>
