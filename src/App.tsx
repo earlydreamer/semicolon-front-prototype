@@ -20,6 +20,7 @@ const SellerPage = lazy(() => import('./pages/SellerPage'));
 const ProductRegisterPage = lazy(() => import('./pages/ProductRegisterPage'));
 const ProductEditPage = lazy(() => import('./pages/ProductEditPage'));
 const MyShopSettingsPage = lazy(() => import('./pages/MyShopSettingsPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
 
 // Admin pages
 const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
@@ -58,6 +59,7 @@ function App() {
               <Route path="seller/products/new" element={<ProductRegisterPage />} />
               <Route path="seller/products/:productId/edit" element={<ProductEditPage />} />
               <Route path="seller/shop" element={<MyShopSettingsPage />} />
+              <Route path="search" element={<SearchPage />} />
             </Route>
 
             {/* 관리자 페이지 */}

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, Search, ShoppingBag, Bell, X, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/common/Button';
-import { Input } from '@/components/common/Input';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useCartStore } from '@/stores/useCartStore';
 import { CategoryNav } from '@/components/features/category/CategoryNav';
@@ -11,6 +10,7 @@ import { MOCK_CATEGORIES } from '@/mocks/categories';
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const { isAuthenticated, user, logout } = useAuthStore();
   const cartItemCount = useCartStore((state) => state.getTotalCount());
@@ -19,6 +19,20 @@ export function Header() {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleMobileSearch = () => {
+    const query = prompt('검색어를 입력하세요');
+    if (query?.trim()) {
+      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+    }
   };
 
   return (
@@ -46,30 +60,30 @@ export function Header() {
             {/* Category Dropdown Overlay */}
             {isCategoryOpen && (
               <div className="absolute top-full left-[-20px] pt-4 w-screen max-w-screen-xl">
-                 {/* The CategoryNav needs to handle its own positioning relative to container if w-screen is used, 
-                     but here we are inside a relative container. 
-                     Let's adjust CategoryNav to be able to render properly. 
-                     Actually, strictly following the plan, it renders below.
-                 */}
               </div>
             )}
           </div>
         </div>
 
         {/* Center Section: Search */}
-        <div className="hidden flex-1 max-w-md md:block">
+        <form onSubmit={handleSearch} className="hidden flex-1 max-w-md md:block">
           <div className="relative">
-             <Input 
+             <input
+               type="text"
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
                placeholder="상품명, 지역명, @상점명 입력" 
-               className="h-10 w-full bg-neutral-100 border-none focus:bg-white focus:ring-1 focus:ring-primary-500 transition-all"
-               rightIcon={<Search className="h-4 w-4 text-neutral-400" />}
+               className="h-10 w-full px-4 pr-10 bg-neutral-100 border-none rounded-lg focus:bg-white focus:ring-1 focus:ring-primary-500 transition-all text-sm"
              />
+             <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
+               <Search className="h-4 w-4 text-neutral-400 hover:text-primary-500" />
+             </button>
           </div>
-        </div>
+        </form>
 
         {/* Right Section: Actions */}
         <div className="flex items-center gap-2 md:gap-4">
-          <button className="md:hidden p-2">
+          <button className="md:hidden p-2" onClick={handleMobileSearch}>
             <Search className="h-5 w-5 text-neutral-900" />
           </button>
 
