@@ -28,6 +28,7 @@ const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage')
 const ProductManagePage = lazy(() => import('./pages/admin/ProductManagePage'));
 const UserManagePage = lazy(() => import('./pages/admin/UserManagePage'));
 const CategoryManagePage = lazy(() => import('./pages/admin/CategoryManagePage'));
+const ReportManagePage = lazy(() => import('./pages/admin/ReportManagePage'));
 
 import { ToastProvider } from '@/components/common/Toast';
 
@@ -67,6 +68,7 @@ function App() {
               <Route index element={<AdminDashboardPage />} />
               <Route path="products" element={<ProductManagePage />} />
               <Route path="users" element={<UserManagePage />} />
+              <Route path="reports" element={<ReportManagePage />} />
               <Route path="categories" element={<CategoryManagePage />} />
             </Route>
           </Routes>
