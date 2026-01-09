@@ -7,25 +7,25 @@
 ## 구현 체크리스트
 
 ### 컴포넌트
-- [ ] ReviewForm.tsx (리뷰 작성 폼)
-- [ ] ReviewList.tsx (리뷰 목록)
-- [ ] ReviewCard.tsx (개별 리뷰 카드)
-- [ ] StarRating.tsx (별점 입력/표시)
+### 컴포넌트
+- [x] ReviewForm.tsx (StarRating, ReviewList와 함께 구현)
+- [x] ReviewList.tsx (리뷰 목록)
+- [x] ReviewCard.tsx (개별 리뷰 카드 - ReviewList에서 사용)
+- [x] StarRating.tsx (별점 입력/표시)
 
 ### 기능
-- [ ] 리뷰 작성 (별점 + 내용)
-- [ ] 리뷰 목록 조회
-- [ ] 상점 리뷰 탭 추가
+- [x] 리뷰 작성 (별점 + 내용)
+- [x] 리뷰 목록 조회
+- [x] 상점 리뷰 탭 추가
 
 ### 페이지 수정
-- [ ] ShopPage.tsx 리뷰 탭 추가
-- [ ] OrderHistoryPage.tsx 리뷰 작성 버튼
+- [x] ShopPage.tsx 리뷰 탭 추가
+- [x] OrderHistoryPage.tsx 리뷰 작성 버튼 (목록 내 구현 완료)
 
 ## 컴포넌트 구조
 
 ```
 components/features/review/
-├── ReviewForm.tsx     # 리뷰 작성 폼
 ├── ReviewList.tsx     # 리뷰 목록
 ├── ReviewCard.tsx     # 개별 리뷰
 └── StarRating.tsx     # 별점 컴포넌트
@@ -36,16 +36,13 @@ components/features/review/
 ```typescript
 interface Review {
   id: string;
-  orderId: string;
-  productId: string;
-  sellerId: string;
-  buyerId: string;
+  rating: number;
+  content: string;
   buyer: {
     nickname: string;
     avatar?: string;
   };
-  rating: number;  // 1-5
-  content: string;
+  productTitle: string;
   createdAt: string;
 }
 ```
@@ -57,4 +54,4 @@ interface Review {
 ---
 
 > **작성일**: 2026-01-09  
-> **상태**: 대기
+> **상태**: 완료
