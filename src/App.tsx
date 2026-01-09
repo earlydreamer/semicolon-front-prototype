@@ -23,9 +23,12 @@ const MyShopSettingsPage = lazy(() => import('./pages/MyShopSettingsPage'));
 
 import { ToastProvider } from '@/components/common/Toast';
 
+// GitHub Pages 배포 시 base URL 설정
+const basename = import.meta.env.BASE_URL;
+
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <ToastProvider>
         <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
           <Routes>
