@@ -4,6 +4,7 @@
 
 import { ReviewCard, type Review } from './ReviewCard';
 import { Star, MessageSquare } from 'lucide-react';
+import { EmptyState } from '@/components/common/EmptyState';
 
 // Mock 리뷰 데이터
 const MOCK_REVIEWS: Review[] = [
@@ -68,10 +69,10 @@ export function ReviewList({ reviews = MOCK_REVIEWS }: ReviewListProps) {
           ))}
         </div>
       ) : (
-        <div className="py-12 text-center text-neutral-500">
-          <MessageSquare className="w-12 h-12 mx-auto mb-4 text-neutral-300" />
-          <p>아직 작성된 리뷰가 없습니다.</p>
-        </div>
+        <EmptyState
+          icon={MessageSquare}
+          description="아직 작성된 리뷰가 없습니다."
+        />
       )}
     </div>
   );
