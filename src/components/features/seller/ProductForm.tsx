@@ -11,16 +11,15 @@ import ProductImageUploader from './ProductImageUploader';
 import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
 import type { ConditionStatus } from '@/mocks/products';
 
-// Zod 스키마
+// Zod 스키마 (location 필드 제거)
 const productSchema = z.object({
   title: z.string().min(2, '제목은 2자 이상 입력해주세요').max(100, '제목은 100자 이하로 입력해주세요'),
   categoryId: z.string().min(1, '카테고리를 선택해주세요'),
-  price: z.number().min(100, '가격은 100원 이상이어야 합니다').max(100000000, '가격이 너무 높습니다'),
+  price: z.number().min(0, '가격은 0원 이상이어야 합니다').max(100000000, '가격이 너무 높습니다'),
   shippingFee: z.number().min(0, '배송비는 0원 이상이어야 합니다'),
   conditionStatus: z.enum(['SEALED', 'NO_WEAR', 'MINOR_WEAR', 'VISIBLE_WEAR', 'DAMAGED'] as const),
   description: z.string().min(10, '설명은 10자 이상 입력해주세요').max(5000, '설명은 5000자 이하로 입력해주세요'),
   images: z.array(z.string()).min(1, '최소 1장 이상의 이미지를 등록해주세요'),
-  location: z.string().min(1, '거래 지역을 입력해주세요'),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
@@ -71,13 +70,24 @@ const ProductForm = ({
       conditionStatus: 'NO_WEAR',
       description: '',
       images: [],
-      location: '',
       ...defaultValues,
     },
   });
 
   const flatCategories = flattenCategories(MOCK_CATEGORIES);
-  const images = watch('images');
+  
+  // 가격 실시간 계산
+  const price = watch('price') || 0;
+  const shippingFee = watch('shippingFee') || 0;
+  const totalPrice = price + shippingFee;
+
+  // 음수 방지를 위한 핸들러
+  const handlePriceInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const value = Number(e.currentTarget.value);
+    if (value < 0) {
+      e.currentTarget.value = '0';
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -162,10 +172,16 @@ const ProductForm = ({
             <label className="text-sm font-medium text-neutral-700">가격</label>
             <div className="relative">
               <input
-                type="number"
-                {...register('price', { valueAsNumber: true })}
+                type="text"
+                inputMode="numeric"
+                {...register('price', { 
+                  valueAsNumber: true,
+                  onChange: handlePriceInput,
+                })}
+                onInput={handlePriceInput}
                 className="w-full h-11 px-3 pr-8 rounded-md border border-neutral-300 bg-neutral-0 
-                  text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                  text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+                  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="0"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 text-sm">원</span>
@@ -179,10 +195,16 @@ const ProductForm = ({
             <label className="text-sm font-medium text-neutral-700">배송비</label>
             <div className="relative">
               <input
-                type="number"
-                {...register('shippingFee', { valueAsNumber: true })}
+                type="text"
+                inputMode="numeric"
+                {...register('shippingFee', { 
+                  valueAsNumber: true,
+                  onChange: handlePriceInput,
+                })}
+                onInput={handlePriceInput}
                 className="w-full h-11 px-3 pr-8 rounded-md border border-neutral-300 bg-neutral-0 
-                  text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                  text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+                  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="0"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 text-sm">원</span>
@@ -192,18 +214,24 @@ const ProductForm = ({
             )}
           </div>
         </div>
+
+        {/* 총 가격 표시 */}
+        <div className="pt-4 border-t border-neutral-200">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-neutral-600">구매자 결제 금액</span>
+            <span className="text-xl font-bold text-primary-600">
+              {totalPrice.toLocaleString()}원
+            </span>
+          </div>
+          <p className="text-xs text-neutral-500 mt-1">
+            가격 + 배송비 = 총 결제 금액
+          </p>
+        </div>
       </div>
 
       {/* 상세 정보 */}
       <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-4">
         <h3 className="text-lg font-semibold text-neutral-900">상세 정보</h3>
-        
-        <Input
-          label="거래 지역"
-          placeholder="예: 서울시 강남구"
-          error={errors.location?.message}
-          {...register('location')}
-        />
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-neutral-700">상품 설명</label>

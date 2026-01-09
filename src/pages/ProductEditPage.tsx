@@ -46,7 +46,6 @@ const ProductEditPage = () => {
       conditionStatus: data.conditionStatus,
       description: data.description,
       images: data.images,
-      location: data.location,
     });
 
     showToast('상품이 수정되었습니다', 'success');
@@ -65,7 +64,6 @@ const ProductEditPage = () => {
     conditionStatus: product.conditionStatus,
     description: product.description,
     images: product.images,
-    location: product.location,
   };
 
   return (

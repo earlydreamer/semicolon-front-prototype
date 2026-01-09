@@ -3,7 +3,7 @@
  */
 
 import { create } from 'zustand';
-import type { Product, SaleStatus, ConditionStatus } from '@/mocks/products';
+import type { SaleStatus, ConditionStatus } from '@/mocks/products';
 import { MOCK_SALES_PRODUCTS } from '@/mocks/users';
 
 // 상품 등록/수정 폼 데이터
@@ -15,7 +15,6 @@ export interface ProductFormData {
   conditionStatus: ConditionStatus;
   description: string;
   images: string[];
-  location: string;
 }
 
 // 판매자 상품 (Product 타입과 유사하지만 seller 정보 제외)
@@ -91,7 +90,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       createdAt: new Date().toISOString(),
       image: data.images[0] || '',
       images: data.images,
-      location: data.location,
+      location: '',
       isSafe: true,
     };
     

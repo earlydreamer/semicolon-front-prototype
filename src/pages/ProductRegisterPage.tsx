@@ -32,7 +32,6 @@ const ProductRegisterPage = () => {
       conditionStatus: data.conditionStatus,
       description: data.description,
       images: data.images,
-      location: data.location,
     });
 
     showToast('상품이 등록되었습니다', 'success');
