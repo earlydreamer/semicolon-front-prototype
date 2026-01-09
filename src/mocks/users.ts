@@ -140,8 +140,8 @@ export const MOCK_SHOPS: Shop[] = [
 const d = (n: number) => new Date(Date.now() - 1000 * 60 * 60 * 24 * n).toISOString();
 const getProduct = (id: string): Product => MOCK_PRODUCTS.find(p => p.id === id) || MOCK_PRODUCTS[0];
 
-// 판매자 ID -> 상점 ID 매핑
-const SELLER_TO_SHOP: Record<string, string> = {
+// 판매자 ID -> 상점 ID 매핑 (헬퍼)
+export const SELLER_TO_SHOP: Record<string, string> = {
   's2': 's2', 's3': 's3', 's4': 's4', 's5': 's5', 's6': 's6',
   's7': 's7', 's8': 's8', 's9': 's9', 's10': 's10', 's11': 's11',
   's12': 's12', 's13': 's13', 's14': 's14', 's15': 's15', 's16': 's16',
@@ -263,3 +263,10 @@ export const getUserPurchases = (userId: string): OrderHistory[] =>
  */
 export const getSellerOrders = (sellerId: string): OrderHistory[] =>
   MOCK_ORDER_HISTORY.filter(o => o.sellerId === sellerId);
+
+/**
+ * 현재 사용자(u1)의 판매 상품 목록 (기존 코드 호환용)
+ */
+export const MOCK_SALES_PRODUCTS = MOCK_PRODUCTS.filter(p => 
+  p.sellerId === 's1' || p.seller.userId === 'u1'
+);
