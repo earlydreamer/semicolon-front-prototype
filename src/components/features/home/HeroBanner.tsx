@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 
@@ -18,9 +19,11 @@ export function HeroBanner() {
             <Button size="lg" className="px-8 text-lg font-semibold">
               거래 시작하기
             </Button>
-            <Button size="lg" variant="outline" className="px-8 text-lg font-semibold">
-              내 물건 팔기
-            </Button>
+            <Link to="/seller/products/new">
+              <Button size="lg" variant="outline" className="px-8 text-lg font-semibold">
+                내 물건 팔기
+              </Button>
+            </Link>
           </div>
         </div>
         
