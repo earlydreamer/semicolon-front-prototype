@@ -86,11 +86,17 @@ const TYPE_LABELS: Record<ReportType, { text: string; color: string }> = {
   USER: { text: '사용자', color: 'bg-purple-100 text-purple-800' },
 };
 
+import { useToast } from '@/components/common/Toast';
+import { EmptyState } from '@/components/common/EmptyState';
+
+// ... existing imports ...
+
 export function AdminReportList() {
   const [reports, setReports] = useState<Report[]>(MOCK_REPORTS);
   const [statusFilter, setStatusFilter] = useState<ReportStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<ReportType | 'all'>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   // 필터링
   const filteredReports = reports.filter((report) => {
@@ -113,6 +119,10 @@ export function AdminReportList() {
       )
     );
     setExpandedId(null);
+    showToast(
+      action === 'approve' ? '신고가 승인(제재) 되었습니다.' : '신고가 반려되었습니다.',
+      'success'
+    );
   };
 
   const formatDate = (dateStr: string) => {
@@ -158,111 +168,111 @@ export function AdminReportList() {
 
       {/* 목록 */}
       <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-neutral-50 border-b border-neutral-200">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상태</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">유형</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">대상</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">사유</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">신고자</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">신고일</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">상세</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-200">
-              {filteredReports.map((report) => (
-                <>
-                  <tr key={report.id} className="hover:bg-neutral-50">
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          STATUS_LABELS[report.status].color
-                        }`}
-                      >
-                        {STATUS_LABELS[report.status].text}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          TYPE_LABELS[report.type].color
-                        }`}
-                      >
-                        {TYPE_LABELS[report.type].text}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-neutral-900">{report.targetName}</td>
-                    <td className="px-4 py-3 text-sm text-neutral-600">{report.reason}</td>
-                    <td className="px-4 py-3 text-sm text-neutral-600">{report.reporter.nickname}</td>
-                    <td className="px-4 py-3 text-sm text-neutral-500">{formatDate(report.createdAt)}</td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => setExpandedId(expandedId === report.id ? null : report.id)}
-                        className="p-1 text-neutral-400 hover:text-neutral-600"
-                      >
-                        {expandedId === report.id ? (
-                          <ChevronUp className="w-5 h-5" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5" />
-                        )}
-                      </button>
-                    </td>
-                  </tr>
-                  {expandedId === report.id && (
-                    <tr key={`${report.id}-detail`} className="bg-neutral-50">
-                      <td colSpan={7} className="px-4 py-4">
-                        <div className="space-y-4">
-                          <div>
-                            <h4 className="text-sm font-medium text-neutral-700 mb-1">신고 내용</h4>
-                            <p className="text-sm text-neutral-600 bg-white p-3 rounded border border-neutral-200">
-                              {report.description}
-                            </p>
-                          </div>
-                          
-                          {report.status === 'PENDING' && (
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => handleProcess(report.id, 'approve')}
-                                className="bg-green-600 hover:bg-green-700"
-                              >
-                                <Check className="w-4 h-4 mr-1" />
-                                승인 (제재하기)
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleProcess(report.id, 'reject')}
-                                className="text-red-600 border-red-300 hover:bg-red-50"
-                              >
-                                <X className="w-4 h-4 mr-1" />
-                                반려
-                              </Button>
-                            </div>
+        {filteredReports.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-neutral-50 border-b border-neutral-200">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상태</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">유형</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">대상</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">사유</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">신고자</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">신고일</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">상세</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-200">
+                {filteredReports.map((report) => (
+                  <>
+                    <tr key={report.id} className="hover:bg-neutral-50">
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            STATUS_LABELS[report.status].color
+                          }`}
+                        >
+                          {STATUS_LABELS[report.status].text}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            TYPE_LABELS[report.type].color
+                          }`}
+                        >
+                          {TYPE_LABELS[report.type].text}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-neutral-900">{report.targetName}</td>
+                      <td className="px-4 py-3 text-sm text-neutral-600">{report.reason}</td>
+                      <td className="px-4 py-3 text-sm text-neutral-600">{report.reporter.nickname}</td>
+                      <td className="px-4 py-3 text-sm text-neutral-500">{formatDate(report.createdAt)}</td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={() => setExpandedId(expandedId === report.id ? null : report.id)}
+                          className="p-1 text-neutral-400 hover:text-neutral-600"
+                        >
+                          {expandedId === report.id ? (
+                            <ChevronUp className="w-5 h-5" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5" />
                           )}
-                          
-                          {report.processedAt && (
-                            <p className="text-xs text-neutral-500">
-                              처리일: {formatDate(report.processedAt)}
-                            </p>
-                          )}
-                        </div>
+                        </button>
                       </td>
                     </tr>
-                  )}
-                </>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredReports.length === 0 && (
-          <div className="py-12 text-center text-neutral-500">
-            <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-neutral-300" />
-            <p>해당하는 신고 내역이 없습니다.</p>
+                    {expandedId === report.id && (
+                      <tr key={`${report.id}-detail`} className="bg-neutral-50">
+                        <td colSpan={7} className="px-4 py-4">
+                          <div className="space-y-4">
+                            <div>
+                              <h4 className="text-sm font-medium text-neutral-700 mb-1">신고 내용</h4>
+                              <p className="text-sm text-neutral-600 bg-white p-3 rounded border border-neutral-200">
+                                {report.description}
+                              </p>
+                            </div>
+                            
+                            {report.status === 'PENDING' && (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleProcess(report.id, 'approve')}
+                                  className="bg-green-600 hover:bg-green-700"
+                                >
+                                  <Check className="w-4 h-4 mr-1" />
+                                  승인 (제재하기)
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleProcess(report.id, 'reject')}
+                                  className="text-red-600 border-red-300 hover:bg-red-50"
+                                >
+                                  <X className="w-4 h-4 mr-1" />
+                                  반려
+                                </Button>
+                              </div>
+                            )}
+                            
+                            {report.processedAt && (
+                              <p className="text-xs text-neutral-500">
+                                처리일: {formatDate(report.processedAt)}
+                              </p>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
+              </tbody>
+            </table>
           </div>
+        ) : (
+          <EmptyState
+            icon={AlertTriangle}
+            description="해당하는 신고 내역이 없습니다."
+          />
         )}
       </div>
     </div>

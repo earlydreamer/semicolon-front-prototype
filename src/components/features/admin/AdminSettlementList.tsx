@@ -103,10 +103,16 @@ const STATUS_LABELS: Record<SettlementStatus, { text: string; color: string }> =
   REJECTED: { text: '반려', color: 'bg-red-100 text-red-800' },
 };
 
+import { useToast } from '@/components/common/Toast';
+import { EmptyState } from '@/components/common/EmptyState';
+
+// ... existing imports ...
+
 export function AdminSettlementList() {
   const [settlements, setSettlements] = useState<Settlement[]>(MOCK_SETTLEMENTS);
   const [statusFilter, setStatusFilter] = useState<SettlementStatus | 'all'>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   // 필터링
   const filteredSettlements = settlements.filter((s) => {
@@ -133,6 +139,10 @@ export function AdminSettlementList() {
       )
     );
     setExpandedId(null);
+    showToast(
+      action === 'approve' ? '정산이 승인(지급완료) 되었습니다.' : '정산이 반려되었습니다.',
+      action === 'approve' ? 'success' : 'error'
+    );
   };
 
   const formatCurrency = (value: number) => {
@@ -196,126 +206,126 @@ export function AdminSettlementList() {
 
       {/* 목록 */}
       <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-neutral-50 border-b border-neutral-200">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상태</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">판매자</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상품</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">판매금액</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">수수료</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">정산금액</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">요청일</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">상세</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-200">
-              {filteredSettlements.map((settlement) => (
-                <>
-                  <tr key={settlement.id} className="hover:bg-neutral-50">
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          STATUS_LABELS[settlement.status].color
-                        }`}
-                      >
-                        {STATUS_LABELS[settlement.status].text}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-neutral-900">
-                      {settlement.seller.nickname}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-neutral-600 max-w-[200px] truncate">
-                      {settlement.productTitle}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-neutral-900 text-right">
-                      {formatCurrency(settlement.amount)}원
-                    </td>
-                    <td className="px-4 py-3 text-sm text-red-500 text-right">
-                      -{formatCurrency(settlement.fee)}원
-                    </td>
-                    <td className="px-4 py-3 text-sm font-medium text-primary-600 text-right">
-                      {formatCurrency(settlement.netAmount)}원
-                    </td>
-                    <td className="px-4 py-3 text-sm text-neutral-500">
-                      {formatDate(settlement.requestedAt)}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => setExpandedId(expandedId === settlement.id ? null : settlement.id)}
-                        className="p-1 text-neutral-400 hover:text-neutral-600"
-                      >
-                        {expandedId === settlement.id ? (
-                          <ChevronUp className="w-5 h-5" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5" />
-                        )}
-                      </button>
-                    </td>
-                  </tr>
-                  {expandedId === settlement.id && (
-                    <tr key={`${settlement.id}-detail`} className="bg-neutral-50">
-                      <td colSpan={8} className="px-4 py-4">
-                        <div className="space-y-4">
-                          {/* 계좌 정보 */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div>
-                              <p className="text-xs text-neutral-500">은행</p>
-                              <p className="text-sm font-medium">{settlement.seller.bankName}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-neutral-500">계좌번호</p>
-                              <p className="text-sm font-medium">{settlement.seller.accountNumber}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-neutral-500">주문번호</p>
-                              <p className="text-sm font-medium">{settlement.orderId}</p>
-                            </div>
-                            {settlement.processedAt && (
+        {filteredSettlements.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-neutral-50 border-b border-neutral-200">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상태</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">판매자</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상품</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">판매금액</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">수수료</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">정산금액</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">요청일</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">상세</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-200">
+                {filteredSettlements.map((settlement) => (
+                  <>
+                    <tr key={settlement.id} className="hover:bg-neutral-50">
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            STATUS_LABELS[settlement.status].color
+                          }`}
+                        >
+                          {STATUS_LABELS[settlement.status].text}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-neutral-900">
+                        {settlement.seller.nickname}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-neutral-600 max-w-[200px] truncate">
+                        {settlement.productTitle}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-neutral-900 text-right">
+                        {formatCurrency(settlement.amount)}원
+                      </td>
+                      <td className="px-4 py-3 text-sm text-red-500 text-right">
+                        -{formatCurrency(settlement.fee)}원
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-primary-600 text-right">
+                        {formatCurrency(settlement.netAmount)}원
+                      </td>
+                      <td className="px-4 py-3 text-sm text-neutral-500">
+                        {formatDate(settlement.requestedAt)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={() => setExpandedId(expandedId === settlement.id ? null : settlement.id)}
+                          className="p-1 text-neutral-400 hover:text-neutral-600"
+                        >
+                          {expandedId === settlement.id ? (
+                            <ChevronUp className="w-5 h-5" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5" />
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                    {expandedId === settlement.id && (
+                      <tr key={`${settlement.id}-detail`} className="bg-neutral-50">
+                        <td colSpan={8} className="px-4 py-4">
+                          <div className="space-y-4">
+                            {/* 계좌 정보 */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               <div>
-                                <p className="text-xs text-neutral-500">처리일</p>
-                                <p className="text-sm font-medium">{formatDate(settlement.processedAt)}</p>
+                                <p className="text-xs text-neutral-500">은행</p>
+                                <p className="text-sm font-medium">{settlement.seller.bankName}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-neutral-500">계좌번호</p>
+                                <p className="text-sm font-medium">{settlement.seller.accountNumber}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-neutral-500">주문번호</p>
+                                <p className="text-sm font-medium">{settlement.orderId}</p>
+                              </div>
+                              {settlement.processedAt && (
+                                <div>
+                                  <p className="text-xs text-neutral-500">처리일</p>
+                                  <p className="text-sm font-medium">{formatDate(settlement.processedAt)}</p>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {settlement.status === 'PENDING' && (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleProcess(settlement.id, 'approve')}
+                                  className="bg-green-600 hover:bg-green-700"
+                                >
+                                  <Check className="w-4 h-4 mr-1" />
+                                  지급 승인
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleProcess(settlement.id, 'reject')}
+                                  className="text-red-600 border-red-300 hover:bg-red-50"
+                                >
+                                  <X className="w-4 h-4 mr-1" />
+                                  반려
+                                </Button>
                               </div>
                             )}
                           </div>
-                          
-                          {settlement.status === 'PENDING' && (
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => handleProcess(settlement.id, 'approve')}
-                                className="bg-green-600 hover:bg-green-700"
-                              >
-                                <Check className="w-4 h-4 mr-1" />
-                                지급 승인
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleProcess(settlement.id, 'reject')}
-                                className="text-red-600 border-red-300 hover:bg-red-50"
-                              >
-                                <X className="w-4 h-4 mr-1" />
-                                반려
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredSettlements.length === 0 && (
-          <div className="py-12 text-center text-neutral-500">
-            <Wallet className="w-12 h-12 mx-auto mb-4 text-neutral-300" />
-            <p>해당하는 정산 내역이 없습니다.</p>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
+              </tbody>
+            </table>
           </div>
+        ) : (
+          <EmptyState
+            icon={Wallet}
+            description="해당하는 정산 내역이 없습니다."
+          />
         )}
       </div>
     </div>
