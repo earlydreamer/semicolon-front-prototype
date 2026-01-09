@@ -10,6 +10,7 @@ import {
   FolderTree,
   AlertTriangle,
   Ticket,
+  Wallet,
   LogOut
 } from 'lucide-react';
 
@@ -19,6 +20,7 @@ const navItems = [
   { icon: Users, label: '회원 관리', href: '/admin/users' },
   { icon: AlertTriangle, label: '신고 관리', href: '/admin/reports' },
   { icon: Ticket, label: '쿠폰 관리', href: '/admin/coupons' },
+  { icon: Wallet, label: '정산 관리', href: '/admin/settlements' },
   { icon: FolderTree, label: '카테고리 관리', href: '/admin/categories' },
 ];
 

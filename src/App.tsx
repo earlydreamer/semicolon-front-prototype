@@ -30,6 +30,7 @@ const UserManagePage = lazy(() => import('./pages/admin/UserManagePage'));
 const CategoryManagePage = lazy(() => import('./pages/admin/CategoryManagePage'));
 const ReportManagePage = lazy(() => import('./pages/admin/ReportManagePage'));
 const CouponManagePage = lazy(() => import('./pages/admin/CouponManagePage'));
+const SettlementManagePage = lazy(() => import('./pages/admin/SettlementManagePage'));
 
 import { ToastProvider } from '@/components/common/Toast';
 
@@ -71,6 +72,7 @@ function App() {
               <Route path="users" element={<UserManagePage />} />
               <Route path="reports" element={<ReportManagePage />} />
               <Route path="coupons" element={<CouponManagePage />} />
+              <Route path="settlements" element={<SettlementManagePage />} />
               <Route path="categories" element={<CategoryManagePage />} />
             </Route>
           </Routes>
