@@ -1,5 +1,5 @@
 /**
- * 상품 이미지 업로더 (Mock UI)
+ * 상품 이미지 업로더 (파일 첨부 방식)
  */
 
 import { useState, useRef } from 'react';
@@ -11,14 +11,6 @@ interface ProductImageUploaderProps {
   maxImages?: number;
 }
 
-// 샘플 이미지 URL (실제 업로드 대신 사용)
-const SAMPLE_IMAGES = [
-  'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&q=80&w=400',
-  'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&q=80&w=400',
-];
-
 const ProductImageUploader = ({
   images,
   onChange,
@@ -27,12 +19,30 @@ const ProductImageUploader = ({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAddImage = () => {
-    if (images.length >= maxImages) return;
-    
-    // Mock: 랜덤 샘플 이미지 추가
-    const randomImage = SAMPLE_IMAGES[Math.floor(Math.random() * SAMPLE_IMAGES.length)];
-    onChange([...images, randomImage]);
+  const handleAddClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const remainingSlots = maxImages - images.length;
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+
+    filesToProcess.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (result) {
+          onChange([...images, result]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // 인풋 초기화 (같은 파일 재선택 가능하도록)
+    e.target.value = '';
   };
 
   const handleRemoveImage = (index: number) => {
@@ -75,7 +85,7 @@ const ProductImageUploader = ({
         {/* 이미지 목록 */}
         {images.map((image, index) => (
           <div
-            key={`${image}-${index}`}
+            key={`${index}-${image.slice(-20)}`}
             draggable
             onDragStart={() => handleDragStart(index)}
             onDragOver={(e) => handleDragOver(e, index)}
@@ -117,7 +127,7 @@ const ProductImageUploader = ({
         {images.length < maxImages && (
           <button
             type="button"
-            onClick={handleAddImage}
+            onClick={handleAddClick}
             className="aspect-square rounded-lg border-2 border-dashed border-neutral-300 
               hover:border-primary-400 hover:bg-primary-50 transition-colors
               flex flex-col items-center justify-center gap-1 text-neutral-400 hover:text-primary-500"
@@ -128,12 +138,13 @@ const ProductImageUploader = ({
         )}
       </div>
       
-      {/* 숨겨진 파일 인풋 (나중에 실제 업로드용) */}
+      {/* 파일 인풋 */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         multiple
+        onChange={handleFileChange}
         className="hidden"
       />
       
