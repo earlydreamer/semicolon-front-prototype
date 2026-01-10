@@ -265,8 +265,161 @@ export const getSellerOrders = (sellerId: string): OrderHistory[] =>
   MOCK_ORDER_HISTORY.filter(o => o.sellerId === sellerId);
 
 /**
- * 현재 사용자(u1)의 판매 상품 목록 (기존 코드 호환용)
+ * 현재 사용자(u1)의 판매 상품 목록
+ * - SOLD_OUT: 구매확정된 판매완료 상품
+ * - RESERVED: 결제 완료됐지만 구매확정 안 된 상품 (정책: 예약중으로 표시)
+ * - ON_SALE: 판매중 상품
  */
-export const MOCK_SALES_PRODUCTS = MOCK_PRODUCTS.filter(p => 
-  p.sellerId === 's1' || p.seller.userId === 'u1'
-);
+const IMG = {
+  chair: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=500',
+  earphone: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&q=80&w=500',
+  mug: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&q=80&w=500',
+  lens: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=500',
+  watch: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&q=80&w=500',
+  gopro: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&q=80&w=500',
+  lego: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&q=80&w=500',
+};
+
+const u1_d = (n: number) => new Date(Date.now() - 1000 * 60 * 60 * 24 * n).toISOString();
+
+export const MOCK_SALES_PRODUCTS = [
+  // 판매완료 (SOLD_OUT) - 구매확정된 상품 3개
+  {
+    id: 'sp1',
+    categoryId: 'chair',
+    sellerId: 'u1',
+    title: '헬리녹스 체어제로 블랙',
+    description: '초경량 백패킹 체어입니다. 2회 사용했고 상태 좋습니다.',
+    price: 180000,
+    shippingFee: 3000,
+    conditionStatus: 'MINOR_WEAR',
+    saleStatus: 'SOLD_OUT',
+    viewCount: 156,
+    likeCount: 12,
+    commentCount: 4,
+    createdAt: u1_d(45),
+    image: IMG.chair,
+    images: [IMG.chair],
+    location: '서울시 강남구',
+    isSafe: true,
+  },
+  {
+    id: 'sp2',
+    categoryId: 'audio-headphone',
+    sellerId: 'u1',
+    title: '소니 WF-1000XM5 무선이어폰',
+    description: '소니 플래그십 이어폰. 박스 풀구성.',
+    price: 280000,
+    shippingFee: 0,
+    conditionStatus: 'NO_WEAR',
+    saleStatus: 'SOLD_OUT',
+    viewCount: 234,
+    likeCount: 18,
+    commentCount: 6,
+    createdAt: u1_d(30),
+    image: IMG.earphone,
+    images: [IMG.earphone],
+    location: '서울시 강남구',
+    isSafe: true,
+  },
+  {
+    id: 'sp3',
+    categoryId: 'cookware',
+    sellerId: 'u1',
+    title: '스노우피크 티타늄 싱글머그 450',
+    description: '캠핑 필수템. 깨끗하게 사용했습니다.',
+    price: 45000,
+    shippingFee: 2500,
+    conditionStatus: 'MINOR_WEAR',
+    saleStatus: 'SOLD_OUT',
+    viewCount: 89,
+    likeCount: 7,
+    commentCount: 2,
+    createdAt: u1_d(20),
+    image: IMG.mug,
+    images: [IMG.mug],
+    location: '서울시 강남구',
+    isSafe: true,
+  },
+  
+  // 예약중 (RESERVED) - 결제 완료됐지만 구매확정 안 된 상품 2개
+  {
+    id: 'sp4',
+    categoryId: 'lens',
+    sellerId: 'u1',
+    title: '캐논 RF 35mm F1.8 IS STM 렌즈',
+    description: 'RF 마운트 단렌즈. 풍경/인물 모두 좋습니다.',
+    price: 450000,
+    shippingFee: 0,
+    conditionStatus: 'MINOR_WEAR',
+    saleStatus: 'RESERVED',
+    viewCount: 178,
+    likeCount: 14,
+    commentCount: 5,
+    createdAt: u1_d(10),
+    image: IMG.lens,
+    images: [IMG.lens],
+    location: '서울시 강남구',
+    isSafe: true,
+  },
+  {
+    id: 'sp5',
+    categoryId: 'wearable',
+    sellerId: 'u1',
+    title: '애플워치 SE 2세대 40mm 미드나이트',
+    description: '아이폰 바꾸면서 정리합니다.',
+    price: 180000,
+    shippingFee: 0,
+    conditionStatus: 'NO_WEAR',
+    saleStatus: 'RESERVED',
+    viewCount: 134,
+    likeCount: 9,
+    commentCount: 3,
+    createdAt: u1_d(5),
+    image: IMG.watch,
+    images: [IMG.watch],
+    location: '서울시 강남구',
+    isSafe: true,
+  },
+  
+  // 판매중 (ON_SALE) - 현재 판매중인 상품 2개
+  {
+    id: 'sp6',
+    categoryId: 'actioncam',
+    sellerId: 'u1',
+    title: '고프로 맥스 360도 카메라',
+    description: '360도 촬영 가능한 액션캠. 여행용으로 구매했다가 거의 못 썼어요.',
+    price: 320000,
+    shippingFee: 3000,
+    conditionStatus: 'NO_WEAR',
+    saleStatus: 'ON_SALE',
+    viewCount: 67,
+    likeCount: 5,
+    commentCount: 2,
+    createdAt: u1_d(3),
+    image: IMG.gopro,
+    images: [IMG.gopro],
+    location: '서울시 강남구',
+    isSafe: true,
+  },
+  {
+    id: 'sp7',
+    categoryId: 'goods-stray',
+    sellerId: 'u1',
+    title: '레고 테크닉 포르쉐 911 GT3 RS',
+    description: '미개봉 새제품. 선물받았는데 조립할 시간이 없네요.',
+    price: 150000,
+    shippingFee: 4000,
+    conditionStatus: 'SEALED',
+    saleStatus: 'ON_SALE',
+    viewCount: 45,
+    likeCount: 3,
+    commentCount: 1,
+    createdAt: u1_d(1),
+    image: IMG.lego,
+    images: [IMG.lego],
+    location: '서울시 강남구',
+    isSafe: true,
+  },
+];
+
