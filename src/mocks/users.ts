@@ -132,6 +132,9 @@ export const MOCK_SHOPS: Shop[] = [
   { id: 's18', userId: 'u18', name: '홈짐정리', avatar: MOCK_USERS_DATA[17].avatar, rating: 4.0, salesCount: 11, activeListingCount: 2, followerCount: 3, createdAt: '2024-01-12T00:00:00.000Z' },
   { id: 's19', userId: 'u19', name: '화방정리', avatar: MOCK_USERS_DATA[18].avatar, rating: 4.6, salesCount: 5, activeListingCount: 1, followerCount: 2, createdAt: '2024-01-13T00:00:00.000Z' },
   { id: 's20', userId: 'u20', name: '응답하라1990', avatar: MOCK_USERS_DATA[19].avatar, rating: 4.8, salesCount: 56, activeListingCount: 7, followerCount: 30, createdAt: '2024-01-14T00:00:00.000Z' },
+  // 21-22. 빈 상점 (판매중인 상품 없음)
+  { id: 's21', userId: 'u21', name: '새싹판매자', intro: '이제 막 시작했어요!', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u21', rating: 0, salesCount: 0, activeListingCount: 0, followerCount: 0, createdAt: '2026-01-01T00:00:00.000Z' },
+  { id: 's22', userId: 'u22', name: '준비중상점', intro: '상품 준비중입니다.', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u22', rating: 0, salesCount: 0, activeListingCount: 0, followerCount: 0, createdAt: '2026-01-05T00:00:00.000Z' },
 ];
 
 // ----------------------------------------------------------------------

@@ -48,6 +48,7 @@ export interface Product {
 
 // 판매자 정보 헬퍼
 const SELLERS: Record<string, ProductSeller> = {
+  s1: { id: 's1', userId: 'u1', nickname: '세미콜론', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u1', rating: 4.5, intro: '깔끔한 거래 원해요', salesCount: 3, activeListingCount: 2 },
   s2: { id: 's2', userId: 'u2', nickname: '테크마스터', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u2', rating: 4.9, intro: '전자기기 전문', salesCount: 154, activeListingCount: 12 },
   s3: { id: 's3', userId: 'u3', nickname: '소리사랑', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u3', rating: 4.8, intro: '음향기기 수집가', salesCount: 89, activeListingCount: 8 },
   s4: { id: 's4', userId: 'u4', nickname: '숲속의집', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u4', rating: 4.7, intro: '감성 캠핑 용품', salesCount: 210, activeListingCount: 25 },
@@ -67,6 +68,9 @@ const SELLERS: Record<string, ProductSeller> = {
   s18: { id: 's18', userId: 'u18', nickname: '득근득근', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u18', rating: 4.0, salesCount: 11, activeListingCount: 2 },
   s19: { id: 's19', userId: 'u19', nickname: '그림쟁이', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u19', rating: 4.6, salesCount: 5, activeListingCount: 1 },
   s20: { id: 's20', userId: 'u20', nickname: '레트로매니아', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u20', rating: 4.8, salesCount: 56, activeListingCount: 7 },
+  // 빈 상점 (판매중인 상품 없음)
+  s21: { id: 's21', userId: 'u21', nickname: '새싹판매자', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u21', rating: 0, intro: '이제 막 시작했어요!', salesCount: 0, activeListingCount: 0 },
+  s22: { id: 's22', userId: 'u22', nickname: '준비중상점', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u22', rating: 0, intro: '상품 준비중입니다.', salesCount: 0, activeListingCount: 0 },
 };
 
 const IMG = {
@@ -90,6 +94,15 @@ const h = (n: number) => new Date(Date.now() - 1000 * 60 * 60 * n).toISOString()
 const d = (n: number) => new Date(Date.now() - 1000 * 60 * 60 * 24 * n).toISOString();
 
 export const MOCK_PRODUCTS: Product[] = [
+  // ===== s1 세미콜론의 상점 (현재 사용자) 7개 =====
+  { id: 'p-s1-1', categoryId: 'chair', sellerId: 's1', title: '헬리녹스 체어제로 블랙', description: '초경량 백패킹 체어입니다. 2회 사용했고 상태 좋습니다.', price: 180000, shippingFee: 3000, conditionStatus: 'MINOR_WEAR', saleStatus: 'SOLD_OUT', viewCount: 156, likeCount: 12, commentCount: 4, createdAt: d(45), image: IMG.chair, images: [IMG.chair], location: LOC[0], isSafe: true, seller: SELLERS.s1 },
+  { id: 'p-s1-2', categoryId: 'audio-headphone', sellerId: 's1', title: '소니 WF-1000XM5 무선이어폰', description: '소니 플래그십 이어폰. 박스 풀구성.', price: 280000, shippingFee: 0, conditionStatus: 'NO_WEAR', saleStatus: 'SOLD_OUT', viewCount: 234, likeCount: 18, commentCount: 6, createdAt: d(30), image: IMG.headphone, images: [IMG.headphone], location: LOC[0], isSafe: true, seller: SELLERS.s1 },
+  { id: 'p-s1-3', categoryId: 'cookware', sellerId: 's1', title: '스노우피크 티타늄 싱글머그 450', description: '캠핑 필수템. 깨끗하게 사용했습니다.', price: 45000, shippingFee: 2500, conditionStatus: 'MINOR_WEAR', saleStatus: 'SOLD_OUT', viewCount: 89, likeCount: 7, commentCount: 2, createdAt: d(20), image: IMG.lamp, images: [IMG.lamp], location: LOC[0], isSafe: true, seller: SELLERS.s1 },
+  { id: 'p-s1-4', categoryId: 'lens', sellerId: 's1', title: '캐논 RF 35mm F1.8 IS STM 렌즈', description: 'RF 마운트 단렌즈. 풍경/인물 모두 좋습니다.', price: 450000, shippingFee: 0, conditionStatus: 'MINOR_WEAR', saleStatus: 'RESERVED', viewCount: 178, likeCount: 14, commentCount: 5, createdAt: d(10), image: IMG.camera, images: [IMG.camera], location: LOC[0], isSafe: true, seller: SELLERS.s1 },
+  { id: 'p-s1-5', categoryId: 'wearable', sellerId: 's1', title: '애플워치 SE 2세대 40mm 미드나이트', description: '아이폰 바꾸면서 정리합니다.', price: 180000, shippingFee: 0, conditionStatus: 'NO_WEAR', saleStatus: 'RESERVED', viewCount: 134, likeCount: 9, commentCount: 3, createdAt: d(5), image: IMG.phone, images: [IMG.phone], location: LOC[0], isSafe: true, seller: SELLERS.s1 },
+  { id: 'p-s1-6', categoryId: 'actioncam', sellerId: 's1', title: '고프로 맥스 360도 카메라', description: '360도 촬영 가능한 액션캠. 여행용으로 구매했다가 거의 못 썼어요.', price: 320000, shippingFee: 3000, conditionStatus: 'NO_WEAR', saleStatus: 'ON_SALE', viewCount: 67, likeCount: 5, commentCount: 2, createdAt: d(3), image: IMG.camera, images: [IMG.camera], location: LOC[0], isSafe: true, seller: SELLERS.s1 },
+  { id: 'p-s1-7', categoryId: 'goods-stray', sellerId: 's1', title: '레고 테크닉 포르쉐 911 GT3 RS', description: '미개봉 새제품. 선물받았는데 조립할 시간이 없네요.', price: 150000, shippingFee: 4000, conditionStatus: 'SEALED', saleStatus: 'ON_SALE', viewCount: 45, likeCount: 3, commentCount: 1, createdAt: d(1), image: IMG.album, images: [IMG.album], location: LOC[0], isSafe: true, seller: SELLERS.s1 },
+  
   // ===== s2 IT월드 (전자기기) 9개 =====
   { id: 'p1', categoryId: 'phone-apple', sellerId: 's2', title: '아이폰 15 프로 맥스 256GB 자급제', description: '미개봉 새제품입니다. 자급제.', price: 1550000, shippingFee: 0, conditionStatus: 'SEALED', saleStatus: 'ON_SALE', viewCount: 320, likeCount: 8, commentCount: 2, createdAt: d(5), image: IMG.phone, images: [IMG.phone], location: LOC[0], isSafe: true, seller: SELLERS.s2 },
   { id: 'p2', categoryId: 'phone-samsung', sellerId: 's2', title: '갤럭시 S24 울트라 512GB 티타늄블랙', description: '개봉 후 1회 통화만 했습니다.', price: 1350000, shippingFee: 3000, conditionStatus: 'NO_WEAR', saleStatus: 'ON_SALE', viewCount: 180, likeCount: 6, commentCount: 1, createdAt: d(4), image: IMG.phone, images: [IMG.phone], location: LOC[0], isSafe: true, seller: SELLERS.s2 },
