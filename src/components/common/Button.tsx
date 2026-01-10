@@ -40,7 +40,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           // Variants
           variant === 'primary' && "bg-primary-500 text-neutral-0 hover:bg-primary-600 active:scale-95",
           variant === 'secondary' && "bg-neutral-100 text-neutral-900 hover:bg-neutral-200 active:scale-95",
-          variant === 'outline' && "border border-neutral-200 bg-transparent hover:bg-neutral-50 hover:text-neutral-900 active:scale-95",
+          variant === 'outline' && "border border-primary-500 bg-neutral-0 text-primary-600 hover:bg-primary-50 hover:text-primary-700 active:scale-95",
           variant === 'ghost' && "hover:bg-neutral-100 hover:text-neutral-900 active:scale-95",
           variant === 'danger' && "bg-error-500 text-neutral-0 hover:bg-error-600 active:scale-95",
           
