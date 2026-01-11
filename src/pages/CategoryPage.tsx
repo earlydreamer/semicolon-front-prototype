@@ -7,10 +7,14 @@ import { MOCK_PRODUCTS } from '@/mocks/products';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
 import { findCategoryPath } from '@/utils/category';
+import { sanitizeUrlParam } from '@/utils/sanitize';
 
 export default function CategoryPage() {
-  const { categoryId } = useParams();
+  const { categoryId: rawCategoryId } = useParams();
   const [sort, setSort] = useState<SortOption>('latest');
+  
+  // URL 파라미터 검증 (XSS 방지)
+  const categoryId = sanitizeUrlParam(rawCategoryId);
 
   // Find current category path
   const categoryPath = useMemo(() => {

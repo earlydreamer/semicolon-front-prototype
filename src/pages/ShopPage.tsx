@@ -7,6 +7,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { MOCK_SHOPS } from '../mocks/users';
 import { MOCK_PRODUCTS } from '../mocks/products';
+import { sanitizeUrlParam, isValidId } from '../utils/sanitize';
 
 import ShopHeader from '../components/features/shop/ShopHeader';
 import ShopStats from '../components/features/shop/ShopStats';
@@ -23,11 +24,14 @@ const TABS: { key: TabType; label: string }[] = [
 ];
 
 const ShopPage = () => {
-  const { shopId } = useParams();
+  const { shopId: rawShopId } = useParams();
   const [activeTab, setActiveTab] = useState<TabType>('all');
   
+  // URL 파라미터 검증 (XSS 방지)
+  const shopId = sanitizeUrlParam(rawShopId);
+  
   // 상점 정보 조회
-  const shop = MOCK_SHOPS.find((s) => s.id === shopId);
+  const shop = isValidId(shopId) ? MOCK_SHOPS.find((s) => s.id === shopId) : undefined;
   
   // 상점의 판매 상품 조회
   const shopProducts = useMemo(() => 

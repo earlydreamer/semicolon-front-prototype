@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 
 import { formatTimeAgo } from '@/utils/date';
 import { findCategoryPath } from '@/utils/category';
+import { sanitizeUrlParam, isValidId } from '@/utils/sanitize';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
@@ -13,12 +14,15 @@ import { useCartStore } from '@/stores/useCartStore';
 import { useLikeStore } from '@/stores/useLikeStore';
 
 export default function ProductDetailPage() {
-  const { productId } = useParams();
+  const { productId: rawProductId } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const addToCart = useCartStore((state) => state.addItem);
   const { isLiked: checkIsLiked, toggleLike } = useLikeStore();
-  const product = MOCK_PRODUCTS.find((p) => p.id === productId);
+  
+  // URL 파라미터 검증 (XSS 방지)
+  const productId = sanitizeUrlParam(rawProductId);
+  const product = isValidId(productId) ? MOCK_PRODUCTS.find((p) => p.id === productId) : undefined;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
   // 좋아요 상태는 Store에서 관리

@@ -9,16 +9,19 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useSellerStore } from '@/stores/useSellerStore';
 import { useToast } from '@/components/common/Toast';
 import ProductForm, { type ProductFormValues } from '@/components/features/seller/ProductForm';
+import { sanitizeUrlParam, isValidId } from '@/utils/sanitize';
 
 const ProductEditPage = () => {
-  const { productId } = useParams<{ productId: string }>();
+  const { productId: rawProductId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const { getProductById, updateProduct } = useSellerStore();
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const product = productId ? getProductById(productId) : undefined;
+  // URL 파라미터 검증 (XSS 방지)
+  const productId = sanitizeUrlParam(rawProductId);
+  const product = isValidId(productId) ? getProductById(productId) : undefined;
 
   useEffect(() => {
     if (!isAuthenticated) {

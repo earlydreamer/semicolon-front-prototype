@@ -11,6 +11,7 @@ import { ProductSortDropdown, type SortOption } from '@/components/features/prod
 import { MOCK_PRODUCTS, type SaleStatus } from '@/mocks/products';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
+import { sanitizeUrlParam } from '@/utils/sanitize';
 
 const SALE_STATUS_OPTIONS: { value: SaleStatus | 'all'; label: string }[] = [
   { value: 'all', label: '전체' },
@@ -23,9 +24,9 @@ const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // URL 파라미터에서 검색 조건 읽기
-  const query = searchParams.get('q') || '';
-  const categoryId = searchParams.get('category') || '';
+  // URL 파라미터에서 검색 조건 읽기 (XSS 방지를 위해 sanitize 적용)
+  const query = sanitizeUrlParam(searchParams.get('q'));
+  const categoryId = sanitizeUrlParam(searchParams.get('category'));
   const minPrice = parseInt(searchParams.get('minPrice') || '0');
   const maxPrice = parseInt(searchParams.get('maxPrice') || '0');
   const status = (searchParams.get('status') || 'all') as SaleStatus | 'all';
