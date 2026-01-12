@@ -12,6 +12,7 @@ import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 import { useCartStore } from '@/stores/useCartStore';
 import { useLikeStore } from '@/stores/useLikeStore';
+import { ShareModal } from '@/components/features/product/ShareModal';
 
 export default function ProductDetailPage() {
   const { productId: rawProductId } = useParams();
@@ -24,6 +25,7 @@ export default function ProductDetailPage() {
   const productId = sanitizeUrlParam(rawProductId);
   const product = isValidId(productId) ? MOCK_PRODUCTS.find((p) => p.id === productId) : undefined;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   
   // 좋아요 상태는 Store에서 관리
   const isLiked = productId ? checkIsLiked(productId) : false;
@@ -144,7 +146,10 @@ export default function ProductDetailPage() {
                    </div>
                   <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{title}</h1>
                 </div>
-                <button className="text-gray-400 hover:text-gray-600">
+                <button 
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                >
                   <Share2 className="h-6 w-6" />
                 </button>
               </div>
@@ -165,9 +170,6 @@ export default function ProductDetailPage() {
                     )}
                   </div>
                 </div>
-                <button className="text-gray-400 hover:text-gray-600">
-                  <Share2 className="h-6 w-6" />
-                </button>
               </div>
               
               <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
@@ -352,6 +354,11 @@ export default function ProductDetailPage() {
           )}
         </div>
       </div>
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        productTitle={product.title}
+      />
     </div>
   );
 }
