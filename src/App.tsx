@@ -24,6 +24,8 @@ const SearchPage = lazy(() => import('./pages/SearchPage'));
 
 // Admin pages
 const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
+const AdminAuthGuard = lazy(() => import('./components/layout/AdminAuthGuard'));
+const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
 const ProductManagePage = lazy(() => import('./pages/admin/ProductManagePage'));
 const UserManagePage = lazy(() => import('./pages/admin/UserManagePage'));
@@ -67,15 +69,27 @@ function App() {
                 <Route path="search" element={<SearchPage />} />
               </Route>
 
-              {/* 관리자 페이지 */}
-              <Route path="admin" element={<AdminLayout />}>
-                <Route index element={<AdminDashboardPage />} />
-                <Route path="products" element={<ProductManagePage />} />
-                <Route path="users" element={<UserManagePage />} />
-                <Route path="reports" element={<ReportManagePage />} />
-                <Route path="coupons" element={<CouponManagePage />} />
-                <Route path="settlements" element={<SettlementManagePage />} />
-                <Route path="categories" element={<CategoryManagePage />} />
+              {/* 
+                관리자 페이지
+                
+                [IMPORTANT] 보안 관련 주의사항
+                - 현재: 프론트엔드 Mock 인증만 적용 (AdminAuthGuard)
+                - 추후 필수 작업:
+                  1. 별도 서브도메인(admin.example.com)으로 분리
+                  2. 백엔드 API 레벨 권한 검사 필수
+                  3. 프론트엔드 가드만으로는 보안 불충분
+              */}
+              <Route path="admin/login" element={<AdminLoginPage />} />
+              <Route path="admin" element={<AdminAuthGuard />}>
+                <Route element={<AdminLayout />}>
+                  <Route index element={<AdminDashboardPage />} />
+                  <Route path="products" element={<ProductManagePage />} />
+                  <Route path="users" element={<UserManagePage />} />
+                  <Route path="reports" element={<ReportManagePage />} />
+                  <Route path="coupons" element={<CouponManagePage />} />
+                  <Route path="settlements" element={<SettlementManagePage />} />
+                  <Route path="categories" element={<CategoryManagePage />} />
+                </Route>
               </Route>
             </Routes>
           </Suspense>
