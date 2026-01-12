@@ -5,6 +5,15 @@
 import { MOCK_PRODUCTS, type Product } from './products';
 
 /**
+ * 정산 계좌 정보 인터페이스
+ */
+export interface SettlementAccount {
+  bank: string;
+  accountNumber: string;
+  holder: string;
+}
+
+/**
  * 사용자 프로필 인터페이스
  */
 export interface User {
@@ -15,6 +24,7 @@ export interface User {
   intro?: string;
   point: number;
   createdAt: string;
+  settlementAccount?: SettlementAccount;
 }
 
 /**
@@ -78,8 +88,21 @@ export interface Shop {
 // Users Data (20 Users)
 // ----------------------------------------------------------------------
 export const MOCK_USERS_DATA: User[] = [
-  // 1. Current User
-  { id: 'u1', email: 'user1@test.com', nickname: '세미콜론', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u1', intro: '취미 장비 거래를 좋아하는 세미콜론입니다.', point: 15000, createdAt: '2024-01-15T00:00:00.000Z' },
+  // 1. Current User (정산 계좌 있음)
+  { 
+    id: 'u1', 
+    email: 'user1@test.com', 
+    nickname: '세미콜론', 
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u1', 
+    intro: '취미 장비 거래를 좋아하는 세미콜론입니다.', 
+    point: 15000, 
+    createdAt: '2024-01-15T00:00:00.000Z',
+    settlementAccount: {
+      bank: '카카오뱅크',
+      accountNumber: '3333-01-1234567',
+      holder: '김세미'
+    }
+  },
   // 2-6. Power Sellers (Big 5)
   { id: 'u2', email: 'tech@test.com', nickname: '테크마스터', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u2', intro: 'IT 기기 전문', point: 500000, createdAt: '2023-01-10T00:00:00.000Z' },
   { id: 'u3', email: 'sound@test.com', nickname: '소리사랑', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u3', intro: '음향기기 수집가', point: 320000, createdAt: '2023-02-20T00:00:00.000Z' },
