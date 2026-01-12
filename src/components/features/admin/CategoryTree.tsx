@@ -6,6 +6,11 @@ import { useState } from 'react';
 import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, FolderTree } from 'lucide-react';
 import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
 import { findCategoryPath } from '@/utils/category';
+import { 
+  CATEGORY, 
+  CONFIRM_MESSAGES, 
+  ERROR_MESSAGES 
+} from '@/constants';
 
 interface CategoryItemProps {
   category: Category;
@@ -100,7 +105,7 @@ const CategoryTree = () => {
 
   // 카테고리 삭제
   const handleDelete = (categoryId: string) => {
-    if (!confirm('이 카테고리를 삭제하시겠습니까?')) return;
+    if (!confirm(CONFIRM_MESSAGES.DELETE_CATEGORY)) return;
 
     const deleteFromList = (cats: Category[]): Category[] => {
       return cats
@@ -123,8 +128,8 @@ const CategoryTree = () => {
   // 하위 카테고리 추가 모드 (3단계 제한 로직 도입)
   const handleAddChild = (pId: string) => {
     const path = findCategoryPath(categories, pId);
-    if (path && path.length >= 3) {
-      alert('카테고리는 최대 3단계(대 > 중 > 소)까지만 생성이 가능합니다.');
+    if (path && path.length >= CATEGORY.MAX_DEPTH) {
+      alert(ERROR_MESSAGES.CATEGORY_DEPTH_LIMIT);
       return;
     }
     setParentId(pId);

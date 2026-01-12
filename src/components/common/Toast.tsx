@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
+import { TOAST } from '@/constants';
+
 export type ToastType = 'success' | 'error' | 'info';
 
 interface Toast {
@@ -22,10 +24,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     const id = Date.now().toString();
     setToasts((prev) => [...prev, { id, message, type }]);
     
-    // Auto remove after 3 seconds
+    // Auto remove after default duration
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3000);
+    }, TOAST.DEFAULT_DURATION);
   }, []);
 
   const removeToast = (id: string) => {

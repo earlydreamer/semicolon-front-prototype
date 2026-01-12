@@ -2,6 +2,7 @@ import type { Product } from '@/mocks/products';
 import { ProductCard } from './ProductCard';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { ProductSkeletonList } from './ProductSkeleton';
+import { PAGINATION } from '@/constants';
 
 interface ProductListProps {
   products: Product[];
@@ -28,7 +29,7 @@ export function ProductList({
   });
 
   const { displayItems, isLoading, hasMore, observerTarget } = useInfiniteScroll(sortedProducts, {
-    pageSize: 12,
+    pageSize: PAGINATION.DEFAULT_PAGE_SIZE,
   });
 
   // 무한 스크롤 비활성화 시 전체 표시 (또는 기존 로직 유지 가능)

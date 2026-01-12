@@ -7,12 +7,18 @@ import { Link } from 'react-router-dom';
 import { formatTimeAgo } from '@/utils/date';
 import { findCategoryPath } from '@/utils/category';
 import { sanitizeUrlParam, isValidId } from '@/utils/sanitize';
+import { formatPrice } from '@/utils/formatPrice';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 import { useCartStore } from '@/stores/useCartStore';
 import { useLikeStore } from '@/stores/useLikeStore';
 import { ShareModal } from '@/components/features/product/ShareModal';
+import { 
+  TOAST_MESSAGES, 
+  ERROR_MESSAGES, 
+  CONDITION_STATUS_LABELS 
+} from '@/constants';
 
 export default function ProductDetailPage() {
   const { productId: rawProductId } = useParams();
@@ -34,7 +40,7 @@ export default function ProductDetailPage() {
     if (!productId) return;
     const nowLiked = toggleLike(productId);
     showToast(
-      nowLiked ? '찜한 상품에 추가되었습니다.' : '찜한 상품에서 제거되었습니다.',
+      nowLiked ? TOAST_MESSAGES.ADDED_TO_LIKES : TOAST_MESSAGES.REMOVED_FROM_LIKES,
       nowLiked ? 'success' : 'info'
     );
   };
@@ -43,20 +49,20 @@ export default function ProductDetailPage() {
     if (!product) return;
     const added = addToCart(product);
     if (added) {
-      showToast('장바구니에 담았습니다.', 'success');
+      showToast(TOAST_MESSAGES.ADDED_TO_CART, 'success');
     } else {
-      showToast('이미 장바구니에 담긴 상품입니다.', 'info');
+      showToast(TOAST_MESSAGES.ALREADY_IN_CART, 'info');
     }
   };
 
   const handlePurchase = () => {
-    showToast('안전결제 페이지로 이동합니다.', 'info');
+    showToast(TOAST_MESSAGES.MOVING_TO_PAYMENT, 'info');
   };
 
   if (!product) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
-        <p className="text-gray-500">상품을 찾을 수 없습니다.</p>
+        <p className="text-gray-500">{ERROR_MESSAGES.PRODUCT_NOT_FOUND}</p>
         <button 
           onClick={() => navigate(-1)}
           className="rounded-lg bg-primary-500 px-4 py-2 text-white hover:bg-primary-600"
@@ -139,10 +145,7 @@ export default function ProductDetailPage() {
                         conditionStatus === 'VISIBLE_WEAR' ? 'bg-orange-100 text-orange-700' :
                         'bg-red-100 text-red-700'
                     }`}>
-                        {conditionStatus === 'SEALED' ? '미개봉' : 
-                         conditionStatus === 'NO_WEAR' ? '사용감 없음' : 
-                         conditionStatus === 'MINOR_WEAR' ? '사용감 적음' : 
-                         conditionStatus === 'VISIBLE_WEAR' ? '사용감 많음' : '하자 있음'}
+                        {CONDITION_STATUS_LABELS[conditionStatus]}
                     </span>
                    </div>
                   <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{title}</h1>
@@ -158,7 +161,7 @@ export default function ProductDetailPage() {
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2 text-3xl font-bold text-gray-900">
-                    {price.toLocaleString()}원
+                    {formatPrice(price)}
                   </div>
                   {/* 배송비 정보 */}
                   <div className="text-sm">
@@ -166,7 +169,7 @@ export default function ProductDetailPage() {
                       <span className="font-bold text-green-600">무료배송</span>
                     ) : (
                       <span className="text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-100 italic">
-                        + 배송비 {product.shippingFee.toLocaleString()}원
+                        + 배송비 {formatPrice(product.shippingFee)}
                       </span>
                     )}
                   </div>
