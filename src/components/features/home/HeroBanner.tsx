@@ -16,12 +16,9 @@ export function HeroBanner() {
             안전하고 편리한 거래 경험을 제공합니다.
           </p>
           <div className="flex justify-center gap-4 md:justify-start">
-            <Button size="lg" className="px-8 text-lg font-semibold">
-              거래 시작하기
-            </Button>
             <Link to="/seller/products/new">
-              <Button size="lg" variant="outline" className="px-8 text-lg font-semibold">
-                내 물건 팔기
+              <Button size="lg" className="px-8 text-lg font-semibold">
+                거래 시작하기
               </Button>
             </Link>
           </div>
