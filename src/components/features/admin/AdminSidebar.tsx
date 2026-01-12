@@ -24,15 +24,29 @@ const navItems = [
   { icon: FolderTree, label: '카테고리 관리', href: '/admin/categories' },
 ];
 
-const AdminSidebar = () => {
+interface AdminSidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
   return (
     <aside className="w-64 bg-neutral-900 text-white min-h-screen flex flex-col">
-      {/* 로고 */}
-      <div className="p-6 border-b border-neutral-800">
+      {/* 로고 및 닫기 버튼 (모바일) */}
+      <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
         <h1 className="text-xl font-bold">
           <span className="text-primary-400">Semicolon</span>
           <span className="text-sm font-normal text-neutral-400 ml-2">Admin</span>
         </h1>
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="lg:hidden text-neutral-400 hover:text-white p-1"
+            aria-label="Close Sidebar"
+          >
+            <LogOut className="w-5 h-5 rotate-180" />
+          </button>
+        )}
       </div>
 
       {/* 네비게이션 */}
@@ -44,12 +58,13 @@ const AdminSidebar = () => {
                 to={item.href}
                 end={item.href === '/admin'}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     isActive
-                      ? 'bg-primary-600 text-white'
+                      ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20'
                       : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
                   }`
                 }
+                onClick={onClose}
               >
                 <item.icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>

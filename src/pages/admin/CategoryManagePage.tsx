@@ -6,7 +6,7 @@ import CategoryTree from '@/components/features/admin/CategoryTree';
 
 const CategoryManagePage = () => {
   return (
-    <div className="p-8">
+    <div>
       {/* 페이지 헤더 */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-neutral-900">카테고리 관리</h1>

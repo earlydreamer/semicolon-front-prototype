@@ -6,7 +6,7 @@ import AdminProductList from '@/components/features/admin/AdminProductList';
 
 const ProductManagePage = () => {
   return (
-    <div className="p-8">
+    <div>
       {/* 페이지 헤더 */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-neutral-900">상품 관리</h1>
