@@ -5,16 +5,10 @@
 import { useState } from 'react';
 import { Search, MoreVertical, Eye, Pause, Trash2 } from 'lucide-react';
 import { MOCK_PRODUCTS, type Product, type SaleStatus } from '@/mocks/products';
+import { formatPrice } from '@/utils/formatPrice';
+import { SALE_STATUS_LABELS } from '@/constants';
 
 type FilterStatus = 'all' | SaleStatus;
-
-const STATUS_LABELS: Record<SaleStatus, string> = {
-  ON_SALE: '판매중',
-  RESERVED: '예약중',
-  SOLD_OUT: '판매완료',
-  HIDDEN: '숨김',
-  BLOCKED: '차단',
-};
 
 const STATUS_COLORS: Record<SaleStatus, string> = {
   ON_SALE: 'bg-green-100 text-green-700',
@@ -124,12 +118,12 @@ const AdminProductList = () => {
                 </td>
                 <td className="px-4 py-3">
                   <p className="text-sm font-medium text-neutral-900">
-                    {product.price.toLocaleString()}원
+                    {formatPrice(product.price)}
                   </p>
                 </td>
                 <td className="px-4 py-3">
                   <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${STATUS_COLORS[product.saleStatus]}`}>
-                    {STATUS_LABELS[product.saleStatus]}
+                    {SALE_STATUS_LABELS[product.saleStatus]}
                   </span>
                 </td>
                 <td className="px-4 py-3">

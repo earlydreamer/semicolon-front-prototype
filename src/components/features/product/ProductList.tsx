@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import type { Product } from '@/mocks/products';
 import { ProductCard } from './ProductCard';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { ProductSkeletonList } from './ProductSkeleton';
+import { PAGINATION } from '@/constants';
 
 interface ProductListProps {
   products: Product[];
@@ -18,17 +20,19 @@ export function ProductList({
   title, 
   enableInfiniteScroll = true 
 }: ProductListProps) {
-  // 품절 상품을 뒤로 보내는 정렬 로직 추가
-  const sortedProducts = [...products].sort((a, b) => {
-    const aSoldOut = a.saleStatus === 'SOLD_OUT' || a.saleStatus === 'RESERVED'; // 예약중도 뒤로 보냄 (선택사항)
-    const bSoldOut = b.saleStatus === 'SOLD_OUT' || b.saleStatus === 'RESERVED';
-    if (aSoldOut && !bSoldOut) return 1;
-    if (!aSoldOut && bSoldOut) return -1;
-    return 0;
-  });
+  // 품절 상품을 뒤로 보내는 정렬 로직 (useMemo로 참조 고정)
+  const sortedProducts = useMemo(() => {
+    return [...products].sort((a, b) => {
+      const aSoldOut = a.saleStatus === 'SOLD_OUT' || a.saleStatus === 'RESERVED';
+      const bSoldOut = b.saleStatus === 'SOLD_OUT' || b.saleStatus === 'RESERVED';
+      if (aSoldOut && !bSoldOut) return 1;
+      if (!aSoldOut && bSoldOut) return -1;
+      return 0;
+    });
+  }, [products]);
 
   const { displayItems, isLoading, hasMore, observerTarget } = useInfiniteScroll(sortedProducts, {
-    pageSize: 12,
+    pageSize: PAGINATION.DEFAULT_PAGE_SIZE,
   });
 
   // 무한 스크롤 비활성화 시 전체 표시 (또는 기존 로직 유지 가능)

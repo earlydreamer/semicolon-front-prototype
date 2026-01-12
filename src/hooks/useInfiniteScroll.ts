@@ -36,10 +36,17 @@ export function useInfiniteScroll<T>(
     }, 500);
   }, [allItems, displayItems.length, hasMore, isLoading, pageSize]);
 
-  // 전체 아이템이나 필터가 변경될 때 초기화
+  // 전체 아이템이나 필터가 변경될 때 초기화 (참조가 바뀌어도 내용(ID)이 같으면 무시하도록 개선 가능)
   useEffect(() => {
     const initialItems = allItems.slice(0, pageSize);
-    setDisplayItems(initialItems);
+    setDisplayItems((prev) => {
+      // 이미 내용이 같다면 업데이트하지 않음 (무한 루프 방지 장치)
+      if (prev.length === initialItems.length && 
+          prev.every((item, idx) => (item as any).id === (initialItems[idx] as any).id)) {
+        return prev;
+      }
+      return initialItems;
+    });
     setHasMore(initialItems.length < allItems.length);
     setIsLoading(false);
   }, [allItems, pageSize]);

@@ -3,3 +3,5 @@
  */
 
 export { ROUTES, buildRoute } from './routes';
+export * from './common';
+export * from './labels';
