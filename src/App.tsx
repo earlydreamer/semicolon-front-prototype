@@ -20,6 +20,7 @@ const SellerPage = lazy(() => import('./pages/SellerPage'));
 const ProductRegisterPage = lazy(() => import('./pages/ProductRegisterPage'));
 const ProductEditPage = lazy(() => import('./pages/ProductEditPage'));
 const MyShopSettingsPage = lazy(() => import('./pages/MyShopSettingsPage'));
+const SettlementAccountPage = lazy(() => import('./pages/SettlementAccountPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 
 // Admin pages
@@ -66,6 +67,7 @@ function App() {
                 <Route path="seller/products/new" element={<ProductRegisterPage />} />
                 <Route path="seller/products/:productId/edit" element={<ProductEditPage />} />
                 <Route path="seller/shop" element={<MyShopSettingsPage />} />
+                <Route path="mypage/settlement" element={<SettlementAccountPage />} />
                 <Route path="search" element={<SearchPage />} />
               </Route>
 
