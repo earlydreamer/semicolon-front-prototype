@@ -1,5 +1,5 @@
 /**
- * 좋아요 상품 페이지
+ * 찜한 상품 페이지
  */
 
 import { Link, Navigate } from 'react-router-dom';
@@ -26,7 +26,7 @@ const LikedProductsPage = () => {
 
   const handleUnlike = (productId: string, productTitle: string) => {
     removeLike(productId);
-    showToast(`"${productTitle}" 관심 상품에서 제거되었습니다`, 'info');
+    showToast(`"${productTitle}" 찜한 상품에서 제거되었습니다`, 'info');
   };
 
   return (
@@ -41,7 +41,7 @@ const LikedProductsPage = () => {
             <ChevronLeft className="w-5 h-5 text-neutral-700" />
           </Link>
           <h1 className="text-xl font-bold text-neutral-900">
-            좋아요 상품
+            찜한 상품
             <span className="ml-2 text-sm font-normal text-neutral-500">
               {likedProducts.length}
             </span>
@@ -54,7 +54,7 @@ const LikedProductsPage = () => {
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-100 flex items-center justify-center">
               <Heart className="w-8 h-8 text-neutral-400" />
             </div>
-            <p className="text-neutral-500 mb-4">좋아요한 상품이 없습니다</p>
+            <p className="text-neutral-500 mb-4">찜한 상품이 없습니다</p>
             <Link
               to="/"
               className="inline-block px-6 py-3 bg-primary-500 text-white font-medium rounded-xl hover:bg-primary-600"
@@ -97,11 +97,11 @@ const LikedProductsPage = () => {
                   </p>
                 </div>
 
-                {/* 좋아요 해제 버튼 */}
+                {/* 찜 해제 버튼 */}
                 <button
                   onClick={() => handleUnlike(product.id, product.title)}
                   className="p-2 text-red-500 hover:text-red-600 self-center"
-                  title="좋아요 해제"
+                  title="찜 해제"
                 >
                   <Heart className="w-5 h-5 fill-current" />
                 </button>
