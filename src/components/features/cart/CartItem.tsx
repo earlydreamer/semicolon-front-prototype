@@ -4,6 +4,7 @@
 
 import { Link } from 'react-router-dom';
 import type { CartItem as CartItemType } from '../../../types/cart';
+import { formatPrice } from '../../../utils/formatPrice';
 
 // 상품 상태 라벨 매핑
 const SALE_STATUS_LABELS: Record<string, { text: string; className: string }> = {
@@ -28,11 +29,6 @@ const CartItem = ({
   const { product, selected } = item;
   const isSoldOut = product.saleStatus === 'SOLD_OUT';
   const statusInfo = SALE_STATUS_LABELS[product.saleStatus] || SALE_STATUS_LABELS.ON_SALE;
-
-  // 가격 포맷팅
-  const formatPrice = (price: number) => {
-    return price.toLocaleString('ko-KR') + '원';
-  };
 
   return (
     <div

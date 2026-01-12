@@ -7,6 +7,7 @@ import type { CartSummary as CartSummaryType } from '../../../types/cart';
 import { useToast } from '../../common/Toast';
 import { useCartStore } from '../../../stores/useCartStore';
 import { useOrderStore } from '../../../stores/useOrderStore';
+import { formatPrice } from '../../../utils/formatPrice';
 
 interface CartSummaryProps {
   summary: CartSummaryType;
@@ -17,11 +18,6 @@ const CartSummary = ({ summary }: CartSummaryProps) => {
   const { showToast } = useToast();
   const { getSelectedItems } = useCartStore();
   const { setOrderItems } = useOrderStore();
-
-  // 가격 포맷팅
-  const formatPrice = (price: number) => {
-    return price.toLocaleString('ko-KR') + '원';
-  };
 
   const handleOrder = () => {
     if (summary.selectedCount === 0) {
