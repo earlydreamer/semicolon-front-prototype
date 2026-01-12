@@ -271,8 +271,9 @@ fix(auth): 로그인 토큰 만료 처리 수정
 AI 에이전트(Gemini)는 다음 작업을 자동으로 수행할 수 있습니다:
 
 1. **Issue 생성**: 작업 시작 전 관련 Issue 자동 생성
+   - **연관 이슈 등록**: 특정 이슈(#번호)의 버그픽스 또는 후속 작업인 경우, 본문에 `Related to #번호`를 명시하여 연결
    ```bash
-   gh issue create --title "[기능] 작업 제목" --body "설명"
+   gh issue create --title "[유형] 작업 제목" --body "## 개요\nRelated to #번호\n..."
    ```
 
 2. **Feature 브랜치 생성**: main에서 분기
@@ -291,10 +292,15 @@ AI 에이전트(Gemini)는 다음 작업을 자동으로 수행할 수 있습니
    gh pr merge PR번호 --squash --delete-branch
    ```
 
-5. **로컬 정리**: main으로 전환 및 동기화
+5. **로컬 정리**: main으로 전환 및 최신화
    ```bash
    git checkout main
    git reset --hard origin/main
+   ```
+
+6. **Issue 체크리스트 업데이트**: 작업 완료(PR 머지) 후, 해당 Issue 본문의 체크리스트를 실행 완료 상태(`[x]`)로 업데이트하여 가독성 확보
+   ```bash
+   gh issue edit 이슈번호 --body "수정된 본문(체크 완료)"
    ```
 
 #### 커밋/머지 전 확인 사항
