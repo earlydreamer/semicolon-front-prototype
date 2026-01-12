@@ -3,6 +3,8 @@
  */
 
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { getUserLikes } from '../mocks/likes';
 
 interface LikeState {
   likedProductIds: string[];
@@ -17,61 +19,80 @@ interface LikeState {
   getLikedCount: () => number;
 }
 
-export const useLikeStore = create<LikeState>((set, get) => ({
-  // 초기 찜한 상품 (Mock)
-  likedProductIds: ['p1', 'p5'],
-  
-  /**
-   * 찜 토글
-   * @returns 찜 추가 시 true, 제거 시 false
-   */
-  toggleLike: (productId: string) => {
-    const isCurrentlyLiked = get().likedProductIds.includes(productId);
-    
-    if (isCurrentlyLiked) {
-      set((state) => ({
-        likedProductIds: state.likedProductIds.filter((id) => id !== productId),
-      }));
-      return false;
-    } else {
-      set((state) => ({
-        likedProductIds: [...state.likedProductIds, productId],
-      }));
-      return true;
+export const useLikeStore = create<LikeState>()(
+  persist(
+    (set, get) => ({
+      // 초기 찜한 상품 (Mock 연동 - u1 사용자 기준)
+      likedProductIds: getUserLikes('u1').map(like => like.productId),
+      
+      /**
+       * 찜 토글
+       * @returns 찜 추가 시 true, 제거 시 false
+       */
+      toggleLike: (productId: string) => {
+        const isCurrentlyLiked = get().likedProductIds.includes(productId);
+        
+        if (isCurrentlyLiked) {
+          set((state) => ({
+            likedProductIds: state.likedProductIds.filter((id) => id !== productId),
+          }));
+          return false;
+        } else {
+          set((state) => ({
+            likedProductIds: [...state.likedProductIds, productId],
+          }));
+          return true;
+        }
+      },
+      
+      /**
+       * 찜 여부 확인
+       */
+      isLiked: (productId: string) => {
+        return get().likedProductIds.includes(productId);
+      },
+      
+      /**
+       * 찜 추가
+       */
+      addLike: (productId: string) => {
+        if (!get().likedProductIds.includes(productId)) {
+          set((state) => ({
+            likedProductIds: [...state.likedProductIds, productId],
+          }));
+        }
+      },
+      
+      /**
+       * 찜 제거
+       */
+      removeLike: (productId: string) => {
+        set((state) => ({
+          likedProductIds: state.likedProductIds.filter((id) => id !== productId),
+        }));
+      },
+      
+      /**
+       * 찜한 상품 수
+       */
+      getLikedCount: () => {
+        return get().likedProductIds.length;
+      },
+    }),
+    {
+      name: 'like-storage', // LocalStorage Key
+      storage: createJSONStorage(() => localStorage),
+      // Hydration 시 로컬 스토리지 데이터가 없으면 초기 상태(Mock) 사용
+      // 로컬 스토리지 데이터가 있으면 그것을 우선 사용 (사용자 경험 유지)
+      merge: (persistedState: any, currentState) => {
+        if (!persistedState || !persistedState.likedProductIds || persistedState.likedProductIds.length === 0) {
+          return currentState;
+        }
+        return {
+          ...currentState,
+          ...persistedState,
+        };
+      },
     }
-  },
-  
-  /**
-   * 찜 여부 확인
-   */
-  isLiked: (productId: string) => {
-    return get().likedProductIds.includes(productId);
-  },
-  
-  /**
-   * 찜 추가
-   */
-  addLike: (productId: string) => {
-    if (!get().likedProductIds.includes(productId)) {
-      set((state) => ({
-        likedProductIds: [...state.likedProductIds, productId],
-      }));
-    }
-  },
-  
-  /**
-   * 찜 제거
-   */
-  removeLike: (productId: string) => {
-    set((state) => ({
-      likedProductIds: state.likedProductIds.filter((id) => id !== productId),
-    }));
-  },
-  
-  /**
-   * 찜한 상품 수
-   */
-  getLikedCount: () => {
-    return get().likedProductIds.length;
-  },
-}));
+  )
+);
