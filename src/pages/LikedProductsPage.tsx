@@ -19,7 +19,7 @@ const LikedProductsPage = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // 좋아요한 상품 필터링
+  // 찜한 상품 필터링
   const likedProducts = MOCK_PRODUCTS.filter((p) =>
     likedProductIds.includes(p.id)
   );

@@ -32,7 +32,7 @@ export default function ProductDetailPage() {
     if (!productId) return;
     const nowLiked = toggleLike(productId);
     showToast(
-      nowLiked ? '관심 상품에 추가되었습니다.' : '관심 상품에서 제거되었습니다.',
+      nowLiked ? '찜한 상품에 추가되었습니다.' : '찜한 상품에서 제거되었습니다.',
       nowLiked ? 'success' : 'info'
     );
   };
@@ -154,7 +154,7 @@ export default function ProductDetailPage() {
                 <span>•</span>
                 <span>조회 {viewCount}</span>
                 <span>•</span>
-                <span>관심 {likeCount}</span>
+                <span>찜 {likeCount}</span>
               </div>
             </div>
 
