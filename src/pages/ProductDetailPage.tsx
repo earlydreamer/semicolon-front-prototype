@@ -173,6 +173,14 @@ export default function ProductDetailPage() {
                 </div>
               </div>
               
+              {/* 품절 안내 배너 */}
+              {product.saleStatus === 'SOLD_OUT' && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-lg flex items-center gap-2 text-red-600 font-bold text-sm">
+                  <ShoppingBag className="h-4 w-4" />
+                  이 상품은 현재 품절되었습니다.
+                </div>
+              )}
+              
               <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
                 <span>{formatTimeAgo(createdAt)}</span>
                 <span>•</span>
@@ -328,14 +336,19 @@ export default function ProductDetailPage() {
             <div className="hidden md:flex gap-3 mt-8 pt-6 border-t border-gray-200">
               <button 
                 onClick={handleLike}
-                className={`flex-1 flex items-center justify-center gap-2 rounded-lg bg-gray-100 py-3 font-semibold text-gray-900 transition-all active:scale-95 hover:bg-gray-200 ${isLiked ? 'text-red-500' : ''}`}
+                className={`flex-1 flex items-center justify-center gap-2 rounded-lg bg-gray-100 py-3 font-semibold text-gray-900 transition-all active:scale-95 hover:bg-neutral-200 ${isLiked ? 'text-red-500' : ''}`}
               >
                 <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
                 찜 {likeCount + (isLiked ? 1 : 0)}
               </button>
               <button 
                 onClick={handleAddToCart}
-                className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-orange-100 py-3 font-semibold text-orange-600 transition-all active:scale-95 hover:bg-orange-200"
+                disabled={product.saleStatus === 'SOLD_OUT'}
+                className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold transition-all active:scale-95 ${
+                  product.saleStatus === 'SOLD_OUT' 
+                  ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' 
+                  : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+                }`}
               >
                 <ShoppingBag className="h-5 w-5" />
                 장바구니
@@ -343,9 +356,14 @@ export default function ProductDetailPage() {
               {isSafe && (
                 <button 
                   onClick={handlePurchase}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-primary-500 py-3 font-semibold text-white transition-all active:scale-95 hover:bg-primary-600"
+                  disabled={product.saleStatus === 'SOLD_OUT'}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white transition-all active:scale-95 ${
+                    product.saleStatus === 'SOLD_OUT'
+                    ? 'bg-neutral-300 cursor-not-allowed'
+                    : 'bg-primary-500 hover:bg-primary-600'
+                  }`}
                 >
-                  안전결제
+                  {product.saleStatus === 'SOLD_OUT' ? '품절된 상품' : '안전결제'}
                 </button>
               )}
             </div>
@@ -367,16 +385,26 @@ export default function ProductDetailPage() {
         <div className="flex flex-1 gap-2 ml-4">
           <button 
             onClick={handleAddToCart}
-            className="flex-1 rounded-md bg-orange-100 py-2.5 text-sm font-bold text-orange-600 shadow-sm transition-transform active:scale-95"
+            disabled={product.saleStatus === 'SOLD_OUT'}
+            className={`flex-1 rounded-md py-2.5 text-sm font-bold shadow-sm transition-transform active:scale-95 ${
+              product.saleStatus === 'SOLD_OUT'
+              ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+              : 'bg-orange-100 text-orange-600'
+            }`}
           >
             장바구니
           </button>
           {isSafe && (
             <button 
               onClick={handlePurchase}
-              className="flex-1 rounded-md bg-primary-500 py-2.5 text-sm font-bold text-white shadow-sm transition-transform active:scale-95"
+              disabled={product.saleStatus === 'SOLD_OUT'}
+              className={`flex-1 rounded-md py-2.5 text-sm font-bold text-white shadow-sm transition-transform active:scale-95 ${
+                product.saleStatus === 'SOLD_OUT'
+                ? 'bg-neutral-300 cursor-not-allowed'
+                : 'bg-primary-500'
+              }`}
             >
-              안전결제
+              {product.saleStatus === 'SOLD_OUT' ? '품절' : '안전결제'}
             </button>
           )}
         </div>

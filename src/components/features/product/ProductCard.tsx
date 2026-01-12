@@ -19,9 +19,23 @@ export function ProductCard({ product }: ProductCardProps) {
           <img
             src={product.image}
             alt={product.title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-110 ${
+              (product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED') ? 'grayscale-[0.5]' : ''
+            }`}
             loading="lazy"
           />
+          {/* Status Overlay */}
+          {(product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED') && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
+              <span className={`rounded-md border-2 px-3 py-1 text-sm font-black uppercase tracking-wider ${
+                product.saleStatus === 'SOLD_OUT' 
+                ? 'border-white text-white' 
+                : 'border-yellow-400 text-yellow-400'
+              }`}>
+                {product.saleStatus === 'SOLD_OUT' ? 'Sold Out' : 'Reserved'}
+              </span>
+            </div>
+          )}
         </div>
 
 
