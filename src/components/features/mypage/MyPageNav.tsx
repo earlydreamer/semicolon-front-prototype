@@ -27,7 +27,7 @@ const MyPageNav = ({ likeCount, orderCount }: MyPageNavProps) => {
     },
     {
       icon: Heart,
-      label: '좋아요 상품',
+      label: '찜한 상품',
       href: '/mypage/likes',
       badge: likeCount,
     },

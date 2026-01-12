@@ -1,5 +1,5 @@
 /**
- * 좋아요(찜) 상태 관리 Store (Zustand)
+ * 찜 상태 관리 Store (Zustand)
  */
 
 import { create } from 'zustand';
@@ -8,7 +8,7 @@ interface LikeState {
   likedProductIds: string[];
   
   // Actions
-  toggleLike: (productId: string) => boolean; // 좋아요 추가 시 true, 제거 시 false
+  toggleLike: (productId: string) => boolean; // 찜 추가 시 true, 제거 시 false
   isLiked: (productId: string) => boolean;
   addLike: (productId: string) => void;
   removeLike: (productId: string) => void;
@@ -18,12 +18,12 @@ interface LikeState {
 }
 
 export const useLikeStore = create<LikeState>((set, get) => ({
-  // 초기 좋아요 상품 (Mock)
-  likedProductIds: ['1', '5'],
+  // 초기 찜한 상품 (Mock)
+  likedProductIds: ['p1', 'p5', 'p10'],
   
   /**
-   * 좋아요 토글
-   * @returns 좋아요 추가 시 true, 제거 시 false
+   * 찜 토글
+   * @returns 찜 추가 시 true, 제거 시 false
    */
   toggleLike: (productId: string) => {
     const isCurrentlyLiked = get().likedProductIds.includes(productId);
@@ -42,14 +42,14 @@ export const useLikeStore = create<LikeState>((set, get) => ({
   },
   
   /**
-   * 좋아요 여부 확인
+   * 찜 여부 확인
    */
   isLiked: (productId: string) => {
     return get().likedProductIds.includes(productId);
   },
   
   /**
-   * 좋아요 추가
+   * 찜 추가
    */
   addLike: (productId: string) => {
     if (!get().likedProductIds.includes(productId)) {
@@ -60,7 +60,7 @@ export const useLikeStore = create<LikeState>((set, get) => ({
   },
   
   /**
-   * 좋아요 제거
+   * 찜 제거
    */
   removeLike: (productId: string) => {
     set((state) => ({
@@ -69,7 +69,7 @@ export const useLikeStore = create<LikeState>((set, get) => ({
   },
   
   /**
-   * 좋아요 상품 수
+   * 찜한 상품 수
    */
   getLikedCount: () => {
     return get().likedProductIds.length;

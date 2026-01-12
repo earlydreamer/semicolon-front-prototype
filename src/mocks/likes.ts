@@ -112,6 +112,11 @@ export const MOCK_PRODUCT_LIKES: ProductLike[] = [
   { id: 'l82', productId: 'p27', userId: 'u14', createdAt: h(4) },
 
   { id: 'l83', productId: 'p45', userId: 'u19', createdAt: h(2) },
+
+  // 세미콜론(u1)의 찜 목록 추가 (목업용)
+  { id: 'l-u1-1', productId: 'p1', userId: 'u1', createdAt: d(1) },
+  { id: 'l-u1-2', productId: 'p5', userId: 'u1', createdAt: d(2) },
+  { id: 'l-u1-3', productId: 'p10', userId: 'u1', createdAt: d(3) },
 ];
 
 /**

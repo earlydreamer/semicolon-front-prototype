@@ -9,6 +9,7 @@ import { MOCK_USER, MOCK_ORDER_HISTORY, MOCK_SALES_PRODUCTS } from '../mocks/use
 
 import ProfileCard from '../components/features/mypage/ProfileCard';
 import ProfileStats from '../components/features/mypage/ProfileStats';
+import AccountInfoCard from '../components/features/mypage/AccountInfoCard';
 import SalesTabs from '../components/features/mypage/SalesTabs';
 import MyPageNav from '../components/features/mypage/MyPageNav';
 
@@ -37,6 +38,9 @@ const MyPage = () => {
           purchaseCount={purchaseCount}
           point={MOCK_USER.point}
         />
+
+        {/* 정산 계좌 정보 */}
+        <AccountInfoCard user={MOCK_USER} />
 
         {/* 빠른 메뉴 */}
         <MyPageNav likeCount={likeCount} orderCount={purchaseCount} />

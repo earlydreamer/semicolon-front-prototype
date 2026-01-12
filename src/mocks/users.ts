@@ -14,6 +14,9 @@ export interface User {
   avatar?: string;
   intro?: string;
   point: number;
+  bankName?: string;
+  accountNumber?: string;
+  accountHolder?: string;
   createdAt: string;
 }
 
@@ -79,7 +82,7 @@ export interface Shop {
 // ----------------------------------------------------------------------
 export const MOCK_USERS_DATA: User[] = [
   // 1. Current User
-  { id: 'u1', email: 'user1@test.com', nickname: '세미콜론', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u1', intro: '취미 장비 거래를 좋아하는 세미콜론입니다.', point: 15000, createdAt: '2024-01-15T00:00:00.000Z' },
+  { id: 'u1', email: 'user1@test.com', nickname: '세미콜론', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u1', intro: '취미 장비 거래를 좋아하는 세미콜론입니다.', point: 15000, bankName: '국민은행', accountNumber: '123-456-78-901234', accountHolder: '이태석', createdAt: '2024-01-15T00:00:00.000Z' },
   // 2-6. Power Sellers (Big 5)
   { id: 'u2', email: 'tech@test.com', nickname: '테크마스터', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u2', intro: 'IT 기기 전문', point: 500000, createdAt: '2023-01-10T00:00:00.000Z' },
   { id: 'u3', email: 'sound@test.com', nickname: '소리사랑', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u3', intro: '음향기기 수집가', point: 320000, createdAt: '2023-02-20T00:00:00.000Z' },

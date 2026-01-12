@@ -12,6 +12,7 @@ import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 import { useCartStore } from '@/stores/useCartStore';
 import { useLikeStore } from '@/stores/useLikeStore';
+import { ShareModal } from '@/components/features/product/ShareModal';
 
 export default function ProductDetailPage() {
   const { productId: rawProductId } = useParams();
@@ -24,6 +25,7 @@ export default function ProductDetailPage() {
   const productId = sanitizeUrlParam(rawProductId);
   const product = isValidId(productId) ? MOCK_PRODUCTS.find((p) => p.id === productId) : undefined;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   
   // 좋아요 상태는 Store에서 관리
   const isLiked = productId ? checkIsLiked(productId) : false;
@@ -32,7 +34,7 @@ export default function ProductDetailPage() {
     if (!productId) return;
     const nowLiked = toggleLike(productId);
     showToast(
-      nowLiked ? '관심 상품에 추가되었습니다.' : '관심 상품에서 제거되었습니다.',
+      nowLiked ? '찜한 상품에 추가되었습니다.' : '찜한 상품에서 제거되었습니다.',
       nowLiked ? 'success' : 'info'
     );
   };
@@ -131,18 +133,29 @@ export default function ProductDetailPage() {
                     )}
                     <span className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
                         {conditionStatus === 'SEALED' ? '미개봉' : 
-                         conditionStatus === 'NO_WEAR' ? '사용감 없음' : '중고'}
+                         conditionStatus === 'NO_WEAR' ? '사용감 없음' : 
+                         conditionStatus === 'MINOR_WEAR' ? '사용감 적음' :
+                         conditionStatus === 'VISIBLE_WEAR' ? '사용감 있음' : '하자/파손'}
                     </span>
                    </div>
                   <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{title}</h1>
                 </div>
-                <button className="text-gray-400 hover:text-gray-600">
+                <button 
+                  onClick={() => {
+                    // 공유 모달이 있다면 열고, 없으면 토스트 메시지
+                    showToast('링크가 복사되었습니다.', 'success');
+                  }}
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0 ml-4"
+                >
                   <Share2 className="h-6 w-6" />
                 </button>
               </div>
               
-              <div className="flex items-center gap-2 text-3xl font-bold text-gray-900">
-                {price.toLocaleString()}원
+              <div className="flex items-end gap-2">
+                <span className="text-3xl font-bold text-gray-900">{price.toLocaleString()}원</span>
+                <span className="mb-1 text-sm text-gray-500">
+                  {product.shippingFee === 0 ? '무료배송' : `배송비 ${product.shippingFee.toLocaleString()}원`}
+                </span>
               </div>
               
               <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
@@ -331,6 +344,11 @@ export default function ProductDetailPage() {
           )}
         </div>
       </div>
+      <ShareModal 
+        isOpen={isShareModalOpen} 
+        onClose={() => setIsShareModalOpen(false)} 
+        productTitle={product.title}
+      />
     </div>
   );
 }

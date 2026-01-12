@@ -17,7 +17,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-neutral-600">
               <li><Link to="/search">상품 검색</Link></li>
               <li><Link to="/categories">카테고리</Link></li>
-              <li><Link to="/shop">내 상점</Link></li>
+              <li><Link to="/seller">내 상점</Link></li>
             </ul>
           </div>
           <div>

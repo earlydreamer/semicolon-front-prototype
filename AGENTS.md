@@ -137,6 +137,7 @@ frontend/
 - **상수**: SCREAMING_SNAKE_CASE (`API_ENDPOINTS.ts`)
 
 ### TypeScript 규칙
+
 ```typescript
 // ✅ 인터페이스는 I 접두사 없이 사용
 interface Product {
@@ -166,6 +167,7 @@ export default ProductCard;
 4. **에러 경계**: 주요 기능별 ErrorBoundary 적용
 
 ### 스타일링 규칙 (TailwindCSS)
+
 ```tsx
 // ✅ 클래스가 길어지면 여러 줄로 분리
 <div
@@ -190,8 +192,11 @@ export default ProductCard;
 
 ### GitHub Projects 기반 Issue 관리
 
-> [!IMPORTANT]
-> **모든 기능 개발은 GitHub Projects를 통해 관리됩니다.**
+> [!CAUTION]
+> **GitHub Projects 및 Issue 연동은 타협할 수 없는 절대적인 규칙입니다.**
+> 모든 작업은 이슈 생성(또는 할당)에서 시작하여 커밋, PR, 이슈 클로즈로 이어지는 사이클을 완벽히 준수해야 합니다.
+> 이를 위반하는 행위는 프로젝트 개발 지침에 대한 중대한 결격 사유로 간주됩니다.
+> 상세한 AI 전용 이행 지침은 [`gemini.md`](file:///d:/Projects/Programmers/Semi-Project/frontend/gemini.md)를 상시 머리말처럼 참조하십시오.
 
 #### Issue 생성 규칙
 1. **새 기능 작업 시작 전**: 반드시 기존 Issue 확인
@@ -246,6 +251,7 @@ fix(auth): 로그인 토큰 만료 처리 수정
 ### PR 머지 프로세스
 
 #### Conflict가 없는 경우
+
 1. PR 생성 후 리뷰 요청
 2. 승인 받은 후 **즉시 머지**
 
@@ -263,12 +269,16 @@ fix(auth): 로그인 토큰 만료 처리 수정
 
 ### AI 에이전트 자동화 정책
 
-> [!IMPORTANT]
-> **목업 프로젝트 한정**: 이 정책은 프론트엔드 목업 개발 단계에서만 적용됩니다.
-> 실제 팀 협업 시에는 반드시 코드 리뷰 프로세스를 거쳐야 합니다.
+> [!CAUTION]
+> **AI 에이전트(Gemini)는 작업 시작 전 반드시 Issue를 확인하거나 생성해야 합니다.**
+> 이 지침을 어길 경우 프로젝트의 히스토리 관리에 심각한 결함이 발생하므로 최우선 순위로 준수해야 합니다.
 
-#### 자동화 범위
-AI 에이전트(Gemini)는 다음 작업을 자동으로 수행할 수 있습니다:
+#### 자동화 범위 (AI 에이전트 필수 의무)
+
+> [!IMPORTANT]
+> **AI 에이전트(Gemini)는 작업 시작 전 반드시 해당 작업을 설명하는 Issue를 생성해야 합니다.**
+> - 작업 계획 승인 후 즉시 `gh issue create` 실행 필수
+> - 모든 커밋과 PR은 해당 Issue와 연결되어야 함
 
 1. **Issue 생성**: 작업 시작 전 관련 Issue 자동 생성
    - **연관 이슈 등록**: 특정 이슈(#번호)의 버그픽스 또는 후속 작업인 경우, 본문에 `Related to #번호`를 명시하여 연결

@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { ShieldCheck } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import type { Product } from '@/mocks/products';
 import { formatTimeAgo } from '@/utils/date';
@@ -23,12 +22,7 @@ export function ProductCard({ product }: ProductCardProps) {
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
             loading="lazy"
           />
-          {product.isSafe && (
-            <div className="absolute top-2 left-2 flex items-center gap-1 rounded bg-neutral-900/70 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
-              <ShieldCheck className="h-3 w-3" />
-              <span>안전결제</span>
-            </div>
-          )}
+
         </div>
 
         {/* Content */}
