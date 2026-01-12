@@ -13,6 +13,9 @@ export interface ProductFormData {
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
+  purchaseDate?: string;
+  usePeriod?: string;
+  detailedCondition?: string;
   description: string;
   images: string[];
 }
@@ -36,6 +39,9 @@ export interface SellerProduct {
   image: string;
   images: string[];
   isSafe: boolean;
+  purchaseDate?: string;
+  usePeriod?: string;
+  detailedCondition?: string;
 }
 
 interface SellerState {
@@ -90,6 +96,9 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       image: data.images[0] || '',
       images: data.images,
       isSafe: true,
+      purchaseDate: data.purchaseDate,
+      usePeriod: data.usePeriod,
+      detailedCondition: data.detailedCondition,
     };
     
     set((state) => ({

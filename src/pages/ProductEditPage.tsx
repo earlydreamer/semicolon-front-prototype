@@ -47,6 +47,9 @@ const ProductEditPage = () => {
       price: data.price,
       shippingFee: data.shippingFee,
       conditionStatus: data.conditionStatus,
+      purchaseDate: data.purchaseDate,
+      usePeriod: data.usePeriod,
+      detailedCondition: data.detailedCondition,
       description: data.description,
       images: data.images,
     });
@@ -65,6 +68,9 @@ const ProductEditPage = () => {
     price: product.price,
     shippingFee: product.shippingFee,
     conditionStatus: product.conditionStatus,
+    purchaseDate: product.purchaseDate,
+    usePeriod: product.usePeriod,
+    detailedCondition: product.detailedCondition,
     description: product.description,
     images: product.images,
   };

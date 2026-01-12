@@ -41,6 +41,9 @@ export interface Product {
   image: string;
   images: string[];
   isSafe: boolean;
+  purchaseDate?: string; // 구매 시기
+  usePeriod?: string;    // 사용 기간
+  detailedCondition?: string; // 상세 상태
   seller: ProductSeller;
   comments?: ProductComment[];
 }
@@ -100,10 +103,10 @@ export const MOCK_PRODUCTS: Product[] = [
   { id: 'p-s1-4', categoryId: 'lens', sellerId: 's1', title: '캐논 RF 35mm F1.8 IS STM 렌즈', description: 'RF 마운트 단렌즈. 풍경/인물 모두 좋습니다.', price: 450000, shippingFee: 0, conditionStatus: 'MINOR_WEAR', saleStatus: 'RESERVED', viewCount: 178, likeCount: 14, commentCount: 5, createdAt: d(10), image: IMG.camera, images: [IMG.camera],  isSafe: true, seller: SELLERS.s1 },
   { id: 'p-s1-5', categoryId: 'wearable', sellerId: 's1', title: '애플워치 SE 2세대 40mm 미드나이트', description: '아이폰 바꾸면서 정리합니다.', price: 180000, shippingFee: 0, conditionStatus: 'NO_WEAR', saleStatus: 'RESERVED', viewCount: 134, likeCount: 9, commentCount: 3, createdAt: d(5), image: IMG.phone, images: [IMG.phone],  isSafe: true, seller: SELLERS.s1 },
   { id: 'p-s1-6', categoryId: 'actioncam', sellerId: 's1', title: '고프로 맥스 360도 카메라', description: '360도 촬영 가능한 액션캠. 여행용으로 구매했다가 거의 못 썼어요.', price: 320000, shippingFee: 3000, conditionStatus: 'NO_WEAR', saleStatus: 'ON_SALE', viewCount: 67, likeCount: 5, commentCount: 2, createdAt: d(3), image: IMG.camera, images: [IMG.camera],  isSafe: true, seller: SELLERS.s1 },
-  { id: 'p-s1-7', categoryId: 'goods-stray', sellerId: 's1', title: '레고 테크닉 포르쉐 911 GT3 RS', description: '미개봉 새제품. 선물받았는데 조립할 시간이 없네요.', price: 150000, shippingFee: 4000, conditionStatus: 'SEALED', saleStatus: 'ON_SALE', viewCount: 45, likeCount: 3, commentCount: 1, createdAt: d(1), image: IMG.album, images: [IMG.album],  isSafe: true, seller: SELLERS.s1 },
+  { id: 'p-s1-7', categoryId: 'goods-stray', sellerId: 's1', title: '레고 테크닉 포르쉐 911 GT3 RS', description: '미개봉 새제품. 선물받았는데 조립할 시간이 없네요.', price: 150000, shippingFee: 4000, conditionStatus: 'SEALED', saleStatus: 'ON_SALE', viewCount: 45, likeCount: 3, commentCount: 1, createdAt: d(1), image: IMG.album, images: [IMG.album],  isSafe: true, purchaseDate: '2024년 1월', usePeriod: '미개봉', detailedCondition: '박스 칼입성 확인 완료', seller: SELLERS.s1 },
   
   // ===== s2 IT월드 (전자기기) 9개 =====
-  { id: 'p1', categoryId: 'phone-apple', sellerId: 's2', title: '아이폰 15 프로 맥스 256GB 자급제', description: '미개봉 새제품입니다. 자급제.', price: 1550000, shippingFee: 0, conditionStatus: 'SEALED', saleStatus: 'ON_SALE', viewCount: 320, likeCount: 8, commentCount: 2, createdAt: d(5), image: IMG.phone, images: [IMG.phone],  isSafe: true, seller: SELLERS.s2 },
+  { id: 'p1', categoryId: 'phone-apple', sellerId: 's2', title: '아이폰 15 프로 맥스 256GB 자급제', description: '미개봉 새제품입니다. 자급제.', price: 1550000, shippingFee: 0, conditionStatus: 'SEALED', saleStatus: 'ON_SALE', viewCount: 320, likeCount: 8, commentCount: 2, createdAt: d(5), image: IMG.phone, images: [IMG.phone],  isSafe: true, purchaseDate: '2023년 11월', usePeriod: '미개봉', detailedCondition: '자급제 풀박스', seller: SELLERS.s2 },
   { id: 'p2', categoryId: 'phone-samsung', sellerId: 's2', title: '갤럭시 S24 울트라 512GB 티타늄블랙', description: '개봉 후 1회 통화만 했습니다.', price: 1350000, shippingFee: 3000, conditionStatus: 'NO_WEAR', saleStatus: 'ON_SALE', viewCount: 180, likeCount: 6, commentCount: 1, createdAt: d(4), image: IMG.phone, images: [IMG.phone],  isSafe: true, seller: SELLERS.s2 },
   { id: 'p3', categoryId: 'tablet-ipad', sellerId: 's2', title: '아이패드 프로 12.9 M2 256GB', description: '애플케어 2025년까지.', price: 1100000, shippingFee: 0, conditionStatus: 'MINOR_WEAR', saleStatus: 'ON_SALE', viewCount: 95, likeCount: 5, commentCount: 2, createdAt: d(7), image: IMG.tablet, images: [IMG.tablet],  isSafe: true, seller: SELLERS.s2 },
   { id: 'p4', categoryId: 'tablet-galaxy', sellerId: 's2', title: '갤럭시탭 S9 울트라 256GB', description: '키보드 커버 포함.', price: 980000, shippingFee: 4000, conditionStatus: 'NO_WEAR', saleStatus: 'RESERVED', viewCount: 67, likeCount: 3, commentCount: 0, createdAt: d(3), image: IMG.tablet, images: [IMG.tablet],  isSafe: true, seller: SELLERS.s2 },

@@ -70,6 +70,7 @@ export default function ProductDetailPage() {
   const { 
     title, price, description, images, seller, 
     viewCount, likeCount, createdAt, conditionStatus, isSafe, categoryId,
+    purchaseDate, usePeriod, detailedCondition,
     comments 
   } = product;
 
@@ -220,9 +221,34 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {/* Content - 상품 정보만 표시 */}
+            {/* Content - 상품 정보 (상세 필드 추가) */}
             <div className="py-6 min-h-[200px]">
               <h3 className="text-lg font-bold mb-4">상품 정보</h3>
+              
+              {/* 상세 정보 테이블 스타일 (구매 시기, 사용 기간, 상세 상태) */}
+              {(purchaseDate || usePeriod || detailedCondition) && (
+                <div className="mb-6 grid grid-cols-1 gap-y-3 rounded-lg border border-gray-100 bg-gray-50/50 p-4 text-sm">
+                  {purchaseDate && (
+                    <div className="flex">
+                      <span className="w-24 font-medium text-gray-500">구매 시기</span>
+                      <span className="text-gray-900">{purchaseDate}</span>
+                    </div>
+                  )}
+                  {usePeriod && (
+                    <div className="flex">
+                      <span className="w-24 font-medium text-gray-500">사용 기간</span>
+                      <span className="text-gray-900">{usePeriod}</span>
+                    </div>
+                  )}
+                  {detailedCondition && (
+                    <div className="flex">
+                      <span className="w-24 font-medium text-gray-500">상세 상태</span>
+                      <span className="text-gray-900">{detailedCondition}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
                 {description}
               </div>
