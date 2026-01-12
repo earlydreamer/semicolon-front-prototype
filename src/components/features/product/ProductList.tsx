@@ -18,12 +18,21 @@ export function ProductList({
   title, 
   enableInfiniteScroll = true 
 }: ProductListProps) {
-  const { displayItems, isLoading, hasMore, observerTarget } = useInfiniteScroll(products, {
+  // 품절 상품을 뒤로 보내는 정렬 로직 추가
+  const sortedProducts = [...products].sort((a, b) => {
+    const aSoldOut = a.saleStatus === 'SOLD_OUT' || a.saleStatus === 'RESERVED'; // 예약중도 뒤로 보냄 (선택사항)
+    const bSoldOut = b.saleStatus === 'SOLD_OUT' || b.saleStatus === 'RESERVED';
+    if (aSoldOut && !bSoldOut) return 1;
+    if (!aSoldOut && bSoldOut) return -1;
+    return 0;
+  });
+
+  const { displayItems, isLoading, hasMore, observerTarget } = useInfiniteScroll(sortedProducts, {
     pageSize: 12,
   });
 
   // 무한 스크롤 비활성화 시 전체 표시 (또는 기존 로직 유지 가능)
-  const itemsToRender = enableInfiniteScroll ? displayItems : products;
+  const itemsToRender = enableInfiniteScroll ? displayItems : sortedProducts;
 
   return (
     <section className="container mx-auto py-12 px-4">
@@ -38,7 +47,7 @@ export function ProductList({
         데이터가 부족할 경우 grid의 기본 동작에 의해 왼쪽으로 정렬됨
       */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-        {itemsToRender.map((product) => (
+        {itemsToRender.map((product: Product) => (
           <ProductCard key={product.id} product={product} />
         ))}
         

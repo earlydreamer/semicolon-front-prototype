@@ -38,6 +38,10 @@ export const useCartStore = create<CartState>((set, get) => ({
     if (exists) {
       return false; // 이미 장바구니에 담긴 상품
     }
+
+    if (product.saleStatus === 'SOLD_OUT') {
+      return false; // 품절된 상품은 담을 수 없음
+    }
     
     // 새 상품 추가 (수량은 항상 1)
     const newItem: CartItem = {
