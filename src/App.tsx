@@ -21,7 +21,6 @@ const ProductRegisterPage = lazy(() => import('./pages/ProductRegisterPage'));
 const ProductEditPage = lazy(() => import('./pages/ProductEditPage'));
 const MyShopSettingsPage = lazy(() => import('./pages/MyShopSettingsPage'));
 const SettlementAccountPage = lazy(() => import('./pages/SettlementAccountPage'));
-const SettlementAccountPage = lazy(() => import('./pages/SettlementAccountPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const NoticePage = lazy(() => import('./pages/NoticePage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
