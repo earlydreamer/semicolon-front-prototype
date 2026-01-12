@@ -129,9 +129,17 @@ export default function ProductDetailPage() {
                         안전결제
                         </span>
                     )}
-                    <span className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                    <span className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-bold ${
+                        conditionStatus === 'SEALED' ? 'bg-emerald-100 text-emerald-700' :
+                        conditionStatus === 'NO_WEAR' ? 'bg-blue-100 text-blue-700' :
+                        conditionStatus === 'MINOR_WEAR' ? 'bg-yellow-100 text-yellow-800' :
+                        conditionStatus === 'VISIBLE_WEAR' ? 'bg-orange-100 text-orange-700' :
+                        'bg-red-100 text-red-700'
+                    }`}>
                         {conditionStatus === 'SEALED' ? '미개봉' : 
-                         conditionStatus === 'NO_WEAR' ? '사용감 없음' : '중고'}
+                         conditionStatus === 'NO_WEAR' ? '사용감 없음' : 
+                         conditionStatus === 'MINOR_WEAR' ? '사용감 적음' : 
+                         conditionStatus === 'VISIBLE_WEAR' ? '사용감 많음' : '하자 있음'}
                     </span>
                    </div>
                   <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{title}</h1>
@@ -141,8 +149,25 @@ export default function ProductDetailPage() {
                 </button>
               </div>
               
-              <div className="flex items-center gap-2 text-3xl font-bold text-gray-900">
-                {price.toLocaleString()}원
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2 text-3xl font-bold text-gray-900">
+                    {price.toLocaleString()}원
+                  </div>
+                  {/* 배송비 정보 */}
+                  <div className="text-sm">
+                    {product.shippingFee === 0 ? (
+                      <span className="font-bold text-green-600">무료배송</span>
+                    ) : (
+                      <span className="text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-100 italic">
+                        + 배송비 {product.shippingFee.toLocaleString()}원
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button className="text-gray-400 hover:text-gray-600">
+                  <Share2 className="h-6 w-6" />
+                </button>
               </div>
               
               <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
