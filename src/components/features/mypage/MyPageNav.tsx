@@ -3,7 +3,7 @@
  */
 
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Heart, Package, Settings, ChevronRight } from 'lucide-react';
+import { ShoppingBag, Heart, Package, Settings, ChevronRight, CreditCard } from 'lucide-react';
 
 interface MenuItem {
   icon: React.ElementType;
@@ -35,6 +35,11 @@ const MyPageNav = ({ likeCount, orderCount }: MyPageNavProps) => {
       icon: Package,
       label: '판매 관리',
       href: '/seller',
+    },
+    {
+      icon: CreditCard,
+      label: '정산 계좌 관리',
+      href: '/mypage/settlement',
     },
     {
       icon: Settings,
