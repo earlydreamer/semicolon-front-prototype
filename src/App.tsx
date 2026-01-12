@@ -33,52 +33,55 @@ const CouponManagePage = lazy(() => import('./pages/admin/CouponManagePage'));
 const SettlementManagePage = lazy(() => import('./pages/admin/SettlementManagePage'));
 
 import { ToastProvider } from '@/components/common/Toast';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 // GitHub Pages 배포 시 base URL 설정
 const basename = import.meta.env.BASE_URL;
 
 function App() {
   return (
-    <BrowserRouter basename={basename}>
-      <ToastProvider>
-        <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
-          <Routes>
-            {/* 일반 사용자 페이지 */}
-            <Route element={<DefaultLayout />}>
-              <Route index element={<HomePage />} />
-              <Route path="categories/:categoryId" element={<CategoryPage />} />
-              <Route path="products/:productId" element={<ProductDetailPage />} />
-              <Route path="design" element={<DesignSystemPage />} />
-              <Route path="login" element={<LoginPage />} />
-              <Route path="signup" element={<SignupPage />} />
-              <Route path="cart" element={<CartPage />} />
-              <Route path="mypage" element={<MyPage />} />
-              <Route path="mypage/orders" element={<OrderHistoryPage />} />
-              <Route path="mypage/likes" element={<LikedProductsPage />} />
-              <Route path="shop/:shopId" element={<ShopPage />} />
-              <Route path="order" element={<OrderPage />} />
-              <Route path="order/complete" element={<OrderCompletePage />} />
-              <Route path="seller" element={<SellerPage />} />
-              <Route path="seller/products/new" element={<ProductRegisterPage />} />
-              <Route path="seller/products/:productId/edit" element={<ProductEditPage />} />
-              <Route path="seller/shop" element={<MyShopSettingsPage />} />
-              <Route path="search" element={<SearchPage />} />
-            </Route>
+    <ErrorBoundary>
+      <BrowserRouter basename={basename}>
+        <ToastProvider>
+          <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+            <Routes>
+              {/* 일반 사용자 페이지 */}
+              <Route element={<DefaultLayout />}>
+                <Route index element={<HomePage />} />
+                <Route path="categories/:categoryId" element={<CategoryPage />} />
+                <Route path="products/:productId" element={<ProductDetailPage />} />
+                <Route path="design" element={<DesignSystemPage />} />
+                <Route path="login" element={<LoginPage />} />
+                <Route path="signup" element={<SignupPage />} />
+                <Route path="cart" element={<CartPage />} />
+                <Route path="mypage" element={<MyPage />} />
+                <Route path="mypage/orders" element={<OrderHistoryPage />} />
+                <Route path="mypage/likes" element={<LikedProductsPage />} />
+                <Route path="shop/:shopId" element={<ShopPage />} />
+                <Route path="order" element={<OrderPage />} />
+                <Route path="order/complete" element={<OrderCompletePage />} />
+                <Route path="seller" element={<SellerPage />} />
+                <Route path="seller/products/new" element={<ProductRegisterPage />} />
+                <Route path="seller/products/:productId/edit" element={<ProductEditPage />} />
+                <Route path="seller/shop" element={<MyShopSettingsPage />} />
+                <Route path="search" element={<SearchPage />} />
+              </Route>
 
-            {/* 관리자 페이지 */}
-            <Route path="admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboardPage />} />
-              <Route path="products" element={<ProductManagePage />} />
-              <Route path="users" element={<UserManagePage />} />
-              <Route path="reports" element={<ReportManagePage />} />
-              <Route path="coupons" element={<CouponManagePage />} />
-              <Route path="settlements" element={<SettlementManagePage />} />
-              <Route path="categories" element={<CategoryManagePage />} />
-            </Route>
-          </Routes>
-        </Suspense>
-      </ToastProvider>
-    </BrowserRouter>
+              {/* 관리자 페이지 */}
+              <Route path="admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboardPage />} />
+                <Route path="products" element={<ProductManagePage />} />
+                <Route path="users" element={<UserManagePage />} />
+                <Route path="reports" element={<ReportManagePage />} />
+                <Route path="coupons" element={<CouponManagePage />} />
+                <Route path="settlements" element={<SettlementManagePage />} />
+                <Route path="categories" element={<CategoryManagePage />} />
+              </Route>
+            </Routes>
+          </Suspense>
+        </ToastProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
