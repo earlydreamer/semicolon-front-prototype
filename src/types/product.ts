@@ -50,7 +50,6 @@ export interface Product {
   updatedAt?: string;
   image: string;
   images: string[];
-  location: string;
   isSafe: boolean;
   seller: ProductSeller;
   comments?: ProductComment[];

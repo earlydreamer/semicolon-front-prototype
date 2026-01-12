@@ -35,7 +35,6 @@ export interface SellerProduct {
   updatedAt?: string;
   image: string;
   images: string[];
-  location: string;
   isSafe: boolean;
 }
 
@@ -90,7 +89,6 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       createdAt: new Date().toISOString(),
       image: data.images[0] || '',
       images: data.images,
-      location: '',
       isSafe: true,
     };
     

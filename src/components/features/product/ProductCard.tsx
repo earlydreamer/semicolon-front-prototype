@@ -46,11 +46,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
           
-          <div className="mt-1 flex items-center gap-1">
-            <span className="text-xs text-neutral-500">
-              {product.location}
-            </span>
-          </div>
+
         </div>
       </Card>
     </Link>

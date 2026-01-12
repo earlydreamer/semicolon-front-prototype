@@ -326,7 +326,7 @@ export const MOCK_SALES_PRODUCTS = [
     createdAt: u1_d(45),
     image: IMG.chair,
     images: [IMG.chair],
-    location: '서울시 강남구',
+    
     isSafe: true,
   },
   {
@@ -345,7 +345,7 @@ export const MOCK_SALES_PRODUCTS = [
     createdAt: u1_d(30),
     image: IMG.earphone,
     images: [IMG.earphone],
-    location: '서울시 강남구',
+    
     isSafe: true,
   },
   {
@@ -364,7 +364,7 @@ export const MOCK_SALES_PRODUCTS = [
     createdAt: u1_d(20),
     image: IMG.mug,
     images: [IMG.mug],
-    location: '서울시 강남구',
+    
     isSafe: true,
   },
   
@@ -385,7 +385,7 @@ export const MOCK_SALES_PRODUCTS = [
     createdAt: u1_d(10),
     image: IMG.lens,
     images: [IMG.lens],
-    location: '서울시 강남구',
+    
     isSafe: true,
   },
   {
@@ -404,7 +404,7 @@ export const MOCK_SALES_PRODUCTS = [
     createdAt: u1_d(5),
     image: IMG.watch,
     images: [IMG.watch],
-    location: '서울시 강남구',
+    
     isSafe: true,
   },
   
@@ -425,7 +425,7 @@ export const MOCK_SALES_PRODUCTS = [
     createdAt: u1_d(3),
     image: IMG.gopro,
     images: [IMG.gopro],
-    location: '서울시 강남구',
+    
     isSafe: true,
   },
   {
@@ -444,7 +444,7 @@ export const MOCK_SALES_PRODUCTS = [
     createdAt: u1_d(1),
     image: IMG.lego,
     images: [IMG.lego],
-    location: '서울시 강남구',
+    
     isSafe: true,
   },
 ];

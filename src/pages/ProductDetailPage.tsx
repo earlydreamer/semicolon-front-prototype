@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_PRODUCTS } from '@/mocks/products';
-import { Heart, Share2, MapPin, ShieldCheck, Star, User, ChevronRight, ShoppingBag } from 'lucide-react';
+import { Heart, Share2, ShieldCheck, Star, User, ChevronRight, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -66,7 +66,7 @@ export default function ProductDetailPage() {
   }
 
   const { 
-    title, price, location, description, images, seller, 
+    title, price, description, images, seller, 
     viewCount, likeCount, createdAt, conditionStatus, isSafe, categoryId,
     comments 
   } = product;
@@ -171,10 +171,6 @@ export default function ProductDetailPage() {
               </div>
               
               <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" /> {location}
-                </span>
-                <span>•</span>
                 <span>{formatTimeAgo(createdAt)}</span>
                 <span>•</span>
                 <span>조회 {viewCount}</span>
