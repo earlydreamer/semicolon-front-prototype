@@ -130,6 +130,7 @@ frontend/
 ## 📝 코딩 컨벤션
 
 ### 파일/폴더 명명 규칙
+
 - **컴포넌트**: PascalCase (`ProductCard.tsx`)
 - **훅**: camelCase + use 접두사 (`useAuth.ts`)
 - **유틸리티**: camelCase (`formatPrice.ts`)
@@ -137,6 +138,7 @@ frontend/
 - **상수**: SCREAMING_SNAKE_CASE (`API_ENDPOINTS.ts`)
 
 ### TypeScript 규칙
+
 ```typescript
 // ✅ 인터페이스는 I 접두사 없이 사용
 interface Product {
@@ -160,12 +162,14 @@ export default ProductCard;
 ```
 
 ### 컴포넌트 작성 원칙
+
 1. **단일 책임**: 하나의 컴포넌트는 하나의 역할만
 2. **Props Drilling 최소화**: 2단계 이상은 Context 또는 Store 사용
 3. **조건부 렌더링**: 삼항 연산자 또는 && 연산자 사용
 4. **에러 경계**: 주요 기능별 ErrorBoundary 적용
 
 ### 스타일링 규칙 (TailwindCSS)
+
 ```tsx
 // ✅ 클래스가 길어지면 여러 줄로 분리
 <div
@@ -186,38 +190,51 @@ export default ProductCard;
 
 ---
 
-## 🔄 Git 워크플로우
+## 🔄 Git 워크플로우 및 정책
+
+### ⚠️ 커밋 히스토리 오염 방지 원칙 (필독)
+
+> [!CAUTION]
+> **독립 브랜치 작업 필수**: 동일한 브랜치(특히 `main`)에서 여러 에이전트가 동시에 작업하는 행위는 커밋 로그 오염의 주원인입니다.
+> 1. 모든 작업은 반드시 **이슈별 독립적인 기능 브랜치(`feature/*`)**를 생성하여 진행합니다.
+> 2. 브랜치 생성 전 최신 `main` 상태를 반영(`pull`)하여 충돌을 최소화합니다.
+> 3. **예외 없는 반려**: 이 정책을 준수하지 않고 브랜치 격리 없이 발생한 커밋 로그 오염은 해당 기능을 즉시 롤백하고 재작업을 요구합니다.
+
+---
 
 ### GitHub Projects 기반 Issue 관리
 
 > [!IMPORTANT]
-> **모든 기능 개발은 GitHub Projects를 통해 관리됩니다.**
+> **모든 개발은 GitHub Issue에서 시작하고 PR로 종료됩니다.** 이슈를 거치지 않은 직접 커밋은 금지됩니다.
 
-#### Issue 생성 규칙
-1. **새 기능 작업 시작 전**: 반드시 기존 Issue 확인
-2. **대응 Issue가 없는 경우**: Implementation Plan을 기반으로 새 Issue 생성
+#### Issue 생성 및 상태 관리
+1. **사전 검증**: 작업 시작 전 반드시 GitHub Projects 보드와 Issue 목록을 확인하여 중복 작업을 방지합니다.
+2. **이슈 생성 필수**: 대응하는 Issue가 없는 경우, Implementation Plan 승인 후 즉시 생성합니다.
    - **제목**: 한국어로 명확하게 작성 (예: `[기능] 카테고리별 상품 필터링 구현`)
-   - **설명**: 한국어로 구현 범위, 체크리스트, 관련 문서 링크 포함
-   - **라벨**: `feature`, `bug`, `refactor`, `docs` 등 적절히 지정
+   - **설명**: 구현 범위, 체크리스트, 관련 문서 링크 포함
+   - **연결**: 반드시 관련 Project에 할당
+3. **상태 전환**: 작업 단계에 따라 `TODO` → `IN PROGRESS` → `DONE`으로 가시성을 확보합니다.
 
 #### Feature 브랜치 워크플로우
+
 ```
 1. Issue 확인/생성
-2. feature/* 브랜치 생성 (main 또는 develop에서 분기)
-3. 기능 구현 (의미 단위로 커밋)
+2. feature/* 브랜치 생성 (main에서 분기 필수)
+3. 기능 구현 (의미 단위로 원자적 커밋)
 4. PR 생성 → main 브랜치로 머지
 ```
 
 ### 브랜치 전략
 ```
-main          ← 운영 배포
+main          ← 운영 배포 (직접 푸시 금지)
 develop       ← 통합 개발
-feature/*     ← 기능 개발
+feature/*     ← 기능 개발 (이슈 번호 포함 권장)
 hotfix/*      ← 긴급 수정
 release/*     ← 릴리즈 준비
 ```
 
-### 커밋 컨벤션
+### 커밋 컨벤션 (필수 준수)
+
 ```
 feat: 새로운 기능 추가
 fix: 버그 수정
@@ -227,9 +244,7 @@ docs: 문서 수정
 style: 코드 포맷팅
 test: 테스트 코드
 
-예시:
-feat(product): 카테고리별 필터링 기능 추가
-fix(auth): 로그인 토큰 만료 처리 수정
+예시: feat(product): 상품 목록 무한 스크롤 구현 (Closes #12)
 ```
 
 > [!TIP]
@@ -238,78 +253,33 @@ fix(auth): 로그인 토큰 만료 처리 수정
 > - 커밋 메시지는 "무엇을, 왜" 변경했는지 명확히 기술
 > - 큰 기능은 작은 단위로 나누어 커밋
 
-### PR 규칙
-- 최소 1인 이상 코드 리뷰 필수
-- 테스트 통과 필수
-- 린트 검사 통과 필수
-
-### PR 머지 프로세스
-
-#### Conflict가 없는 경우
-1. PR 생성 후 리뷰 요청
-2. 승인 받은 후 **즉시 머지**
-
-#### Conflict가 발생한 경우
-1. Conflict 발생 지점 확인
-2. 로컬에서 main 브랜치 pull 후 feature 브랜치에서 rebase 또는 merge
-3. Conflict 해결 및 테스트
-4. 수정 내용 커밋 (메시지에 conflict 해결 내역 명시)
-   ```
-   fix: main 브랜치와의 충돌 해결
-   - 충돌 파일: src/components/...
-   - 해결 방법: ...
-   ```
-5. PR 업데이트 후 머지 요청
+### PR 및 머지 규칙
+- **코드 리뷰**: 최소 1인 이상 승인 필수
+- **품질 관리**: 빌드 및 린트 검사 통과 필수
+- **Conflict 해결**: 충돌 발생 시 로컬에서 `main`을 머지하거나 리베이스하여 해결 후 푸시
 
 ### AI 에이전트 자동화 정책
 
-> [!IMPORTANT]
-> **목업 프로젝트 한정**: 이 정책은 프론트엔드 목업 개발 단계에서만 적용됩니다.
-> 실제 팀 협업 시에는 반드시 코드 리뷰 프로세스를 거쳐야 합니다.
-
 #### 자동화 범위
-AI 에이전트(Gemini)는 다음 작업을 자동으로 수행할 수 있습니다:
+AI 에이전트(Gemini)는 다음의 원자적 단계를 **반드시 순서대로** 수행해야 합니다:
 
-1. **Issue 생성**: 작업 시작 전 관련 Issue 자동 생성
-   - **연관 이슈 등록**: 특정 이슈(#번호)의 버그픽스 또는 후속 작업인 경우, 본문에 `Related to #번호`를 명시하여 연결
-   ```bash
-   gh issue create --title "[유형] 작업 제목" --body "## 개요\nRelated to #번호\n..."
-   ```
-
-2. **Feature 브랜치 생성**: main에서 분기
-   ```bash
-   git checkout -b feature/기능명
-   ```
-
-3. **커밋**: 의미 단위로 원자적 커밋
-   ```bash
-   git commit -m "feat(scope): 변경 내용" -m "Closes #이슈번호"
-   ```
-
-4. **PR 생성 및 머지**: Squash 머지 후 원격 브랜치 자동 삭제
-   ```bash
-   gh pr create --title "PR 제목" --body "설명" --base main
-   gh pr merge PR번호 --squash --delete-branch
-   ```
-
-5. **로컬 정리**: main으로 전환 및 최신화
-   ```bash
-   git checkout main
-   git reset --hard origin/main
-   ```
-
-6. **Issue 체크리스트 업데이트**: 작업 완료(PR 머지) 후, 해당 Issue 본문의 체크리스트를 실행 완료 상태(`[x]`)로 업데이트하여 가독성 확보
-   ```bash
-   gh issue edit 이슈번호 --body "수정된 본문(체크 완료)"
-   ```
+1. **Issue 생성**: 작업 시작 전 관련 Issue 자동 생성 (`gh issue create`)
+2. **Feature 브랜치 생성**: 최신 `main`에서 분기 (`git checkout -b feature/*`)
+3. **원자적 커밋**: 메시지에 이슈 번호 포함 필수 (`git commit -m "... (Closes #이슈번호)"`)
+4. **PR 생성**: 상세 설명을 포함하여 PR 생성 (`gh pr create`)
+5. **PR 머지**: 승인 후 Squash Merge 진행 (`gh pr merge --squash --delete-branch`)
+6. **로컬 정리**: `main`으로 전환 및 최신화 (`git checkout main`, `git pull origin main`)
 
 #### 커밋/머지 전 확인 사항
 - [ ] 빌드 에러 없음 확인
 - [ ] 기존 기능 동작 확인
 - [ ] Issue와 PR 연결 (`Closes #번호`)
 
-#### gh CLI 경로 (Windows)
+---
 
+### gh CLI 활용 (Windows 환경)
+
+모든 GitHub 조작은 `gh` CLI를 사용하며, 경로는 다음과 같습니다:
 ```powershell
 & "C:\Program Files\GitHub CLI\gh.exe" [명령어]
 ```
