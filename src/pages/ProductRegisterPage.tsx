@@ -30,6 +30,9 @@ const ProductRegisterPage = () => {
       price: data.price,
       shippingFee: data.shippingFee,
       conditionStatus: data.conditionStatus,
+      purchaseDate: data.purchaseDate,
+      usePeriod: data.usePeriod,
+      detailedCondition: data.detailedCondition,
       description: data.description,
       images: data.images,
     });

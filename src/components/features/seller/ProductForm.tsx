@@ -18,6 +18,9 @@ const productSchema = z.object({
   price: z.number().min(0, '가격은 0원 이상이어야 합니다').max(100000000, '가격이 너무 높습니다'),
   shippingFee: z.number().min(0, '배송비는 0원 이상이어야 합니다'),
   conditionStatus: z.enum(['SEALED', 'NO_WEAR', 'MINOR_WEAR', 'VISIBLE_WEAR', 'DAMAGED'] as const),
+  purchaseDate: z.string().optional(),
+  usePeriod: z.string().optional(),
+  detailedCondition: z.string().optional(),
   description: z.string().min(10, '설명은 10자 이상 입력해주세요').max(5000, '설명은 5000자 이하로 입력해주세요'),
   images: z.array(z.string()).min(1, '최소 1장 이상의 이미지를 등록해주세요'),
 });
@@ -68,6 +71,9 @@ const ProductForm = ({
       price: 0,
       shippingFee: 0,
       conditionStatus: 'NO_WEAR',
+      purchaseDate: '',
+      usePeriod: '',
+      detailedCondition: '',
       description: '',
       images: [],
       ...defaultValues,
@@ -161,6 +167,25 @@ const ProductForm = ({
             ))}
           </div>
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <Input
+            label="구매 시기"
+            placeholder="예: 2023년 12월"
+            {...register('purchaseDate')}
+          />
+          <Input
+            label="사용 기간"
+            placeholder="예: 3개월"
+            {...register('usePeriod')}
+          />
+        </div>
+
+        <Input
+          label="상세 상태"
+          placeholder="예: 찍힘 없음, 기능 정상"
+          {...register('detailedCondition')}
+        />
       </div>
 
       {/* 가격 정보 */}
