@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DefaultLayout } from '@/components/layout/DefaultLayout';
 
 // Lazy load page components
@@ -21,7 +21,11 @@ const ProductRegisterPage = lazy(() => import('./pages/ProductRegisterPage'));
 const ProductEditPage = lazy(() => import('./pages/ProductEditPage'));
 const MyShopSettingsPage = lazy(() => import('./pages/MyShopSettingsPage'));
 const SettlementAccountPage = lazy(() => import('./pages/SettlementAccountPage'));
+const SettlementAccountPage = lazy(() => import('./pages/SettlementAccountPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
+const NoticePage = lazy(() => import('./pages/NoticePage'));
+const FAQPage = lazy(() => import('./pages/FAQPage'));
+const PolicyPage = lazy(() => import('./pages/PolicyPage'));
 
 // Admin pages
 const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
@@ -69,6 +73,10 @@ function App() {
                 <Route path="seller/shop" element={<MyShopSettingsPage />} />
                 <Route path="mypage/settlement" element={<SettlementAccountPage />} />
                 <Route path="search" element={<SearchPage />} />
+                <Route path="notice" element={<NoticePage />} />
+                <Route path="faq" element={<FAQPage />} />
+                <Route path="policy" element={<PolicyPage />} />
+                <Route path="categories" element={<Navigate to="/" replace />} />
               </Route>
 
               {/* 
