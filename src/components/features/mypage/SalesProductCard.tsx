@@ -4,15 +4,10 @@
 
 import { Link } from 'react-router-dom';
 import { Eye, Heart, MoreVertical } from 'lucide-react';
-import type { SaleStatus } from '../../../mocks/products';
-import { formatTimeAgo } from '../../../utils/date';
-
-// 판매 상태 라벨 매핑
-const SALE_STATUS_LABELS: Record<string, { text: string; className: string }> = {
-  ON_SALE: { text: '판매중', className: 'bg-green-100 text-green-700' },
-  RESERVED: { text: '예약중', className: 'bg-yellow-100 text-yellow-700' },
-  SOLD_OUT: { text: '판매완료', className: 'bg-neutral-200 text-neutral-500' },
-};
+import type { SaleStatus } from '@/types/product';
+import { formatTimeAgo } from '@/utils/date';
+import { formatPrice } from '@/utils/formatPrice';
+import { SALE_STATUS_LABELS, SALE_STATUS_COLORS } from '@/constants/labels';
 
 interface SalesProductCardProps {
   product: {
@@ -28,8 +23,6 @@ interface SalesProductCardProps {
 }
 
 const SalesProductCard = ({ product }: SalesProductCardProps) => {
-  const statusInfo = SALE_STATUS_LABELS[product.saleStatus] || SALE_STATUS_LABELS.ON_SALE;
-
   return (
     <div className="flex gap-4 p-3 rounded-xl hover:bg-neutral-50 transition-colors">
       {/* 상품 이미지 */}
@@ -47,8 +40,8 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
       {/* 상품 정보 */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${statusInfo.className}`}>
-            {statusInfo.text}
+          <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${SALE_STATUS_COLORS[product.saleStatus]}`}>
+            {SALE_STATUS_LABELS[product.saleStatus]}
           </span>
         </div>
         <Link
@@ -58,7 +51,7 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
           {product.title}
         </Link>
         <p className="text-base font-bold text-neutral-900 mt-1">
-          {product.price.toLocaleString('ko-KR')}원
+          {formatPrice(product.price)}
         </p>
         <div className="flex items-center gap-3 mt-1 text-xs text-neutral-500">
           <span className="flex items-center gap-1">

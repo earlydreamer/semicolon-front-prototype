@@ -37,6 +37,8 @@ export interface OrderHistory {
   totalPrice: number;
   shippingFee: number;
   hasReview?: boolean;
+  trackingNumber?: string;
+  deliveryCompany?: string;
 }
 
 /** 상점 정보 */

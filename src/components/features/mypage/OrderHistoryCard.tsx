@@ -3,11 +3,12 @@
  */
 
 import { Link } from 'react-router-dom';
-import type { OrderHistory } from '../../../mocks/users';
-import { ORDER_STATUS_LABELS } from '../../../mocks/users';
-import { formatTimeAgo } from '../../../utils/date';
-import { Button } from '../../common/Button';
-import { useToast } from '../../common/Toast';
+import type { OrderHistory } from '@/types/user';
+import { ORDER_STATUS_LABELS } from '@/constants/labels';
+import { formatTimeAgo } from '@/utils/date';
+import { formatPrice } from '@/utils/formatPrice';
+import { Button } from '@/components/common/Button';
+import { useToast } from '@/components/common/Toast';
 
 interface OrderHistoryCardProps {
   order: OrderHistory;
@@ -83,7 +84,7 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
               판매자: {order.product.seller.nickname}
             </p>
             <p className="text-base font-bold text-neutral-900 mt-2">
-              {order.totalPrice.toLocaleString('ko-KR')}원
+              {formatPrice(order.totalPrice)}
               {order.shippingFee > 0 && (
                 <span className="text-xs font-normal text-neutral-500 ml-1">
                   (배송비 포함)
