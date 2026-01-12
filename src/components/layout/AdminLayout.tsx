@@ -13,7 +13,7 @@ const AdminLayout = () => {
   }, [location]);
 
   return (
-    <div className="flex min-h-screen bg-neutral-100">
+    <div className="flex h-screen overflow-hidden bg-neutral-100">
       {/* 사이드바 오버레이 (모바일) */}
       {isSidebarOpen && (
         <div 
@@ -24,7 +24,7 @@ const AdminLayout = () => {
 
       {/* 사이드바 */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 transform lg:relative lg:translate-x-0 transition-transform duration-300
+        fixed inset-y-0 left-0 z-50 transform lg:relative lg:translate-x-0 transition-transform duration-300 h-full
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <AdminSidebar onClose={() => setIsSidebarOpen(false)} />
