@@ -303,9 +303,43 @@ AI 에이전트(Gemini)는 다음 작업을 자동으로 수행할 수 있습니
 - [ ] Issue와 PR 연결 (`Closes #번호`)
 
 #### gh CLI 경로 (Windows)
+
 ```powershell
 & "C:\Program Files\GitHub CLI\gh.exe" [명령어]
 ```
+
+### 목업 단계 테스트 정책
+
+> [!NOTE]
+> **목업 프로젝트 한정**: 자동화된 테스트 대신 수동 검증으로 신속하게 진행합니다.
+
+#### GitHub Projects 상태 워크플로우
+
+```
+TODO → IN PROGRESS → DONE → COMPLETE
+```
+
+| 상태 | 담당 | 설명 |
+|------|------|------|
+| **TODO** | - | 작업 대기 중 |
+| **IN PROGRESS** | AI/개발자 | 작업 진행 중 |
+| **DONE** | AI | PR 머지 완료, 테스트 대기 |
+| **COMPLETE** | 사람 | 수동 테스트 통과 후 확정 |
+
+#### 수동 테스트 체크리스트
+
+DONE → COMPLETE 이동 전 확인 사항:
+- [ ] 개발 서버에서 해당 기능 동작 확인
+- [ ] 기존 기능에 영향 없음 확인
+- [ ] UI/UX가 의도대로 표시됨 확인
+- [ ] 에러 콘솔에 새로운 오류 없음 확인
+
+#### 결함 발견 시
+
+1. DONE 상태에서 결함 발견 → Issue 코멘트에 내용 기록
+2. 새 Issue 생성 또는 기존 Issue 재오픈
+3. 수정 후 다시 DONE으로 이동
+4. 재테스트 후 COMPLETE로 이동
 
 ---
 
