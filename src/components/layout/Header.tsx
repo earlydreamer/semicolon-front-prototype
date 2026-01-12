@@ -176,7 +176,9 @@ export function Header() {
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" className="w-full justify-center">마이페이지</Button>
+                    <Link to="/mypage" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" className="w-full justify-center">마이페이지</Button>
+                    </Link>
                     <Button variant="outline" className="w-full justify-center" onClick={handleLogout}>로그아웃</Button>
                   </div>
                 </div>
@@ -193,6 +195,7 @@ export function Header() {
                 <CategoryNav 
                   variant="mobile" 
                   categories={MOCK_CATEGORIES} 
+                  onClose={() => setIsMenuOpen(false)}
                 />
               </div>
             </div>

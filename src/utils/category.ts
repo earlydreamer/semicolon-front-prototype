@@ -23,3 +23,38 @@ export function findCategoryPath(
   }
   return null;
 }
+
+/**
+ * Finds a category by its ID.
+ */
+export function findCategoryById(categories: Category[], id: string): Category | null {
+  for (const cat of categories) {
+    if (cat.id === id) return cat;
+    if (cat.children) {
+      const found = findCategoryById(cat.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+/**
+ * Returns subcategories if they exist, otherwise siblings.
+ */
+export function getCategoryChildren(categories: Category[], id: string): Category[] {
+  const node = findCategoryById(categories, id);
+  if (!node) return [];
+
+  if (node.children && node.children.length > 0) {
+    return node.children;
+  }
+
+  // No children, find parent to get siblings
+  const path = findCategoryPath(categories, id);
+  if (path && path.length > 1) {
+    const parent = path[path.length - 2];
+    return parent.children || [];
+  }
+
+  return categories; // Fallback to top level
+}

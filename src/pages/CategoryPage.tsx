@@ -6,7 +6,8 @@ import { ProductSortDropdown, type SortOption } from '@/components/features/prod
 import { MOCK_PRODUCTS } from '@/mocks/products';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
-import { findCategoryPath } from '@/utils/category';
+import { findCategoryPath, getCategoryChildren } from '@/utils/category';
+import { cn } from '@/utils/cn';
 import { sanitizeUrlParam } from '@/utils/sanitize';
 
 export default function CategoryPage() {
@@ -98,6 +99,38 @@ export default function CategoryPage() {
           ))}
         </div>
         <h1 className="text-2xl font-bold text-neutral-900">{currentCategoryName}</h1>
+      </div>
+
+      {/* Mobile Category Filter (Horizontal Scroll) */}
+      <div className="md:hidden -mx-4 mb-6 border-b border-neutral-100 bg-white sticky top-16 z-20">
+        <div className="flex gap-4 px-4 py-3 overflow-x-auto no-scrollbar">
+          <Link
+            to={categoryPath.length > 1 
+              ? `/categories/${categoryPath[categoryPath.length - 2].id}` 
+              : '/'}
+            className="flex-shrink-0 px-4 py-1.5 rounded-full bg-neutral-100 text-sm font-medium text-neutral-600 hover:bg-neutral-200"
+          >
+            전체
+          </Link>
+          {/* Current siblings or children */}
+          {(categoryId ? 
+            (getCategoryChildren(MOCK_CATEGORIES, categoryId) || []) : 
+            MOCK_CATEGORIES
+          ).map((cat: Category) => (
+            <Link
+              key={cat.id}
+              to={`/categories/${cat.id}`}
+              className={cn(
+                "flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all",
+                cat.id === categoryId
+                  ? "bg-primary-600 text-white shadow-md shadow-primary-200"
+                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+              )}
+            >
+              {cat.name}
+            </Link>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
