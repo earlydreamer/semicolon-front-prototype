@@ -31,12 +31,12 @@ interface ProductFormProps {
   submitLabel?: string;
 }
 
-// 상품 상태 옵션
+// 상품 상태 옵션 (ENUM 기준 통일)
 const CONDITION_OPTIONS: { value: ConditionStatus; label: string; description: string }[] = [
   { value: 'SEALED', label: '미개봉', description: '새 상품 (포장 미개봉)' },
-  { value: 'NO_WEAR', label: '거의 새것', description: '사용감 없음' },
+  { value: 'NO_WEAR', label: '사용감 없음', description: '거의 새것 수준' },
   { value: 'MINOR_WEAR', label: '사용감 적음', description: '눈에 띄지 않는 사용감' },
-  { value: 'VISIBLE_WEAR', label: '사용감 있음', description: '눈에 띄는 사용감' },
+  { value: 'VISIBLE_WEAR', label: '사용감 많음', description: '눈에 띄는 사용감' },
   { value: 'DAMAGED', label: '하자 있음', description: '기능/외관 하자' },
 ];
 
