@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { ProductList } from '@/components/features/product/ProductList';
 import { ProductSortDropdown, type SortOption } from '@/components/features/product/ProductSortDropdown';
 import { MOCK_PRODUCTS } from '@/mocks/products';
-import { MOCK_CATEGORIES } from '@/mocks/categories';
+import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
 import { findCategoryPath, getCategoryChildren } from '@/utils/category';
 import { cn } from '@/utils/cn';

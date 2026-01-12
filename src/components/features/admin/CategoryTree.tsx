@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, FolderTree } from 'lucide-react';
 import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
+import { findCategoryPath } from '@/utils/category';
 
 interface CategoryItemProps {
   category: Category;
@@ -119,8 +120,13 @@ const CategoryTree = () => {
     setNewCategoryName(category.name);
   };
 
-  // 하위 카테고리 추가 모드
+  // 하위 카테고리 추가 모드 (3단계 제한 로직 도입)
   const handleAddChild = (pId: string) => {
+    const path = findCategoryPath(categories, pId);
+    if (path && path.length >= 3) {
+      alert('카테고리는 최대 3단계(대 > 중 > 소)까지만 생성이 가능합니다.');
+      return;
+    }
     setParentId(pId);
     setIsAdding(true);
     setNewCategoryName('');
@@ -145,10 +151,20 @@ const CategoryTree = () => {
       };
       setCategories(updateInList(categories));
     } else if (isAdding) {
-      // 추가
+      // 추가할 카테고리의 depth와 parentId 계산
+      let depth: 1 | 2 | 3 = 1;
+      if (parentId) {
+        const path = findCategoryPath(categories, parentId);
+        if (path) {
+          depth = (path.length + 1) as 1 | 2 | 3;
+        }
+      }
+
       const newCategory: Category = {
         id: `cat-${Date.now()}`,
         name: newCategoryName,
+        depth,
+        parentId,
       };
 
       if (parentId) {
