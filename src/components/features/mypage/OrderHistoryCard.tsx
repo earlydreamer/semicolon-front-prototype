@@ -90,6 +90,26 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
                 </span>
               )}
             </p>
+            
+            {/* 운송장 정보 (배송중/배송완료/구매확정 시 노출) */}
+            {(order.trackingNumber && (['SHIPPING', 'DELIVERED', 'CONFIRMED'].includes(order.status))) && (
+              <div className="mt-3 p-3 bg-neutral-50 rounded-lg border border-neutral-100 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] text-neutral-400 font-medium leading-none mb-1">배송정보</p>
+                  <p className="text-xs font-semibold text-neutral-700">
+                    {order.deliveryCompany} {order.trackingNumber}
+                  </p>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="h-8 text-[11px] px-3 border-neutral-300 text-neutral-600 hover:bg-white"
+                  onClick={() => window.open(`https://search.naver.com/search.naver?query=${order.deliveryCompany}+${order.trackingNumber}`, '_blank')}
+                >
+                  배송 조회
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

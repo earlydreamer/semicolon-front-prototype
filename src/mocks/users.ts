@@ -54,6 +54,8 @@ export interface OrderHistory {
   totalPrice: number;
   shippingFee: number;
   hasReview?: boolean;
+  trackingNumber?: string;
+  deliveryCompany?: string;
 }
 
 /**
@@ -181,9 +183,9 @@ export const SELLER_TO_SHOP: Record<string, string> = {
 // ----------------------------------------------------------------------
 export const MOCK_ORDER_HISTORY: OrderHistory[] = [
   // u1 세미콜론 (구매 5개)
-  { id: 'o1', buyerId: 'u1', sellerId: 's2', productId: 'p1', product: getProduct('p1'), status: 'CONFIRMED', createdAt: d(30), totalPrice: 1550000, shippingFee: 0, hasReview: true },
-  { id: 'o2', buyerId: 'u1', sellerId: 's3', productId: 'p10', product: getProduct('p10'), status: 'DELIVERED', createdAt: d(15), totalPrice: 320000, shippingFee: 0, hasReview: false },
-  { id: 'o3', buyerId: 'u1', sellerId: 's4', productId: 'p22', product: getProduct('p22'), status: 'SHIPPING', createdAt: d(3), totalPrice: 95000, shippingFee: 3000 },
+  { id: 'o1', buyerId: 'u1', sellerId: 's2', productId: 'p1', product: getProduct('p1'), status: 'CONFIRMED', createdAt: d(30), totalPrice: 1550000, shippingFee: 0, hasReview: true, trackingNumber: '1234567890', deliveryCompany: '대한통운' },
+  { id: 'o2', buyerId: 'u1', sellerId: 's3', productId: 'p10', product: getProduct('p10'), status: 'DELIVERED', createdAt: d(15), totalPrice: 320000, shippingFee: 0, hasReview: false, trackingNumber: '9283746152', deliveryCompany: '우체국택배' },
+  { id: 'o3', buyerId: 'u1', sellerId: 's4', productId: 'p22', product: getProduct('p22'), status: 'SHIPPING', createdAt: d(3), totalPrice: 95000, shippingFee: 3000, trackingNumber: '5566778899', deliveryCompany: '로젠택배' },
   { id: 'o4', buyerId: 'u1', sellerId: 's6', productId: 'p37', product: getProduct('p37'), status: 'PAID', createdAt: d(1), totalPrice: 35000, shippingFee: 2000 },
   { id: 'o5', buyerId: 'u1', sellerId: 's5', productId: 'p32', product: getProduct('p32'), status: 'CANCELLED', createdAt: d(20), totalPrice: 150000, shippingFee: 3000 },
 

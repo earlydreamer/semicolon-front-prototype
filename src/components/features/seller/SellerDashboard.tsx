@@ -18,7 +18,7 @@ const SellerDashboard = () => {
     },
     {
       icon: Clock,
-      label: '예약중',
+      label: '배송대기',
       value: stats.reserved,
       color: 'bg-yellow-100 text-yellow-600',
     },
