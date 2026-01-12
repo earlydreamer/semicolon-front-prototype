@@ -3,11 +3,13 @@
  */
 
 import { Link } from 'react-router-dom';
-import { Eye, Heart, MessageCircle, MoreVertical } from 'lucide-react';
+import { Eye, Heart, MessageCircle, MoreVertical, Truck } from 'lucide-react';
 import type { SaleStatus } from '@/mocks/products';
 import { useSellerStore } from '@/stores/useSellerStore';
 import { useToast } from '@/components/common/Toast';
 import { useState, useRef, useEffect } from 'react';
+import { Modal } from '@/components/common/Modal';
+import { Button } from '@/components/common/Button';
 
 interface SellerProductCardProps {
   product: {
@@ -20,6 +22,8 @@ interface SellerProductCardProps {
     likeCount: number;
     commentCount: number;
     createdAt: string;
+    trackingNumber?: string;
+    deliveryCompany?: string;
   };
 }
 
@@ -32,9 +36,14 @@ const STATUS_LABELS: Record<SaleStatus, { text: string; className: string }> = {
 };
 
 const SellerProductCard = ({ product }: SellerProductCardProps) => {
-  const { updateSaleStatus, deleteProduct } = useSellerStore();
+  const { updateSaleStatus, deleteProduct, updateTrackingInfo } = useSellerStore();
   const { showToast } = useToast();
   const [showMenu, setShowMenu] = useState(false);
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
+  const [trackingData, setTrackingData] = useState({ 
+    number: product.trackingNumber || '', 
+    company: product.deliveryCompany || '대한통운' 
+  });
   const menuRef = useRef<HTMLDivElement>(null);
 
   // 외부 클릭 시 메뉴 닫기
@@ -52,6 +61,16 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
     updateSaleStatus(product.id, status);
     showToast(`상태가 '${STATUS_LABELS[status].text}'(으)로 변경되었습니다`);
     setShowMenu(false);
+  };
+
+  const handleSaveTracking = () => {
+    if (!trackingData.number) {
+      showToast('운송장 번호를 입력해주세요', 'error');
+      return;
+    }
+    updateTrackingInfo(product.id, trackingData);
+    showToast('운송장 정보가 등록되었습니다');
+    setShowTrackingModal(false);
   };
 
   const handleDelete = () => {
@@ -165,7 +184,80 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
           </span>
           <span className="ml-auto">{timeAgo}</span>
         </div>
+
+        {/* 운송장 정보 표시 및 배송 대기 시 입력 버튼 */}
+        <div className="mt-4 pt-3 border-t border-neutral-100 flex flex-col gap-2">
+          {product.saleStatus === 'RESERVED' && !product.trackingNumber && (
+            <Button 
+              size="sm" 
+              className="w-full bg-primary-50 text-primary-600 hover:bg-primary-100 border-none shadow-none font-semibold"
+              onClick={() => setShowTrackingModal(true)}
+            >
+              <Truck className="w-4 h-4 mr-2" />
+              운송장 번호 입력하기
+            </Button>
+          )}
+
+          {product.trackingNumber && (
+            <div className="flex items-center justify-between text-xs bg-neutral-50 p-2.5 rounded-lg border border-neutral-100 text-neutral-600">
+              <div className="flex items-center gap-2">
+                <Truck className="w-3.5 h-3.5 text-neutral-400" />
+                <span className="font-medium">{product.deliveryCompany}</span>
+                <span className="text-neutral-400">|</span>
+                <span>{product.trackingNumber}</span>
+              </div>
+              <button 
+                onClick={() => setShowTrackingModal(true)}
+                className="text-primary-600 font-medium hover:underline"
+              >
+                수정
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* 운송장 입력 모달 */}
+      <Modal
+        isOpen={showTrackingModal}
+        onClose={() => setShowTrackingModal(false)}
+        title="운송장 정보 입력"
+      >
+        <div className="space-y-4 pt-2">
+          <div className="p-3 bg-blue-50 rounded-lg text-xs text-blue-700 leading-relaxed">
+            운송장 번호를 입력하면 상품 상태가 자동으로 <strong>'배송중(판매완료)'</strong>으로 변경되어 구매자에게 전달됩니다.
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">택배사 선택</label>
+            <select 
+              className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              value={trackingData.company}
+              onChange={(e) => setTrackingData({...trackingData, company: e.target.value})}
+            >
+              <option value="대한통운">대한통운</option>
+              <option value="우체국택배">우체국택배</option>
+              <option value="로젠택배">로젠택배</option>
+              <option value="한진택배">한진택배</option>
+              <option value="CU 편의점택배">CU 편의점택배</option>
+              <option value="GS25 편의점택배">GS25 편의점택배</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">운송장 번호</label>
+            <input 
+              type="text"
+              placeholder="숫자 입력 (- 제외)"
+              className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+              value={trackingData.number}
+              onChange={(e) => setTrackingData({...trackingData, number: e.target.value})}
+            />
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button variant="ghost" className="flex-1" onClick={() => setShowTrackingModal(false)}>취소</Button>
+            <Button className="flex-1" onClick={handleSaveTracking}>등록 완료</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

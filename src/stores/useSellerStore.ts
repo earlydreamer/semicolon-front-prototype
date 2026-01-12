@@ -42,6 +42,8 @@ export interface SellerProduct {
   purchaseDate?: string;
   usePeriod?: string;
   detailedCondition?: string;
+  trackingNumber?: string;
+  deliveryCompany?: string;
 }
 
 interface SellerState {
@@ -52,6 +54,7 @@ interface SellerState {
   updateProduct: (id: string, data: Partial<ProductFormData>) => void;
   deleteProduct: (id: string) => void;
   updateSaleStatus: (id: string, status: SaleStatus) => void;
+  updateTrackingInfo: (id: string, info: { number: string; company: string }) => void;
   
   // Getters
   getProductById: (id: string) => SellerProduct | undefined;
@@ -142,6 +145,25 @@ export const useSellerStore = create<SellerState>((set, get) => ({
     set((state) => ({
       products: state.products.map((p) =>
         p.id === id ? { ...p, saleStatus: status, updatedAt: new Date().toISOString() } : p
+      ),
+    }));
+  },
+  
+  /**
+   * 운송장 정보 업데이트
+   */
+  updateTrackingInfo: (id: string, info: { number: string; company: string }) => {
+    set((state) => ({
+      products: state.products.map((p) =>
+        p.id === id 
+          ? { 
+              ...p, 
+              trackingNumber: info.number, 
+              deliveryCompany: info.company,
+              saleStatus: 'SOLD_OUT', // 운송장 입력 시 판매완료(배송중) 처리
+              updatedAt: new Date().toISOString() 
+            } 
+          : p
       ),
     }));
   },
