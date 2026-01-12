@@ -18,8 +18,8 @@ interface LikeState {
 }
 
 export const useLikeStore = create<LikeState>((set, get) => ({
-  // 초기 좋아요 상품 (Mock)
-  likedProductIds: ['1', '5'],
+  // 초기 찜한 상품 (Mock)
+  likedProductIds: ['p1', 'p5'],
   
   /**
    * 좋아요 토글
