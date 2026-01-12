@@ -92,9 +92,7 @@ const LikedProductsPage = () => {
                   <p className="text-base font-bold text-neutral-900 mt-1">
                     {product.price.toLocaleString('ko-KR')}원
                   </p>
-                  <p className="text-xs text-neutral-500 mt-1">
-                    {product.location}
-                  </p>
+
                 </div>
 
                 {/* 찜 해제 버튼 */}
