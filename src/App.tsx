@@ -25,6 +25,7 @@ const SearchPage = lazy(() => import('./pages/SearchPage'));
 const NoticePage = lazy(() => import('./pages/NoticePage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
 const PolicyPage = lazy(() => import('./pages/PolicyPage'));
+const ProfileEditPage = lazy(() => import('./pages/ProfileEditPage'));
 
 // Admin pages
 const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
@@ -63,6 +64,8 @@ function App() {
                 <Route path="mypage" element={<MyPage />} />
                 <Route path="mypage/orders" element={<OrderHistoryPage />} />
                 <Route path="mypage/likes" element={<LikedProductsPage />} />
+                <Route path="mypage/profile/edit" element={<ProfileEditPage />} />
+                <Route path="mypage/settings" element={<Navigate to="/mypage/profile/edit" replace />} />
                 <Route path="shop/:shopId" element={<ShopPage />} />
                 <Route path="order" element={<OrderPage />} />
                 <Route path="order/complete" element={<OrderCompletePage />} />
