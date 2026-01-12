@@ -30,7 +30,7 @@ export const ReviewForm = ({ orderId, productTitle, onSubmit, onCancel }: Review
     }
 
     // TODO: 실제 서버로 리뷰 데이터 전송
-    console.log('Submitting review:', { orderId, rating, content, images });
+    console.log('[MOCK] Submitting review:', { orderId, rating, content, images });
     
     showToast('리뷰가 등록되었습니다.', 'success');
     onSubmit();

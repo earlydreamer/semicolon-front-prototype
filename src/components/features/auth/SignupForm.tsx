@@ -43,7 +43,7 @@ export function SignupForm() {
     setIsLoading(true);
     // Mock API Call
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log('Signup attempt:', data);
+    console.log('[MOCK] Signup attempt:', data);
     alert('회원가입 성공 (Mock)');
     setIsLoading(false);
   };
