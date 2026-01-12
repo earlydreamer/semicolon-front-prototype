@@ -34,7 +34,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
           <div className="flex items-center gap-2 mb-1">
             <h2 className="text-xl font-bold text-neutral-900">{user.nickname}</h2>
             <Link
-              to="/mypage/settings"
+              to="/mypage/profile"
               className="p-1.5 rounded-full hover:bg-neutral-100 transition-colors"
               title="설정"
             >
@@ -50,7 +50,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
 
       {/* 프로필 수정 버튼 */}
       <Link
-        to="/mypage/profile/edit"
+        to="/mypage/profile"
         className="mt-4 block w-full py-2.5 text-center text-sm font-medium text-neutral-700
                    bg-neutral-100 rounded-xl hover:bg-neutral-200 transition-colors"
       >

@@ -20,6 +20,7 @@ export interface User {
   id: string;
   email: string;
   nickname: string;
+  phone?: string;
   avatar?: string;
   intro?: string;
   point: number;
@@ -93,6 +94,7 @@ export const MOCK_USERS_DATA: User[] = [
     id: 'u1', 
     email: 'user1@test.com', 
     nickname: '세미콜론', 
+    phone: '010-1234-5678',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u1', 
     intro: '취미 장비 거래를 좋아하는 세미콜론입니다.', 
     point: 15000, 
