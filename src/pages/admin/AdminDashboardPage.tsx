@@ -15,7 +15,7 @@ const MOCK_STATS = {
 
 const AdminDashboardPage = () => {
   return (
-    <div className="p-8">
+    <div>
       {/* 페이지 헤더 */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-neutral-900">대시보드</h1>
