@@ -2,7 +2,7 @@
  * 관리자 신고 목록 컴포넌트
  */
 
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { AlertTriangle, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 
@@ -170,7 +170,7 @@ export function AdminReportList() {
       <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
         {filteredReports.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[800px]">
               <thead className="bg-neutral-50 border-b border-neutral-200">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상태</th>
@@ -184,8 +184,8 @@ export function AdminReportList() {
               </thead>
               <tbody className="divide-y divide-neutral-200">
                 {filteredReports.map((report) => (
-                  <>
-                    <tr key={report.id} className="hover:bg-neutral-50">
+                  <Fragment key={report.id}>
+                    <tr className="hover:bg-neutral-50">
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
@@ -263,7 +263,7 @@ export function AdminReportList() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>

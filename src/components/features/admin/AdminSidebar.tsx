@@ -31,7 +31,7 @@ interface AdminSidebarProps {
 
 const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
   return (
-    <aside className="w-64 bg-neutral-900 text-white min-h-screen flex flex-col">
+    <aside className="w-64 bg-neutral-900 text-white h-full flex flex-col">
       {/* 로고 및 닫기 버튼 (모바일) */}
       <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
         <h1 className="text-xl font-bold">

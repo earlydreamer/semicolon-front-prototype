@@ -2,7 +2,7 @@
  * 관리자 정산 목록 컴포넌트
  */
 
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { Wallet, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 
@@ -162,7 +162,7 @@ export function AdminSettlementList() {
   return (
     <div className="space-y-4">
       {/* 요약 카드 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-lg border border-neutral-200">
           <p className="text-sm text-neutral-500">대기중인 정산</p>
           <p className="text-2xl font-bold text-neutral-900">
@@ -208,7 +208,7 @@ export function AdminSettlementList() {
       <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
         {filteredSettlements.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[1000px]">
               <thead className="bg-neutral-50 border-b border-neutral-200">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상태</th>
@@ -223,8 +223,8 @@ export function AdminSettlementList() {
               </thead>
               <tbody className="divide-y divide-neutral-200">
                 {filteredSettlements.map((settlement) => (
-                  <>
-                    <tr key={settlement.id} className="hover:bg-neutral-50">
+                  <Fragment key={settlement.id}>
+                    <tr className="hover:bg-neutral-50">
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
@@ -316,7 +316,7 @@ export function AdminSettlementList() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>
