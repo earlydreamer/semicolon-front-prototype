@@ -2,14 +2,16 @@
  * 상품 등록/수정 폼
  */
 
+import { useState, useMemo, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import ProductImageUploader from './ProductImageUploader';
-import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
+import { MOCK_CATEGORIES } from '@/mocks/categories';
 import type { ConditionStatus } from '@/mocks/products';
+import { findCategoryPath } from '@/utils/category';
 
 // Zod 스키마 (location 필드 제거)
 const productSchema = z.object({
@@ -43,14 +45,6 @@ const CONDITION_OPTIONS: { value: ConditionStatus; label: string; description: s
   { value: 'DAMAGED', label: '하자 있음', description: '기능/외관 하자' },
 ];
 
-// 카테고리 평탄화 헬퍼
-const flattenCategories = (categories: Category[], depth = 0): { id: string; name: string; depth: number }[] => {
-  return categories.flatMap((cat) => [
-    { id: cat.id, name: cat.name, depth },
-    ...(cat.children ? flattenCategories(cat.children, depth + 1) : []),
-  ]);
-};
-
 const ProductForm = ({
   defaultValues,
   onSubmit,
@@ -63,14 +57,16 @@ const ProductForm = ({
     control,
     formState: { errors },
     watch,
+    setValue,
+    trigger,
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       title: '',
       categoryId: '',
       price: 0,
+      conditionStatus: 'SEALED',
       shippingFee: 0,
-      conditionStatus: 'NO_WEAR',
       purchaseDate: '',
       usePeriod: '',
       detailedCondition: '',
@@ -80,7 +76,34 @@ const ProductForm = ({
     },
   });
 
-  const flatCategories = flattenCategories(MOCK_CATEGORIES);
+  // 카테고리 상태 관리 (3단계 Cascading)
+  const [largeCategory, setLargeCategory] = useState<string>('');
+  const [mediumCategory, setMediumCategory] = useState<string>('');
+  const [smallCategory, setSmallCategory] = useState<string>('');
+
+  // 수정 모드 시 초기 카테고리 설정
+  useEffect(() => {
+    if (defaultValues?.categoryId) {
+      const path = findCategoryPath(MOCK_CATEGORIES, defaultValues.categoryId);
+      if (path) {
+        if (path[0]) setLargeCategory(path[0].id);
+        if (path[1]) setMediumCategory(path[1].id);
+        if (path[2]) setSmallCategory(path[2].id);
+      }
+    }
+  }, [defaultValues?.categoryId]);
+
+  // 대분류 선택 시 하위 목록 계산
+  const mediumCategories = useMemo(() => {
+    const found = MOCK_CATEGORIES.find((cat) => cat.id === largeCategory);
+    return found?.children || [];
+  }, [largeCategory]);
+
+  // 중분류 선택 시 하위 목록 계산
+  const smallCategories = useMemo(() => {
+    const found = mediumCategories.find((cat) => cat.id === mediumCategory);
+    return found?.children || [];
+  }, [mediumCategory, mediumCategories]);
   
   // 가격 실시간 계산
   const price = watch('price') || 0;
@@ -125,20 +148,72 @@ const ProductForm = ({
           {...register('title')}
         />
 
-        <div className="space-y-2">
+        <div className="space-y-4">
           <label className="text-sm font-medium text-neutral-700">카테고리</label>
-          <select
-            {...register('categoryId')}
-            className="w-full h-11 px-3 rounded-md border border-neutral-300 bg-neutral-0 
-              text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          >
-            <option value="">카테고리 선택</option>
-            {flatCategories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {'─'.repeat(cat.depth)} {cat.name}
-              </option>
-            ))}
-          </select>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* 대분류 */}
+            <select
+              value={largeCategory}
+              onChange={(e) => {
+                const val = e.target.value;
+                setLargeCategory(val);
+                setMediumCategory('');
+                setSmallCategory('');
+                setValue('categoryId', '');
+                trigger('categoryId');
+              }}
+              className="h-11 px-3 rounded-md border border-neutral-300 bg-neutral-0 
+                text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+            >
+              <option value="">대분류 선택</option>
+              {MOCK_CATEGORIES.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+
+            {/* 중분류 */}
+            <select
+              value={mediumCategory}
+              disabled={!largeCategory}
+              onChange={(e) => {
+                const val = e.target.value;
+                setMediumCategory(val);
+                setSmallCategory('');
+                setValue('categoryId', '');
+                trigger('categoryId');
+              }}
+              className="h-11 px-3 rounded-md border border-neutral-300 bg-neutral-0 
+                text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-neutral-100 disabled:cursor-not-allowed"
+            >
+              <option value="">중분류 선택</option>
+              {mediumCategories.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+
+            {/* 소분류 */}
+            <select
+              value={smallCategory}
+              disabled={!mediumCategory}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSmallCategory(val);
+                setValue('categoryId', val);
+                trigger('categoryId');
+              }}
+              className="h-11 px-3 rounded-md border border-neutral-300 bg-neutral-0 
+                text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-neutral-100 disabled:cursor-not-allowed"
+            >
+              <option value="">소분류 선택</option>
+              {smallCategories.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+          
+          {/* 실제 hook-form 관리를 위한 숨김 필드 (또는 위 select 중 하나가 categoryId를 담당) */}
+          <input type="hidden" {...register('categoryId')} />
+          
           {errors.categoryId && (
             <p className="text-sm text-error-600">{errors.categoryId.message}</p>
           )}
