@@ -58,14 +58,24 @@ const SearchPage = () => {
   const filteredProducts = useMemo(() => {
     let results = [...MOCK_PRODUCTS];
 
-    // 키워드 검색
+    // 키워드 검색 (상품명, 설명, 상점명/판매자 닉네임)
     if (query) {
       const lowerQuery = query.toLowerCase();
-      results = results.filter(
-        (p) =>
-          p.title.toLowerCase().includes(lowerQuery) ||
-          p.description.toLowerCase().includes(lowerQuery)
-      );
+      // @로 시작하면 상점명만 검색
+      if (query.startsWith('@')) {
+        const shopQuery = query.slice(1).toLowerCase();
+        results = results.filter(
+          (p) => p.seller.nickname.toLowerCase().includes(shopQuery)
+        );
+      } else {
+        // 일반 검색: 상품명, 설명, 상점명 모두 검색
+        results = results.filter(
+          (p) =>
+            p.title.toLowerCase().includes(lowerQuery) ||
+            p.description.toLowerCase().includes(lowerQuery) ||
+            p.seller.nickname.toLowerCase().includes(lowerQuery)
+        );
+      }
     }
 
     // 카테고리 필터
