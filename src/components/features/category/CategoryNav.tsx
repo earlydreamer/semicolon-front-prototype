@@ -20,22 +20,39 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
         {categories.map((category) => (
           <div key={category.id} className="border-b border-neutral-100 last:border-0">
             <div className="flex items-center justify-between py-3">
-              <span className="font-medium text-neutral-900">{category.name}</span>
+              <Link 
+                to={`/categories/${category.id}`} 
+                onClick={onClose}
+                className="font-medium text-neutral-900 hover:text-primary-600"
+              >
+                {category.name}
+              </Link>
             </div>
             {category.children && (
               <div className="ml-4 flex flex-col gap-2 pb-3">
                 {category.children.map((child) => (
                   <div key={child.id} className="space-y-1">
-                    <span className="text-sm text-neutral-600">{child.name}</span>
-                    {child.children && (
-                      <div className="ml-3 flex flex-wrap gap-x-3 gap-y-1">
-                         {child.children.map((sub) => (
-                           <span key={sub.id} className="text-xs text-neutral-400">
-                             {sub.name}
-                           </span>
-                         ))}
-                      </div>
-                    )}
+                    <Link 
+                      to={`/categories/${child.id}`}
+                      onClick={onClose}
+                      className="text-sm text-neutral-600 hover:text-primary-600 font-medium"
+                    >
+                      {child.name}
+                    </Link>
+                        {child.children && (
+                          <div className="ml-3 flex flex-wrap gap-x-3 gap-y-1">
+                             {child.children.map((sub) => (
+                               <Link 
+                                 key={sub.id} 
+                                 to={`/categories/${sub.id}`}
+                                 onClick={onClose}
+                                 className="text-xs text-neutral-400 hover:text-primary-600 transition-colors"
+                               >
+                                 {sub.name}
+                               </Link>
+                             ))}
+                          </div>
+                        )}
                   </div>
                 ))}
               </div>
