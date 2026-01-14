@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
+import bannerImg from '@/assets/sample_banner_thumbnail.png';
 
 export function HeroBanner() {
   return (
@@ -27,8 +28,8 @@ export function HeroBanner() {
         <div className="flex-1">
           <Card className="relative mx-auto aspect-video w-full max-w-lg overflow-hidden shadow-xl md:ml-auto">
             <img 
-              src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&q=80&w=1000" 
-              alt="Hero Banner Image" 
+              src={bannerImg} 
+              alt="생활용품부터 덕질까지, 덕쿠" 
               className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
             />
           </Card>
