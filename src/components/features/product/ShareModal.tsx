@@ -22,7 +22,7 @@ export const ShareModal = ({ isOpen, onClose, productTitle }: ShareModalProps) =
   };
 
   const handleShareTwitter = () => {
-    const text = `[세미콜론] ${productTitle}`;
+    const text = `[덕쿠] ${productTitle}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(currentUrl)}`;
     window.open(twitterUrl, '_blank', 'noopener,noreferrer');
   };

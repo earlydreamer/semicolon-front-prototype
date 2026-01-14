@@ -9,7 +9,7 @@ export default function SignupPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-neutral-900">회원가입</h1>
           <p className="mt-2 text-neutral-600">
-            세미콜론의 회원이 되어 다양한 혜택을 누려보세요.
+            덕쿠의 회원이 되어 다양한 혜택을 누려보세요.
           </p>
         </div>
 
