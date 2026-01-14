@@ -29,13 +29,31 @@ const TABS: { key: TabType; label: string }[] = [
   { key: 'SOLD_OUT', label: '판매완료' },
 ];
 
+const PAGE_SIZE = 5;
+
 const SalesTabs = ({ products }: SalesTabsProps) => {
   const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const filteredProducts =
     activeTab === 'all'
       ? products
       : products.filter((p) => p.saleStatus === activeTab);
+
+  // 현재 노출할 상품들
+  const visibleProducts = filteredProducts.slice(0, visibleCount);
+  const hasMore = filteredProducts.length > visibleCount;
+
+  // 탭 변경 핸들러 (페이지 초기화)
+  const handleTabChange = (key: TabType) => {
+    setActiveTab(key);
+    setVisibleCount(PAGE_SIZE);
+  };
+
+  // 더보기 클릭
+  const handleShowMore = () => {
+    setVisibleCount((prev) => prev + PAGE_SIZE);
+  };
 
   // 탭별 카운트
   const counts = {
@@ -52,7 +70,7 @@ const SalesTabs = ({ products }: SalesTabsProps) => {
         {TABS.map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => handleTabChange(tab.key)}
             className={`flex-1 py-3 text-sm font-medium transition-colors relative
               ${
                 activeTab === tab.key
@@ -83,9 +101,19 @@ const SalesTabs = ({ products }: SalesTabsProps) => {
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredProducts.map((product) => (
+            {visibleProducts.map((product) => (
               <SalesProductCard key={product.id} product={product} />
             ))}
+            
+            {/* 더보기 버튼 */}
+            {hasMore && (
+              <button
+                onClick={handleShowMore}
+                className="w-full py-3 mt-2 text-sm font-semibold text-neutral-600 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors"
+              >
+                더보기 ({filteredProducts.length - visibleCount})
+              </button>
+            )}
           </div>
         )}
       </div>
