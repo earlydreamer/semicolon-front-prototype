@@ -56,7 +56,7 @@ const AdminLoginPage = () => {
             <ShieldCheck className="w-8 h-8 text-primary-400" />
           </div>
           <h1 className="text-2xl font-bold text-white">관리자 로그인</h1>
-          <p className="text-neutral-400 mt-2">세미콜론 관리자 페이지</p>
+          <p className="text-neutral-400 mt-2">덕쿠 관리자 페이지</p>
         </div>
 
         {/* 보안 경고 */}

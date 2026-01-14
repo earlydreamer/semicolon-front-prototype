@@ -10,7 +10,7 @@ export default function LoginPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-neutral-900">로그인</h1>
           <p className="mt-2 text-neutral-600">
-            세미콜론에 오신 것을 환영합니다!
+            덕쿠에 오신 것을 환영합니다!
           </p>
         </div>
 

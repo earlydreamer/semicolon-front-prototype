@@ -35,7 +35,7 @@ const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
       {/* 로고 및 닫기 버튼 (모바일) */}
       <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
         <h1 className="text-xl font-bold">
-          <span className="text-primary-400">Semicolon</span>
+          <span className="text-primary-400">덕쿠</span>
           <span className="text-sm font-normal text-neutral-400 ml-2">Admin</span>
         </h1>
         {onClose && (

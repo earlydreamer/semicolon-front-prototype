@@ -6,7 +6,7 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid gap-8 md:grid-cols-4">
           <div>
-            <h3 className="mb-4 text-lg font-bold text-primary-700">Semicolon;</h3>
+            <h3 className="mb-4 text-lg font-bold text-primary-700">덕쿠</h3>
             <p className="text-sm text-neutral-600">
               취미를 사랑하는 사람들을 위한<br />
               프리미엄 중고거래 플랫폼
@@ -31,7 +31,7 @@ export function Footer() {
           <div>
             <h4 className="mb-4 font-semibold">Contact</h4>
             <div className="text-sm text-neutral-600">
-              <p>Email: help@semicolon.com</p>
+              <p>Email: help@dukku.kr</p>
               <p>Tel: 02-1234-5678</p>
             </div>
           </div>

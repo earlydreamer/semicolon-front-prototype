@@ -40,8 +40,8 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
         {/* Left Section: Logo & Category */}
         <div className="flex items-center gap-4 md:gap-8">
-          <Link to="/" className="text-xl font-black italic tracking-tighter text-neutral-900">
-            Semicolon<span className="text-primary-600">;</span>
+          <Link to="/" className="text-xl font-black tracking-tight text-neutral-900">
+            <span className="text-primary-600">덕</span>쿠
           </Link>
 
           {/* Desktop Category Trigger */}
