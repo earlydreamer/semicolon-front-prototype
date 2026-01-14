@@ -1,9 +1,21 @@
+/**
+ * 카테고리 페이지
+ * 필터 기능 포함 (가격대, 판매상태)
+ */
+
 import { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { ChevronRight, Search } from 'lucide-react';
 import { ProductList } from '@/components/features/product/ProductList';
 import { ProductSortDropdown, type SortOption } from '@/components/features/product/ProductSortDropdown';
-import { MOCK_PRODUCTS } from '@/mocks/products';
+import { 
+  DesktopProductFilter, 
+  MobileFilterButton, 
+  MobileFilterModal,
+  getActiveFilterCount,
+  type ProductFilterState 
+} from '@/components/features/product/ProductFilter';
+import { MOCK_PRODUCTS, type SaleStatus } from '@/mocks/products';
 import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
 import { findCategoryPath, getCategoryChildren } from '@/utils/category';
@@ -12,10 +24,29 @@ import { sanitizeUrlParam } from '@/utils/sanitize';
 
 export default function CategoryPage() {
   const { categoryId: rawCategoryId } = useParams();
-  const [sort, setSort] = useState<SortOption>('latest');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   
   // URL 파라미터 검증 (XSS 방지)
   const categoryId = sanitizeUrlParam(rawCategoryId);
+  
+  // URL 파라미터에서 필터 조건 읽기
+  const minPrice = parseInt(searchParams.get('minPrice') || '0');
+  const maxPrice = parseInt(searchParams.get('maxPrice') || '0');
+  const status = (searchParams.get('status') || 'all') as SaleStatus | 'all';
+  const sortParam = searchParams.get('sort') || 'latest';
+  
+  // SortOption 타입 매핑
+  const sort: SortOption = sortParam === 'price_asc' ? 'price-asc' : 
+                           sortParam === 'price_desc' ? 'price-desc' : 
+                           sortParam as SortOption;
+
+  // 필터 상태
+  const filters: ProductFilterState = {
+    minPrice,
+    maxPrice,
+    status,
+  };
 
   // Find current category path
   const categoryPath = useMemo(() => {
@@ -65,23 +96,61 @@ export default function CategoryPage() {
       products = products.filter(p => p.categoryId && targetIds.has(p.categoryId));
     }
 
+    // 가격 필터
+    if (minPrice > 0) {
+      products = products.filter((p) => p.price >= minPrice);
+    }
+    if (maxPrice > 0) {
+      products = products.filter((p) => p.price <= maxPrice);
+    }
+
+    // 상태 필터
+    if (status !== 'all') {
+      products = products.filter((p) => p.saleStatus === status);
+    }
+
+    // 정렬
     switch (sort) {
-      case 'latest':
-        // Mock data doesn't have real date objects, assuming array order is latest
-        break;
-      case 'popular':
-        // Mock logic
-        break;
       case 'price-asc':
         products.sort((a, b) => a.price - b.price);
         break;
       case 'price-desc':
         products.sort((a, b) => b.price - a.price);
         break;
+      case 'latest':
+      default:
+        products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
 
     return products;
-  }, [categoryId, sort]);
+  }, [categoryId, minPrice, maxPrice, status, sort]);
+
+  // 정렬 변경
+  const handleSortChange = (newSort: SortOption) => {
+    const params = new URLSearchParams(searchParams);
+    const sortValue = newSort === 'price-asc' ? 'price_asc' : 
+                      newSort === 'price-desc' ? 'price_desc' : newSort;
+    params.set('sort', sortValue);
+    setSearchParams(params);
+  };
+
+  // 필터 변경
+  const updateFilter = (key: keyof ProductFilterState, value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value && value !== 'all' && value !== '0') {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    setSearchParams(params);
+  };
+
+  // 필터 초기화
+  const clearFilters = () => {
+    setSearchParams({});
+  };
+
+  const activeFilterCount = getActiveFilterCount(filters);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -134,11 +203,15 @@ export default function CategoryPage() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar (Category Nav) */}
-        {/* Sidebar (Category Nav) */}
+        {/* Sidebar (Category Nav + Filter) */}
         <div className="hidden md:block w-64 flex-shrink-0">
-          <div className="sticky top-24">
+          <div className="sticky top-24 space-y-6">
             <CategorySidebar />
+            <DesktopProductFilter 
+              filters={filters}
+              onFilterChange={updateFilter}
+              onClearFilters={clearFilters}
+            />
           </div>
         </div>
 
@@ -146,10 +219,19 @@ export default function CategoryPage() {
         <main className="flex-1">
           {/* Toolbar */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-200">
-            <span className="text-sm text-neutral-500">
-              총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
-            </span>
-            <ProductSortDropdown currentSort={sort} onSortChange={setSort} />
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-neutral-500">
+                총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
+              </span>
+              
+              {/* 모바일 필터 버튼 */}
+              <MobileFilterButton 
+                activeFilterCount={activeFilterCount}
+                onClick={() => setShowMobileFilters(true)}
+              />
+            </div>
+            
+            <ProductSortDropdown currentSort={sort} onSortChange={handleSortChange} />
           </div>
 
           {/* Product Grid */}
@@ -157,11 +239,29 @@ export default function CategoryPage() {
             <ProductList products={filteredProducts} />
           ) : (
             <div className="py-20 text-center text-neutral-500 bg-neutral-50 rounded-lg">
-              <p>해당 카테고리에 등록된 상품이 없습니다.</p>
+              <Search className="w-12 h-12 mx-auto mb-4 text-neutral-300" />
+              <p className="mb-2">해당 조건에 맞는 상품이 없습니다.</p>
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="text-primary-600 hover:underline text-sm"
+                >
+                  필터 초기화
+                </button>
+              )}
             </div>
           )}
         </main>
       </div>
+
+      {/* 모바일 필터 모달 */}
+      <MobileFilterModal
+        isOpen={showMobileFilters}
+        onClose={() => setShowMobileFilters(false)}
+        filters={filters}
+        onFilterChange={updateFilter}
+        onClearFilters={clearFilters}
+      />
     </div>
   );
 }
