@@ -55,5 +55,6 @@ export const TOAST_MESSAGES = {
   REMOVED_FROM_LIKES: '찜한 상품에서 제거되었습니다.',
   ADDED_TO_CART: '장바구니에 담았습니다.',
   ALREADY_IN_CART: '이미 장바구니에 담긴 상품입니다.',
+  RESERVED_PRODUCT: '예약중인 상품은 장바구니에 담을 수 없습니다.',
   MOVING_TO_PAYMENT: '안전결제 페이지로 이동합니다.',
 } as const;
