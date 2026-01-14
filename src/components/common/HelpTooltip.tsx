@@ -2,6 +2,7 @@
  * 도움말 툴팁 컴포넌트
  * Desktop: hover 시 표시
  * Mobile: tap 시 표시 (toggle)
+ * 위치: 아래 방향 (화면 하단 잘림 방지)
  */
 
 import { useState, useRef, useEffect, type ReactNode } from 'react';
@@ -15,8 +16,25 @@ interface HelpTooltipProps {
 
 export function HelpTooltip({ content, title, className = '' }: HelpTooltipProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState<'bottom' | 'top'>('bottom');
   const tooltipRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // 툴팁 위치 계산 (화면 하단 잘림 방지)
+  useEffect(() => {
+    if (isOpen && tooltipRef.current && buttonRef.current) {
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+      const tooltipHeight = tooltipRef.current.offsetHeight;
+      const viewportHeight = window.innerHeight;
+      
+      // 아래에 충분한 공간이 없으면 위로 표시
+      if (buttonRect.bottom + tooltipHeight + 10 > viewportHeight) {
+        setPosition('top');
+      } else {
+        setPosition('bottom');
+      }
+    }
+  }, [isOpen]);
 
   // 외부 클릭 시 닫기
   useEffect(() => {
@@ -77,7 +95,11 @@ export function HelpTooltip({ content, title, className = '' }: HelpTooltipProps
         <div
           ref={tooltipRef}
           role="tooltip"
-          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 sm:w-72"
+          className={`absolute z-50 left-1/2 -translate-x-1/2 w-64 sm:w-72 ${
+            position === 'bottom' 
+              ? 'top-full mt-2' 
+              : 'bottom-full mb-2'
+          }`}
         >
           <div className="bg-neutral-800 text-white rounded-lg shadow-xl p-3 text-sm">
             {/* 모바일 닫기 버튼 */}
@@ -99,7 +121,13 @@ export function HelpTooltip({ content, title, className = '' }: HelpTooltipProps
             </div>
           </div>
           {/* 화살표 */}
-          <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-neutral-800 rotate-45" />
+          <div 
+            className={`absolute left-1/2 -translate-x-1/2 w-2 h-2 bg-neutral-800 rotate-45 ${
+              position === 'bottom' 
+                ? '-top-1' 
+                : '-bottom-1'
+            }`} 
+          />
         </div>
       )}
     </div>
