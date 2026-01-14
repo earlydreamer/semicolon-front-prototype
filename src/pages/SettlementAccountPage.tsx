@@ -4,7 +4,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save } from 'lucide-react';
-import { MOCK_USER } from '../mocks/users';
+import { Navigate } from 'react-router-dom';
+import { useAuthStore } from '../stores/useAuthStore';
 import { useToast } from '../components/common/Toast';
 
 const BANKS = [
@@ -15,9 +16,14 @@ const BANKS = [
 const SettlementAccountPage = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user, isAuthenticated } = useAuthStore();
   
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" replace />;
+  }
+
   // Mock User의 계좌 정보 또는 빈 값으로 초기화
-  const initialAccount = MOCK_USER.settlementAccount || { bank: '', accountNumber: '', holder: '' };
+  const initialAccount = user.settlementAccount || { bank: '', accountNumber: '', holder: '' };
   
   const [formData, setFormData] = useState({
     bank: initialAccount.bank,

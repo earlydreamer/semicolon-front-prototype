@@ -7,15 +7,21 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
-import { MOCK_USER } from '@/mocks/users';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { Navigate } from 'react-router-dom';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user, isAuthenticated } = useAuthStore();
   
-  const [nickname, setNickname] = useState(MOCK_USER.nickname);
-  const [intro, setIntro] = useState(MOCK_USER.intro || '');
-  const [avatar] = useState(MOCK_USER.avatar);
+  const [nickname, setNickname] = useState(user?.nickname || '');
+  const [intro, setIntro] = useState(user?.intro || '');
+  const [avatar] = useState(user?.avatar || '');
+
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" replace />;
+  }
 
   const handleSave = () => {
     showToast('프로필이 수정되었습니다.', 'success');
@@ -92,7 +98,7 @@ const ProfilePage = () => {
             <label className="block text-sm font-medium text-neutral-700 mb-2">이메일</label>
             <input
               type="email"
-              value={MOCK_USER.email}
+              value={user.email}
               disabled
               className="w-full px-4 py-3 border border-neutral-200 rounded-xl bg-neutral-100 text-neutral-500 cursor-not-allowed"
             />
@@ -104,7 +110,7 @@ const ProfilePage = () => {
             <label className="block text-sm font-medium text-neutral-700 mb-2">휴대폰</label>
             <input
               type="tel"
-              value={MOCK_USER.phone || ''}
+              value={user.phone || ''}
               disabled
               className="w-full px-4 py-3 border border-neutral-200 rounded-xl bg-neutral-100 text-neutral-500 cursor-not-allowed"
             />

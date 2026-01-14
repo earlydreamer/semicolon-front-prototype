@@ -1,98 +1,61 @@
-/**
- * 찜 상태 관리 Store (Zustand)
- */
-
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { getUserLikes } from '../mocks/likes';
 
 interface LikeState {
-  likedProductIds: string[];
+  // 유저별 찜 목록: { [userId: string]: string[] }
+  userLikes: Record<string, string[]>;
   
   // Actions
-  toggleLike: (productId: string) => boolean; // 찜 추가 시 true, 제거 시 false
-  isLiked: (productId: string) => boolean;
-  addLike: (productId: string) => void;
-  removeLike: (productId: string) => void;
+  toggleLike: (userId: string, productId: string) => void;
+  isLiked: (userId: string, productId: string) => boolean;
+  initUserLikes: (userId: string) => void;
   
   // Computed
-  getLikedCount: () => number;
+  getLikedCount: (userId: string) => number;
 }
 
 export const useLikeStore = create<LikeState>()(
   persist(
     (set, get) => ({
-      // 초기 찜한 상품 (Mock 연동 - u1 사용자 기준)
-      likedProductIds: getUserLikes('u1').map(like => like.productId),
+      userLikes: {},
       
-      /**
-       * 찜 토글
-       * @returns 찜 추가 시 true, 제거 시 false
-       */
-      toggleLike: (productId: string) => {
-        const isCurrentlyLiked = get().likedProductIds.includes(productId);
+      initUserLikes: (userId: string) => {
+        if (!get().userLikes[userId]) {
+          const initialLikes = getUserLikes(userId).map(like => like.productId);
+          set((state) => ({
+            userLikes: { ...state.userLikes, [userId]: initialLikes }
+          }));
+        }
+      },
+
+      toggleLike: (userId: string, productId: string) => {
+        const currentLikes = get().userLikes[userId] || [];
+        const isCurrentlyLiked = currentLikes.includes(productId);
         
+        let newLikes: string[];
         if (isCurrentlyLiked) {
-          set((state) => ({
-            likedProductIds: state.likedProductIds.filter((id) => id !== productId),
-          }));
-          return false;
+          newLikes = currentLikes.filter((id) => id !== productId);
         } else {
-          set((state) => ({
-            likedProductIds: [...state.likedProductIds, productId],
-          }));
-          return true;
+          newLikes = [...currentLikes, productId];
         }
-      },
-      
-      /**
-       * 찜 여부 확인
-       */
-      isLiked: (productId: string) => {
-        return get().likedProductIds.includes(productId);
-      },
-      
-      /**
-       * 찜 추가
-       */
-      addLike: (productId: string) => {
-        if (!get().likedProductIds.includes(productId)) {
-          set((state) => ({
-            likedProductIds: [...state.likedProductIds, productId],
-          }));
-        }
-      },
-      
-      /**
-       * 찜 제거
-       */
-      removeLike: (productId: string) => {
+
         set((state) => ({
-          likedProductIds: state.likedProductIds.filter((id) => id !== productId),
+          userLikes: { ...state.userLikes, [userId]: newLikes }
         }));
       },
       
-      /**
-       * 찜한 상품 수
-       */
-      getLikedCount: () => {
-        return get().likedProductIds.length;
+      isLiked: (userId: string, productId: string) => {
+        return (get().userLikes[userId] || []).includes(productId);
+      },
+      
+      getLikedCount: (userId: string) => {
+        return (get().userLikes[userId] || []).length;
       },
     }),
     {
-      name: 'like-storage', // LocalStorage Key
+      name: 'like-storage-v2',
       storage: createJSONStorage(() => localStorage),
-      // Hydration 시 로컬 스토리지 데이터가 없으면 초기 상태(Mock) 사용
-      // 로컬 스토리지 데이터가 있으면 그것을 우선 사용 (사용자 경험 유지)
-      merge: (persistedState: any, currentState) => {
-        if (!persistedState || !persistedState.likedProductIds || persistedState.likedProductIds.length === 0) {
-          return currentState;
-        }
-        return {
-          ...currentState,
-          ...persistedState,
-        };
-      },
     }
   )
 );

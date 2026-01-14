@@ -3,8 +3,7 @@
  */
 
 import { create } from 'zustand';
-import type { SaleStatus, ConditionStatus } from '@/mocks/products';
-import { MOCK_SALES_PRODUCTS } from '@/mocks/users';
+import { MOCK_PRODUCTS, type SaleStatus, type ConditionStatus } from '@/mocks/products';
 
 // 상품 등록/수정 폼 데이터
 export interface ProductFormData {
@@ -55,6 +54,7 @@ interface SellerState {
   deleteProduct: (id: string) => void;
   updateSaleStatus: (id: string, status: SaleStatus) => void;
   updateTrackingInfo: (id: string, info: { number: string; company: string }) => void;
+  initSellerProducts: (userId: string) => void;
   
   // Getters
   getProductById: (id: string) => SellerProduct | undefined;
@@ -71,12 +71,8 @@ interface SellerState {
 }
 
 export const useSellerStore = create<SellerState>((set, get) => ({
-  // 초기 Mock 데이터
-  products: MOCK_SALES_PRODUCTS.map(p => ({
-    ...p,
-    conditionStatus: p.conditionStatus as ConditionStatus,
-    saleStatus: p.saleStatus as SaleStatus,
-  })) as SellerProduct[],
+  // 초기 상태는 빈 배열, 로그인 시 initSellerProducts 호출로 채워짐
+  products: [],
   
   /**
    * 상품 등록
@@ -166,6 +162,18 @@ export const useSellerStore = create<SellerState>((set, get) => ({
           : p
       ),
     }));
+  }, // Added missing comma here
+  /**
+   * 유저별 판매 상품 초기화
+   */
+  initSellerProducts: (userId: string) => {
+    const userProducts = MOCK_PRODUCTS.filter(p => p.seller.userId === userId);
+    set({
+      products: userProducts.map(p => ({
+        ...p,
+        // SellerProduct 인터페이스에 맞게 변환 (필요한 경우)
+      })) as SellerProduct[]
+    });
   },
   
   /**
