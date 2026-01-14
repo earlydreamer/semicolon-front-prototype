@@ -19,6 +19,7 @@ import {
   ERROR_MESSAGES, 
   CONDITION_STATUS_LABELS 
 } from '@/constants';
+import { HelpTooltip } from '@/components/common/HelpTooltip';
 
 export default function ProductDetailPage() {
   const { productId: rawProductId } = useParams();
@@ -131,7 +132,7 @@ export default function ProductDetailPage() {
             <div className="border-b border-gray-200 pb-6">
               <div className="mb-4 flex items-start justify-between">
                 <div>
-                   <div className="flex gap-2 mb-2">
+                   <div className="flex items-center gap-2 mb-2">
                     {isSafe && (
                         <span className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
                         <ShieldCheck className="h-3 w-3" />
@@ -147,6 +148,18 @@ export default function ProductDetailPage() {
                     }`}>
                         {CONDITION_STATUS_LABELS[conditionStatus]}
                     </span>
+                    <HelpTooltip 
+                      title="상품 상태란?"
+                      content={
+                        <ul className="space-y-1.5">
+                          <li><strong>미개봉:</strong> 포장이 개봉되지 않은 새 제품</li>
+                          <li><strong>사용감 없음:</strong> 사용 흔적이 없는 깨끗한 상태</li>
+                          <li><strong>사용감 적음:</strong> 약간의 사용감, 기능 문제 없음</li>
+                          <li><strong>사용감 많음:</strong> 눈에 띄는 사용 흔적</li>
+                          <li><strong>하자 있음:</strong> 부분적 파손이나 기능 이상</li>
+                        </ul>
+                      }
+                    />
                    </div>
                   <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{title}</h1>
                 </div>
