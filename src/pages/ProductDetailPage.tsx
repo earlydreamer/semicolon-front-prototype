@@ -129,91 +129,54 @@ export default function ProductDetailPage() {
 
           {/* Right: Info */}
           <div className="flex flex-col">
-            <div className="border-b border-gray-200 pb-6">
-              <div className="mb-4 flex items-start justify-between">
-                <div>
-                   <div className="flex items-center gap-2 mb-2">
-                    {isSafe && (
-                        <span className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-                        <ShieldCheck className="h-3 w-3" />
-                        안전결제
-                        </span>
-                    )}
-                    <span className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-bold ${
-                        conditionStatus === 'SEALED' ? 'bg-emerald-100 text-emerald-700' :
-                        conditionStatus === 'NO_WEAR' ? 'bg-blue-100 text-blue-700' :
-                        conditionStatus === 'MINOR_WEAR' ? 'bg-yellow-100 text-yellow-800' :
-                        conditionStatus === 'VISIBLE_WEAR' ? 'bg-orange-100 text-orange-700' :
-                        'bg-red-100 text-red-700'
-                    }`}>
-                        {CONDITION_STATUS_LABELS[conditionStatus]}
-                    </span>
-                    <HelpTooltip 
-                      title="상품 상태란?"
-                      content={
-                        <ul className="space-y-1.5">
-                          <li><strong>미개봉:</strong> 포장이 개봉되지 않은 새 제품</li>
-                          <li><strong>사용감 없음:</strong> 사용 흔적이 없는 깨끗한 상태</li>
-                          <li><strong>사용감 적음:</strong> 약간의 사용감, 기능 문제 없음</li>
-                          <li><strong>사용감 많음:</strong> 눈에 띄는 사용 흔적</li>
-                          <li><strong>하자 있음:</strong> 부분적 파손이나 기능 이상</li>
-                        </ul>
-                      }
-                    />
-                   </div>
-                  <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">{title}</h1>
-                </div>
+            {/* 섹션 1: 상품 기본 정보 */}
+            <div className="pb-6">
+              {/* 태그 영역 */}
+              <div className="flex items-center gap-2 mb-3">
+                {isSafe && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    안전결제
+                  </span>
+                )}
+                <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                  conditionStatus === 'SEALED' ? 'bg-emerald-100 text-emerald-700' :
+                  conditionStatus === 'NO_WEAR' ? 'bg-blue-100 text-blue-700' :
+                  conditionStatus === 'MINOR_WEAR' ? 'bg-yellow-100 text-yellow-800' :
+                  conditionStatus === 'VISIBLE_WEAR' ? 'bg-orange-100 text-orange-700' :
+                  'bg-red-100 text-red-700'
+                }`}>
+                  {CONDITION_STATUS_LABELS[conditionStatus]}
+                </span>
+                <HelpTooltip 
+                  title="상품 상태란?"
+                  content={
+                    <ul className="space-y-1.5">
+                      <li><strong>미개봉:</strong> 포장이 개봉되지 않은 새 제품</li>
+                      <li><strong>사용감 없음:</strong> 사용 흔적이 없는 깨끗한 상태</li>
+                      <li><strong>사용감 적음:</strong> 약간의 사용감, 기능 문제 없음</li>
+                      <li><strong>사용감 많음:</strong> 눈에 띄는 사용 흔적</li>
+                      <li><strong>하자 있음:</strong> 부분적 파손이나 기능 이상</li>
+                    </ul>
+                  }
+                />
+              </div>
+
+              {/* 상품 타이틀 */}
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <h1 className="text-xl font-bold text-neutral-900 md:text-2xl leading-tight">
+                  {title}
+                </h1>
                 <button 
                   onClick={() => setIsShareModalOpen(true)}
-                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                  className="text-neutral-400 hover:text-neutral-600 flex-shrink-0 p-1"
                 >
-                  <Share2 className="h-6 w-6" />
+                  <Share2 className="h-5 w-5" />
                 </button>
               </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2 text-3xl font-bold text-gray-900">
-                    {formatPrice(price)}
-                  </div>
-                  {/* 배송비 정보 */}
-                  <div className="text-sm">
-                    {product.shippingFee === 0 ? (
-                      <span className="font-bold text-green-600">무료배송</span>
-                    ) : (
-                      <span className="text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-100 italic">
-                        + 배송비 {formatPrice(product.shippingFee)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              {/* 품절 안내 배너 */}
-              {product.saleStatus === 'SOLD_OUT' && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-lg flex items-center gap-2 text-red-600 font-bold text-sm">
-                  <ShoppingBag className="h-4 w-4" />
-                  <span>이 상품은 현재 품절되었습니다.</span>
-                  <HelpTooltip 
-                    title="판매완료란?"
-                    content="이미 다른 구매자에게 판매가 완료된 상품입니다. 더 이상 구매할 수 없습니다."
-                  />
-                </div>
-              )}
-              
-              {/* 예약중 안내 배너 */}
-              {product.saleStatus === 'RESERVED' && (
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-100 rounded-lg flex items-center gap-2 text-yellow-700 font-bold text-sm">
-                  <Clock className="h-4 w-4" />
-                  <span>이 상품은 현재 예약중입니다.</span>
-                  <HelpTooltip 
-                    title="예약중이란?"
-                    content="다른 구매자가 결제를 진행 중인 상품입니다. 구매 확정 전까지는 거래가 취소될 수 있으니, 관심이 있다면 찜을 해두세요!"
-                  />
-                </div>
-              )}
-              
-              <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+
+              {/* 메타 정보 (등록일, 조회, 찜) */}
+              <div className="flex items-center gap-2 text-sm text-neutral-500">
                 <span>{formatTimeAgo(createdAt)}</span>
                 <span>•</span>
                 <span>조회 {viewCount}</span>
@@ -221,6 +184,59 @@ export default function ProductDetailPage() {
                 <span>찜 {likeCount}</span>
               </div>
             </div>
+
+            {/* 섹션 2: 가격 정보 (별도 배경으로 강조) */}
+            <div className="bg-neutral-50 rounded-xl p-5 mb-6 border border-neutral-100">
+              <div className="flex items-end justify-between">
+                <div>
+                  <div className="text-sm text-neutral-500 mb-1">판매가</div>
+                  <div className="text-3xl font-bold text-neutral-900">
+                    {formatPrice(price)}
+                  </div>
+                </div>
+                <div className="text-right">
+                  {product.shippingFee === 0 ? (
+                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-green-600">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                      무료배송
+                    </span>
+                  ) : (
+                    <div className="text-sm text-neutral-500">
+                      배송비 <span className="font-semibold text-neutral-700">{formatPrice(product.shippingFee)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+              
+            {/* 품절/예약중 안내 배너 */}
+            {product.saleStatus === 'SOLD_OUT' && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600">
+                <ShoppingBag className="h-5 w-5 flex-shrink-0" />
+                <div>
+                  <div className="font-bold text-sm">판매 완료</div>
+                  <div className="text-xs text-red-500">이 상품은 이미 판매되었습니다.</div>
+                </div>
+                <HelpTooltip 
+                  title="판매완료란?"
+                  content="이미 다른 구매자에게 판매가 완료된 상품입니다. 더 이상 구매할 수 없습니다."
+                />
+              </div>
+            )}
+            
+            {product.saleStatus === 'RESERVED' && (
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-100 rounded-xl flex items-center gap-3 text-yellow-700">
+                <Clock className="h-5 w-5 flex-shrink-0" />
+                <div>
+                  <div className="font-bold text-sm">예약중</div>
+                  <div className="text-xs text-yellow-600">다른 구매자가 결제를 진행 중입니다.</div>
+                </div>
+                <HelpTooltip 
+                  title="예약중이란?"
+                  content="다른 구매자가 결제를 진행 중인 상품입니다. 구매 확정 전까지는 거래가 취소될 수 있으니, 관심이 있다면 찜을 해두세요!"
+                />
+              </div>
+            )}
 
             {/* Seller Profile (판매자 소개 통합) */}
             <div className="border-b border-gray-200 py-6">
