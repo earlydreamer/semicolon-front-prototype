@@ -193,7 +193,11 @@ export default function ProductDetailPage() {
               {product.saleStatus === 'SOLD_OUT' && (
                 <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded-lg flex items-center gap-2 text-red-600 font-bold text-sm">
                   <ShoppingBag className="h-4 w-4" />
-                  이 상품은 현재 품절되었습니다.
+                  <span>이 상품은 현재 품절되었습니다.</span>
+                  <HelpTooltip 
+                    title="판매완료란?"
+                    content="이미 다른 구매자에게 판매가 완료된 상품입니다. 더 이상 구매할 수 없습니다."
+                  />
                 </div>
               )}
               
@@ -201,7 +205,11 @@ export default function ProductDetailPage() {
               {product.saleStatus === 'RESERVED' && (
                 <div className="mt-4 p-3 bg-yellow-50 border border-yellow-100 rounded-lg flex items-center gap-2 text-yellow-700 font-bold text-sm">
                   <Clock className="h-4 w-4" />
-                  이 상품은 현재 예약중입니다.
+                  <span>이 상품은 현재 예약중입니다.</span>
+                  <HelpTooltip 
+                    title="예약중이란?"
+                    content="다른 구매자가 결제를 진행 중인 상품입니다. 구매 확정 전까지는 거래가 취소될 수 있으니, 관심이 있다면 찜을 해두세요!"
+                  />
                 </div>
               )}
               
