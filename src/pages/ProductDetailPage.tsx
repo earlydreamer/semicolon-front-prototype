@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_PRODUCTS } from '@/mocks/products';
-import { Heart, Share2, ShieldCheck, Star, User, ChevronRight, ShoppingBag, Clock } from 'lucide-react';
+import { Heart, Share2, ShieldCheck, Star, User, ChevronRight, ShoppingBag, Clock, EllipsisVertical, Flag, Link2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -20,6 +20,7 @@ import {
   CONDITION_STATUS_LABELS 
 } from '@/constants';
 import { HelpTooltip } from '@/components/common/HelpTooltip';
+import { ReportModal } from '@/components/features/product/ReportModal';
 
 export default function ProductDetailPage() {
   const { productId: rawProductId } = useParams();
@@ -33,6 +34,8 @@ export default function ProductDetailPage() {
   const product = isValidId(productId) ? MOCK_PRODUCTS.find((p) => p.id === productId) : undefined;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   
   // 좋아요 상태는 Store에서 관리
   const isLiked = productId ? checkIsLiked(productId) : false;
@@ -162,17 +165,61 @@ export default function ProductDetailPage() {
                 />
               </div>
 
-              {/* 상품 타이틀 */}
+              {/* 상품 타이틀 + 더보기 메뉴 */}
               <div className="flex items-start justify-between gap-4 mb-4">
                 <h1 className="text-xl font-bold text-neutral-900 md:text-2xl leading-tight">
                   {title}
                 </h1>
-                <button 
-                  onClick={() => setIsShareModalOpen(true)}
-                  className="text-neutral-400 hover:text-neutral-600 flex-shrink-0 p-1"
-                >
-                  <Share2 className="h-5 w-5" />
-                </button>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button 
+                    onClick={() => setIsShareModalOpen(true)}
+                    className="text-neutral-400 hover:text-neutral-600 p-1.5 rounded-lg hover:bg-neutral-100"
+                    title="공유하기"
+                  >
+                    <Share2 className="h-5 w-5" />
+                  </button>
+                  <div className="relative">
+                    <button 
+                      onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                      className="text-neutral-400 hover:text-neutral-600 p-1.5 rounded-lg hover:bg-neutral-100"
+                      title="더보기"
+                    >
+                      <EllipsisVertical className="h-5 w-5" />
+                    </button>
+                    {/* 더보기 드롭다운 메뉴 */}
+                    {isMoreMenuOpen && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={() => setIsMoreMenuOpen(false)} 
+                        />
+                        <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(window.location.href);
+                              showToast('URL이 복사되었습니다.', 'success');
+                              setIsMoreMenuOpen(false);
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                          >
+                            <Link2 className="h-4 w-4" />
+                            URL 복사
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsReportModalOpen(true);
+                              setIsMoreMenuOpen(false);
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                          >
+                            <Flag className="h-4 w-4" />
+                            신고하기
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* 메타 정보 (등록일, 조회, 찜) */}
@@ -461,6 +508,13 @@ export default function ProductDetailPage() {
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         productTitle={product.title}
+      />
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        targetType="PRODUCT"
+        targetId={product.id}
+        targetName={product.title}
       />
     </div>
   );
