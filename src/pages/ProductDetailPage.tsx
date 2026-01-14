@@ -11,6 +11,7 @@ import { formatPrice } from '@/utils/formatPrice';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useCartStore } from '@/stores/useCartStore';
 import { useLikeStore } from '@/stores/useLikeStore';
 import { ShareModal } from '@/components/features/product/ShareModal';
@@ -27,6 +28,7 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const addToCart = useCartStore((state) => state.addItem);
+  const { user } = useAuthStore();
   const { isLiked: checkIsLiked, toggleLike } = useLikeStore();
   
   // URL 파라미터 검증 (XSS 방지)
@@ -38,14 +40,19 @@ export default function ProductDetailPage() {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   
   // 좋아요 상태는 Store에서 관리
-  const isLiked = productId ? checkIsLiked(productId) : false;
+  const isLiked = productId && user ? checkIsLiked(user.id, productId) : false;
 
   const handleLike = () => {
-    if (!productId) return;
-    const nowLiked = toggleLike(productId);
+    if (!productId || !user) {
+      if (!user) showToast('로그인이 필요합니다.', 'error');
+      return;
+    }
+    
+    toggleLike(user.id, productId);
+    const nextLiked = !isLiked;
     showToast(
-      nowLiked ? TOAST_MESSAGES.ADDED_TO_LIKES : TOAST_MESSAGES.REMOVED_FROM_LIKES,
-      nowLiked ? 'success' : 'info'
+      nextLiked ? TOAST_MESSAGES.ADDED_TO_LIKES : TOAST_MESSAGES.REMOVED_FROM_LIKES,
+      nextLiked ? 'success' : 'info'
     );
   };
 

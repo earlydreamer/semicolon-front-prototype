@@ -5,6 +5,7 @@ import type { Product } from '@/mocks/products';
 import { formatTimeAgo } from '@/utils/date';
 import { SALE_STATUS_LABELS } from '@/constants';
 import { useLikeStore } from '@/stores/useLikeStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface ProductCardProps {
   product: Product;
@@ -12,13 +13,15 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const isUnavailable = product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED';
+  const { user } = useAuthStore();
   const { isLiked, toggleLike } = useLikeStore();
-  const liked = isLiked(product.id);
+  const liked = user ? isLiked(user.id, product.id) : false;
 
   const handleLikeClick = (e: React.MouseEvent) => {
     e.preventDefault(); // Link 이동 방지
     e.stopPropagation();
-    toggleLike(product.id);
+    if (!user) return;
+    toggleLike(user.id, product.id);
   };
 
   return (

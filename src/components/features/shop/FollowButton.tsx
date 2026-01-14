@@ -4,6 +4,7 @@
 
 import { UserPlus, UserCheck } from 'lucide-react';
 import { useFollowStore } from '../../../stores/useFollowStore';
+import { useAuthStore } from '../../../stores/useAuthStore';
 import { useToast } from '../../common/Toast';
 
 interface FollowButtonProps {
@@ -12,16 +13,29 @@ interface FollowButtonProps {
 }
 
 const FollowButton = ({ shopId, className = '' }: FollowButtonProps) => {
+  const { user } = useAuthStore();
   const { isFollowing, toggleFollow } = useFollowStore();
   const { showToast } = useToast();
   
-  const following = isFollowing(shopId);
+  const following = user ? isFollowing(user.id, shopId) : false;
 
-  const handleClick = () => {
-    const nowFollowing = toggleFollow(shopId);
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      showToast('로그인이 필요합니다.', 'error');
+      return;
+    }
+
+    toggleFollow(user.id, shopId);
+    
+    // toggleFollow가 void를 반환한다고 로깅에 나와있으므로, 
+    // 결과값(nowFollowing) 대신 상태를 다시 체크하거나 단순히 메시지 노출
+    const nextFollowing = !following;
     showToast(
-      nowFollowing ? '상점을 팔로우했습니다' : '팔로우를 취소했습니다',
-      nowFollowing ? 'success' : 'info'
+      nextFollowing ? '상점을 팔로우했습니다' : '팔로우를 취소했습니다',
+      nextFollowing ? 'success' : 'info'
     );
   };
 
