@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { Heart } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import type { Product } from '@/mocks/products';
 import { formatTimeAgo } from '@/utils/date';
 import { SALE_STATUS_LABELS } from '@/constants';
+import { useLikeStore } from '@/stores/useLikeStore';
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +12,14 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const isUnavailable = product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED';
+  const { isLiked, toggleLike } = useLikeStore();
+  const liked = isLiked(product.id);
+
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Link 이동 방지
+    e.stopPropagation();
+    toggleLike(product.id);
+  };
 
   return (
     <Link to={`/products/${product.id}`} className="group block">
@@ -27,6 +37,24 @@ export function ProductCard({ product }: ProductCardProps) {
             }`}
             loading="lazy"
           />
+
+          {/* 찜하기 버튼 (우상단) */}
+          <button
+            onClick={handleLikeClick}
+            className={`absolute top-2 right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center
+              transition-all duration-200 backdrop-blur-sm
+              ${liked 
+                ? 'bg-red-500 text-white shadow-lg' 
+                : 'bg-white/80 text-neutral-400 hover:text-red-500 hover:bg-white shadow-md'
+              }
+            `}
+            aria-label={liked ? '찜 해제' : '찜하기'}
+          >
+            <Heart 
+              className={`h-4 w-4 transition-transform ${liked ? 'fill-current scale-110' : ''}`} 
+            />
+          </button>
+
           {/* Status Overlay - 서비스 톤앤매너에 맞는 한국어 태그 */}
           {isUnavailable && (
             <div className="absolute inset-0 z-10 flex items-center justify-center">
