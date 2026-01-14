@@ -10,8 +10,8 @@ import { MOCK_PRODUCTS } from '../mocks/products';
 import { useToast } from '../components/common/Toast';
 
 const LikedProductsPage = () => {
-  const { isAuthenticated } = useAuthStore();
-  const { likedProductIds, removeLike } = useLikeStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const { userLikes, toggleLike } = useLikeStore();
   const { showToast } = useToast();
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
@@ -20,12 +20,14 @@ const LikedProductsPage = () => {
   }
 
   // 찜한 상품 필터링
+  const likedProductIds = user ? (userLikes[user.id] || []) : [];
   const likedProducts = MOCK_PRODUCTS.filter((p) =>
     likedProductIds.includes(p.id)
   );
 
   const handleUnlike = (productId: string, productTitle: string) => {
-    removeLike(productId);
+    if (!user) return;
+    toggleLike(user.id, productId);
     showToast(`"${productTitle}" 찜한 상품에서 제거되었습니다`, 'info');
   };
 
