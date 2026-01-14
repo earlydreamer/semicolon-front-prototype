@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_PRODUCTS } from '@/mocks/products';
-import { Heart, Share2, ShieldCheck, Star, User, ChevronRight, ShoppingBag } from 'lucide-react';
+import { Heart, Share2, ShieldCheck, Star, User, ChevronRight, ShoppingBag, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -184,6 +184,14 @@ export default function ProductDetailPage() {
                 </div>
               )}
               
+              {/* 예약중 안내 배너 */}
+              {product.saleStatus === 'RESERVED' && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-100 rounded-lg flex items-center gap-2 text-yellow-700 font-bold text-sm">
+                  <Clock className="h-4 w-4" />
+                  이 상품은 현재 예약중입니다.
+                </div>
+              )}
+              
               <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
                 <span>{formatTimeAgo(createdAt)}</span>
                 <span>•</span>
@@ -346,9 +354,9 @@ export default function ProductDetailPage() {
               </button>
               <button 
                 onClick={handleAddToCart}
-                disabled={product.saleStatus === 'SOLD_OUT'}
+                disabled={product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'}
                 className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold transition-all active:scale-95 ${
-                  product.saleStatus === 'SOLD_OUT' 
+                  product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'
                   ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' 
                   : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
                 }`}
@@ -359,14 +367,14 @@ export default function ProductDetailPage() {
               {isSafe && (
                 <button 
                   onClick={handlePurchase}
-                  disabled={product.saleStatus === 'SOLD_OUT'}
+                  disabled={product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'}
                   className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white transition-all active:scale-95 ${
-                    product.saleStatus === 'SOLD_OUT'
+                    product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'
                     ? 'bg-neutral-300 cursor-not-allowed'
                     : 'bg-primary-500 hover:bg-primary-600'
                   }`}
                 >
-                  {product.saleStatus === 'SOLD_OUT' ? '품절된 상품' : '안전결제'}
+                  {product.saleStatus === 'SOLD_OUT' ? '품절된 상품' : product.saleStatus === 'RESERVED' ? '예약중' : '안전결제'}
                 </button>
               )}
             </div>
@@ -388,9 +396,9 @@ export default function ProductDetailPage() {
         <div className="flex flex-1 gap-2 ml-4">
           <button 
             onClick={handleAddToCart}
-            disabled={product.saleStatus === 'SOLD_OUT'}
+            disabled={product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'}
             className={`flex-1 rounded-md py-2.5 text-sm font-bold shadow-sm transition-transform active:scale-95 ${
-              product.saleStatus === 'SOLD_OUT'
+              product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'
               ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
               : 'bg-orange-100 text-orange-600'
             }`}
@@ -400,14 +408,14 @@ export default function ProductDetailPage() {
           {isSafe && (
             <button 
               onClick={handlePurchase}
-              disabled={product.saleStatus === 'SOLD_OUT'}
+              disabled={product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'}
               className={`flex-1 rounded-md py-2.5 text-sm font-bold text-white shadow-sm transition-transform active:scale-95 ${
-                product.saleStatus === 'SOLD_OUT'
+                product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'
                 ? 'bg-neutral-300 cursor-not-allowed'
                 : 'bg-primary-500'
               }`}
             >
-              {product.saleStatus === 'SOLD_OUT' ? '품절' : '안전결제'}
+              {product.saleStatus === 'SOLD_OUT' ? '품절' : product.saleStatus === 'RESERVED' ? '예약중' : '안전결제'}
             </button>
           )}
         </div>
