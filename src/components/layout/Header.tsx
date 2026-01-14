@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useCartStore } from '@/stores/useCartStore';
 import { CategoryNav } from '@/components/features/category/CategoryNav';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
+import logo from '@/assets/logo.png';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,8 +41,12 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
         {/* Left Section: Logo & Category */}
         <div className="flex items-center gap-4 md:gap-8">
-          <Link to="/" className="text-xl font-black tracking-tight text-neutral-900">
-            <span className="text-primary-600">덕</span>쿠
+          <Link to="/" className="flex items-center">
+            <img 
+              src={logo} 
+              alt="덕쿠" 
+              className="h-10 w-auto md:h-12 transition-transform hover:scale-105" 
+            />
           </Link>
 
           {/* Desktop Category Trigger */}
