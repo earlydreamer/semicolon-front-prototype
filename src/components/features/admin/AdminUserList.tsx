@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { Search, MoreVertical, User, Ban, CheckCircle } from 'lucide-react';
-import { MOCK_USER, type User as UserType } from '@/mocks/users';
+import { MOCK_USERS_DATA, type User as UserType } from '@/mocks/users';
 
 type UserStatus = 'active' | 'suspended';
 
@@ -12,14 +12,11 @@ interface AdminUser extends UserType {
   status: UserStatus;
 }
 
-// Mock 관리자용 사용자 목록 데이터
-const ADMIN_USERS: AdminUser[] = [
-  { ...MOCK_USER, status: 'active' },
-  { id: 'u2', email: 'user2@example.com', nickname: '캠핑러버', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200', point: 5000, createdAt: '2024-02-10T00:00:00.000Z', status: 'active' },
-  { id: 'u3', email: 'user3@example.com', nickname: '기타맨', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200', point: 12000, createdAt: '2024-03-05T00:00:00.000Z', status: 'active' },
-  { id: 'u4', email: 'user4@example.com', nickname: '아이돌팬', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200', point: 8000, createdAt: '2024-03-15T00:00:00.000Z', status: 'suspended' },
-  { id: 'u5', email: 'user5@example.com', nickname: '오디오덕후', avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&q=80&w=200', point: 20000, createdAt: '2024-04-01T00:00:00.000Z', status: 'active' },
-];
+// Mock 관리자용 사용자 목록 데이터 - MOCK_USERS_DATA에서 상위 5명 가져옴
+const ADMIN_USERS: AdminUser[] = MOCK_USERS_DATA.slice(0, 5).map((u, index) => ({
+  ...u,
+  status: index % 4 === 0 ? 'suspended' : 'active' // 예시를 위해 일부 정지 처리
+}));
 
 const STATUS_LABELS: Record<UserStatus, string> = {
   active: '활성',

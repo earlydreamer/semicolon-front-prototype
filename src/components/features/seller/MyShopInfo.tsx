@@ -7,7 +7,7 @@ import { Camera, Save } from 'lucide-react';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
-import { MOCK_USER } from '@/mocks/users';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 interface ShopInfo {
   name: string;
@@ -17,12 +17,16 @@ interface ShopInfo {
 
 const MyShopInfo = () => {
   const { showToast } = useToast();
+  const { user } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [shopInfo, setShopInfo] = useState<ShopInfo>({
-    name: MOCK_USER.nickname,
-    intro: MOCK_USER.intro || '',
-    avatar: MOCK_USER.avatar || '',
-  });
+  
+  const initialShopInfo: ShopInfo = {
+    name: user?.nickname || '',
+    intro: user?.intro || '',
+    avatar: user?.avatar || '',
+  };
+
+  const [shopInfo, setShopInfo] = useState<ShopInfo>(initialShopInfo);
   const [editForm, setEditForm] = useState<ShopInfo>(shopInfo);
 
   const handleEdit = () => {

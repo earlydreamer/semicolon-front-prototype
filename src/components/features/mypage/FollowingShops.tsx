@@ -9,9 +9,15 @@ import { MOCK_SHOPS } from '@/mocks/users';
 import { Button } from '@/components/common/Button';
 import { EmptyState } from '@/components/common/EmptyState';
 
-export function FollowingShops() {
-  const { followingShopIds, removeFollow } = useFollowStore();
+interface FollowingShopsProps {
+  userId: string;
+}
+
+export function FollowingShops({ userId }: FollowingShopsProps) {
+  const { userFollowing, removeFollow } = useFollowStore();
   
+  const followingShopIds = userFollowing[userId] || [];
+
   // 팔로우한 상점 정보 조회
   const followingShops = MOCK_SHOPS.filter((shop) => 
     followingShopIds.includes(shop.id)
@@ -30,7 +36,7 @@ export function FollowingShops() {
   const handleUnfollow = (shopId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    removeFollow(shopId);
+    removeFollow(userId, shopId);
   };
 
   return (

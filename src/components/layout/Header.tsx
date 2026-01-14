@@ -108,7 +108,7 @@ export function Header() {
                  <div className="w-6 h-6 rounded-full bg-neutral-300 flex items-center justify-center">
                    <UserIcon className="h-4 w-4 text-white" />
                  </div>
-                 <span className="text-xs font-semibold">{user?.name}님</span>
+                 <span className="text-xs font-semibold">{user?.nickname}님</span>
                </Link>
                <Button 
                   variant="ghost" 
@@ -171,7 +171,7 @@ export function Header() {
                        <UserIcon className="h-6 w-6 text-neutral-500" />
                     </div>
                     <div>
-                      <p className="font-bold">{user?.name}</p>
+                      <p className="font-bold">{user?.nickname}</p>
                       <p className="text-xs text-neutral-500">{user?.email}</p>
                     </div>
                   </div>

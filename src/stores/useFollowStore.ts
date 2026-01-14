@@ -1,77 +1,78 @@
-/**
- * 팔로우 상태 관리 Store (Zustand)
- */
-
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 interface FollowState {
-  followingShopIds: string[];
+  // 유저별 팔로우 목록: { [userId: string]: string[] }
+  userFollowing: Record<string, string[]>;
   
   // Actions
-  toggleFollow: (shopId: string) => boolean; // 팔로우 시 true, 언팔로우 시 false
-  isFollowing: (shopId: string) => boolean;
-  addFollow: (shopId: string) => void;
-  removeFollow: (shopId: string) => void;
+  toggleFollow: (userId: string, shopId: string) => void;
+  isFollowing: (userId: string, shopId: string) => boolean;
+  addFollow: (userId: string, shopId: string) => void;
+  removeFollow: (userId: string, shopId: string) => void;
+  initFollowing: (userId: string) => void;
   
   // Computed
-  getFollowingCount: () => number;
+  getFollowingCount: (userId: string) => number;
 }
 
-export const useFollowStore = create<FollowState>((set, get) => ({
-  // 초기 팔로우 상점 (Mock)
-  followingShopIds: ['s3'],
-  
-  /**
-   * 팔로우 토글
-   * @returns 팔로우 시 true, 언팔로우 시 false
-   */
-  toggleFollow: (shopId: string) => {
-    const isCurrentlyFollowing = get().followingShopIds.includes(shopId);
-    
-    if (isCurrentlyFollowing) {
-      set((state) => ({
-        followingShopIds: state.followingShopIds.filter((id) => id !== shopId),
-      }));
-      return false;
-    } else {
-      set((state) => ({
-        followingShopIds: [...state.followingShopIds, shopId],
-      }));
-      return true;
+export const useFollowStore = create<FollowState>()(
+  persist(
+    (set, get) => ({
+      userFollowing: {},
+      
+      initFollowing: (userId: string) => {
+        if (!get().userFollowing[userId]) {
+          // 초기 팔로우 상점 (Mock - 's3')
+          set((state) => ({
+            userFollowing: { ...state.userFollowing, [userId]: ['s3'] }
+          }));
+        }
+      },
+
+      toggleFollow: (userId: string, shopId: string) => {
+        const currentFollowing = get().userFollowing[userId] || [];
+        const isCurrentlyFollowing = currentFollowing.includes(shopId);
+        
+        let newFollowing: string[];
+        if (isCurrentlyFollowing) {
+          newFollowing = currentFollowing.filter((id) => id !== shopId);
+        } else {
+          newFollowing = [...currentFollowing, shopId];
+        }
+
+        set((state) => ({
+          userFollowing: { ...state.userFollowing, [userId]: newFollowing }
+        }));
+      },
+      
+      isFollowing: (userId: string, shopId: string) => {
+        return (get().userFollowing[userId] || []).includes(shopId);
+      },
+      
+      addFollow: (userId: string, shopId: string) => {
+        const current = get().userFollowing[userId] || [];
+        if (!current.includes(shopId)) {
+          set((state) => ({
+            userFollowing: { ...state.userFollowing, [userId]: [...current, shopId] }
+          }));
+        }
+      },
+      
+      removeFollow: (userId: string, shopId: string) => {
+        const current = get().userFollowing[userId] || [];
+        set((state) => ({
+          userFollowing: { ...state.userFollowing, [userId]: current.filter((id) => id !== shopId) }
+        }));
+      },
+      
+      getFollowingCount: (userId: string) => {
+        return (get().userFollowing[userId] || []).length;
+      },
+    }),
+    {
+      name: 'follow-storage-v2',
+      storage: createJSONStorage(() => localStorage),
     }
-  },
-  
-  /**
-   * 팔로우 여부 확인
-   */
-  isFollowing: (shopId: string) => {
-    return get().followingShopIds.includes(shopId);
-  },
-  
-  /**
-   * 팔로우 추가
-   */
-  addFollow: (shopId: string) => {
-    if (!get().followingShopIds.includes(shopId)) {
-      set((state) => ({
-        followingShopIds: [...state.followingShopIds, shopId],
-      }));
-    }
-  },
-  
-  /**
-   * 팔로우 제거
-   */
-  removeFollow: (shopId: string) => {
-    set((state) => ({
-      followingShopIds: state.followingShopIds.filter((id) => id !== shopId),
-    }));
-  },
-  
-  /**
-   * 팔로우 중인 상점 수
-   */
-  getFollowingCount: () => {
-    return get().followingShopIds.length;
-  },
-}));
+  )
+);

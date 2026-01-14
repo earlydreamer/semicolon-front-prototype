@@ -6,7 +6,7 @@ import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 
 const loginSchema = z.object({
-  email: z.string().email('올바른 이메일 형식을 입력해주세요.'),
+  loginId: z.string().min(1, '아이디를 입력해주세요.'),
   password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.'),
   autoLogin: z.boolean().optional(),
 });
@@ -15,13 +15,19 @@ type LoginSchema = z.infer<typeof loginSchema>;
 
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore';
-
-// ... (Schema definition remains same)
+import { useToast } from '@/components/common/Toast';
+import { useLikeStore } from '@/stores/useLikeStore';
+import { useFollowStore } from '@/stores/useFollowStore';
+import { useSellerStore } from '@/stores/useSellerStore';
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuthStore();
+  const { showToast } = useToast();
+  const initUserLikes = useLikeStore((state) => state.initUserLikes);
+  const initFollowing = useFollowStore((state) => state.initFollowing);
+  const initSellerProducts = useSellerStore((state) => state.initSellerProducts);
 
   const {
     register,
@@ -36,35 +42,44 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginSchema) => {
     setIsLoading(true);
-    // [MOCK] API Call Simulation
-    console.log('[MOCK] Login Request:', data);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     
-    // [MOCK] Login Success
-    login({
-      id: 'mock-user-001',
-      email: data.email,
-      name: 'Mock User',
-    });
-    
-    alert('로그인되었습니다. (Mock)');
-    setIsLoading(false);
-    navigate('/'); // Redirect to Home
+    try {
+      const result = await login(data.loginId, data.password);
+      
+      if (result.success) {
+        // 유저별 초기 데이터(찜, 팔로우) 로드
+        const { user } = useAuthStore.getState();
+        if (user) {
+          initUserLikes(user.id);
+          initFollowing(user.id);
+          initSellerProducts(user.id);
+        }
+        
+        showToast('로그인 성공', 'success');
+        navigate('/');
+      } else {
+        showToast(result.message || 'ID 또는 비밀번호를 확인해주세요.', 'error');
+      }
+    } catch (error) {
+      showToast('로그인 중 문제가 발생했습니다.', 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Input
-        label="이메일"
-        type="email"
-        placeholder="example@email.com"
-        error={errors.email?.message}
-        {...register('email')}
+        label="아이디"
+        type="text"
+        placeholder="user1 ~ user20"
+        error={errors.loginId?.message}
+        {...register('loginId')}
       />
       <Input
         label="비밀번호"
         type="password"
-        placeholder="비밀번호를 입력해주세요"
+        placeholder="testuser (테스트용)"
         error={errors.password?.message}
         {...register('password')}
       />
