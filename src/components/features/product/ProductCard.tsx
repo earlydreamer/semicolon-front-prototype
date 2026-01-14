@@ -2,12 +2,15 @@ import { Link } from 'react-router-dom';
 import { Card } from '@/components/common/Card';
 import type { Product } from '@/mocks/products';
 import { formatTimeAgo } from '@/utils/date';
+import { SALE_STATUS_LABELS } from '@/constants';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const isUnavailable = product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED';
+
   return (
     <Link to={`/products/${product.id}`} className="group block">
       <Card 
@@ -20,19 +23,22 @@ export function ProductCard({ product }: ProductCardProps) {
             src={product.image}
             alt={product.title}
             className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-110 ${
-              (product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED') ? 'grayscale-[0.5]' : ''
+              isUnavailable ? 'brightness-75' : ''
             }`}
             loading="lazy"
           />
-          {/* Status Overlay */}
-          {(product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED') && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
-              <span className={`rounded-md border-2 px-3 py-1 text-sm font-black uppercase tracking-wider ${
-                product.saleStatus === 'SOLD_OUT' 
-                ? 'border-white text-white' 
-                : 'border-yellow-400 text-yellow-400'
-              }`}>
-                {product.saleStatus === 'SOLD_OUT' ? 'Sold Out' : 'Reserved'}
+          {/* Status Overlay - 서비스 톤앤매너에 맞는 한국어 태그 */}
+          {isUnavailable && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center">
+              <span className={`
+                rounded-full px-4 py-1.5 text-sm font-bold shadow-lg
+                backdrop-blur-sm
+                ${product.saleStatus === 'SOLD_OUT' 
+                  ? 'bg-neutral-800/80 text-white' 
+                  : 'bg-primary-500/90 text-white'
+                }
+              `}>
+                {SALE_STATUS_LABELS[product.saleStatus]}
               </span>
             </div>
           )}
