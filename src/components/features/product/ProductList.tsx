@@ -47,10 +47,12 @@ export function ProductList({
       )}
       
       {/* 
-        1줄당 4개 항목 표시 (md 이상에서 grid-cols-4 고정) 
-        데이터가 부족할 경우 grid의 기본 동작에 의해 왼쪽으로 정렬됨
+        초소형 화면(320px 미만): 1열
+        320px 이상: 2열
+        sm(640px) 이상: 3열
+        md(768px) 이상: 4열
       */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 min-[320px]:grid-cols-2 min-[320px]:gap-4 sm:grid-cols-3 md:grid-cols-4">
         {itemsToRender.map((product: Product) => (
           <ProductCard key={product.id} product={product} />
         ))}

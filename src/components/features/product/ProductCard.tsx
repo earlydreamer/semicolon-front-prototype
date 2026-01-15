@@ -82,11 +82,11 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.title}
           </h3>
           
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-neutral-900">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-base min-[320px]:text-lg font-bold text-neutral-900 truncate">
               {product.price.toLocaleString()}원
             </span>
-            <span className="text-xs text-neutral-500">
+            <span className="text-xs text-neutral-500 flex-shrink-0">
               {formatTimeAgo(product.createdAt)}
             </span>
           </div>

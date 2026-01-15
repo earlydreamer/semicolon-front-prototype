@@ -474,21 +474,21 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Mobile Fixed Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between border-t border-gray-200 bg-white p-4 md:hidden pb-[safe-area-inset-bottom]">
-        <div className="flex gap-4">
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between border-t border-gray-200 bg-white px-3 min-[360px]:px-4 py-2.5 min-[360px]:py-3 md:hidden" style={{ paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))' }}>
+        <div className="flex gap-2 min-[360px]:gap-4">
           <button 
             onClick={handleLike}
-            className={`flex flex-col items-center justify-center transition-transform active:scale-90 ${isLiked ? 'text-red-500' : 'text-gray-500'}`}
+            className={`flex flex-col items-center justify-center transition-transform active:scale-90 min-w-[40px] ${isLiked ? 'text-red-500' : 'text-gray-500'}`}
           >
-            <Heart className={`h-6 w-6 ${isLiked ? 'fill-current' : ''}`} />
+            <Heart className={`h-5 min-[360px]:h-6 w-5 min-[360px]:w-6 ${isLiked ? 'fill-current' : ''}`} />
             <span className="text-[10px] mt-0.5">{likeCount + (isLiked ? 1 : 0)}</span>
           </button>
         </div>
-        <div className="flex flex-1 gap-2 ml-4">
+        <div className="flex flex-1 gap-1.5 min-[360px]:gap-2 ml-2 min-[360px]:ml-4">
           <button 
             onClick={handleAddToCart}
             disabled={product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'}
-            className={`flex-1 rounded-md py-2.5 text-sm font-bold shadow-sm transition-transform active:scale-95 ${
+            className={`flex-1 rounded-md py-2 min-[360px]:py-2.5 text-xs min-[360px]:text-sm font-bold shadow-sm transition-transform active:scale-95 ${
               product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'
               ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
               : 'bg-orange-100 text-orange-600'
@@ -500,7 +500,7 @@ export default function ProductDetailPage() {
             <button 
               onClick={handlePurchase}
               disabled={product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'}
-              className={`flex-1 rounded-md py-2.5 text-sm font-bold text-white shadow-sm transition-transform active:scale-95 ${
+              className={`flex-1 rounded-md py-2 min-[360px]:py-2.5 text-xs min-[360px]:text-sm font-bold text-white shadow-sm transition-transform active:scale-95 ${
                 product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED'
                 ? 'bg-neutral-300 cursor-not-allowed'
                 : 'bg-primary-500'

@@ -91,7 +91,7 @@ export function HeroBanner() {
   }, [handleNext]);
 
   return (
-    <section className="relative w-full overflow-hidden min-h-[380px] md:min-h-[460px] lg:min-h-[540px]">
+    <section className="relative w-full overflow-hidden min-h-[280px] min-[360px]:min-h-[340px] min-[480px]:min-h-[380px] md:min-h-[460px] lg:min-h-[540px]">
       {/* Sliding Container */}
       <div 
         className="flex transition-transform duration-500 ease-out h-full"
@@ -100,7 +100,7 @@ export function HeroBanner() {
         {BANNERS.map((banner) => (
           <div 
             key={banner.id}
-            className={`relative min-w-full flex-shrink-0 flex items-center min-h-[380px] md:min-h-[460px] lg:min-h-[540px]
+            className={`relative min-w-full flex-shrink-0 flex items-center min-h-[280px] min-[360px]:min-h-[340px] min-[480px]:min-h-[380px] md:min-h-[460px] lg:min-h-[540px]
               ${banner.imageAlign === 'split' ? `bg-gradient-to-r ${banner.bgColor}` : ''}`}
           >
             {/* Background Layer (Individual per slide) */}
@@ -150,11 +150,11 @@ export function HeroBanner() {
               <div className="flex flex-col items-center gap-10 md:flex-row md:gap-16">
                 <div className={`flex-1 space-y-5 text-center md:text-left
                   ${banner.imageAlign === 'full' ? 'max-w-xl' : 'md:max-w-[48%]'}`}>
-                  <h1 className={`text-3xl font-black leading-[1.2] tracking-tight md:text-4xl lg:text-6xl
+                  <h1 className={`text-xl min-[360px]:text-2xl min-[480px]:text-3xl font-black leading-[1.2] tracking-tight md:text-4xl lg:text-6xl
                     ${banner.imageAlign === 'full' ? 'text-white' : 'text-neutral-900'}`}>
                     {banner.title}
                   </h1>
-                  <p className={`whitespace-pre-line text-base md:text-lg opacity-90 leading-relaxed
+                  <p className={`whitespace-pre-line text-sm min-[360px]:text-base md:text-lg opacity-90 leading-relaxed
                     ${banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'}`}>
                     {banner.description}
                   </p>
