@@ -146,23 +146,34 @@ export function HeroBanner() {
             </div>
 
             {/* Content Container */}
-            <div className="container mx-auto px-4 relative z-10 py-10 md:py-14 lg:py-16">
-              <div className="flex flex-col items-center gap-10 md:flex-row md:gap-16">
-                <div className={`flex-1 space-y-5 text-center md:text-left
+            <div className="container mx-auto px-4 relative z-10 py-6 min-[360px]:py-8 md:py-14 lg:py-16">
+              <div className="flex flex-col items-center gap-4 min-[360px]:gap-6 md:flex-row md:gap-16">
+                {/* 모바일에서 split 타입일 때 이미지를 상단에 먼저 표시 */}
+                {banner.imageAlign === 'split' && (
+                  <div className="w-full max-w-[200px] min-[360px]:max-w-[240px] min-[480px]:max-w-[280px] md:hidden mx-auto">
+                    <img 
+                      src={banner.image} 
+                      alt="배너 이미지" 
+                      className="w-full h-auto object-contain drop-shadow-lg"
+                    />
+                  </div>
+                )}
+
+                <div className={`flex-1 space-y-3 min-[360px]:space-y-4 md:space-y-5 text-center md:text-left
                   ${banner.imageAlign === 'full' ? 'max-w-xl' : 'md:max-w-[48%]'}`}>
                   <h1 className={`text-xl min-[360px]:text-2xl min-[480px]:text-3xl font-black leading-[1.2] tracking-tight md:text-4xl lg:text-6xl
                     ${banner.imageAlign === 'full' ? 'text-white' : 'text-neutral-900'}`}>
                     {banner.title}
                   </h1>
-                  <p className={`whitespace-pre-line text-sm min-[360px]:text-base md:text-lg opacity-90 leading-relaxed
+                  <p className={`whitespace-pre-line text-xs min-[360px]:text-sm min-[480px]:text-base md:text-lg opacity-90 leading-relaxed
                     ${banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'}`}>
                     {banner.description}
                   </p>
-                  <div className="flex justify-center gap-4 md:justify-start">
+                  <div className="flex justify-center gap-4 md:justify-start pt-1 min-[360px]:pt-2">
                     <Link to={banner.ctaLink}>
                       <Button 
                         size="lg" 
-                        className={`font-bold ${
+                        className={`font-bold text-sm min-[360px]:text-base ${
                           banner.imageAlign === 'full' 
                             ? 'bg-white text-neutral-900 hover:bg-neutral-100' 
                             : ''
@@ -174,13 +185,16 @@ export function HeroBanner() {
                   </div>
                 </div>
                 
-                <div className="flex-1 w-full md:hidden">
-                  <img 
-                    src={banner.image} 
-                    alt="배너 이미지" 
-                    className="rounded-2xl shadow-xl object-cover aspect-video w-full"
-                  />
-                </div>
+                {/* full 타입 배너의 모바일 이미지 (하단에 표시) */}
+                {banner.imageAlign === 'full' && (
+                  <div className="flex-1 w-full md:hidden">
+                    <img 
+                      src={banner.image} 
+                      alt="배너 이미지" 
+                      className="rounded-2xl shadow-xl object-cover aspect-video w-full"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
