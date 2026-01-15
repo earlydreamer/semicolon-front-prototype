@@ -147,20 +147,22 @@ export function HeroBanner() {
                     ${banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'}`}>
                     {banner.description}
                   </p>
-                  <div className="pt-2 min-[360px]:pt-3">
-                    <Link to={banner.ctaLink}>
-                      <Button 
-                        size="sm"
-                        className={`font-bold text-sm ${
-                          banner.imageAlign === 'full' 
-                            ? 'bg-white text-neutral-900 hover:bg-neutral-100' 
-                            : ''
-                        }`}
-                      >
-                        {banner.ctaText}
-                      </Button>
-                    </Link>
-                  </div>
+                  {banner.ctaEnabled && banner.ctaLink && (
+                    <div className="pt-2 min-[360px]:pt-3">
+                      <Link to={banner.ctaLink}>
+                        <Button 
+                          size="sm"
+                          className={`font-bold text-sm ${
+                            banner.imageAlign === 'full' 
+                              ? 'bg-white text-neutral-900 hover:bg-neutral-100' 
+                              : ''
+                          }`}
+                        >
+                          {banner.ctaText}
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -184,20 +186,22 @@ export function HeroBanner() {
                     ${banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'}`}>
                     {banner.description}
                   </p>
-                  <div>
-                    <Link to={banner.ctaLink}>
-                      <Button 
-                        size="lg" 
-                        className={`font-bold ${
-                          banner.imageAlign === 'full' 
-                            ? 'bg-white text-neutral-900 hover:bg-neutral-100' 
-                            : ''
-                        }`}
-                      >
-                        {banner.ctaText}
-                      </Button>
-                    </Link>
-                  </div>
+                  {banner.ctaEnabled && banner.ctaLink && (
+                    <div>
+                      <Link to={banner.ctaLink}>
+                        <Button 
+                          size="lg" 
+                          className={`font-bold ${
+                            banner.imageAlign === 'full' 
+                              ? 'bg-white text-neutral-900 hover:bg-neutral-100' 
+                              : ''
+                          }`}
+                        >
+                          {banner.ctaText}
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

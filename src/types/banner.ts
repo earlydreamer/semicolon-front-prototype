@@ -10,13 +10,14 @@ export interface Banner {
   id: string;
   title: string;
   description: string;
-  image: string;
+  image?: string; // 이미지 없는 배너도 가능
   imageAlign: BannerImageAlign;
   imageFit: BannerImageFit;
-  textPosition: BannerTextPosition; // 텍스트/버튼 위치
+  textPosition: BannerTextPosition;
   bgColor: string;
-  ctaText: string;
-  ctaLink: string;
+  ctaText?: string;
+  ctaLink?: string;
+  ctaEnabled: boolean; // 버튼 표시 여부
   order: number;
   isActive: boolean;
   createdAt: string;
@@ -27,13 +28,13 @@ export interface Banner {
 export interface BannerInput {
   title: string;
   description: string;
-  image: string;
+  image?: string;
   imageAlign: BannerImageAlign;
   imageFit: BannerImageFit;
   textPosition: BannerTextPosition;
   bgColor: string;
-  ctaText: string;
-  ctaLink: string;
+  ctaText?: string;
+  ctaLink?: string;
+  ctaEnabled: boolean;
   isActive?: boolean;
 }
-
