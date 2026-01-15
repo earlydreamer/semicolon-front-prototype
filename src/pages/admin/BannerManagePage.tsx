@@ -14,7 +14,7 @@ import { Button } from '@/components/common/Button';
 import { Modal } from '@/components/common/Modal';
 import { Input } from '@/components/common/Input';
 import { useBannerStore } from '@/stores/useBannerStore';
-import type { Banner, BannerInput, BannerImageAlign, BannerImageFit } from '@/types/banner';
+import type { Banner, BannerInput, BannerImageAlign, BannerImageFit, BannerTextPosition } from '@/types/banner';
 
 const MAX_BANNERS = 10;
 
@@ -38,6 +38,7 @@ const BannerManagePage = () => {
     image: '',
     imageAlign: 'split',
     imageFit: 'contain',
+    textPosition: 'left',
     bgColor: 'from-primary-50 to-primary-100',
     ctaText: '',
     ctaLink: '',
@@ -130,6 +131,7 @@ const BannerManagePage = () => {
       image: '',
       imageAlign: 'split',
       imageFit: 'contain',
+      textPosition: 'left',
       bgColor: 'from-primary-50 to-primary-100',
       ctaText: '',
       ctaLink: '',
@@ -146,6 +148,7 @@ const BannerManagePage = () => {
       image: banner.image,
       imageAlign: banner.imageAlign,
       imageFit: banner.imageFit,
+      textPosition: banner.textPosition || 'left',
       bgColor: banner.bgColor,
       ctaText: banner.ctaText,
       ctaLink: banner.ctaLink,
@@ -386,6 +389,19 @@ const BannerManagePage = () => {
                 <option value="cover">채우기 (cover)</option>
               </select>
             </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">텍스트/버튼 위치</label>
+            <select
+              value={formData.textPosition}
+              onChange={(e) => setFormData({ ...formData, textPosition: e.target.value as BannerTextPosition })}
+              className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="left">좌측 (left)</option>
+              <option value="center">중앙 (center)</option>
+              <option value="right">우측 (right)</option>
+            </select>
           </div>
           
           <div>

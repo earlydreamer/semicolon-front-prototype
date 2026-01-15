@@ -113,7 +113,11 @@ export function HeroBanner() {
             {/* 콘텐츠 영역 */}
             <div className="relative z-10 container mx-auto px-4">
               {/* 모바일 레이아웃: 세로 배치 */}
-              <div className="md:hidden py-6 min-[360px]:py-8 flex flex-col items-center text-center">
+              <div className={`md:hidden py-6 min-[360px]:py-8 flex flex-col ${
+                banner.textPosition === 'center' ? 'items-center text-center' :
+                banner.textPosition === 'right' ? 'items-end text-right' :
+                'items-center text-center'  /* 모바일은 기본적으로 중앙 정렬 */
+              }`}>
                 {/* 모바일에서 split 타입일 때 이미지 상단 표시 */}
                 {banner.imageAlign === 'split' && (
                   <div className={`w-full mb-4 min-[360px]:mb-6 ${
@@ -161,8 +165,17 @@ export function HeroBanner() {
               </div>
 
               {/* 데스크톱 레이아웃: 가로 배치 */}
-              <div className="hidden md:flex items-center min-h-[460px] lg:min-h-[540px] py-14 lg:py-16">
-                <div className={`space-y-5 ${banner.imageAlign === 'full' ? 'max-w-xl' : 'max-w-[48%]'}`}>
+              <div className={`hidden md:flex items-center min-h-[460px] lg:min-h-[540px] py-14 lg:py-16 ${
+                banner.textPosition === 'center' ? 'justify-center text-center' :
+                banner.textPosition === 'right' ? 'justify-end text-right' :
+                'justify-start text-left'
+              }`}>
+                <div className={`space-y-5 ${
+                  banner.imageAlign === 'full' ? 'max-w-xl' : 'max-w-[48%]'
+                } ${
+                  banner.textPosition === 'center' ? 'mx-auto' :
+                  banner.textPosition === 'right' ? 'ml-auto' : ''
+                }`}>
                   <h1 className={`text-4xl lg:text-6xl font-black leading-[1.2] tracking-tight
                     ${banner.imageAlign === 'full' ? 'text-white' : 'text-neutral-900'}`}>
                     {banner.title}
