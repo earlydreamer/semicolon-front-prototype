@@ -21,6 +21,9 @@ interface BannerStore {
   updateBanner: (id: string, input: Partial<BannerInput>) => void;
   deleteBanner: (id: string) => void;
   
+  // 배너 목록 일괄 저장 (어드민용)
+  setBanners: (banners: Banner[]) => void;
+  
   // 활성화/비활성화
   toggleBannerActive: (id: string) => void;
   
@@ -74,6 +77,10 @@ export const useBannerStore = create<BannerStore>()(
       
       deleteBanner: (id) => {
         set({ banners: get().banners.filter(b => b.id !== id) });
+      },
+      
+      setBanners: (banners) => {
+        set({ banners });
       },
       
       toggleBannerActive: (id) => {
