@@ -74,139 +74,164 @@ export function HeroBanner() {
         className="flex transition-transform duration-500 ease-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
-        {banners.map((banner) => (
-          <div 
-            key={banner.id}
-            className={`relative min-w-full flex-shrink-0 ${banner.imageAlign === 'split' ? `bg-gradient-to-br ${banner.bgColor}` : ''}`}
-          >
-            {/* 배경 이미지 (full 타입 또는 데스크톱 split 타입) */}
-            <div className="absolute inset-0 z-0">
-              {banner.imageAlign === 'full' ? (
-                <>
-                  <img 
-                    src={banner.image} 
-                    alt="" 
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/70 via-black/40 to-black/20" />
-                </>
-              ) : (
-                /* 데스크톱에서만 우측 이미지 표시 */
-                <div className="hidden md:block absolute top-0 right-0 w-1/2 h-full overflow-hidden">
-                  <div 
-                    className="w-full h-full"
-                    style={{
-                      maskImage: 'linear-gradient(to right, transparent, black 150px)',
-                      WebkitMaskImage: 'linear-gradient(to right, transparent, black 150px)'
-                    }}
-                  >
-                    <img 
-                      src={banner.image} 
-                      alt="" 
-                      className={`w-full h-full ${banner.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`}
-                    />
+        {banners.map((banner) => {
+          const showButton = (banner.ctaEnabled ?? true) && banner.ctaText;
+          const bannerLink = banner.ctaLink || '#';
+          
+          // 배너 내용 (텍스트 + 이미지)
+          const BannerContent = (
+            <>
+              {/* 배경 이미지 (full 타입 또는 데스크톱 split 타입) */}
+              <div className="absolute inset-0 z-0">
+                {banner.imageAlign === 'full' ? (
+                  <>
+                    {banner.image && (
+                      <img 
+                        src={banner.image} 
+                        alt="" 
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/70 via-black/40 to-black/20" />
+                  </>
+                ) : (
+                  /* 데스크톱에서만 우측 이미지 표시 */
+                  banner.image && (
+                    <div className="hidden md:block absolute top-0 right-0 w-1/2 h-full overflow-hidden">
+                      <div 
+                        className="w-full h-full"
+                        style={{
+                          maskImage: 'linear-gradient(to right, transparent, black 150px)',
+                          WebkitMaskImage: 'linear-gradient(to right, transparent, black 150px)'
+                        }}
+                      >
+                        <img 
+                          src={banner.image} 
+                          alt="" 
+                          className={`w-full h-full ${banner.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`}
+                        />
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+
+              {/* 콘텐츠 영역 */}
+              <div className="relative z-10 container mx-auto px-4">
+                {/* 모바일 레이아웃: 세로 배치 */}
+                <div className={`md:hidden py-6 min-[360px]:py-8 flex flex-col ${
+                  banner.textPosition === 'center' ? 'items-center text-center' :
+                  banner.textPosition === 'right' ? 'items-end text-right' :
+                  'items-center text-center'  /* 모바일은 기본적으로 중앙 정렬 */
+                }`}>
+                  {/* 모바일에서 split 타입일 때 이미지 상단 표시 */}
+                  {banner.imageAlign === 'split' && banner.image && (
+                    <div className={`w-full mb-4 min-[360px]:mb-6 ${
+                      banner.imageFit === 'cover' 
+                        ? 'h-[140px] min-[360px]:h-[180px] overflow-hidden rounded-xl' 
+                        : 'max-w-[180px] min-[360px]:max-w-[220px]'
+                    }`}>
+                      <img 
+                        src={banner.image} 
+                        alt="배너 이미지" 
+                        className={`w-full drop-shadow-xl ${
+                          banner.imageFit === 'cover' 
+                            ? 'h-full object-cover' 
+                            : 'h-auto object-contain'
+                        }`}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* 텍스트 콘텐츠 */}
+                  <div className="space-y-2 min-[360px]:space-y-3">
+                    <h2 className={`text-xl min-[360px]:text-2xl font-black leading-tight tracking-tight
+                      ${banner.imageAlign === 'full' ? 'text-white' : 'text-neutral-900'}`}>
+                      {banner.title}
+                    </h2>
+                    <p className={`text-xs min-[360px]:text-sm leading-relaxed whitespace-pre-line
+                      ${banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'}`}>
+                      {banner.description}
+                    </p>
+                    {showButton && (
+                      <div className="pt-2 min-[360px]:pt-3">
+                        <Link to={bannerLink}>
+                          <Button 
+                            size="sm"
+                            className={`font-bold text-sm ${
+                              banner.imageAlign === 'full' 
+                                ? 'bg-white text-neutral-900 hover:bg-neutral-100' 
+                                : ''
+                            }`}
+                          >
+                            {banner.ctaText}
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
+
+                {/* 데스크톱 레이아웃: 가로 배치 */}
+                <div className={`hidden md:flex items-center min-h-[460px] lg:min-h-[540px] py-14 lg:py-16 ${
+                  banner.textPosition === 'center' ? 'justify-center text-center' :
+                  banner.textPosition === 'right' ? 'justify-end text-right' :
+                  'justify-start text-left'
+                }`}>
+                  <div className={`space-y-5 ${
+                    banner.imageAlign === 'full' ? 'max-w-xl' : 'max-w-[48%]'
+                  } ${
+                    banner.textPosition === 'center' ? 'mx-auto' :
+                    banner.textPosition === 'right' ? 'ml-auto' : ''
+                  }`}>
+                    <h1 className={`text-4xl lg:text-6xl font-black leading-[1.2] tracking-tight
+                      ${banner.imageAlign === 'full' ? 'text-white' : 'text-neutral-900'}`}>
+                      {banner.title}
+                    </h1>
+                    <p className={`text-lg opacity-90 leading-relaxed whitespace-pre-line
+                      ${banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'}`}>
+                      {banner.description}
+                    </p>
+                    {showButton && (
+                      <div>
+                        <Link to={bannerLink}>
+                          <Button 
+                            size="lg" 
+                            className={`font-bold ${
+                              banner.imageAlign === 'full' 
+                                ? 'bg-white text-neutral-900 hover:bg-neutral-100' 
+                                : ''
+                            }`}
+                          >
+                            {banner.ctaText}
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          );
+
+          return (
+            <div 
+              key={banner.id}
+              className={`relative min-w-full flex-shrink-0 ${banner.imageAlign === 'split' ? `bg-gradient-to-br ${banner.bgColor}` : ''} ${
+                !showButton && bannerLink !== '#' ? 'cursor-pointer' : ''
+              }`}
+            >
+              {/* 버튼 비활성화 + 링크 있을 때: 배너 전체 클릭 */}
+              {!showButton && bannerLink !== '#' ? (
+                <Link to={bannerLink} className="block">
+                  {BannerContent}
+                </Link>
+              ) : (
+                BannerContent
               )}
             </div>
-
-            {/* 콘텐츠 영역 */}
-            <div className="relative z-10 container mx-auto px-4">
-              {/* 모바일 레이아웃: 세로 배치 */}
-              <div className={`md:hidden py-6 min-[360px]:py-8 flex flex-col ${
-                banner.textPosition === 'center' ? 'items-center text-center' :
-                banner.textPosition === 'right' ? 'items-end text-right' :
-                'items-center text-center'  /* 모바일은 기본적으로 중앙 정렬 */
-              }`}>
-                {/* 모바일에서 split 타입일 때 이미지 상단 표시 */}
-                {banner.imageAlign === 'split' && (
-                  <div className={`w-full mb-4 min-[360px]:mb-6 ${
-                    banner.imageFit === 'cover' 
-                      ? 'h-[140px] min-[360px]:h-[180px] overflow-hidden rounded-xl' 
-                      : 'max-w-[180px] min-[360px]:max-w-[220px]'
-                  }`}>
-                    <img 
-                      src={banner.image} 
-                      alt="배너 이미지" 
-                      className={`w-full drop-shadow-xl ${
-                        banner.imageFit === 'cover' 
-                          ? 'h-full object-cover' 
-                          : 'h-auto object-contain'
-                      }`}
-                    />
-                  </div>
-                )}
-                
-                {/* 텍스트 콘텐츠 */}
-                <div className="space-y-2 min-[360px]:space-y-3">
-                  <h2 className={`text-xl min-[360px]:text-2xl font-black leading-tight tracking-tight
-                    ${banner.imageAlign === 'full' ? 'text-white' : 'text-neutral-900'}`}>
-                    {banner.title}
-                  </h2>
-                  <p className={`text-xs min-[360px]:text-sm leading-relaxed whitespace-pre-line
-                    ${banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'}`}>
-                    {banner.description}
-                  </p>
-                  {(banner.ctaEnabled ?? true) && banner.ctaText && (
-                    <div className="pt-2 min-[360px]:pt-3">
-                      <Link to={banner.ctaLink || '#'}>
-                        <Button 
-                          size="sm"
-                          className={`font-bold text-sm ${
-                            banner.imageAlign === 'full' 
-                              ? 'bg-white text-neutral-900 hover:bg-neutral-100' 
-                              : ''
-                          }`}
-                        >
-                          {banner.ctaText}
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* 데스크톱 레이아웃: 가로 배치 */}
-              <div className={`hidden md:flex items-center min-h-[460px] lg:min-h-[540px] py-14 lg:py-16 ${
-                banner.textPosition === 'center' ? 'justify-center text-center' :
-                banner.textPosition === 'right' ? 'justify-end text-right' :
-                'justify-start text-left'
-              }`}>
-                <div className={`space-y-5 ${
-                  banner.imageAlign === 'full' ? 'max-w-xl' : 'max-w-[48%]'
-                } ${
-                  banner.textPosition === 'center' ? 'mx-auto' :
-                  banner.textPosition === 'right' ? 'ml-auto' : ''
-                }`}>
-                  <h1 className={`text-4xl lg:text-6xl font-black leading-[1.2] tracking-tight
-                    ${banner.imageAlign === 'full' ? 'text-white' : 'text-neutral-900'}`}>
-                    {banner.title}
-                  </h1>
-                  <p className={`text-lg opacity-90 leading-relaxed whitespace-pre-line
-                    ${banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'}`}>
-                    {banner.description}
-                  </p>
-                  {(banner.ctaEnabled ?? true) && banner.ctaText && (
-                    <div>
-                      <Link to={banner.ctaLink || '#'}>
-                        <Button 
-                          size="lg" 
-                          className={`font-bold ${
-                            banner.imageAlign === 'full' 
-                              ? 'bg-white text-neutral-900 hover:bg-neutral-100' 
-                              : ''
-                          }`}
-                        >
-                          {banner.ctaText}
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 모바일 내비게이션 화살표 */}
