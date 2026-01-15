@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Eye, EyeOff, RotateCcw, Save, GripVertical, AlertCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, RotateCcw, Save, GripVertical, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Modal } from '@/components/common/Modal';
 import { Input } from '@/components/common/Input';
@@ -19,7 +19,7 @@ import type { Banner, BannerInput, BannerImageAlign, BannerImageFit, BannerTextP
 const MAX_BANNERS = 10;
 
 const BannerManagePage = () => {
-  const { banners: storeBanners, setBanners, addBanner, updateBanner, deleteBanner } = useBannerStore();
+  const { banners: storeBanners, setBanners, addBanner, updateBanner } = useBannerStore();
   
   // 로컬 상태 (저장 전까지 변경사항 보관)
   const [localBanners, setLocalBanners] = useState<Banner[]>([]);
@@ -42,6 +42,7 @@ const BannerManagePage = () => {
     bgColor: 'from-primary-50 to-primary-100',
     ctaText: '',
     ctaLink: '',
+    ctaEnabled: true,
   });
   
   // Store 배너를 로컬 상태로 동기화
@@ -135,6 +136,7 @@ const BannerManagePage = () => {
       bgColor: 'from-primary-50 to-primary-100',
       ctaText: '',
       ctaLink: '',
+      ctaEnabled: true,
     });
     setIsModalOpen(true);
   };
@@ -145,13 +147,14 @@ const BannerManagePage = () => {
     setFormData({
       title: banner.title,
       description: banner.description,
-      image: banner.image,
+      image: banner.image || '',
       imageAlign: banner.imageAlign,
       imageFit: banner.imageFit,
       textPosition: banner.textPosition || 'left',
       bgColor: banner.bgColor,
-      ctaText: banner.ctaText,
-      ctaLink: banner.ctaLink,
+      ctaText: banner.ctaText || '',
+      ctaLink: banner.ctaLink || '',
+      ctaEnabled: banner.ctaEnabled ?? true,
     });
     setIsModalOpen(true);
   };
@@ -166,10 +169,15 @@ const BannerManagePage = () => {
     setIsModalOpen(false);
   };
   
-  // 배너 삭제
+  // 배너 삭제 (로컬 상태)
   const handleDelete = (id: string) => {
     if (confirm('정말로 이 배너를 삭제하시겠습니까?')) {
-      deleteBanner(id);
+      setLocalBanners(prev => {
+        const filtered = prev.filter(b => b.id !== id);
+        // order 재할당
+        return filtered.map((banner, idx) => ({ ...banner, order: idx + 1 }));
+      });
+      setHasChanges(true);
     }
   };
   
@@ -300,14 +308,14 @@ const BannerManagePage = () => {
                 <td className="px-4 py-3">
                   <button 
                     onClick={() => handleToggleActive(banner.id)}
-                    className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded ${
-                      banner.isActive
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-neutral-100 text-neutral-500'
-                    }`}
+                    className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                    style={{ backgroundColor: banner.isActive ? '#10b981' : '#d1d5db' }}
                   >
-                    {banner.isActive ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                    {banner.isActive ? '활성' : '비활성'}
+                    <span 
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
+                        banner.isActive ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
                   </button>
                 </td>
                 <td className="px-4 py-3 text-right">
@@ -417,21 +425,43 @@ const BannerManagePage = () => {
             </select>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="버튼 텍스트"
-              value={formData.ctaText}
-              onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
-              placeholder="거래 시작하기"
-            />
-            
-            <Input
-              label="버튼 링크"
-              value={formData.ctaLink}
-              onChange={(e) => setFormData({ ...formData, ctaLink: e.target.value })}
-              placeholder="/seller/products/new"
-            />
+          {/* 버튼 설정 */}
+          <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+            <div>
+              <p className="text-sm font-medium text-neutral-700">버튼 표시</p>
+              <p className="text-xs text-neutral-500">배너에 CTA 버튼을 표시합니다</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFormData({ ...formData, ctaEnabled: !formData.ctaEnabled })}
+              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+              style={{ backgroundColor: formData.ctaEnabled ? '#10b981' : '#d1d5db' }}
+            >
+              <span 
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
+                  formData.ctaEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
+          
+          {formData.ctaEnabled && (
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="버튼 텍스트"
+                value={formData.ctaText || ''}
+                onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
+                placeholder="거래 시작하기"
+              />
+              
+              <Input
+                label="버튼 링크"
+                value={formData.ctaLink || ''}
+                onChange={(e) => setFormData({ ...formData, ctaLink: e.target.value })}
+                placeholder="/seller/products/new"
+              />
+            </div>
+          )}
           
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>취소</Button>
