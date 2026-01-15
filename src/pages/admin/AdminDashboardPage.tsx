@@ -1,19 +1,64 @@
 /**
  * 관리자 대시보드 페이지
+ * 
+ * Mock 데이터에서 실제 통계를 계산하여 표시합니다.
  */
 
+import { useMemo } from 'react';
 import { DollarSign, Users, Package, ShoppingCart } from 'lucide-react';
 import StatsCard from '@/components/features/admin/StatsCard';
-
-// Mock 통계 데이터
-const MOCK_STATS = {
-  totalRevenue: 15280000,
-  newUsers: 128,
-  totalProducts: 3542,
-  totalOrders: 892,
-};
+import { MOCK_PRODUCTS } from '@/mocks/products';
+import { MOCK_USERS_DATA, MOCK_ORDER_HISTORY } from '@/mocks/users';
 
 const AdminDashboardPage = () => {
+  // Mock 데이터에서 실제 통계 계산
+  const stats = useMemo(() => {
+    // 총 거래액: 구매확정(CONFIRMED) 주문의 합계
+    const confirmedOrders = MOCK_ORDER_HISTORY.filter(o => o.status === 'CONFIRMED');
+    const totalRevenue = confirmedOrders.reduce((sum, o) => sum + o.totalPrice + o.shippingFee, 0);
+    
+    // 신규 가입자: 최근 30일 내 가입한 사용자
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const newUsers = MOCK_USERS_DATA.filter(u => new Date(u.createdAt) > thirtyDaysAgo).length;
+    
+    // 등록 상품: 전체 상품 수
+    const totalProducts = MOCK_PRODUCTS.length;
+    
+    // 총 주문: 전체 주문 수
+    const totalOrders = MOCK_ORDER_HISTORY.length;
+    
+    return { totalRevenue, newUsers, totalProducts, totalOrders };
+  }, []);
+  
+  // 최근 주문 5개 (최신순)
+  const recentOrders = useMemo(() => {
+    return [...MOCK_ORDER_HISTORY]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  }, []);
+  
+  // 최근 가입자 5명 (최신순)
+  const recentUsers = useMemo(() => {
+    return [...MOCK_USERS_DATA]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  }, []);
+  
+  // 시간 포맷 함수
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffMins < 60) return `${diffMins}분 전`;
+    if (diffHours < 24) return `${diffHours}시간 전`;
+    if (diffDays < 30) return `${diffDays}일 전`;
+    return `${Math.floor(diffDays / 30)}개월 전`;
+  };
+  
   return (
     <div>
       {/* 페이지 헤더 */}
@@ -27,7 +72,7 @@ const AdminDashboardPage = () => {
         <StatsCard
           icon={DollarSign}
           label="총 거래액"
-          value={`${(MOCK_STATS.totalRevenue / 10000).toLocaleString()}만원`}
+          value={`${(stats.totalRevenue / 10000).toLocaleString()}만원`}
           change={{ value: 12.5, isPositive: true }}
           iconColor="text-green-600"
           iconBgColor="bg-green-100"
@@ -35,7 +80,7 @@ const AdminDashboardPage = () => {
         <StatsCard
           icon={Users}
           label="신규 가입자 (이번 달)"
-          value={MOCK_STATS.newUsers.toLocaleString()}
+          value={stats.newUsers.toLocaleString()}
           change={{ value: 8.2, isPositive: true }}
           iconColor="text-blue-600"
           iconBgColor="bg-blue-100"
@@ -43,7 +88,7 @@ const AdminDashboardPage = () => {
         <StatsCard
           icon={Package}
           label="등록 상품"
-          value={MOCK_STATS.totalProducts.toLocaleString()}
+          value={stats.totalProducts.toLocaleString()}
           change={{ value: 3.1, isPositive: true }}
           iconColor="text-purple-600"
           iconBgColor="bg-purple-100"
@@ -51,7 +96,7 @@ const AdminDashboardPage = () => {
         <StatsCard
           icon={ShoppingCart}
           label="총 주문"
-          value={MOCK_STATS.totalOrders.toLocaleString()}
+          value={stats.totalOrders.toLocaleString()}
           change={{ value: 5.4, isPositive: true }}
           iconColor="text-orange-600"
           iconBgColor="bg-orange-100"
@@ -64,17 +109,23 @@ const AdminDashboardPage = () => {
         <div className="bg-white rounded-xl border border-neutral-200 p-6">
           <h2 className="text-lg font-semibold text-neutral-900 mb-4">최근 주문</h2>
           <div className="space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
+            {recentOrders.map((order) => (
+              <div key={order.id} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-neutral-100 rounded-lg" />
+                  <img 
+                    src={order.product.image} 
+                    alt={order.product.title}
+                    className="w-10 h-10 rounded-lg object-cover"
+                  />
                   <div>
-                    <p className="text-sm font-medium text-neutral-900">주문 #{1000 + i}</p>
-                    <p className="text-xs text-neutral-500">2분 전</p>
+                    <p className="text-sm font-medium text-neutral-900 truncate max-w-[150px]">
+                      {order.product.title}
+                    </p>
+                    <p className="text-xs text-neutral-500">{formatTimeAgo(order.createdAt)}</p>
                   </div>
                 </div>
                 <span className="text-sm font-medium text-neutral-900">
-                  {(50000 + i * 10000).toLocaleString()}원
+                  {(order.totalPrice + order.shippingFee).toLocaleString()}원
                 </span>
               </div>
             ))}
@@ -85,18 +136,28 @@ const AdminDashboardPage = () => {
         <div className="bg-white rounded-xl border border-neutral-200 p-6">
           <h2 className="text-lg font-semibold text-neutral-900 mb-4">최근 가입자</h2>
           <div className="space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
+            {recentUsers.map((user) => (
+              <div key={user.id} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-primary-600">U{i}</span>
-                  </div>
+                  {user.avatar ? (
+                    <img 
+                      src={user.avatar} 
+                      alt={user.nickname}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-primary-600">
+                        {user.nickname.charAt(0)}
+                      </span>
+                    </div>
+                  )}
                   <div>
-                    <p className="text-sm font-medium text-neutral-900">사용자{i}</p>
-                    <p className="text-xs text-neutral-500">user{i}@example.com</p>
+                    <p className="text-sm font-medium text-neutral-900">{user.nickname}</p>
+                    <p className="text-xs text-neutral-500">{user.email}</p>
                   </div>
                 </div>
-                <span className="text-xs text-neutral-500">{i * 5}분 전</span>
+                <span className="text-xs text-neutral-500">{formatTimeAgo(user.createdAt)}</span>
               </div>
             ))}
           </div>
