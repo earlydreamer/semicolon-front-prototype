@@ -38,6 +38,7 @@ const CategoryManagePage = lazy(() => import('./pages/admin/CategoryManagePage')
 const ReportManagePage = lazy(() => import('./pages/admin/ReportManagePage'));
 const CouponManagePage = lazy(() => import('./pages/admin/CouponManagePage'));
 const SettlementManagePage = lazy(() => import('./pages/admin/SettlementManagePage'));
+const BannerManagePage = lazy(() => import('./pages/admin/BannerManagePage'));
 
 import { ToastProvider } from '@/components/common/Toast';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
@@ -94,6 +95,7 @@ function App() {
               <Route path="admin" element={<AdminAuthGuard />}>
                 <Route element={<AdminLayout />}>
                   <Route index element={<AdminDashboardPage />} />
+                  <Route path="banners" element={<BannerManagePage />} />
                   <Route path="products" element={<ProductManagePage />} />
                   <Route path="users" element={<UserManagePage />} />
                   <Route path="reports" element={<ReportManagePage />} />

@@ -3,7 +3,7 @@ import type { TouchEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/common/Button';
-import bannerImg from '@/assets/sample_banner_thumbnail.png';
+import { useBannerStore } from '@/stores/useBannerStore';
 
 // 배너 설정 (하드코딩 방지)
 const BANNER_CONFIG = {
@@ -11,70 +11,10 @@ const BANNER_CONFIG = {
   TRANSITION_SPEED: 500,
 } as const;
 
-interface Banner {
-  id: number;
-  title: React.ReactNode;
-  description: string;
-  image: string;
-  imageAlign: 'split' | 'full'; // 분할형(기존) 또는 전체 채우기형
-  imageFit?: 'cover' | 'contain'; // 이미지 채우기 방식 추가
-  bgColor: string;
-  ctaText: string;
-  ctaLink: string;
-}
-
-const BANNERS: Banner[] = [
-  {
-    id: 1,
-    title: (
-      <>
-        취향을 잇는<br />
-        <span className="text-primary-600">중고거래</span>의 시작
-      </>
-    ),
-    description: '캠핑부터 악기까지, 당신만의 라이프스타일을 찾아보세요.\n안전하고 편리한 거래 경험을 제공합니다.',
-    image: bannerImg,
-    imageAlign: 'split',
-    imageFit: 'contain',
-    bgColor: 'from-primary-50 to-primary-100',
-    ctaText: '거래 시작하기',
-    ctaLink: '/seller/products/new'
-  },
-  {
-    id: 2,
-    title: (
-      <>
-        안전한 거래,<br />
-        <span className="text-blue-600">덕쿠</span>와 함께
-      </>
-    ),
-    description: '검증된 판매자와 안전한 결제 시스템으로\n걱정 없는 중고거래를 시작하세요.',
-    image: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&q=80&w=1000',
-    imageAlign: 'split',
-    imageFit: 'cover',
-    bgColor: 'from-blue-50 to-blue-100',
-    ctaText: '상세 보기',
-    ctaLink: '#'
-  },
-  {
-    id: 3,
-    title: (
-      <span className="text-white">
-        잊고 있던<br />
-        나만의 취미를 찾다
-      </span>
-    ),
-    description: '악기부터 레트로 가전, 수집품까지.\n당신의 열정을 깨울 새로운 취미를 발견하세요.',
-    image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=1500',
-    imageAlign: 'full',
-    imageFit: 'cover',
-    bgColor: 'from-neutral-900 to-neutral-800',
-    ctaText: '취미 찾으러 가기',
-    ctaLink: '#'
-  }
-];
-
 export function HeroBanner() {
+  const { getBannersForDisplay } = useBannerStore();
+  const banners = getBannersForDisplay();
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -83,12 +23,12 @@ export function HeroBanner() {
   const minSwipeDistance = 50;
 
   const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % BANNERS.length);
-  }, []);
+    setCurrentIndex((prev) => (prev + 1) % banners.length);
+  }, [banners.length]);
 
   const handlePrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + BANNERS.length) % BANNERS.length);
-  }, []);
+    setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
+  }, [banners.length]);
 
   // 터치 이벤트 핸들러 (모바일 스와이프)
   const onTouchStart = (e: TouchEvent) => {
@@ -119,8 +59,8 @@ export function HeroBanner() {
     return () => clearInterval(timer);
   }, [handleNext]);
 
-  const currentBanner = BANNERS[currentIndex];
-  const isDark = currentBanner.imageAlign === 'full';
+  const currentBanner = banners[currentIndex] || banners[0];
+  const isDark = currentBanner?.imageAlign === 'full';
 
   return (
     <section 
@@ -134,7 +74,7 @@ export function HeroBanner() {
         className="flex transition-transform duration-500 ease-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
-        {BANNERS.map((banner) => (
+        {banners.map((banner) => (
           <div 
             key={banner.id}
             className={`relative min-w-full flex-shrink-0 ${banner.imageAlign === 'split' ? `bg-gradient-to-br ${banner.bgColor}` : ''}`}
@@ -302,7 +242,7 @@ export function HeroBanner() {
 
       {/* 하단 인디케이터 */}
       <div className="absolute bottom-3 min-[360px]:bottom-4 md:bottom-8 left-1/2 flex -translate-x-1/2 gap-2 min-[360px]:gap-3 z-20">
-        {BANNERS.map((_, index) => (
+        {banners.map((_: unknown, index: number) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
