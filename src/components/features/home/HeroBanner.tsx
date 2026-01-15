@@ -147,7 +147,7 @@ export function HeroBanner() {
                     ${banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'}`}>
                     {banner.description}
                   </p>
-                  {banner.ctaEnabled && banner.ctaLink && (
+                  {(banner.ctaEnabled ?? true) && banner.ctaLink && (
                     <div className="pt-2 min-[360px]:pt-3">
                       <Link to={banner.ctaLink}>
                         <Button 
@@ -186,7 +186,7 @@ export function HeroBanner() {
                     ${banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'}`}>
                     {banner.description}
                   </p>
-                  {banner.ctaEnabled && banner.ctaLink && (
+                  {(banner.ctaEnabled ?? true) && banner.ctaLink && (
                     <div>
                       <Link to={banner.ctaLink}>
                         <Button 
