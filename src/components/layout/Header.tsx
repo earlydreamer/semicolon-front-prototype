@@ -159,8 +159,11 @@ export function Header() {
 
       {/* Mobile Menu Drawer */}
       {isMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 md:hidden">
-          <div className="absolute top-0 right-0 h-full w-[80%] max-w-[300px] bg-white shadow-xl animate-in slide-in-from-right">
+        <div className="fixed inset-0 z-[100] bg-black/70 md:hidden" onClick={() => setIsMenuOpen(false)}>
+          <div 
+            className="absolute top-0 right-0 h-full w-[85%] max-w-[320px] bg-white shadow-2xl animate-in slide-in-from-right"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between p-4 border-b border-neutral-100">
               <h2 className="text-lg font-bold">메뉴</h2>
               <button onClick={() => setIsMenuOpen(false)}>
