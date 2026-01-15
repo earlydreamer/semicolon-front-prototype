@@ -176,11 +176,19 @@ export function HeroBanner() {
               <div className="md:hidden py-6 min-[360px]:py-8 flex flex-col items-center text-center">
                 {/* 모바일에서 split 타입일 때 이미지 상단 표시 */}
                 {banner.imageAlign === 'split' && (
-                  <div className="w-full max-w-[180px] min-[360px]:max-w-[220px] mb-4 min-[360px]:mb-6">
+                  <div className={`w-full mb-4 min-[360px]:mb-6 ${
+                    banner.imageFit === 'cover' 
+                      ? 'h-[140px] min-[360px]:h-[180px] overflow-hidden rounded-xl' 
+                      : 'max-w-[180px] min-[360px]:max-w-[220px]'
+                  }`}>
                     <img 
                       src={banner.image} 
                       alt="배너 이미지" 
-                      className="w-full h-auto object-contain drop-shadow-xl"
+                      className={`w-full drop-shadow-xl ${
+                        banner.imageFit === 'cover' 
+                          ? 'h-full object-cover' 
+                          : 'h-auto object-contain'
+                      }`}
                     />
                   </div>
                 )}
