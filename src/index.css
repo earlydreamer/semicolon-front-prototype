@@ -2,57 +2,58 @@
 
 @theme {
   /* Colors - Primary */
-  --color-primary-50:  #EEEEF7;
-  --color-primary-100: #D5D6EC;
-  --color-primary-200: #ABADE0;
-  --color-primary-300: #8285D0;
-  --color-primary-400: #6D70C4;
-  --color-primary-500: #6667AB;
-  --color-primary-600: #5758A0;
+  --color-primary-50: #eeeef7;
+  --color-primary-100: #d5d6ec;
+  --color-primary-200: #abade0;
+  --color-primary-300: #8285d0;
+  --color-primary-400: #6d70c4;
+  --color-primary-500: #6667ab;
+  --color-primary-600: #5758a0;
   --color-primary-700: #474891;
-  --color-primary-800: #393A7E;
-  --color-primary-900: #2A2B5F;
+  --color-primary-800: #393a7e;
+  --color-primary-900: #2a2b5f;
 
   /* Colors - Neutral */
-  --color-neutral-0:   #FFFCF9;
-  --color-neutral-50:  #FAF8F6;
-  --color-neutral-100: #F5F2EF;
-  --color-neutral-200: #E8E4E0;
-  --color-neutral-300: #D4CFC9;
-  --color-neutral-400: #B5AFA7;
-  --color-neutral-500: #8C867E;
-  --color-neutral-600: #6B655D;
-  --color-neutral-700: #524C45;
-  --color-neutral-800: #3A3530;
-  --color-neutral-900: #1F1B17;
+  --color-neutral-0: #fffcf9;
+  --color-neutral-50: #faf8f6;
+  --color-neutral-100: #f5f2ef;
+  --color-neutral-200: #e8e4e0;
+  --color-neutral-300: #d4cfc9;
+  --color-neutral-400: #b5afa7;
+  --color-neutral-500: #8c867e;
+  --color-neutral-600: #6b655d;
+  --color-neutral-700: #524c45;
+  --color-neutral-800: #3a3530;
+  --color-neutral-900: #1f1b17;
 
   /* Colors - Semantic */
-  --color-success-50:  #E8F5E9;
-  --color-success-100: #C8E6C9;
-  --color-success-500: #4CAF50;
-  --color-success-600: #43A047;
-  --color-success-700: #388E3C;
+  --color-success-50: #e8f5e9;
+  --color-success-100: #c8e6c9;
+  --color-success-500: #4caf50;
+  --color-success-600: #43a047;
+  --color-success-700: #388e3c;
 
-  --color-warning-50:  #FFF3E0;
-  --color-warning-100: #FFE0B2;
-  --color-warning-500: #FF9800;
-  --color-warning-600: #FB8C00;
-  --color-warning-700: #F57C00;
+  --color-warning-50: #fff3e0;
+  --color-warning-100: #ffe0b2;
+  --color-warning-500: #ff9800;
+  --color-warning-600: #fb8c00;
+  --color-warning-700: #f57c00;
 
-  --color-error-50:    #FFEBEE;
-  --color-error-100:   #FFCDD2;
-  --color-error-500:   #E53935;
-  --color-error-600:   #D32F2F;
-  --color-error-700:   #C62828;
+  --color-error-50: #ffebee;
+  --color-error-100: #ffcdd2;
+  --color-error-500: #e53935;
+  --color-error-600: #d32f2f;
+  --color-error-700: #c62828;
 
-  --color-info-50:     #E3F2FD;
-  --color-info-100:    #BBDEFB;
-  --color-info-500:    #2196F3;
-  --color-info-600:    #1E88E5;
-  --color-info-700:    #1976D2;
+  --color-info-50: #e3f2fd;
+  --color-info-100: #bbdefb;
+  --color-info-500: #2196f3;
+  --color-info-600: #1e88e5;
+  --color-info-700: #1976d2;
 
   /* Font Families */
-  --font-sans: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-sans: "Pretendard Variable", "Pretendard", -apple-system,
+    BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --font-numeric: "Inter", var(--font-sans);
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
@@ -92,17 +93,17 @@
 
 /* Dark Mode Overrides */
 [data-theme="dark"] {
-  --color-primary-500: #8A8BD4;
-  --color-primary-600: #7A7BC9;
-  --color-primary-700: #6667AB;
+  --color-primary-500: #8a8bd4;
+  --color-primary-600: #7a7bc9;
+  --color-primary-700: #6667ab;
 
-  --color-neutral-0:   #1A1815;
-  --color-neutral-50:  #242220;
-  --color-neutral-100: #2E2C29;
-  --color-neutral-200: #3A3835;
-  --color-neutral-700: #B5AFA7;
-  --color-neutral-800: #D4CFC9;
-  --color-neutral-900: #F5F2EF;
+  --color-neutral-0: #1a1815;
+  --color-neutral-50: #242220;
+  --color-neutral-100: #2e2c29;
+  --color-neutral-200: #3a3835;
+  --color-neutral-700: #b5afa7;
+  --color-neutral-800: #d4cfc9;
+  --color-neutral-900: #f5f2ef;
 }
 
 @layer base {
@@ -110,7 +111,12 @@
     @apply bg-neutral-0 text-neutral-800 antialiased font-sans;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-bold text-neutral-900;
   }
 }
@@ -118,5 +124,24 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* 초소형 화면 대응 (갤럭시 폴드 등 280px~) */
+  .min-w-safe {
+    min-width: 280px;
+  }
+
+  /* Safe Area 하단 패딩 (노치/홈 버튼 영역 대응) */
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  /* 가로 스크롤 숨김 (no-scrollbar) */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

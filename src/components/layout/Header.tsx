@@ -38,14 +38,14 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-white/80 backdrop-blur-md">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
+      <div className="container mx-auto flex h-14 min-[360px]:h-16 items-center justify-between px-3 min-[360px]:px-4 gap-2 min-[360px]:gap-4">
         {/* Left Section: Logo & Category */}
-        <div className="flex items-center gap-4 md:gap-8">
-          <Link to="/" className="flex items-center">
+        <div className="flex items-center gap-2 min-[320px]:gap-3 md:gap-8">
+          <Link to="/" className="flex items-center flex-shrink-0">
             <img 
               src={logo} 
               alt="덕쿠" 
-              className="h-10 w-auto md:h-12 transition-transform hover:scale-105" 
+              className="h-8 min-[320px]:h-10 md:h-12 w-auto transition-transform hover:scale-105" 
             />
           </Link>
 
@@ -87,8 +87,8 @@ export function Header() {
         </form>
 
         {/* Right Section: Actions */}
-        <div className="flex items-center gap-2 md:gap-4">
-          <button className="md:hidden p-2" onClick={handleMobileSearch}>
+        <div className="flex items-center gap-1 min-[320px]:gap-2 md:gap-4">
+          <button className="md:hidden p-1.5 min-[320px]:p-2" onClick={handleMobileSearch}>
             <Search className="h-5 w-5 text-neutral-900" />
           </button>
 
