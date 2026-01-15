@@ -24,3 +24,6 @@ export type { ShopReview } from './review';
 
 // 장바구니 관련
 export type { CartItem, CartSummary } from './cart';
+
+// 배너 관련
+export type { Banner, BannerInput, BannerImageAlign, BannerImageFit } from './banner';
