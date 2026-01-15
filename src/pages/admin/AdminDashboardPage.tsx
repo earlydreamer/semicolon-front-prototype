@@ -76,8 +76,8 @@ const AdminDashboardPage = () => {
           </div>
           <div className="flex items-center gap-2 text-neutral-600">
             <Info className="w-4 h-4" />
-            <span className="font-medium">현재 기간:</span>
-            <span>{STATS_AGGREGATION_INFO.currentPeriod}</span>
+            <span className="font-medium">집계 기간:</span>
+            <span>{STATS_AGGREGATION_INFO.aggregationPeriod}</span>
           </div>
         </div>
         <p className="mt-2 text-xs text-neutral-500">

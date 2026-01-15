@@ -3,8 +3,8 @@
  * 
  * 집계 기준:
  * - 매일 00:00 (자정) 기준으로 일일 집계
- * - 월간 비교: 이번 달 vs 이전 달 (동일 기간 기준)
- * - 변화율: (현재 기간 - 이전 기간) / 이전 기간 * 100
+ * - 롤링 30일 비교: 최근 30일 vs 이전 30일 (동일 기간 기준)
+ * - 변화율: (집계 기간 - 비교 기간) / 비교 기간 * 100
  */
 
 /**
@@ -23,15 +23,16 @@ export interface DailyStats {
 }
 
 /**
- * 월간 통계 요약
+ * 기간별 통계 요약 (30일 단위)
  */
-export interface MonthlyStats {
-  yearMonth: string; // YYYY-MM
+export interface PeriodStats {
+  periodStart: string; // YYYY-MM-DD
+  periodEnd: string; // YYYY-MM-DD
   aggregatedAt: string; // ISO datetime (집계 시점)
-  totalRevenue: number; // 해당 월 총 거래액
-  newUsers: number; // 해당 월 신규 가입자 수
-  newProducts: number; // 해당 월 신규 등록 상품 수
-  totalOrders: number; // 해당 월 총 주문 수
+  totalRevenue: number; // 해당 기간 총 거래액
+  newUsers: number; // 해당 기간 신규 가입자 수
+  newProducts: number; // 해당 기간 신규 등록 상품 수
+  totalOrders: number; // 해당 기간 총 주문 수
 }
 
 /**
@@ -40,23 +41,30 @@ export interface MonthlyStats {
 export interface StatsAggregation {
   lastAggregatedAt: string; // 마지막 집계 시점
   aggregationCycle: string; // 집계 주기 설명
-  currentPeriod: string; // 현재 집계 기간
+  aggregationPeriod: string; // 집계 기간
   comparisonPeriod: string; // 비교 기간
 }
 
-// 현재 날짜 기준으로 Mock 데이터 생성
+// 롤링 30일 기간 계산
 const today = new Date();
 const todayStr = today.toISOString().split('T')[0];
 const lastMidnight = new Date(today);
 lastMidnight.setHours(0, 0, 0, 0);
 
-// 이번 달, 저번 달 계산
-const currentYear = today.getFullYear();
-const currentMonth = today.getMonth(); // 0-indexed
-const currentYearMonth = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-const prevYearMonth = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}`;
+// 30일 전 (집계 기간 시작)
+const thirtyDaysAgo = new Date(today);
+thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29); // 오늘 포함 30일
+const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+
+// 60일 전 (비교 기간 시작)
+const sixtyDaysAgo = new Date(today);
+sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 59);
+const sixtyDaysAgoStr = sixtyDaysAgo.toISOString().split('T')[0];
+
+// 31일 전 (비교 기간 종료)
+const thirtyOneDaysAgo = new Date(today);
+thirtyOneDaysAgo.setDate(thirtyOneDaysAgo.getDate() - 30);
+const thirtyOneDaysAgoStr = thirtyOneDaysAgo.toISOString().split('T')[0];
 
 /**
  * 최근 7일간 일일 통계 (Mock)
@@ -88,35 +96,28 @@ export const MOCK_DAILY_STATS: DailyStats[] = Array.from({ length: 7 }, (_, i) =
 }).reverse();
 
 /**
- * 최근 3개월 월간 통계 (Mock)
+ * 30일 단위 기간 통계 (Mock)
  */
-export const MOCK_MONTHLY_STATS: MonthlyStats[] = [
-  // 이번 달 (진행 중)
+export const MOCK_PERIOD_STATS: PeriodStats[] = [
+  // 집계 기간 (최근 30일)
   {
-    yearMonth: currentYearMonth,
+    periodStart: thirtyDaysAgoStr,
+    periodEnd: todayStr,
     aggregatedAt: lastMidnight.toISOString(),
     totalRevenue: 15280000,
     newUsers: 14,
     newProducts: 8,
     totalOrders: 18,
   },
-  // 지난 달
+  // 비교 기간 (이전 30일)
   {
-    yearMonth: prevYearMonth,
-    aggregatedAt: new Date(prevYear, prevMonth + 1, 1, 0, 0, 0).toISOString(),
+    periodStart: sixtyDaysAgoStr,
+    periodEnd: thirtyOneDaysAgoStr,
+    aggregatedAt: lastMidnight.toISOString(),
     totalRevenue: 12450000,
     newUsers: 11,
     newProducts: 12,
     totalOrders: 24,
-  },
-  // 2달 전
-  {
-    yearMonth: `${prevMonth === 0 ? prevYear - 1 : prevYear}-${String(prevMonth === 0 ? 12 : prevMonth).padStart(2, '0')}`,
-    aggregatedAt: new Date(prevMonth === 0 ? prevYear - 1 : prevYear, prevMonth === 0 ? 11 : prevMonth - 1, 1, 0, 0, 0).toISOString(),
-    totalRevenue: 10800000,
-    newUsers: 8,
-    newProducts: 15,
-    totalOrders: 21,
   },
 ];
 
@@ -126,8 +127,8 @@ export const MOCK_MONTHLY_STATS: MonthlyStats[] = [
 export const STATS_AGGREGATION_INFO: StatsAggregation = {
   lastAggregatedAt: lastMidnight.toISOString(),
   aggregationCycle: '매일 00:00 KST',
-  currentPeriod: `${currentYearMonth}-01 ~ ${todayStr}`,
-  comparisonPeriod: `${prevYearMonth}-01 ~ ${prevYearMonth}-${new Date(prevYear, prevMonth + 1, 0).getDate()}`,
+  aggregationPeriod: `${thirtyDaysAgoStr} ~ ${todayStr}`,
+  comparisonPeriod: `${sixtyDaysAgoStr} ~ ${thirtyOneDaysAgoStr}`,
 };
 
 /**
@@ -145,11 +146,11 @@ export const calculateChangeRate = (current: number, previous: number): { value:
 };
 
 /**
- * 대시보드용 통계 데이터 (현재 vs 이전 달 비교)
+ * 대시보드용 통계 데이터 (집계 기간 vs 비교 기간)
  */
 export const getDashboardStats = () => {
-  const current = MOCK_MONTHLY_STATS[0];
-  const previous = MOCK_MONTHLY_STATS[1];
+  const current = MOCK_PERIOD_STATS[0];
+  const previous = MOCK_PERIOD_STATS[1];
   
   return {
     // 현재 값
@@ -161,7 +162,7 @@ export const getDashboardStats = () => {
     // 변화율
     revenueChange: calculateChangeRate(current.totalRevenue, previous.totalRevenue),
     usersChange: calculateChangeRate(current.newUsers, previous.newUsers),
-    productsChange: calculateChangeRate(8, 12), // 이번 달 신규 vs 이전 달 신규
+    productsChange: calculateChangeRate(current.newProducts, previous.newProducts),
     ordersChange: calculateChangeRate(current.totalOrders, previous.totalOrders),
     
     // 집계 정보
