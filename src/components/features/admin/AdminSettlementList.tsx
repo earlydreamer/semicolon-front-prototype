@@ -1,12 +1,23 @@
 /**
  * 관리자 정산 목록 컴포넌트
+ * 
+ * 정산 처리 방식:
+ * - 구매확정 시 자동 정산 대상 등록
+ * - 매일 00:00 KST 일괄 지급 처리 (배치)
+ * - 수동 승인/반려 없음 (시스템 자동 처리)
  */
 
 import { useState, Fragment } from 'react';
-import { Wallet, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '@/components/common/Button';
+import { Wallet, ChevronDown, ChevronUp, Clock, Info } from 'lucide-react';
+import { EmptyState } from '@/components/common/EmptyState';
 
-type SettlementStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
+/**
+ * 정산 상태
+ * - PENDING: 정산 대기 (구매확정 완료, 다음 배치 대기)
+ * - SCHEDULED: 정산 예정 (금일 자정 처리 예정)
+ * - COMPLETED: 정산 완료 (지급 완료)
+ */
+type SettlementStatus = 'PENDING' | 'SCHEDULED' | 'COMPLETED';
 
 interface Settlement {
   id: string;
@@ -15,19 +26,30 @@ interface Settlement {
     nickname: string;
     bankName: string;
     accountNumber: string;
+    accountHolder: string;
   };
   orderId: string;
   productTitle: string;
-  amount: number;
-  fee: number;
-  netAmount: number;
+  amount: number;         // 판매금액
+  fee: number;            // 수수료
+  netAmount: number;      // 정산금액
   status: SettlementStatus;
-  requestedAt: string;
-  processedAt?: string;
+  confirmedAt: string;    // 구매확정일
+  scheduledAt?: string;   // 정산 예정일 (다음 자정)
+  processedAt?: string;   // 정산 처리일
 }
+
+// 오늘 자정 계산
+const todayMidnight = new Date();
+todayMidnight.setHours(0, 0, 0, 0);
+
+// 내일 자정 계산
+const tomorrowMidnight = new Date(todayMidnight);
+tomorrowMidnight.setDate(tomorrowMidnight.getDate() + 1);
 
 // Mock 데이터
 const MOCK_SETTLEMENTS: Settlement[] = [
+  // 정산 대기 (PENDING) - 구매확정 후 다음 배치 대기
   {
     id: 'settle_1',
     seller: {
@@ -35,6 +57,7 @@ const MOCK_SETTLEMENTS: Settlement[] = [
       nickname: '캠핑마스터',
       bankName: '카카오뱅크',
       accountNumber: '3333-00-1234567',
+      accountHolder: '김캠핑',
     },
     orderId: 'order_123',
     productTitle: '스노우피크 랜드락 텐트 풀세트',
@@ -42,7 +65,8 @@ const MOCK_SETTLEMENTS: Settlement[] = [
     fee: 45000,
     netAmount: 1455000,
     status: 'PENDING',
-    requestedAt: '2026-01-08T10:00:00',
+    confirmedAt: '2026-01-14T15:30:00',
+    scheduledAt: tomorrowMidnight.toISOString(),
   },
   {
     id: 'settle_2',
@@ -51,6 +75,7 @@ const MOCK_SETTLEMENTS: Settlement[] = [
       nickname: '기타장인',
       bankName: '국민은행',
       accountNumber: '123-12-123456',
+      accountHolder: '박기타',
     },
     orderId: 'order_124',
     productTitle: '펜더 스트라토캐스터 (Made in Japan)',
@@ -58,8 +83,10 @@ const MOCK_SETTLEMENTS: Settlement[] = [
     fee: 54000,
     netAmount: 1746000,
     status: 'PENDING',
-    requestedAt: '2026-01-07T15:00:00',
+    confirmedAt: '2026-01-14T10:00:00',
+    scheduledAt: tomorrowMidnight.toISOString(),
   },
+  // 정산 예정 (SCHEDULED) - 금일 자정 처리 예정
   {
     id: 'settle_3',
     seller: {
@@ -67,16 +94,18 @@ const MOCK_SETTLEMENTS: Settlement[] = [
       nickname: '캠핑마스터',
       bankName: '카카오뱅크',
       accountNumber: '3333-00-1234567',
+      accountHolder: '김캠핑',
     },
     orderId: 'order_100',
     productTitle: '콜맨 2버너 스토브',
     amount: 120000,
     fee: 3600,
     netAmount: 116400,
-    status: 'COMPLETED',
-    requestedAt: '2026-01-05T14:00:00',
-    processedAt: '2026-01-06T10:00:00',
+    status: 'SCHEDULED',
+    confirmedAt: '2026-01-13T14:00:00',
+    scheduledAt: todayMidnight.toISOString(),
   },
+  // 정산 완료 (COMPLETED)
   {
     id: 'settle_4',
     seller: {
@@ -84,35 +113,61 @@ const MOCK_SETTLEMENTS: Settlement[] = [
       nickname: '악기수집가',
       bankName: '신한은행',
       accountNumber: '110-123-456789',
+      accountHolder: '이악기',
     },
-    orderId: 'order_99',
+    orderId: 'order_099',
     productTitle: '야마하 사일런트 기타',
     amount: 450000,
     fee: 13500,
     netAmount: 436500,
-    status: 'REJECTED',
-    requestedAt: '2026-01-04T11:00:00',
-    processedAt: '2026-01-05T09:00:00',
+    status: 'COMPLETED',
+    confirmedAt: '2026-01-10T11:00:00',
+    scheduledAt: '2026-01-11T00:00:00',
+    processedAt: '2026-01-11T00:05:23',
+  },
+  {
+    id: 'settle_5',
+    seller: {
+      id: 'seller_1',
+      nickname: '캠핑마스터',
+      bankName: '카카오뱅크',
+      accountNumber: '3333-00-1234567',
+      accountHolder: '김캠핑',
+    },
+    orderId: 'order_080',
+    productTitle: '헬리녹스 체어원',
+    amount: 95000,
+    fee: 2850,
+    netAmount: 92150,
+    status: 'COMPLETED',
+    confirmedAt: '2026-01-08T09:30:00',
+    scheduledAt: '2026-01-09T00:00:00',
+    processedAt: '2026-01-09T00:03:45',
   },
 ];
 
-const STATUS_LABELS: Record<SettlementStatus, { text: string; color: string }> = {
-  PENDING: { text: '대기중', color: 'bg-yellow-100 text-yellow-800' },
-  APPROVED: { text: '승인됨', color: 'bg-blue-100 text-blue-800' },
-  COMPLETED: { text: '지급완료', color: 'bg-green-100 text-green-800' },
-  REJECTED: { text: '반려', color: 'bg-red-100 text-red-800' },
+const STATUS_LABELS: Record<SettlementStatus, { text: string; color: string; description: string }> = {
+  PENDING: { 
+    text: '정산대기', 
+    color: 'bg-yellow-100 text-yellow-800',
+    description: '구매확정 완료, 다음 정산 배치 대기 중'
+  },
+  SCHEDULED: { 
+    text: '정산예정', 
+    color: 'bg-blue-100 text-blue-800',
+    description: '금일 자정(00:00) 일괄 처리 예정'
+  },
+  COMPLETED: { 
+    text: '정산완료', 
+    color: 'bg-green-100 text-green-800',
+    description: '판매자 계좌로 지급 완료'
+  },
 };
 
-import { useToast } from '@/components/common/Toast';
-import { EmptyState } from '@/components/common/EmptyState';
-
-// ... existing imports ...
-
 export function AdminSettlementList() {
-  const [settlements, setSettlements] = useState<Settlement[]>(MOCK_SETTLEMENTS);
+  const [settlements] = useState<Settlement[]>(MOCK_SETTLEMENTS);
   const [statusFilter, setStatusFilter] = useState<SettlementStatus | 'all'>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const { showToast } = useToast();
 
   // 필터링
   const filteredSettlements = settlements.filter((s) => {
@@ -120,30 +175,15 @@ export function AdminSettlementList() {
     return true;
   });
 
-  // 정산 총액 계산
-  const totalPending = settlements
-    .filter((s) => s.status === 'PENDING')
+  // 정산 통계
+  const pendingCount = settlements.filter((s) => s.status === 'PENDING').length;
+  const scheduledCount = settlements.filter((s) => s.status === 'SCHEDULED').length;
+  const pendingAmount = settlements
+    .filter((s) => s.status === 'PENDING' || s.status === 'SCHEDULED')
     .reduce((sum, s) => sum + s.netAmount, 0);
-
-  // 정산 처리
-  const handleProcess = (settlementId: string, action: 'approve' | 'reject') => {
-    setSettlements((prev) =>
-      prev.map((s) =>
-        s.id === settlementId
-          ? {
-              ...s,
-              status: action === 'approve' ? 'COMPLETED' : 'REJECTED',
-              processedAt: new Date().toISOString(),
-            }
-          : s
-      )
-    );
-    setExpandedId(null);
-    showToast(
-      action === 'approve' ? '정산이 승인(지급완료) 되었습니다.' : '정산이 반려되었습니다.',
-      action === 'approve' ? 'success' : 'error'
-    );
-  };
+  const completedAmount = settlements
+    .filter((s) => s.status === 'COMPLETED')
+    .reduce((sum, s) => sum + s.netAmount, 0);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('ko-KR').format(value);
@@ -159,47 +199,62 @@ export function AdminSettlementList() {
     });
   };
 
+  const formatDateOnly = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  };
+
   return (
     <div className="space-y-4">
+      {/* 배치 처리 안내 */}
+      <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+        <div className="text-sm text-blue-800">
+          <p className="font-medium mb-1">정산 자동 처리 안내</p>
+          <ul className="list-disc list-inside space-y-1 text-blue-700">
+            <li>구매확정 완료 시 자동으로 정산 대기 목록에 등록됩니다.</li>
+            <li>매일 자정(00:00 KST) 일괄 지급 처리됩니다.</li>
+            <li>처리 결과는 판매자에게 알림으로 발송됩니다.</li>
+          </ul>
+        </div>
+      </div>
+
       {/* 요약 카드 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-neutral-200">
-          <p className="text-sm text-neutral-500">대기중인 정산</p>
-          <p className="text-2xl font-bold text-neutral-900">
-            {settlements.filter((s) => s.status === 'PENDING').length}건
-          </p>
+          <p className="text-sm text-neutral-500">정산 대기</p>
+          <p className="text-2xl font-bold text-yellow-600">{pendingCount}건</p>
         </div>
         <div className="bg-white p-4 rounded-lg border border-neutral-200">
-          <p className="text-sm text-neutral-500">대기중인 금액</p>
-          <p className="text-2xl font-bold text-primary-600">
-            {formatCurrency(totalPending)}원
-          </p>
+          <p className="text-sm text-neutral-500">금일 정산 예정</p>
+          <p className="text-2xl font-bold text-blue-600">{scheduledCount}건</p>
         </div>
         <div className="bg-white p-4 rounded-lg border border-neutral-200">
-          <p className="text-sm text-neutral-500">이번 달 지급완료</p>
-          <p className="text-2xl font-bold text-green-600">
-            {formatCurrency(
-              settlements
-                .filter((s) => s.status === 'COMPLETED')
-                .reduce((sum, s) => sum + s.netAmount, 0)
-            )}원
-          </p>
+          <p className="text-sm text-neutral-500">미지급 금액</p>
+          <p className="text-2xl font-bold text-primary-600">{formatCurrency(pendingAmount)}원</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg border border-neutral-200">
+          <p className="text-sm text-neutral-500">이번 달 지급 완료</p>
+          <p className="text-2xl font-bold text-green-600">{formatCurrency(completedAmount)}원</p>
         </div>
       </div>
 
       {/* 필터 */}
       <div className="flex flex-wrap gap-4 p-4 bg-white rounded-lg border border-neutral-200">
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">상태</label>
+          <label className="block text-sm font-medium text-neutral-700 mb-1">정산 상태</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as SettlementStatus | 'all')}
             className="px-3 py-2 border border-neutral-300 rounded-lg text-sm"
           >
             <option value="all">전체</option>
-            <option value="PENDING">대기중</option>
-            <option value="COMPLETED">지급완료</option>
-            <option value="REJECTED">반려</option>
+            <option value="PENDING">정산대기</option>
+            <option value="SCHEDULED">정산예정</option>
+            <option value="COMPLETED">정산완료</option>
           </select>
         </div>
       </div>
@@ -208,16 +263,15 @@ export function AdminSettlementList() {
       <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
         {filteredSettlements.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1000px]">
+            <table className="w-full min-w-[1100px]">
               <thead className="bg-neutral-50 border-b border-neutral-200">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상태</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">정산상태</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">판매자</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상품</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">판매금액</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">수수료</th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">정산금액</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">요청일</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">구매확정일</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">처리일</th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">상세</th>
                 </tr>
               </thead>
@@ -227,10 +281,13 @@ export function AdminSettlementList() {
                     <tr className="hover:bg-neutral-50">
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                             STATUS_LABELS[settlement.status].color
                           }`}
                         >
+                          {settlement.status === 'SCHEDULED' && (
+                            <Clock className="w-3 h-3 mr-1" />
+                          )}
                           {STATUS_LABELS[settlement.status].text}
                         </span>
                       </td>
@@ -240,17 +297,22 @@ export function AdminSettlementList() {
                       <td className="px-4 py-3 text-sm text-neutral-600 max-w-[200px] truncate">
                         {settlement.productTitle}
                       </td>
-                      <td className="px-4 py-3 text-sm text-neutral-900 text-right">
-                        {formatCurrency(settlement.amount)}원
-                      </td>
-                      <td className="px-4 py-3 text-sm text-red-500 text-right">
-                        -{formatCurrency(settlement.fee)}원
-                      </td>
                       <td className="px-4 py-3 text-sm font-medium text-primary-600 text-right">
                         {formatCurrency(settlement.netAmount)}원
                       </td>
                       <td className="px-4 py-3 text-sm text-neutral-500">
-                        {formatDate(settlement.requestedAt)}
+                        {formatDateOnly(settlement.confirmedAt)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-neutral-500">
+                        {settlement.processedAt ? (
+                          formatDate(settlement.processedAt)
+                        ) : settlement.scheduledAt ? (
+                          <span className="text-blue-600">
+                            {formatDateOnly(settlement.scheduledAt)} 예정
+                          </span>
+                        ) : (
+                          '-'
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <button
@@ -267,51 +329,33 @@ export function AdminSettlementList() {
                     </tr>
                     {expandedId === settlement.id && (
                       <tr key={`${settlement.id}-detail`} className="bg-neutral-50">
-                        <td colSpan={8} className="px-4 py-4">
-                          <div className="space-y-4">
-                            {/* 계좌 정보 */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              <div>
-                                <p className="text-xs text-neutral-500">은행</p>
-                                <p className="text-sm font-medium">{settlement.seller.bankName}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-neutral-500">계좌번호</p>
-                                <p className="text-sm font-medium">{settlement.seller.accountNumber}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-neutral-500">주문번호</p>
-                                <p className="text-sm font-medium">{settlement.orderId}</p>
-                              </div>
-                              {settlement.processedAt && (
-                                <div>
-                                  <p className="text-xs text-neutral-500">처리일</p>
-                                  <p className="text-sm font-medium">{formatDate(settlement.processedAt)}</p>
-                                </div>
-                              )}
+                        <td colSpan={7} className="px-4 py-4">
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div>
+                              <p className="text-xs text-neutral-500">주문번호</p>
+                              <p className="text-sm font-medium">{settlement.orderId}</p>
                             </div>
-                            
-                            {settlement.status === 'PENDING' && (
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleProcess(settlement.id, 'approve')}
-                                  className="bg-green-600 hover:bg-green-700"
-                                >
-                                  <Check className="w-4 h-4 mr-1" />
-                                  지급 승인
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleProcess(settlement.id, 'reject')}
-                                  className="text-red-600 border-red-300 hover:bg-red-50"
-                                >
-                                  <X className="w-4 h-4 mr-1" />
-                                  반려
-                                </Button>
-                              </div>
-                            )}
+                            <div>
+                              <p className="text-xs text-neutral-500">판매금액</p>
+                              <p className="text-sm font-medium">{formatCurrency(settlement.amount)}원</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-neutral-500">수수료 (3%)</p>
+                              <p className="text-sm font-medium text-red-500">-{formatCurrency(settlement.fee)}원</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-neutral-500">입금 은행</p>
+                              <p className="text-sm font-medium">{settlement.seller.bankName}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-neutral-500">입금 계좌</p>
+                              <p className="text-sm font-medium">{settlement.seller.accountNumber}</p>
+                            </div>
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-neutral-200">
+                            <p className="text-xs text-neutral-500">
+                              {STATUS_LABELS[settlement.status].description}
+                            </p>
                           </div>
                         </td>
                       </tr>
