@@ -19,7 +19,7 @@ import type { Banner, BannerInput, BannerImageAlign, BannerImageFit, BannerTextP
 const MAX_BANNERS = 10;
 
 const BannerManagePage = () => {
-  const { banners: storeBanners, setBanners, addBanner, updateBanner } = useBannerStore();
+  const { banners: storeBanners, setBanners } = useBannerStore();
   
   // 로컬 상태 (저장 전까지 변경사항 보관)
   const [localBanners, setLocalBanners] = useState<Banner[]>([]);
@@ -159,13 +159,29 @@ const BannerManagePage = () => {
     setIsModalOpen(true);
   };
   
-  // 배너 추가/수정 제출
+  // 배너 추가/수정 제출 (로컬 상태)
   const handleSubmit = () => {
     if (editingBanner) {
-      updateBanner(editingBanner.id, formData);
+      // 수정: 로컬 상태 업데이트
+      setLocalBanners(prev =>
+        prev.map(b =>
+          b.id === editingBanner.id
+            ? { ...b, ...formData, updatedAt: new Date().toISOString() }
+            : b
+        )
+      );
     } else {
-      addBanner(formData);
+      // 추가: 로컬 상태에 새 배너 추가
+      const newBanner = {
+        id: `banner-${Date.now()}`,
+        ...formData,
+        order: localBanners.length + 1,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      };
+      setLocalBanners(prev => [...prev, newBanner]);
     }
+    setHasChanges(true);
     setIsModalOpen(false);
   };
   
