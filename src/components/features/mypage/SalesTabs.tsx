@@ -55,13 +55,17 @@ const SalesTabs = ({ products }: SalesTabsProps) => {
     setVisibleCount((prev) => prev + PAGE_SIZE);
   };
 
-  // 탭별 카운트
-  const counts = {
-    all: products.length,
-    ON_SALE: products.filter((p) => p.saleStatus === 'ON_SALE').length,
-    RESERVED: products.filter((p) => p.saleStatus === 'RESERVED').length,
-    SOLD_OUT: products.filter((p) => p.saleStatus === 'SOLD_OUT').length,
-  };
+  // 탭별 카운트 (단일 루프로 최적화)
+  const counts = (() => {
+    const result = { all: 0, ON_SALE: 0, RESERVED: 0, SOLD_OUT: 0 };
+    for (const p of products) {
+      result.all++;
+      if (p.saleStatus === 'ON_SALE') result.ON_SALE++;
+      else if (p.saleStatus === 'RESERVED') result.RESERVED++;
+      else if (p.saleStatus === 'SOLD_OUT') result.SOLD_OUT++;
+    }
+    return result;
+  })();
 
   return (
     <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">

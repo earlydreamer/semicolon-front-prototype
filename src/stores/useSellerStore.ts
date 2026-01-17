@@ -193,18 +193,30 @@ export const useSellerStore = create<SellerState>((set, get) => ({
   },
   
   /**
-   * 통계 조회
+   * 통계 조회 (단일 루프로 최적화)
    */
   getStats: () => {
     const products = get().products;
-    const soldProducts = products.filter((p) => p.saleStatus === 'SOLD_OUT');
+    let onSale = 0;
+    let reserved = 0;
+    let soldOut = 0;
+    let totalRevenue = 0;
+    
+    for (const p of products) {
+      if (p.saleStatus === 'ON_SALE') onSale++;
+      else if (p.saleStatus === 'RESERVED') reserved++;
+      else if (p.saleStatus === 'SOLD_OUT') {
+        soldOut++;
+        totalRevenue += p.price;
+      }
+    }
     
     return {
       total: products.length,
-      onSale: products.filter((p) => p.saleStatus === 'ON_SALE').length,
-      reserved: products.filter((p) => p.saleStatus === 'RESERVED').length,
-      soldOut: soldProducts.length,
-      totalRevenue: soldProducts.reduce((sum, p) => sum + p.price, 0),
+      onSale,
+      reserved,
+      soldOut,
+      totalRevenue,
     };
   },
 }));
