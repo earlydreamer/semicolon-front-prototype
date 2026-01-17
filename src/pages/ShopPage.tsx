@@ -39,13 +39,17 @@ const ShopPage = () => {
     [shopId]
   );
 
-  // 상태별 상품 카운트
-  const statusCounts = useMemo(() => ({
-    all: shopProducts.length,
-    ON_SALE: shopProducts.filter(p => p.saleStatus === 'ON_SALE').length,
-    RESERVED: shopProducts.filter(p => p.saleStatus === 'RESERVED').length,
-    SOLD_OUT: shopProducts.filter(p => p.saleStatus === 'SOLD_OUT').length,
-  }), [shopProducts]);
+  // 상태별 상품 카운트 (단일 루프로 최적화)
+  const statusCounts = useMemo(() => {
+    const counts = { all: 0, ON_SALE: 0, RESERVED: 0, SOLD_OUT: 0 };
+    for (const p of shopProducts) {
+      counts.all++;
+      if (p.saleStatus === 'ON_SALE') counts.ON_SALE++;
+      else if (p.saleStatus === 'RESERVED') counts.RESERVED++;
+      else if (p.saleStatus === 'SOLD_OUT') counts.SOLD_OUT++;
+    }
+    return counts;
+  }, [shopProducts]);
 
   // 현재 탭에 해당하는 상품만 필터링
   const filteredProducts = useMemo(() => {
