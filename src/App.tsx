@@ -91,6 +91,10 @@ function App() {
                 <Route path="checkout" element={<CheckoutPage />} />
                 <Route path="payment/success" element={<PaymentSuccessPage />} />
                 <Route path="payment/fail" element={<PaymentFailPage />} />
+                
+                {/* 백엔드 리다이렉트 경로 호환성 (Aliasing) */}
+                <Route path="payments/toss/success" element={<PaymentSuccessPage />} />
+                <Route path="payments/toss/fail" element={<PaymentFailPage />} />
               </Route>
 
 
