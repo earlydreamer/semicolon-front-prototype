@@ -11,6 +11,9 @@ import {
   CONFIRM_MESSAGES, 
   ERROR_MESSAGES 
 } from '@/constants';
+import { Modal } from '@/components/common/Modal';
+import { Button } from '@/components/common/Button';
+import { AlertCircle } from 'lucide-react';
 
 interface CategoryItemProps {
   category: Category;
@@ -102,6 +105,8 @@ const CategoryTree = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [parentId, setParentId] = useState<string | null>(null);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   // 카테고리 삭제
   const handleDelete = (categoryId: string) => {
@@ -129,7 +134,8 @@ const CategoryTree = () => {
   const handleAddChild = (pId: string) => {
     const path = findCategoryPath(categories, pId);
     if (path && path.length >= CATEGORY.MAX_DEPTH) {
-      alert(ERROR_MESSAGES.CATEGORY_DEPTH_LIMIT);
+      setAlertMessage(ERROR_MESSAGES.CATEGORY_DEPTH_LIMIT);
+      setIsAlertOpen(true);
       return;
     }
     setParentId(pId);

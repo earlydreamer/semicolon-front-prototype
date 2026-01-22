@@ -13,6 +13,7 @@ import { Plus, Pencil, Trash2, RotateCcw, Save, GripVertical, AlertCircle } from
 import { Button } from '@/components/common/Button';
 import { useBannerStore } from '@/stores/useBannerStore';
 import { BannerFormModal } from '@/components/features/admin/BannerFormModal';
+import { Modal } from '@/components/common/Modal';
 import type { Banner, BannerInput } from '@/types/banner';
 
 const MAX_BANNERS = 10;
@@ -43,6 +44,10 @@ const BannerManagePage = () => {
     ctaLink: '',
     ctaEnabled: true,
   });
+  
+  // 알림 모달 상태
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
   
   // Store 배너를 로컬 상태로 동기화
   useEffect(() => {
@@ -121,7 +126,8 @@ const BannerManagePage = () => {
   // 배너 추가 모달 열기
   const handleOpenCreate = () => {
     if (localBanners.length >= MAX_BANNERS) {
-      alert(`배너는 최대 ${MAX_BANNERS}개까지 등록할 수 있습니다.`);
+      setAlertMessage(`배너는 최대 ${MAX_BANNERS}개까지 등록할 수 있습니다.`);
+      setIsAlertModalOpen(true);
       return;
     }
     setEditingBanner(null);
@@ -366,6 +372,29 @@ const BannerManagePage = () => {
         onSubmit={handleSubmit}
         bgColorOptions={bgColorOptions}
       />
+
+      {/* 알림 모달 */}
+      <Modal
+        isOpen={isAlertModalOpen}
+        onClose={() => setIsAlertModalOpen(false)}
+        title="알림"
+        size="sm"
+      >
+        <div className="flex flex-col items-center text-center py-2">
+          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
+            <AlertCircle className="w-6 h-6 text-red-500" />
+          </div>
+          <p className="text-neutral-700 font-medium mb-6 leading-relaxed">
+            {alertMessage}
+          </p>
+          <Button 
+            onClick={() => setIsAlertModalOpen(false)}
+            className="w-full font-bold"
+          >
+            확인
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

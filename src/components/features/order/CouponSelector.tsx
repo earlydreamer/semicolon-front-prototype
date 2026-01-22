@@ -3,7 +3,9 @@
  */
 
 import { useState } from 'react';
-import { Ticket, Check, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Ticket, Check, ChevronDown, ChevronUp, X, AlertCircle } from 'lucide-react';
+import { Modal } from '@/components/common/Modal';
+import { Button } from '@/components/common/Button';
 
 type DiscountType = 'FIXED' | 'PERCENT';
 
@@ -50,6 +52,8 @@ interface CouponSelectorProps {
 export function CouponSelector({ orderAmount, selectedCoupon, onSelectCoupon }: CouponSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [codeInput, setCodeInput] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   // 사용 가능한 쿠폰 필터링
   const availableCoupons = MOCK_USER_COUPONS.filter(
@@ -90,10 +94,12 @@ export function CouponSelector({ orderAmount, selectedCoupon, onSelectCoupon }: 
         setCodeInput('');
         setIsOpen(false);
       } else {
-        alert(`최소 주문 금액 ${formatCurrency(foundCoupon.minOrderAmount)}원 이상이어야 합니다.`);
+        setModalMessage(`최소 주문 금액 ${formatCurrency(foundCoupon.minOrderAmount)}원 이상이어야 합니다.`);
+        setIsModalOpen(true);
       }
     } else {
-      alert('유효하지 않은 쿠폰 코드입니다.');
+      setModalMessage('유효하지 않은 쿠폰 코드입니다.');
+      setIsModalOpen(true);
     }
   };
 
@@ -202,6 +208,29 @@ export function CouponSelector({ orderAmount, selectedCoupon, onSelectCoupon }: 
           )}
         </div>
       )}
+
+      {/* 알림 모달 */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="알림"
+        size="sm"
+      >
+        <div className="flex flex-col items-center text-center py-2">
+          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
+            <AlertCircle className="w-6 h-6 text-red-500" />
+          </div>
+          <p className="text-neutral-700 font-medium mb-6 leading-relaxed">
+            {modalMessage}
+          </p>
+          <Button 
+            onClick={() => setIsModalOpen(false)}
+            className="w-full font-bold"
+          >
+            확인
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

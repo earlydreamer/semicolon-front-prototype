@@ -1,8 +1,14 @@
+import { useState } from 'react';
 import { Button } from '@/components/common/Button';
+import { Modal } from '@/components/common/Modal';
 
 export function SocialLoginButtons() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
   const handleSocialLogin = (provider: string) => {
-    alert(`${provider} 로그인은 준비 중입니다.`);
+    setModalMessage(`${provider} 로그인은 준비 중입니다.`);
+    setIsModalOpen(true);
   };
 
   return (
@@ -28,6 +34,22 @@ export function SocialLoginButtons() {
       >
         Google로 시작하기
       </Button>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="알림"
+        size="sm"
+      >
+        <div className="text-center py-4">
+          <p className="text-neutral-700 font-medium mb-6">
+            {modalMessage}
+          </p>
+          <Button onClick={() => setIsModalOpen(false)} className="w-full font-bold">
+            확인
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

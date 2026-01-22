@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
+import { Modal } from '@/components/common/Modal';
+import { useNavigate } from 'react-router-dom';
 
 const signupSchema = z
   .object({
@@ -29,7 +31,9 @@ const signupSchema = z
 type SignupSchema = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     register,
@@ -44,7 +48,7 @@ export function SignupForm() {
     // Mock API Call
     await new Promise((resolve) => setTimeout(resolve, 1500));
     console.log('[MOCK] Signup attempt:', data);
-    alert('회원가입 성공 (Mock)');
+    setIsModalOpen(true);
     setIsLoading(false);
   };
 
@@ -89,6 +93,34 @@ export function SignupForm() {
       <Button type="submit" className="w-full mt-6" isLoading={isLoading} size="lg">
         가입하기
       </Button>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          navigate('/login');
+        }}
+        title="가입 완료"
+        size="sm"
+      >
+        <div className="text-center py-4">
+          <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
+            <span className="text-green-500 text-xl font-bold">✓</span>
+          </div>
+          <p className="text-neutral-700 font-medium mb-6">
+            회원가입이 성공적으로 완료되었습니다!
+          </p>
+          <Button 
+            onClick={() => {
+              setIsModalOpen(false);
+              navigate('/login');
+            }} 
+            className="w-full font-bold"
+          >
+            로그인하러 가기
+          </Button>
+        </div>
+      </Modal>
     </form>
   );
 }
