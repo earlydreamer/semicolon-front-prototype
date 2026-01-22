@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_PRODUCTS } from '@/mocks/products';
-import { Share2, ShieldCheck, ChevronRight, ShoppingBag, Clock, EllipsisVertical, Flag, Link2 } from 'lucide-react';
+import { Share2, ChevronRight, ShoppingBag, Clock, EllipsisVertical, Flag, Link2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -27,6 +27,7 @@ import { ProductImageGallery } from '@/components/features/product/ProductImageG
 import { SellerProfileCard } from '@/components/features/product/SellerProfileCard';
 import { ProductComments } from '@/components/features/product/ProductComments';
 import { ProductActionBar } from '@/components/features/product/ProductActionBar';
+import { useOrderStore } from '@/stores/useOrderStore';
 
 export default function ProductDetailPage() {
   const { productId: rawProductId } = useParams();
@@ -70,8 +71,31 @@ export default function ProductDetailPage() {
     }
   };
 
+  const setOrderItems = useOrderStore((state) => state.setOrderItems);
+  const clearOrder = useOrderStore((state) => state.clearOrder);
+
   const handlePurchase = () => {
+    if (!product) return;
+    
+    // 1. 기존 주문 정보 초기화
+    clearOrder();
+    
+    // 2. 현재 상품을 주문 목록에 설정 (CartItem 형식)
+    const orderItem = {
+      id: self.crypto.randomUUID(),
+      productId: product.id,
+      product,
+      quantity: 1,
+      selectedOptions: [],
+      selected: true,
+      addedAt: new Date().toISOString()
+    };
+    
+    setOrderItems([orderItem]);
+
+    // 3. 주문 페이지로 이동
     showToast(TOAST_MESSAGES.MOVING_TO_PAYMENT, 'info');
+    navigate('/order');
   };
 
   if (!product) {
@@ -90,7 +114,7 @@ export default function ProductDetailPage() {
 
   const { 
     title, price, description, images, seller, 
-    viewCount, likeCount, createdAt, conditionStatus, isSafe, categoryId,
+    viewCount, likeCount, createdAt, conditionStatus, categoryId,
     purchaseDate, usePeriod, detailedCondition,
     comments 
   } = product;
@@ -128,12 +152,6 @@ export default function ProductDetailPage() {
             <div className="pb-6">
               {/* 태그 영역 */}
               <div className="flex items-center gap-2 mb-3">
-                {isSafe && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                    안전결제
-                  </span>
-                )}
                 <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
                   conditionStatus === 'SEALED' ? 'bg-emerald-100 text-emerald-700' :
                   conditionStatus === 'NO_WEAR' ? 'bg-blue-100 text-blue-700' :
@@ -323,7 +341,6 @@ export default function ProductDetailPage() {
             <ProductActionBar
               saleStatus={product.saleStatus}
               likeCount={likeCount}
-              isSafe={isSafe}
               isLiked={isLiked}
               onLike={handleLike}
               onAddToCart={handleAddToCart}

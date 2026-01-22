@@ -9,23 +9,22 @@ import { useOrderStore } from '../stores/useOrderStore';
 import { ChevronLeft } from 'lucide-react';
 
 import OrderItemList from '../components/features/order/OrderItemList';
-import AddressSelector from '../components/features/order/AddressSelector';
-import PaymentMethodSelector from '../components/features/order/PaymentMethodSelector';
+import ShippingInfoForm from '../components/features/order/ShippingInfoForm';
 import OrderSummary from '../components/features/order/OrderSummary';
+import DepositUseForm from '../components/features/order/DepositUseForm';
 import { CouponSelector, calculateCouponDiscount, type UserCoupon } from '../components/features/order/CouponSelector';
 import { useToast } from '../components/common/Toast';
 
 const OrderPage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const { showToast } = useToast();
   
   const { 
     orderItems, 
     shippingInfo, 
-    paymentMethod,
+    depositUseAmount,
     setShippingInfo,
-    setPaymentMethod,
     setOrderUuid,
     setCouponUuid,
     setDepositUseAmount,
@@ -58,7 +57,14 @@ const OrderPage = () => {
   const couponDiscount = calculateCouponDiscount(selectedCoupon, totalProductPrice);
   const finalPriceWithCoupon = finalPrice - couponDiscount;
   
-  const isFormValid = shippingInfo !== null && paymentMethod !== null;
+  // 배송지 유효성 검사 (MVP: 직접 입력 시 필수 필드 체크)
+  const isFormValid = !!(
+    shippingInfo?.recipient &&
+    shippingInfo?.phone &&
+    shippingInfo?.zipCode &&
+    shippingInfo?.address &&
+    shippingInfo?.detailAddress
+  );
 
   const handlePayment = async () => {
     if (!isFormValid) return;
@@ -72,7 +78,7 @@ const OrderPage = () => {
       
       setOrderUuid(dummyOrderUuid);
       setCouponUuid(selectedCoupon?.id || null);
-      setDepositUseAmount(0); // 예치금 사용 로직은 추후 확장
+      // setDepositUseAmount(depositUseAmount); // 이미 상태에 저장되어 있음
       
       setIsLoading(false);
       
@@ -98,26 +104,27 @@ const OrderPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 왼쪽: 주문 정보 입력 */}
           <div className="lg:col-span-2 space-y-6">
-            {/* 배송지 정보 */}
-            <AddressSelector 
-              selectedAddress={shippingInfo} 
-              onSelect={setShippingInfo} 
+            {/* 배송지 정보 (직접 입력) */}
+            <ShippingInfoForm 
+              shippingInfo={shippingInfo} 
+              onUpdate={setShippingInfo} 
             />
 
             {/* 주문 상품 */}
             <OrderItemList items={orderItems} />
 
-            {/* 쿠폰 적용 */}
             <CouponSelector
               orderAmount={totalProductPrice}
               selectedCoupon={selectedCoupon}
               onSelectCoupon={setSelectedCoupon}
             />
 
-            {/* 결제 수단 */}
-            <PaymentMethodSelector 
-              selectedMethod={paymentMethod} 
-              onSelect={setPaymentMethod} 
+            {/* 예치금 사용 */}
+            <DepositUseForm
+              balance={user?.deposit || 0}
+              useAmount={depositUseAmount}
+              onUseAmountChange={setDepositUseAmount}
+              maxUseAmount={finalPriceWithCoupon}
             />
           </div>
 
@@ -127,7 +134,8 @@ const OrderPage = () => {
               productPrice={totalProductPrice}
               shippingFee={totalShippingFee}
               couponDiscount={couponDiscount}
-              finalPrice={finalPriceWithCoupon}
+              depositUseAmount={depositUseAmount}
+              finalPrice={Math.max(0, finalPriceWithCoupon - depositUseAmount)}
               disabled={!isFormValid}
               onPayment={handlePayment}
               isLoading={isLoading}

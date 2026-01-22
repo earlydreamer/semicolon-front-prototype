@@ -8,6 +8,7 @@ interface OrderSummaryProps {
   productPrice: number;
   shippingFee: number;
   couponDiscount?: number;
+  depositUseAmount?: number;
   finalPrice: number;
   disabled?: boolean;
   onPayment: () => void;
@@ -18,6 +19,7 @@ const OrderSummary = ({
   productPrice, 
   shippingFee, 
   couponDiscount = 0,
+  depositUseAmount = 0,
   finalPrice, 
   disabled = false, 
   onPayment,
@@ -42,6 +44,12 @@ const OrderSummary = ({
           <div className="flex justify-between text-primary-600">
             <span>쿠폰 할인</span>
             <span>-{couponDiscount.toLocaleString('ko-KR')}원</span>
+          </div>
+        )}
+        {depositUseAmount > 0 && (
+          <div className="flex justify-between text-primary-600 font-medium">
+            <span>예치금 사용</span>
+            <span>-{depositUseAmount.toLocaleString('ko-KR')}원</span>
           </div>
         )}
         <div className="pt-3 border-t border-dashed border-neutral-200 flex justify-between items-center">
