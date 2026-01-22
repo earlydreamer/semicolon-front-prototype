@@ -34,7 +34,8 @@ export default function SuccessPage() {
 
       // 백엔드에 결제 승인 요청
       try {
-        const idempotencyKey = self.crypto.randomUUID();
+        // [FIX] paymentUuid를 멱등키로 사용하여 새로고침 시 중복 승인 방지
+        const idempotencyKey = paymentUuid;
         
         const response = await paymentService.confirmPayment({
           paymentUuid,

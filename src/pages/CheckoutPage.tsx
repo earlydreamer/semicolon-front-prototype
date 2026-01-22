@@ -93,7 +93,8 @@ export default function CheckoutPage() {
         ? `${orderItems[0].product.title} 외 ${orderItems.length - 1}건`
         : orderItems[0].product.title;
 
-      const idempotencyKey = self.crypto.randomUUID();
+      // [FIX] orderUuid를 기반으로 멱등키 생성 (재요청 시 중복 방지)
+      const idempotencyKey = orderUuid;
       
       const prepareResponse = await paymentService.preparePayment({
         orderUuid,
@@ -115,13 +116,20 @@ export default function CheckoutPage() {
 
       const { toss, paymentUuid } = prepareResponse.data;
 
+      // [FIX] 중복 방지 및 누락 방지를 위한 URL 파라미터 처리
+      const appendUuid = (url: string) => {
+        if (url.includes('paymentUuid')) return url;
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}paymentUuid=${paymentUuid}`;
+      };
+
       // 2. [STEP] 토스 결제 요청
       // 백엔드에서 받은 Toss 관련 파라미터(orderId, amount 등)를 그대로 사용
       await widgets.requestPayment({
         orderId: toss.orderId,
         orderName: toss.orderName,
-        successUrl: `${toss.successUrl}&paymentUuid=${paymentUuid}`,
-        failUrl: `${toss.failUrl}&paymentUuid=${paymentUuid}`,
+        successUrl: appendUuid(toss.successUrl),
+        failUrl: appendUuid(toss.failUrl),
         customerEmail: user?.email,
         customerName: user?.nickname,
       });
