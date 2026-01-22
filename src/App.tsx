@@ -16,6 +16,13 @@ const LikedProductsPage = lazy(() => import('./pages/LikedProductsPage'));
 const ShopPage = lazy(() => import('./pages/ShopPage'));
 const OrderPage = lazy(() => import('./pages/OrderPage'));
 const OrderCompletePage = lazy(() => import('./pages/OrderCompletePage'));
+
+// 토스 결제 페이지 (공식 샘플 스타일)
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const PaymentSuccessPage = lazy(() => import('./pages/SuccessPage'));
+const PaymentFailPage = lazy(() => import('./pages/FailPage'));
+
+
 const SellerPage = lazy(() => import('./pages/SellerPage'));
 const ProductRegisterPage = lazy(() => import('./pages/ProductRegisterPage'));
 const ProductEditPage = lazy(() => import('./pages/ProductEditPage'));
@@ -79,7 +86,13 @@ function App() {
                 <Route path="faq" element={<FAQPage />} />
                 <Route path="policy" element={<PolicyPage />} />
                 <Route path="categories" element={<Navigate to="/" replace />} />
+
+                {/* 토스 결제 페이지 */}
+                <Route path="checkout" element={<CheckoutPage />} />
+                <Route path="payment/success" element={<PaymentSuccessPage />} />
+                <Route path="payment/fail" element={<PaymentFailPage />} />
               </Route>
+
 
               {/* 
                 관리자 페이지

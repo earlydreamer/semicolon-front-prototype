@@ -26,6 +26,9 @@ const OrderPage = () => {
     paymentMethod,
     setShippingInfo,
     setPaymentMethod,
+    setOrderUuid,
+    setCouponUuid,
+    setDepositUseAmount,
     getOrderSummary
   } = useOrderStore();
 
@@ -62,17 +65,20 @@ const OrderPage = () => {
 
     setIsLoading(true);
     
-    // 결제 처리 시뮬레이션 (1.5초)
+    // [STEP] 백엔드 주문 생성 시뮬레이션
+    // 실제로는 여기서 API를 호출하여 DB에 주문을 넣고 orderUuid를 받아와야 함
     setTimeout(() => {
+      const dummyOrderUuid = self.crypto.randomUUID();
+      
+      setOrderUuid(dummyOrderUuid);
+      setCouponUuid(selectedCoupon?.id || null);
+      setDepositUseAmount(0); // 예치금 사용 로직은 추후 확장
+      
       setIsLoading(false);
       
-      // 여기서 실제로는 API 호출로 주문 생성
-      
-      // 주문 성공 처리
-      navigate('/order/complete');
-      // 주문 완료 후 Store 정리는 OrderCompletePage 마운트 시 하거나 여기서 해도 됨
-      // 여기서는 성공 페이지에서 정보를 보여줘야 하므로 아직 정리하지 않음
-    }, 1500);
+      // 토스 결제 위젯 페이지로 이동
+      navigate('/checkout');
+    }, 1000);
   };
 
   return (
