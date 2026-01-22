@@ -6,6 +6,8 @@ import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Modal } from '@/components/common/Modal';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useToast } from '@/components/common/Toast';
 
 const signupSchema = z
   .object({
@@ -18,10 +20,7 @@ const signupSchema = z
         '영문, 숫자, 특수문자를 포함해야 합니다.'
       ),
     confirmPassword: z.string(),
-    name: z.string().min(2, '이름은 2자 이상이어야 합니다.'),
-    phone: z
-      .string()
-      .regex(/^01[0-9]\d{7,8}$/, '올바른 휴대폰 번호 형식이 아닙니다. (- 제외)'),
+    nickname: z.string().min(2, '닉네임은 2자 이상이어야 합니다.'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: '비밀번호가 일치하지 않습니다.',
@@ -34,6 +33,8 @@ export function SignupForm() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { register: registerUser } = useAuthStore();
+  const { showToast } = useToast();
 
   const {
     register,
@@ -45,11 +46,20 @@ export function SignupForm() {
 
   const onSubmit = async (data: SignupSchema) => {
     setIsLoading(true);
-    // Mock API Call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log('[MOCK] Signup attempt:', data);
-    setIsModalOpen(true);
-    setIsLoading(false);
+    try {
+      await registerUser({
+        email: data.email,
+        password: data.password,
+        nickname: data.nickname,
+      });
+      setIsModalOpen(true);
+    } catch (error: any) {
+      console.error(error);
+      const message = error.response?.data?.message || '회원가입 중 문제가 발생했습니다.';
+      showToast(message, 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -62,18 +72,10 @@ export function SignupForm() {
         {...register('email')}
       />
       <Input
-        label="이름"
-        placeholder="홍길동"
-        error={errors.name?.message}
-        {...register('name')}
-      />
-      <Input
-        label="휴대폰 번호"
-        placeholder="01012345678"
-        helperText="- 없이 숫자만 입력해주세요"
-        error={errors.phone?.message}
-        maxLength={11}
-        {...register('phone')}
+        label="닉네임"
+        placeholder="닉네임을 입력해주세요"
+        error={errors.nickname?.message}
+        {...register('nickname')}
       />
       <Input
         label="비밀번호"

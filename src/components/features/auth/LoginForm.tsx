@@ -6,8 +6,8 @@ import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 
 const loginSchema = z.object({
-  loginId: z.string().min(1, '아이디를 입력해주세요.'),
-  password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.'),
+  email: z.string().email('이메일 형식을 확인해주세요.'),
+  password: z.string().min(1, '비밀번호를 입력해주세요.'),
   autoLogin: z.boolean().optional(),
 });
 
@@ -25,7 +25,8 @@ export function LoginForm() {
   const navigate = useNavigate();
   const { login } = useAuthStore();
   const { showToast } = useToast();
-  const initUserLikes = useLikeStore((state) => state.initUserLikes);
+  // Mock 데이터 초기화 로직은 추후 제거 대상이나, 일단 유지
+  const fetchUserLikes = useLikeStore((state) => state.fetchUserLikes);
   const initFollowing = useFollowStore((state) => state.initFollowing);
   const initSellerProducts = useSellerStore((state) => state.initSellerProducts);
 
@@ -44,24 +45,19 @@ export function LoginForm() {
     setIsLoading(true);
     
     try {
-      const result = await login(data.loginId, data.password);
+      await login({ email: data.email, password: data.password });
       
-      if (result.success) {
-        // 유저별 초기 데이터(찜, 팔로우) 로드
-        const { user } = useAuthStore.getState();
-        if (user) {
-          initUserLikes(user.id);
-          initFollowing(user.id);
-          initSellerProducts(user.id);
-        }
-        
-        showToast('로그인 성공', 'success');
-        navigate('/');
-      } else {
-        showToast(result.message || 'ID 또는 비밀번호를 확인해주세요.', 'error');
+      const { user } = useAuthStore.getState();
+      if (user) {
+         await fetchUserLikes(user.id);
       }
-    } catch (error) {
-      showToast('로그인 중 문제가 발생했습니다.', 'error');
+      
+      showToast('로그인에 성공했습니다.', 'success');
+      navigate('/');
+    } catch (error: any) {
+      console.error(error);
+      const message = error.response?.data?.message || '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.';
+      showToast(message, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -70,16 +66,16 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Input
-        label="아이디"
-        type="text"
-        placeholder="user1 ~ user20"
-        error={errors.loginId?.message}
-        {...register('loginId')}
+        label="이메일"
+        type="email"
+        placeholder="example@email.com"
+        error={errors.email?.message}
+        {...register('email')}
       />
       <Input
         label="비밀번호"
         type="password"
-        placeholder="testuser (테스트용)"
+        placeholder="비밀번호를 입력해주세요"
         error={errors.password?.message}
         {...register('password')}
       />

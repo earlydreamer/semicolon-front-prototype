@@ -34,23 +34,51 @@ export interface ProductComment {
 
 /** 상품 */
 export interface Product {
-  id: string;
-  categoryId: string;
-  sellerId: string;
+/* ... 기존 코드 ... */
+}
+
+/**
+ * API 응답용 DTO
+ */
+
+export interface CategoryResponse {
+  id: number;
+  name: string;
+  depth: number;
+  parentId: number | null;
+}
+
+export interface ProductListItem {
+  productUuid: string;
+  title: string;
+  price: number;
+  thumbnailUrl: string | null;
+  likeCount: number;
+}
+
+export interface ProductListResponse {
+  items: ProductListItem[];
+  page: number;
+  size: number;
+  totalCount: number;
+  hasNext: boolean;
+}
+
+export interface ProductDetailResponse {
+  productUuid: string;
   title: string;
   description: string;
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
-  saleStatus: SaleStatus;
-  viewCount: number;
+  saleStatus: 'ON_SALE' | 'RESERVED' | 'SOLD_OUT';
+  visibilityStatus: 'VISIBLE' | 'HIDDEN' | 'BLOCKED';
   likeCount: number;
-  commentCount: number;
-  createdAt: string;
-  updatedAt?: string;
-  image: string;
-  images: string[];
-  isSafe: boolean;
-  seller: ProductSeller;
-  comments?: ProductComment[];
+  viewCount: number;
+  imageUrls: string[];
+  category: {
+    id: number;
+    name: string;
+    depth: number;
+  };
 }

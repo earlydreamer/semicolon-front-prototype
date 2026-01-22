@@ -67,24 +67,39 @@ const OrderPage = () => {
   );
 
   const handlePayment = async () => {
-    if (!isFormValid) return;
+    if (!isFormValid || !shippingInfo) return;
 
     setIsLoading(true);
     
-    // [STEP] 백엔드 주문 생성 시뮬레이션
-    // 실제로는 여기서 API를 호출하여 DB에 주문을 넣고 orderUuid를 받아와야 함
-    setTimeout(() => {
-      const dummyOrderUuid = self.crypto.randomUUID();
+    try {
+      // 실데이터 연동: 백엔드 주문 생성 API 호출
+      const orderRequest = {
+        address: `${shippingInfo.address} ${shippingInfo.detailAddress}`,
+        recipient: shippingInfo.recipient,
+        contactNumber: shippingInfo.phone,
+        items: orderItems.map(item => ({
+          productUuid: item.productUuid,
+          sellerUuid: '00000000-0000-0000-0000-000000000000', // FIXME: 백엔드 CartDto에 sellerUuid 부재로 임시 처리
+          productName: item.title,
+          productPrice: item.price,
+          imageUrl: item.thumbnailUrl || ''
+        }))
+      };
+
+      const orderService = (await import('../services/orderService')).orderService;
+      const response = await orderService.createOrder(orderRequest);
       
-      setOrderUuid(dummyOrderUuid);
+      setOrderUuid(response.orderUuid);
       setCouponUuid(selectedCoupon?.id || null);
-      // setDepositUseAmount(depositUseAmount); // 이미 상태에 저장되어 있음
-      
-      setIsLoading(false);
       
       // 토스 결제 위젯 페이지로 이동
       navigate('/checkout');
-    }, 1000);
+    } catch (error: any) {
+      console.error('Order creation failed:', error);
+      showToast(error.response?.data?.message || '주문 생성에 실패했습니다.', 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

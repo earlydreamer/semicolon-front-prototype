@@ -8,8 +8,8 @@ import CartItem from './CartItem';
 
 interface CartListProps {
   items: CartItemType[];
-  onRemove: (productId: string) => void;
-  onToggleSelect: (productId: string) => void;
+  onRemove: (cartId: number) => void;
+  onToggleSelect: (productUuid: string) => void;
   onSelectAll: (selected: boolean) => void;
   allSelected: boolean;
 }
@@ -82,7 +82,7 @@ const CartList = ({
       <div className="space-y-3">
         {items.map((item) => (
           <CartItem
-            key={item.productId}
+            key={item.cartId}
             item={item}
             onRemove={onRemove}
             onToggleSelect={onToggleSelect}

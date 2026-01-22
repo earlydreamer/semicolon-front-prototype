@@ -1,31 +1,41 @@
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { Card } from '@/components/common/Card';
-import type { Product } from '@/mocks/products';
+import type { Product, ProductListItem } from '@/types/product';
 import { formatTimeAgo } from '@/utils/date';
 import { SALE_STATUS_LABELS } from '@/constants';
 import { useLikeStore } from '@/stores/useLikeStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 interface ProductCardProps {
-  product: Product;
+  product: Product | ProductListItem;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const isUnavailable = product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED';
+  // 대응 필드 추출 (API vs Mock)
+  const id = 'productUuid' in product ? product.productUuid : product.id;
+  const title = product.title;
+  const price = product.price;
+  const image = 'thumbnailUrl' in product ? product.thumbnailUrl : product.image;
+  const saleStatus = 'saleStatus' in product ? product.saleStatus : 'ON_SALE';
+  const createdAt = 'createdAt' in product ? product.createdAt : new Date().toISOString();
+  
+  const isUnavailable = saleStatus === 'SOLD_OUT' || saleStatus === 'RESERVED';
   const { user } = useAuthStore();
   const { isLiked, toggleLike } = useLikeStore();
-  const liked = user ? isLiked(user.id, product.id) : false;
+  
+  // LikeStore도 API 연동용으로 업데이트가 필요할 수 있음
+  const liked = user ? isLiked(user.userUuid, id) : false;
 
   const handleLikeClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Link 이동 방지
+    e.preventDefault();
     e.stopPropagation();
     if (!user) return;
-    toggleLike(user.id, product.id);
+    toggleLike(user.userUuid, id);
   };
 
   return (
-    <Link to={`/products/${product.id}`} className="group block">
+    <Link to={`/products/${id}`} className="group block">
       <Card 
         variant="elevated" 
         className="h-full overflow-hidden transition-shadow duration-300 hover:shadow-lg"
@@ -33,8 +43,8 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Image */}
         <div className="relative aspect-square w-full overflow-hidden bg-neutral-100">
           <img
-            src={product.image}
-            alt={product.title}
+            src={image || '/images/placeholder.png'}
+            alt={title}
             className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-110 ${
               isUnavailable ? 'brightness-75' : ''
             }`}
@@ -64,12 +74,12 @@ export function ProductCard({ product }: ProductCardProps) {
               <span className={`
                 rounded-full px-4 py-1.5 text-sm font-bold shadow-lg
                 backdrop-blur-sm
-                ${product.saleStatus === 'SOLD_OUT' 
+                ${saleStatus === 'SOLD_OUT' 
                   ? 'bg-neutral-800/80 text-white' 
                   : 'bg-primary-500/90 text-white'
                 }
               `}>
-                {SALE_STATUS_LABELS[product.saleStatus]}
+                {SALE_STATUS_LABELS[saleStatus]}
               </span>
             </div>
           )}
@@ -79,15 +89,15 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Content */}
         <div className="flex flex-col gap-1 p-3">
           <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium text-neutral-900">
-            {product.title}
+            {title}
           </h3>
           
           <div className="flex items-center justify-between gap-2">
             <span className="text-base min-[320px]:text-lg font-bold text-neutral-900 truncate">
-              {product.price.toLocaleString()}원
+              {price.toLocaleString()}원
             </span>
             <span className="text-xs text-neutral-500 flex-shrink-0">
-              {formatTimeAgo(product.createdAt)}
+              {formatTimeAgo(createdAt)}
             </span>
           </div>
           

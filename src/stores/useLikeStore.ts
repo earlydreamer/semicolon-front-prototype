@@ -1,15 +1,15 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { getUserLikes } from '../mocks/likes';
+import { userService } from '../services/userService';
 
 interface LikeState {
   // 유저별 찜 목록: { [userId: string]: string[] }
   userLikes: Record<string, string[]>;
   
   // Actions
-  toggleLike: (userId: string, productId: string) => void;
+  toggleLike: (userId: string, productId: string) => Promise<void>;
   isLiked: (userId: string, productId: string) => boolean;
-  initUserLikes: (userId: string) => void;
+  fetchUserLikes: (userId: string) => Promise<void>;
   
   // Computed
   getLikedCount: (userId: string) => number;
@@ -20,29 +20,45 @@ export const useLikeStore = create<LikeState>()(
     (set, get) => ({
       userLikes: {},
       
-      initUserLikes: (userId: string) => {
-        if (!get().userLikes[userId]) {
-          const initialLikes = getUserLikes(userId).map(like => like.productId);
+      fetchUserLikes: async (userId: string) => {
+        try {
+          const response = await userService.getLikedProducts();
+          // MyLikedProductListResponse 구조 (items 가 실제 상품 목록)
+          const likedProductUuids = response.items?.map((p: any) => p.productUuid) || [];
           set((state) => ({
-            userLikes: { ...state.userLikes, [userId]: initialLikes }
+            userLikes: { ...state.userLikes, [userId]: likedProductUuids }
           }));
+        } catch (error) {
+          console.error('Fetch user likes failed:', error);
         }
       },
 
-      toggleLike: (userId: string, productId: string) => {
+      toggleLike: async (userId: string, productId: string) => {
         const currentLikes = get().userLikes[userId] || [];
         const isCurrentlyLiked = currentLikes.includes(productId);
         
-        let newLikes: string[];
-        if (isCurrentlyLiked) {
-          newLikes = currentLikes.filter((id) => id !== productId);
-        } else {
-          newLikes = [...currentLikes, productId];
-        }
+        try {
+          if (isCurrentlyLiked) {
+            await userService.unlikeProduct(productId);
+          } else {
+            await userService.likeProduct(productId);
+          }
 
-        set((state) => ({
-          userLikes: { ...state.userLikes, [userId]: newLikes }
-        }));
+          // Update local state after successful API call
+          let newLikes: string[];
+          if (isCurrentlyLiked) {
+            newLikes = currentLikes.filter((id) => id !== productId);
+          } else {
+            newLikes = [...currentLikes, productId];
+          }
+
+          set((state) => ({
+            userLikes: { ...state.userLikes, [userId]: newLikes }
+          }));
+        } catch (error) {
+          console.error('Toggle like failed:', error);
+          throw error;
+        }
       },
       
       isLiked: (userId: string, productId: string) => {
