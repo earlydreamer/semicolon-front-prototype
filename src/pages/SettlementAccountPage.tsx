@@ -23,7 +23,7 @@ const SettlementAccountPage = () => {
   }
 
   // Mock User의 계좌 정보 또는 빈 값으로 초기화
-  const initialAccount = user.settlementAccount || { bank: '', accountNumber: '', holder: '' };
+  const initialAccount = (user as any).settlementAccount || { bank: '', accountNumber: '', holder: '' };
   
   const [formData, setFormData] = useState({
     bank: initialAccount.bank,

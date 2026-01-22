@@ -1,6 +1,7 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DefaultLayout } from '@/components/layout/DefaultLayout';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 // Lazy load page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -54,6 +55,20 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 const basename = import.meta.env.BASE_URL;
 
 function App() {
+  const { initialize, isInitialized } = useAuthStore();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  if (!isInitialized) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <BrowserRouter basename={basename}>

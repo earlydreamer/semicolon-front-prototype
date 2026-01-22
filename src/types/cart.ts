@@ -2,22 +2,27 @@
  * 장바구니 관련 타입 정의
  */
 
-import type { Product } from '../mocks/products';
-
 /**
- * 장바구니 아이템 인터페이스
+ * 장바구니 아이템 인터페이스 (백엔드 CartDto와 일치)
  */
 export interface CartItem {
-  /** 상품 ID */
-  productId: string;
-  /** 상품 정보 */
-  product: Product;
-  /** 수량 */
-  quantity: number;
-  /** 추가 시각 (ISO 문자열) */
-  addedAt: string;
-  /** 선택 상태 */
-  selected: boolean;
+  cartId: number;           // 장바구니 PK (삭제 시 사용)
+  productUuid: string;      // 상품 UUID (상세 페이지 이동용)
+  title: string;            // 상품 제목
+  price: number;            // 현재 상품 가격
+  saleStatus: 'ON_SALE' | 'RESERVED' | 'SOLD_OUT'; // 판매 상태
+  thumbnailUrl: string | null; // 썸네일 이미지 URL
+  createdAt: string;        // 장바구니에 담은 날짜
+  selected?: boolean;       // 프론트엔드 UI 관리를 위한 필드 (선택 필수 아님)
+}
+
+/**
+ * 장바구니 목록 응답 (백엔드 CartListResponse와 일치)
+ */
+export interface CartListResponse {
+  items: CartItem[];
+  totalCount: number;
+  expectedTotalPrice: number;
 }
 
 /**

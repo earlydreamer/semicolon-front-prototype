@@ -28,8 +28,8 @@ export default function CheckoutPage() {
   
   const summary = getOrderSummary();
   
-  // User 타입에 맞게 id 사용 (실제 서비스에서는 uuid 필드일 확률이 높음)
-  const customerKey = user?.id || 'ANONYMOUS';
+  // User 타입 반영 (id -> userUuid)
+  const customerKey = user?.userUuid || 'ANONYMOUS';
 
   const [ready, setReady] = useState(false);
   const [widgets, setWidgets] = useState<TossPaymentsWidgets | null>(null);
@@ -90,8 +90,8 @@ export default function CheckoutPage() {
     try {
       // 1. [STEP] 백엔드 결제 준비 요청 (Prepare)
       const orderName = orderItems.length > 1 
-        ? `${orderItems[0].product.title} 외 ${orderItems.length - 1}건`
-        : orderItems[0].product.title;
+        ? `${orderItems[0].title} 외 ${orderItems.length - 1}건`
+        : orderItems[0].title;
 
       // [FIX] orderUuid를 기반으로 멱등키 생성 (재요청 시 중복 방지)
       const idempotencyKey = orderUuid;

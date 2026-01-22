@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import type { Product } from '@/mocks/products';
+import type { ProductListItem } from '@/types/product';
 import { ProductCard } from './ProductCard';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { ProductSkeletonList } from './ProductSkeleton';
 import { PAGINATION } from '@/constants';
 
 interface ProductListProps {
-  products: Product[];
+  products: (Product | ProductListItem)[];
   title?: string;
   enableInfiniteScroll?: boolean;
 }
@@ -23,8 +24,10 @@ export function ProductList({
   // 품절 상품을 뒤로 보내는 정렬 로직 (useMemo로 참조 고정)
   const sortedProducts = useMemo(() => {
     return [...products].sort((a, b) => {
-      const aSoldOut = a.saleStatus === 'SOLD_OUT' || a.saleStatus === 'RESERVED';
-      const bSoldOut = b.saleStatus === 'SOLD_OUT' || b.saleStatus === 'RESERVED';
+      const aSaleStatus = ('saleStatus' in a) ? a.saleStatus : (a as any).saleStatus || 'ON_SALE';
+      const bSaleStatus = ('saleStatus' in b) ? b.saleStatus : (b as any).saleStatus || 'ON_SALE';
+      const aSoldOut = aSaleStatus === 'SOLD_OUT' || aSaleStatus === 'RESERVED';
+      const bSoldOut = bSaleStatus === 'SOLD_OUT' || bSaleStatus === 'RESERVED';
       if (aSoldOut && !bSoldOut) return 1;
       if (!aSoldOut && bSoldOut) return -1;
       return 0;

@@ -54,18 +54,15 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     
     // 상품 총 가격
     const totalProductPrice = orderItems.reduce(
-      (sum, item) => sum + item.product.price,
+      (sum, item) => sum + item.price,
       0
     );
 
-    // 총 배송비
-    const totalShippingFee = orderItems.reduce(
-      (sum, item) => sum + item.product.shippingFee,
-      0
-    );
+    // 총 배송비 (CartItem에 shippingFee가 없는 경우 0으로 처리)
+    // CartItem 타입 업데이트 시 추가 필요 현재는 Mock 대비 제거됨
+    const totalShippingFee = 0;
 
-    // TODO: 쿠폰 할인 로직 연동 (현재는 하드코딩 또는 외부 계산 필요)
-    // 여기서는 단순성을 위해 0으로 시작
+    // TODO: 쿠폰 할인 로직 연동
     const couponDiscount = 0;
 
     const finalPrice = totalProductPrice + totalShippingFee - couponDiscount;

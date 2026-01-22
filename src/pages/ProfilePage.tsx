@@ -8,24 +8,36 @@ import { ArrowLeft, Camera } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { userService } from '@/services/userService';
 import { Navigate } from 'react-router-dom';
+import { PasswordChangeModal } from '@/components/features/mypage/PasswordChangeModal';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, refreshUser } = useAuthStore();
   
   const [nickname, setNickname] = useState(user?.nickname || '');
-  const [intro, setIntro] = useState(user?.intro || '');
-  const [avatar] = useState(user?.avatar || '');
+  const [intro, setIntro] = useState((user as any)?.intro || '');
+  const [avatar] = useState((user as any)?.avatar || '');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
   }
 
-  const handleSave = () => {
-    showToast('프로필이 수정되었습니다.', 'success');
-    navigate('/mypage');
+  const handleSave = async () => {
+    try {
+      // 백엔드 UserUpdateRequest가 'name' 필드만 지원하므로 nickname을 name으로 전송합니다.
+      // intro(bio)는 현재 백엔드에서 지원하지 않으므로 전송하지 않습니다.
+      await userService.updateProfile({ name: nickname });
+      await refreshUser();
+      showToast('프로필이 수정되었습니다.', 'success');
+      navigate('/mypage');
+    } catch (error) {
+      console.error(error);
+      showToast('프로필 수정에 실패했습니다.', 'error');
+    }
   };
 
   const handleCancel = () => {
@@ -105,12 +117,25 @@ const ProfilePage = () => {
             <p className="mt-1 text-xs text-neutral-400">이메일은 변경할 수 없습니다.</p>
           </div>
 
+          {/* 계정 보안 - 비밀번호 변경 */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">계정 보안</label>
+            <Button 
+                variant="outline" 
+                className="w-full justify-between h-12"
+                onClick={() => setShowPasswordModal(true)}
+            >
+                <span className="text-neutral-700">비밀번호 변경</span>
+                <span className="text-neutral-400">→</span>
+            </Button>
+          </div>
+
           {/* 휴대폰 (읽기 전용) */}
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-2">휴대폰</label>
             <input
               type="tel"
-              value={user.phone || ''}
+              value={(user as any).phone || ''}
               disabled
               className="w-full px-4 py-3 border border-neutral-200 rounded-xl bg-neutral-100 text-neutral-500 cursor-not-allowed"
             />
@@ -128,6 +153,11 @@ const ProfilePage = () => {
           </Button>
         </div>
       </div>
+
+      <PasswordChangeModal 
+        isOpen={showPasswordModal} 
+        onClose={() => setShowPasswordModal(false)} 
+      />
     </div>
   );
 };

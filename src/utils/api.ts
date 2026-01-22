@@ -13,21 +13,34 @@ const api = axios.create({
 
 // 요청 인터셉터: Authorization 헤더 주입
 api.interceptors.request.use((config) => {
-  // Zustand store에서 직접 상태를 가져오는 것은 비동기 이슈가 있을 수 있으나
-  // 현재 구조상 단순하게 접근 (localStorage 등 활용 가능)
   // useAuthStore.getState()로 현재 상태 확인
-  const { user } = useAuthStore.getState();
+  const { accessToken } = useAuthStore.getState();
   
-  // 실제 연동 시에는 유저 객체에 토큰이 포함되어 있다고 가정
-  // 현재 MockUser 타입에는 토큰이 없으므로 임시로 'mock-token' 처리하거나 
-  // 백엔드 명세에 맞춰 accessToken 필드가 있다고 가정함
-  const token = (user as any)?.accessToken || 'mock-token'; 
-  
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
   
   return config;
 });
+
+// 응답 인터셉터: 401 오류 처리 (토큰 만료 등)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // 401 Unauthorized 에러 시 세션 종료
+    if (error.response?.status === 401) {
+      const { logout } = useAuthStore.getState();
+      
+      // 무한 루프 방지: 현재 경로가 로그인이 아닐 때만 로그아웃 처리 및 리다이렉트 고려
+      logout();
+      
+      // 사용자 경험을 위해 강제 페이지 이동은 신중히 (필요 시 아래 주석 해제)
+      // if (!window.location.pathname.includes('/login')) {
+      //   window.location.href = '/login?expired=true';
+      // }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;

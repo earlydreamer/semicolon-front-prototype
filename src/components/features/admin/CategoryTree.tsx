@@ -11,9 +11,6 @@ import {
   CONFIRM_MESSAGES, 
   ERROR_MESSAGES 
 } from '@/constants';
-import { Modal } from '@/components/common/Modal';
-import { Button } from '@/components/common/Button';
-import { AlertCircle } from 'lucide-react';
 
 interface CategoryItemProps {
   category: Category;

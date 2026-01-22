@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { MOCK_PRODUCTS } from '@/mocks/products';
 import { Share2, ChevronRight, ShoppingBag, Clock, EllipsisVertical, Flag, Link2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import { formatTimeAgo } from '@/utils/date';
@@ -28,6 +27,7 @@ import { SellerProfileCard } from '@/components/features/product/SellerProfileCa
 import { ProductComments } from '@/components/features/product/ProductComments';
 import { ProductActionBar } from '@/components/features/product/ProductActionBar';
 import { useOrderStore } from '@/stores/useOrderStore';
+import { useProductStore } from '@/stores/useProductStore';
 
 export default function ProductDetailPage() {
   const { productId: rawProductId } = useParams();
@@ -36,10 +36,47 @@ export default function ProductDetailPage() {
   const addToCart = useCartStore((state) => state.addItem);
   const { user } = useAuthStore();
   const { isLiked: checkIsLiked, toggleLike } = useLikeStore();
+  const { currentProduct: apiProduct, isLoading, error, fetchProductDetail } = useProductStore();
   
   // URL 파라미터 검증 (XSS 방지)
   const productId = sanitizeUrlParam(rawProductId);
-  const product = isValidId(productId) ? MOCK_PRODUCTS.find((p) => p.id === productId) : undefined;
+
+  useEffect(() => {
+    if (productId && isValidId(productId)) {
+      fetchProductDetail(productId);
+    }
+  }, [productId, fetchProductDetail]);
+
+  // Mapping API response to the format used in this component
+  const product = apiProduct ? {
+    id: apiProduct.productUuid,
+    title: apiProduct.title,
+    price: apiProduct.price,
+    description: apiProduct.description,
+    image: apiProduct.imageUrls?.[0] || '',
+    images: apiProduct.imageUrls || [],
+    category: apiProduct.category?.name || '기타',
+    categoryId: apiProduct.category?.id || 0,
+    createdAt: new Date().toISOString(), // DTO에 createdAt 누락되어 현재 시간으로 임시 처리
+    conditionStatus: apiProduct.conditionStatus || 'NO_WEAR',
+    saleStatus: apiProduct.saleStatus || 'ON_SALE',
+    viewCount: apiProduct.viewCount || 0,
+    likeCount: apiProduct.likeCount || 0,
+    seller: {
+      userUuid: '00000000-0000-0000-0000-000000000000', // DTO에 seller 정보 누락
+      nickname: 'Semicolon Seller',
+      profileImageUrl: '',
+      trustScore: 36.5,
+      dealCount: 0,
+      reviewCount: 0
+    },
+    // Mock fields for UI layout
+    purchaseDate: '2023-10-01',
+    usePeriod: '6개월',
+    detailedCondition: '생활 기스 외 깨끗함',
+    comments: []
+  } : null;
+
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
@@ -61,9 +98,9 @@ export default function ProductDetailPage() {
     );
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) return;
-    const added = addToCart(product);
+    const added = await addToCart((product as any).id || product.productUuid);
     if (added) {
       showToast(TOAST_MESSAGES.ADDED_TO_CART, 'success');
     } else {
@@ -81,14 +118,15 @@ export default function ProductDetailPage() {
     clearOrder();
     
     // 2. 현재 상품을 주문 목록에 설정 (CartItem 형식)
-    const orderItem = {
-      id: self.crypto.randomUUID(),
-      productId: product.id,
-      product,
-      quantity: 1,
-      selectedOptions: [],
-      selected: true,
-      addedAt: new Date().toISOString()
+    const orderItem: any = {
+      cartId: Date.now(),
+      productUuid: product.productUuid || (product as any).id,
+      title: product.title,
+      price: product.price,
+      saleStatus: product.saleStatus || 'ON_SALE',
+      thumbnailUrl: (product as any).thumbnailUrl || product.imageUrls?.[0] || '',
+      createdAt: new Date().toISOString(),
+      selected: true
     };
     
     setOrderItems([orderItem]);
@@ -98,10 +136,18 @@ export default function ProductDetailPage() {
     navigate('/order');
   };
 
-  if (!product) {
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
-        <p className="text-gray-500">{ERROR_MESSAGES.PRODUCT_NOT_FOUND}</p>
+        <p className="text-gray-500">{error || ERROR_MESSAGES.PRODUCT_NOT_FOUND}</p>
         <button 
           onClick={() => navigate(-1)}
           className="rounded-lg bg-primary-500 px-4 py-2 text-white hover:bg-primary-600"

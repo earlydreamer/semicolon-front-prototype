@@ -22,8 +22,8 @@ const MyShopInfo = () => {
   
   const initialShopInfo: ShopInfo = {
     name: user?.nickname || '',
-    intro: user?.intro || '',
-    avatar: user?.avatar || '',
+    intro: (user as any)?.intro || '',
+    avatar: (user as any)?.avatar || '',
   };
 
   const [shopInfo, setShopInfo] = useState<ShopInfo>(initialShopInfo);

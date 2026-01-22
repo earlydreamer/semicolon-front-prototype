@@ -12,6 +12,13 @@ export interface User {
   avatar?: string;
   intro?: string;
   point: number;
+  deposit: number;
+  phone?: string;
+  settlementAccount?: {
+    bank: string;
+    accountNumber: string;
+    accountHolder: string;
+  };
   createdAt: string;
 }
 
