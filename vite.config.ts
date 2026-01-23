@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import basicSsl from '@vitejs/plugin-basic-ssl';
+import mkcert from 'vite-plugin-mkcert';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 export default defineConfig({
     plugins: [
         react(),
-        basicSsl(),
+        mkcert(),
     ],
     // GitHub Pages 배포 시 레포지토리 이름으로 서브 URL 설정
     base: process.env.GITHUB_ACTIONS ? '/semicolon-front-prototype/' : '/',
@@ -22,7 +22,7 @@ export default defineConfig({
     },
     server: {
         port: 3000,
-        https: {}, // basicSsl 플러그인이 인증서를 주입함
+        https: {},
         proxy: {
             '/api': {
                 target: 'http://localhost:8080',
