@@ -6,9 +6,21 @@ import { create } from 'zustand';
 import type { CartItem } from '../types/cart';
 import type { Address } from '../mocks/address';
 
+// OrderResponse.items 타입 정의
+export interface OrderItemResponse {
+  orderItemUuid: string;
+  productId: number;
+  productUuid: string;
+  sellerUuid: string;
+  productName: string;
+  productPrice: number;
+  imageUrl: string;
+}
+
 interface OrderState {
   orderUuid: string | null; // 주문 고유 식별자
-  orderItems: CartItem[]; // 주문할 상품 목록
+  orderItems: CartItem[]; // 주문할 상품 목록 (UI 표시용)
+  orderResponseItems: OrderItemResponse[] | null; // 주문 생성 후 받은 실제 OrderItem 정보 (결제 요청용)
   shippingInfo: Address | null; // 선택된 배송지
   paymentMethod: string | null; // 선택된 결제 수단
   couponUuid: string | null; // 선택된 쿠폰 UUID
@@ -17,6 +29,7 @@ interface OrderState {
   // Actions
   setOrderUuid: (uuid: string | null) => void;
   setOrderItems: (items: CartItem[]) => void;
+  setOrderResponseItems: (items: OrderItemResponse[] | null) => void;
   setShippingInfo: (address: Address | null) => void;
   setPaymentMethod: (method: string | null) => void;
   setCouponUuid: (uuid: string | null) => void;
@@ -37,6 +50,7 @@ interface OrderState {
 export const useOrderStore = create<OrderState>((set, get) => ({
   orderUuid: null,
   orderItems: [],
+  orderResponseItems: null,
   shippingInfo: null,
   paymentMethod: null,
   couponUuid: null,
@@ -44,6 +58,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
 
   setOrderUuid: (uuid) => set({ orderUuid: uuid }),
   setOrderItems: (items) => set({ orderItems: items }),
+  setOrderResponseItems: (items) => set({ orderResponseItems: items }),
   setShippingInfo: (address) => set({ shippingInfo: address }),
   setPaymentMethod: (method) => set({ paymentMethod: method }),
   setCouponUuid: (uuid) => set({ couponUuid: uuid }),
@@ -80,7 +95,8 @@ export const useOrderStore = create<OrderState>((set, get) => ({
 
   clearOrder: () => set({ 
     orderUuid: null,
-    orderItems: [], 
+    orderItems: [],
+    orderResponseItems: null,
     shippingInfo: null, 
     paymentMethod: null,
     couponUuid: null,

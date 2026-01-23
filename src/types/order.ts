@@ -47,7 +47,10 @@ export type OrderStatus =
   | 'PARTIAL_REFUNDED';
 
 export interface OrderItemResponse {
+  orderItemUuid: string; // 주문 아이템 UUID
+  productId: number; // 상품 ID (Product PK)
   productUuid: string;
+  sellerUuid: string; // 판매자 UUID
   productName: string;
   productPrice: number;
   imageUrl: string;

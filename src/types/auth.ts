@@ -5,6 +5,7 @@ export interface User {
   nickname: string;
   role: 'USER' | 'ADMIN';
   status: 'ACTIVE' | 'INACTIVE' | 'BANNED' | 'WITHDRAWN'; // UserStatus Enum 반영
+  createdAt: string; // 가입일
 }
 
 export interface TokenResponse {

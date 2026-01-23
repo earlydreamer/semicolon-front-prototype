@@ -11,7 +11,6 @@ export interface User {
   nickname: string;
   avatar?: string;
   intro?: string;
-  point: number;
   deposit: number;
   phone?: string;
   settlementAccount?: {
