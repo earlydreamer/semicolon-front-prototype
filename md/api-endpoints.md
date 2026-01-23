@@ -41,8 +41,8 @@ export const API_BASE_URL = '/api/v1';
 | `USERS_ADDRESSES_CREATE` | POST | `/users/addresses` | 배송지 추가 | 목업 |
 | `USERS_ADDRESSES_UPDATE` | PUT | `/users/addresses/:id` | 배송지 수정 | 목업 |
 | `USERS_ADDRESSES_DELETE` | DELETE | `/users/addresses/:id` | 배송지 삭제 | 목업 |
-| `USERS_POINTS` | GET | `/users/points` | 포인트 조회 | 목업 |
-| `USERS_POINTS_HISTORY` | GET | `/users/points/history` | 포인트 내역 | 목업 |
+| `USERS_DEPOSITS_BALANCE` | GET | `/deposits/me/balance` | 예치금 잔액 조회 | 구현됨 |
+| `USERS_DEPOSITS_HISTORIES` | GET | `/deposits/me/histories` | 예치금 내역 조회 | 구현됨 |
 | `USERS_FOLLOWING` | GET | `/users/following` | 팔로잉 목록 | 목업 |
 | `USERS_FOLLOW` | POST | `/users/:id/follow` | 팔로우 | 목업 |
 | `USERS_UNFOLLOW` | DELETE | `/users/:id/follow` | 언팔로우 | 목업 |
