@@ -3,7 +3,9 @@
  */
 
 import { Link } from 'react-router-dom';
-import { Eye, Heart, MoreVertical } from 'lucide-react';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import Heart from 'lucide-react/dist/esm/icons/heart';
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
 import type { SaleStatus } from '@/types/product';
 import { formatTimeAgo } from '@/utils/date';
 import { formatPrice } from '@/utils/formatPrice';

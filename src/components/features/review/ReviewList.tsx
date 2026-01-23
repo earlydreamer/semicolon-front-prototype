@@ -3,7 +3,8 @@
  */
 
 import { ReviewCard, type Review } from './ReviewCard';
-import { Star, MessageSquare } from 'lucide-react';
+import Star from 'lucide-react/dist/esm/icons/star';
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square';
 import { EmptyState } from '@/components/common/EmptyState';
 
 // Mock 리뷰 데이터

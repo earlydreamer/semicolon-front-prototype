@@ -3,7 +3,9 @@
  */
 
 import { useState, useRef } from 'react';
-import { ImagePlus, X, GripVertical } from 'lucide-react';
+import ImagePlus from 'lucide-react/dist/esm/icons/image-plus';
+import X from 'lucide-react/dist/esm/icons/x';
+import GripVertical from 'lucide-react/dist/esm/icons/grip-vertical';
 
 interface ProductImageUploaderProps {
   images: string[];

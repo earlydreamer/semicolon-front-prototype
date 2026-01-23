@@ -3,7 +3,9 @@
  */
 
 import { Link, Navigate } from 'react-router-dom';
-import { ChevronLeft, Heart, Loader2 } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
+import Heart from 'lucide-react/dist/esm/icons/heart';
+import Loader2 from 'lucide-react/dist/esm/icons/loader2';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLikeStore } from '../stores/useLikeStore';
 import { useToast } from '../components/common/Toast';

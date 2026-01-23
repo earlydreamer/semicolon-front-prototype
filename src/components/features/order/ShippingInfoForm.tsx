@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Address } from '../../../mocks/address';
 import { Modal } from '../../common/Modal';
 import { Button } from '../../common/Button';
-import { AlertCircle } from 'lucide-react';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 
 // 카카오 우편번호 API 타입 정의
 declare global {

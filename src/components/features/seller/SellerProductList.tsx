@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import Plus from 'lucide-react/dist/esm/icons/plus';
 import type { SaleStatus } from '@/mocks/products';
 import { useSellerStore } from '@/stores/useSellerStore';
 import SellerProductCard from './SellerProductCard';

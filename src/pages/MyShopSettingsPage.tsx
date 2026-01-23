@@ -4,7 +4,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import { useAuthStore } from '@/stores/useAuthStore';
 import MyShopInfo from '@/components/features/seller/MyShopInfo';
 

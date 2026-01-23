@@ -2,7 +2,9 @@
  * 프로필 통계 컴포넌트
  */
 
-import { Package, ShoppingBag, Coins } from 'lucide-react';
+import Package from 'lucide-react/dist/esm/icons/package';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import Coins from 'lucide-react/dist/esm/icons/coins';
 
 interface ProfileStatsProps {
   salesCount: number;

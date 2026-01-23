@@ -3,7 +3,12 @@
  */
 
 import { useState } from 'react';
-import { Plus, Edit2, Trash2, Gift, Percent, DollarSign } from 'lucide-react';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Edit2 from 'lucide-react/dist/esm/icons/edit2';
+import Trash2 from 'lucide-react/dist/esm/icons/trash2';
+import Gift from 'lucide-react/dist/esm/icons/gift';
+import Percent from 'lucide-react/dist/esm/icons/percent';
+import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
 import { Button } from '@/components/common/Button';
 import { CouponFormPanel } from '@/components/features/admin/CouponFormPanel';
 

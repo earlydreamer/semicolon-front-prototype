@@ -5,7 +5,7 @@
  */
 
 import { Link } from 'react-router-dom';
-import { Star } from 'lucide-react';
+import Star from 'lucide-react/dist/esm/icons/star';
 import { Button } from '@/components/common/Button';
 
 interface Seller {

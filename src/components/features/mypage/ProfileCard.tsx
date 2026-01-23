@@ -4,7 +4,8 @@
 
 import { Link } from 'react-router-dom';
 import type { User } from '../../../mocks/users';
-import { Mail, Calendar } from 'lucide-react';
+import Mail from 'lucide-react/dist/esm/icons/mail';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
 
 interface ProfileCardProps {
   user: User;

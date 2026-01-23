@@ -4,7 +4,7 @@
 
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import X from 'lucide-react/dist/esm/icons/x';
 
 interface ModalProps {
   isOpen: boolean;

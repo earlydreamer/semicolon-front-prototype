@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useOrderStore } from '../stores/useOrderStore';
-import { ChevronLeft } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 
 import OrderItemList from '../components/features/order/OrderItemList';
 import ShippingInfoForm from '../components/features/order/ShippingInfoForm';

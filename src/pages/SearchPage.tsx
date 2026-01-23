@@ -5,7 +5,10 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
+import X from 'lucide-react/dist/esm/icons/x';
 import { ProductList } from '@/components/features/product/ProductList';
 import { ProductSortDropdown, type SortOption } from '@/components/features/product/ProductSortDropdown';
 import { type SaleStatus, type ProductListItem } from '@/types/product';

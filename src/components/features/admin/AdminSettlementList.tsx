@@ -8,7 +8,11 @@
  */
 
 import { useState, Fragment } from 'react';
-import { Wallet, ChevronDown, ChevronUp, Clock, Info } from 'lucide-react';
+import Wallet from 'lucide-react/dist/esm/icons/wallet';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import Info from 'lucide-react/dist/esm/icons/info';
 import { EmptyState } from '@/components/common/EmptyState';
 
 /**

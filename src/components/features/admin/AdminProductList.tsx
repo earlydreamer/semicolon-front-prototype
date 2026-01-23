@@ -3,7 +3,11 @@
  */
 
 import { useState } from 'react';
-import { Search, MoreVertical, Eye, Pause, Trash2 } from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search';
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import Pause from 'lucide-react/dist/esm/icons/pause';
+import Trash2 from 'lucide-react/dist/esm/icons/trash2';
 import { MOCK_PRODUCTS, type Product, type SaleStatus } from '@/mocks/products';
 import { formatPrice } from '@/utils/formatPrice';
 import { SALE_STATUS_LABELS } from '@/constants';

@@ -5,7 +5,8 @@
  * 데스크톱/모바일 레이아웃 모두 포함
  */
 
-import { Heart, ShoppingBag } from 'lucide-react';
+import Heart from 'lucide-react/dist/esm/icons/heart';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
 import type { SaleStatus } from '@/types/product';
 
 interface ProductActionBarProps {

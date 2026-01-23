@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Search, ShoppingBag, Bell, X, User as UserIcon } from 'lucide-react';
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import Search from 'lucide-react/dist/esm/icons/search';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import Bell from 'lucide-react/dist/esm/icons/bell';
+import X from 'lucide-react/dist/esm/icons/x';
+import UserIcon from 'lucide-react/dist/esm/icons/user';
 import { Button } from '@/components/common/Button';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useCartStore } from '@/stores/useCartStore';

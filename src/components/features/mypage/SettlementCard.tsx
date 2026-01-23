@@ -2,7 +2,7 @@
  * 정산 계좌 카드 컴포넌트
  */
 
-import { CreditCard } from 'lucide-react';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
 
 const SettlementCard = () => {
   // MVP에서는 계좌 등록 기능을 생략하고 예치금 정산만 진행

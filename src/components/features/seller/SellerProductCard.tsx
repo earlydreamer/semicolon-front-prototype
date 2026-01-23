@@ -3,7 +3,11 @@
  */
 
 import { Link } from 'react-router-dom';
-import { Eye, Heart, MessageCircle, MoreVertical, Truck } from 'lucide-react';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import Heart from 'lucide-react/dist/esm/icons/heart';
+import MessageCircle from 'lucide-react/dist/esm/icons/message-circle';
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
+import Truck from 'lucide-react/dist/esm/icons/truck';
 import type { SaleStatus } from '@/mocks/products';
 import { useSellerStore } from '@/stores/useSellerStore';
 import { useToast } from '@/components/common/Toast';

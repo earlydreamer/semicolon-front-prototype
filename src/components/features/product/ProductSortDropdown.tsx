@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import { cn } from '@/utils/cn';
 
 export type SortOption = 'latest' | 'popular' | 'price-asc' | 'price-desc';

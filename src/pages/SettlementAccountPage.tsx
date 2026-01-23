@@ -2,7 +2,8 @@
  * 정산 계좌 관리 페이지
  */
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard } from 'lucide-react';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
 import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
 

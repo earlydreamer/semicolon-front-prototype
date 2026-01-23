@@ -3,7 +3,12 @@
  */
 
 import { useState } from 'react';
-import { Ticket, Check, ChevronDown, ChevronUp, X, AlertCircle } from 'lucide-react';
+import Ticket from 'lucide-react/dist/esm/icons/ticket';
+import Check from 'lucide-react/dist/esm/icons/check';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
+import X from 'lucide-react/dist/esm/icons/x';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 

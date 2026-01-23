@@ -5,7 +5,8 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { ChevronRight, Search } from 'lucide-react';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import Search from 'lucide-react/dist/esm/icons/search';
 import { ProductList } from '@/components/features/product/ProductList';
 import { ProductSortDropdown, type SortOption } from '@/components/features/product/ProductSortDropdown';
 import { 

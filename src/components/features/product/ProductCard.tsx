@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import Heart from 'lucide-react/dist/esm/icons/heart';
 import { Card } from '@/components/common/Card';
 import type { Product, ProductListItem, SaleStatus } from '@/types/product';
 import { formatTimeAgo } from '@/utils/date';

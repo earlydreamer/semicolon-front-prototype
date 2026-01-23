@@ -4,7 +4,9 @@
 
 import { Link } from 'react-router-dom';
 import type { Product, SaleStatus } from '../../../mocks/products';
-import { Store, CheckCircle, Clock } from 'lucide-react';
+import Store from 'lucide-react/dist/esm/icons/store';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import Clock from 'lucide-react/dist/esm/icons/clock';
 
 const STATUS_BADGE: Record<string, { text: string; className: string }> = {
   ON_SALE: { text: '판매중', className: 'bg-blue-100 text-blue-700' },
