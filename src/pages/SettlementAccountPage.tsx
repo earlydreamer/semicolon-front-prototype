@@ -1,53 +1,19 @@
 /**
  * 정산 계좌 관리 페이지
  */
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save } from 'lucide-react';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
 import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
-import { useToast } from '../components/common/Toast';
-
-const BANKS = [
-  '카카오뱅크', '토스뱅크', 'KB국민은행', '신한은행', 
-  '우리은행', 'NH농협은행', '하나은행', 'IBK기업은행'
-];
 
 const SettlementAccountPage = () => {
   const navigate = useNavigate();
-  const { showToast } = useToast();
   const { user, isAuthenticated } = useAuthStore();
   
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
   }
-
-  // Mock User의 계좌 정보 또는 빈 값으로 초기화
-  const initialAccount = (user as any).settlementAccount || { bank: '', accountNumber: '', holder: '' };
-  
-  const [formData, setFormData] = useState({
-    bank: initialAccount.bank,
-    accountNumber: initialAccount.accountNumber,
-    holder: initialAccount.holder,
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.bank || !formData.accountNumber || !formData.holder) {
-      showToast('모든 정보를 입력해주세요.', 'error');
-      return;
-    }
-
-    // API 연동 대신 Toast 메시지로 대체
-    showToast('정산 계좌 정보가 저장되었습니다.', 'success');
-    navigate('/mypage');
-  };
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-20">
@@ -64,75 +30,32 @@ const SettlementAccountPage = () => {
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <div className="bg-white rounded-2xl border border-neutral-200 p-6">
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-neutral-900 mb-1">계좌 정보 입력</h2>
-            <p className="text-sm text-neutral-500">
-              판매 대금을 정산받을 본인 명의의 계좌를 입력해주세요.
+      <div className="max-w-2xl mx-auto px-4 py-12">
+        <div className="bg-white rounded-3xl border border-neutral-200 p-8 text-center shadow-sm">
+          <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CreditCard className="w-10 h-10 text-neutral-300" />
+          </div>
+          <h2 className="text-xl font-bold text-neutral-900 mb-2">출금 기능 준비 중</h2>
+          <p className="text-neutral-500 mb-8 leading-relaxed">
+            보다 안전하고 편리한 출금 서비스를 위해<br />
+            현재 시스템을 준비 중입니다.
+          </p>
+          
+          <div className="bg-primary-50 rounded-2xl p-5 mb-8 text-left border border-primary-100">
+            <p className="text-sm font-bold text-primary-700 mb-1">MVP 정산 안내</p>
+            <p className="text-xs text-primary-600 leading-normal">
+              • 판매 수익은 발송 완료 후 자동으로 <b>나의 예치금</b>으로 정산됩니다.<br />
+              • 적립된 예치금은 상품 구매 시 즉시 현금처럼 사용 가능합니다.<br />
+              • 정식 계좌 출금 기능은 추후 업데이트를 통해 제공될 예정입니다.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* 은행 선택 */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-700">은행</label>
-              <select
-                name="bank"
-                value={formData.bank}
-                onChange={handleChange}
-                className="w-full h-12 px-4 rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all appearance-none bg-white"
-              >
-                <option value="">은행을 선택해주세요</option>
-                {BANKS.map(bank => (
-                  <option key={bank} value={bank}>{bank}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* 계좌번호 */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-700">계좌번호</label>
-              <input
-                type="text"
-                name="accountNumber"
-                value={formData.accountNumber}
-                onChange={(e) => {
-                  // 숫자와 하이픈만 허용
-                  const value = e.target.value.replace(/[^0-9-]/g, '');
-                  setFormData(prev => ({ ...prev, accountNumber: value }));
-                }}
-                placeholder="- 없이 숫자만 입력"
-                className="w-full h-12 px-4 rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all"
-              />
-            </div>
-
-            {/* 예금주 */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-700">예금주</label>
-              <input
-                type="text"
-                name="holder"
-                value={formData.holder}
-                onChange={handleChange}
-                placeholder="예금주 성명"
-                className="w-full h-12 px-4 rounded-lg border border-neutral-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none transition-all"
-              />
-              <p className="text-xs text-neutral-400">
-                * 가입하신 회원 정보와 일치하는 계좌만 등록 가능합니다.
-              </p>
-            </div>
-
-            <div className="pt-4">
-              <button
-                type="submit"
-                className="w-full h-12 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
-              >
-                <Save className="w-5 h-5" />
-                저장하기
-              </button>
-            </div>
-          </form>
+          <button
+            onClick={() => navigate('/mypage')}
+            className="w-full h-14 bg-neutral-900 text-white font-bold rounded-2xl hover:bg-neutral-800 transition-all shadow-lg active:scale-[0.98]"
+          >
+            마이페이지로 돌아가기
+          </button>
         </div>
       </div>
     </div>

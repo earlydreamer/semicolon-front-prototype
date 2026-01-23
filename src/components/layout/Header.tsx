@@ -1,21 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Search, ShoppingBag, Bell, X, User as UserIcon } from 'lucide-react';
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import Search from 'lucide-react/dist/esm/icons/search';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import Bell from 'lucide-react/dist/esm/icons/bell';
+import X from 'lucide-react/dist/esm/icons/x';
+import UserIcon from 'lucide-react/dist/esm/icons/user';
 import { Button } from '@/components/common/Button';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useCartStore } from '@/stores/useCartStore';
 import { CategoryNav } from '@/components/features/category/CategoryNav';
-import { MOCK_CATEGORIES } from '@/mocks/categories';
+import { productService } from '@/services/productService';
+import { transformCategories } from '@/utils/category';
+import type { Category } from '@/mocks/categories';
 import logo from '@/assets/logo.png';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
   
   const { isAuthenticated, user, logout } = useAuthStore();
   const cartItemCount = useCartStore((state) => state.getTotalCount());
   const navigate = useNavigate();
+
+  useEffect(() => {
+    productService.getCategories()
+      .then(data => setCategories(transformCategories(data)))
+      .catch((error) => console.error('Failed to load categories', error));
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -152,7 +166,7 @@ export function Header() {
         onMouseLeave={() => setIsCategoryOpen(false)}
       >
         <CategoryNav 
-          categories={MOCK_CATEGORIES} 
+          categories={categories} 
           onClose={() => setIsCategoryOpen(false)}
         />
       </div>
@@ -202,7 +216,7 @@ export function Header() {
                 <h3 className="mb-4 text-sm font-bold text-neutral-500">카테고리</h3>
                 <CategoryNav 
                   variant="mobile" 
-                  categories={MOCK_CATEGORIES} 
+                  categories={categories} 
                   onClose={() => setIsMenuOpen(false)}
                 />
               </div>

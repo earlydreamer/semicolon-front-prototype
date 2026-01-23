@@ -39,7 +39,7 @@ export const useProductStore = create<ProductState>((set) => ({
   },
 
   fetchFeaturedProducts: async (size = 20) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null }); // Clear error on retry
     try {
       const featuredProducts = await productService.getFeaturedProducts(size);
       set({ featuredProducts, isLoading: false });
@@ -49,7 +49,7 @@ export const useProductStore = create<ProductState>((set) => ({
   },
 
   fetchProducts: async (params) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null }); // Clear error on retry
     try {
       const productList = await productService.getProducts(params);
       set({ productList, isLoading: false });
@@ -59,7 +59,7 @@ export const useProductStore = create<ProductState>((set) => ({
   },
 
   fetchProductDetail: async (productUuid) => {
-    set({ isLoading: true, currentProduct: null });
+    set({ isLoading: true, currentProduct: null, error: null }); // Clear error on retry
     try {
       const currentProduct = await productService.getProductDetail(productUuid);
       set({ currentProduct, isLoading: false });

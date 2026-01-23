@@ -25,11 +25,32 @@ export interface DeliveryInfoRequest {
   trackingNumber: string;
 }
 
-export type OrderItemStatus = 'READY' | 'PAID' | 'PREPARING' | 'SHIPPING' | 'DELIVERED' | 'CONFIRMED' | 'CANCELED';
-export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELED' | 'PARTIAL_REFUNDED' | 'REFUNDED';
+export type OrderItemStatus = 
+  | 'PAYMENT_COMPLETED'
+  | 'PREPARING_SHIPMENT'
+  | 'SHIPPED'
+  | 'DELIVERED'
+  | 'CONFIRM_PENDING'
+  | 'CONFIRMED'
+  | 'CANCEL_REQUESTED'
+  | 'CANCEL_IN_PROGRESS'
+  | 'CANCELED'
+  | 'REFUND_REQUESTED'
+  | 'REFUND_IN_PROGRESS'
+  | 'REFUND_COMPLETED';
+
+export type OrderStatus = 
+  | 'PENDING'
+  | 'PAID'
+  | 'PAYMENT_FAILED'
+  | 'CANCELED'
+  | 'PARTIAL_REFUNDED';
 
 export interface OrderItemResponse {
+  orderItemUuid: string; // 주문 아이템 UUID
+  productId: number; // 상품 ID (Product PK)
   productUuid: string;
+  sellerUuid: string; // 판매자 UUID
   productName: string;
   productPrice: number;
   imageUrl: string;

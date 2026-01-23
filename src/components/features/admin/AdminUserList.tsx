@@ -3,7 +3,11 @@
  */
 
 import { useState } from 'react';
-import { Search, MoreVertical, User, Ban, CheckCircle } from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search';
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
+import User from 'lucide-react/dist/esm/icons/user';
+import Ban from 'lucide-react/dist/esm/icons/ban';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import { MOCK_USERS_DATA, type User as UserType } from '@/mocks/users';
 
 type UserStatus = 'active' | 'suspended';

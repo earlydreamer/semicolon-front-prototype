@@ -1,5 +1,6 @@
 export type ConditionStatus = 'SEALED' | 'NO_WEAR' | 'MINOR_WEAR' | 'VISIBLE_WEAR' | 'DAMAGED';
-export type SaleStatus = 'ON_SALE' | 'RESERVED' | 'SOLD_OUT' | 'HIDDEN' | 'BLOCKED';
+export type SaleStatus = 'ON_SALE' | 'RESERVED' | 'SOLD_OUT';
+export type VisibilityStatus = 'VISIBLE' | 'HIDDEN' | 'BLOCKED';
 
 export interface ProductSeller {
   id: string;

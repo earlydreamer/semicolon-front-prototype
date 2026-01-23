@@ -3,7 +3,7 @@ import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 import { userService } from '@/services/userService';
-import { Lock } from 'lucide-react';
+import Lock from 'lucide-react/dist/esm/icons/lock';
 
 interface PasswordChangeModalProps {
   isOpen: boolean;

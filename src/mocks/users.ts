@@ -23,7 +23,6 @@ export interface User {
   phone?: string;
   avatar?: string;
   intro?: string;
-  point: number;
   deposit: number; // 예치금 잔액
   createdAt: string;
   settlementAccount?: SettlementAccount;
@@ -100,7 +99,6 @@ export const MOCK_USERS_DATA: User[] = [
     phone: '010-1234-5678',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u1', 
     intro: '취미 장비 거래를 좋아하는 세미콜론입니다.', 
-    point: 15000, 
     deposit: 50000,
     createdAt: '2024-01-15T00:00:00.000Z',
     settlementAccount: {
@@ -110,26 +108,26 @@ export const MOCK_USERS_DATA: User[] = [
     }
   },
   // 2-6. Power Sellers (Big 5)
-  { id: 'u2', email: 'tech@test.com', nickname: '테크마스터', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u2', intro: 'IT 기기 전문', point: 500000, deposit: 0, createdAt: '2023-01-10T00:00:00.000Z' },
-  { id: 'u3', email: 'sound@test.com', nickname: '소리사랑', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u3', intro: '음향기기 수집가', point: 320000, deposit: 0, createdAt: '2023-02-20T00:00:00.000Z' },
-  { id: 'u4', email: 'camp@test.com', nickname: '숲속의집', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u4', intro: '감성 캠핑 용품', point: 120000, deposit: 0, createdAt: '2023-03-15T00:00:00.000Z' },
-  { id: 'u5', email: 'golf@test.com', nickname: '나이스샷', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u5', intro: '골프 클럽 거래', point: 890000, deposit: 0, createdAt: '2023-04-05T00:00:00.000Z' },
-  { id: 'u6', email: 'idol@test.com', nickname: '최애보관소', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u6', intro: 'K-POP 굿즈', point: 54000, deposit: 0, createdAt: '2023-05-25T00:00:00.000Z' },
+  { id: 'u2', email: 'tech@test.com', nickname: '테크마스터', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u2', intro: 'IT 기기 전문', deposit: 500000, createdAt: '2023-01-10T00:00:00.000Z' },
+  { id: 'u3', email: 'sound@test.com', nickname: '소리사랑', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u3', intro: '음향기기 수집가', deposit: 320000, createdAt: '2023-02-20T00:00:00.000Z' },
+  { id: 'u4', email: 'camp@test.com', nickname: '숲속의집', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u4', intro: '감성 캠핑 용품', deposit: 120000, createdAt: '2023-03-15T00:00:00.000Z' },
+  { id: 'u5', email: 'golf@test.com', nickname: '나이스샷', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u5', intro: '골프 클럽 거래', deposit: 890000, createdAt: '2023-04-05T00:00:00.000Z' },
+  { id: 'u6', email: 'idol@test.com', nickname: '최애보관소', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u6', intro: 'K-POP 굿즈', deposit: 54000, createdAt: '2023-05-25T00:00:00.000Z' },
   // 7-20. General Users (Mixed)
-  { id: 'u7', email: 'camera@test.com', nickname: '찰칵찰칵', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u7', point: 1000, deposit: 0, createdAt: '2024-01-01T00:00:00.000Z' },
-  { id: 'u8', email: 'bike@test.com', nickname: '라이더', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u8', point: 2000, deposit: 0, createdAt: '2024-01-02T00:00:00.000Z' },
-  { id: 'u9', email: 'book@test.com', nickname: '책벌레', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u9', point: 500, deposit: 0, createdAt: '2024-01-03T00:00:00.000Z' },
-  { id: 'u10', email: 'game@test.com', nickname: '겜돌이', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u10', point: 60000, deposit: 0, createdAt: '2024-01-04T00:00:00.000Z' },
-  { id: 'u11', email: 'fish@test.com', nickname: '강태공', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u11', point: 1500, deposit: 0, createdAt: '2024-01-05T00:00:00.000Z' },
-  { id: 'u12', email: 'cook@test.com', nickname: '요리왕', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u12', point: 8000, deposit: 0, createdAt: '2024-01-06T00:00:00.000Z' },
-  { id: 'u13', email: 'lego@test.com', nickname: '블럭쌓기', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u13', point: 25000, deposit: 0, createdAt: '2024-01-07T00:00:00.000Z' },
-  { id: 'u14', email: 'shoes@test.com', nickname: '슈즈홀릭', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u14', point: 4000, deposit: 0, createdAt: '2024-01-08T00:00:00.000Z' },
-  { id: 'u15', email: 'bag@test.com', nickname: '가방조아', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u15', point: 3000, deposit: 0, createdAt: '2024-01-09T00:00:00.000Z' },
-  { id: 'u16', email: 'plant@test.com', nickname: '식집사', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u16', point: 1200, deposit: 0, createdAt: '2024-01-10T00:00:00.000Z' },
-  { id: 'u17', email: 'tea@test.com', nickname: '차마시는날', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u17', point: 900, deposit: 0, createdAt: '2024-01-11T00:00:00.000Z' },
-  { id: 'u18', email: 'gym@test.com', nickname: '득근득근', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u18', point: 5500, deposit: 0, createdAt: '2024-01-12T00:00:00.000Z' },
-  { id: 'u19', email: 'art@test.com', nickname: '그림쟁이', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u19', point: 7000, deposit: 0, createdAt: '2024-01-13T00:00:00.000Z' },
-  { id: 'u20', email: 'retro@test.com', nickname: '레트로매니아', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u20', point: 18000, deposit: 5000, createdAt: '2024-01-14T00:00:00.000Z' },
+  { id: 'u7', email: 'camera@test.com', nickname: '찰칵찰칵', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u7', deposit: 1000, createdAt: '2024-01-01T00:00:00.000Z' },
+  { id: 'u8', email: 'bike@test.com', nickname: '라이더', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u8', deposit: 2000, createdAt: '2024-01-02T00:00:00.000Z' },
+  { id: 'u9', email: 'book@test.com', nickname: '책벌레', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u9', deposit: 500, createdAt: '2024-01-03T00:00:00.000Z' },
+  { id: 'u10', email: 'game@test.com', nickname: '겜돌이', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u10', deposit: 60000, createdAt: '2024-01-04T00:00:00.000Z' },
+  { id: 'u11', email: 'fish@test.com', nickname: '강태공', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u11', deposit: 1500, createdAt: '2024-01-05T00:00:00.000Z' },
+  { id: 'u12', email: 'cook@test.com', nickname: '요리왕', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u12', deposit: 8000, createdAt: '2024-01-06T00:00:00.000Z' },
+  { id: 'u13', email: 'lego@test.com', nickname: '블럭쌓기', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u13', deposit: 25000, createdAt: '2024-01-07T00:00:00.000Z' },
+  { id: 'u14', email: 'shoes@test.com', nickname: '슈즈홀릭', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u14', deposit: 4000, createdAt: '2024-01-08T00:00:00.000Z' },
+  { id: 'u15', email: 'bag@test.com', nickname: '가방조아', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u15', deposit: 3000, createdAt: '2024-01-09T00:00:00.000Z' },
+  { id: 'u16', email: 'plant@test.com', nickname: '식집사', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u16', deposit: 1200, createdAt: '2024-01-10T00:00:00.000Z' },
+  { id: 'u17', email: 'tea@test.com', nickname: '차마시는날', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u17', deposit: 900, createdAt: '2024-01-11T00:00:00.000Z' },
+  { id: 'u18', email: 'gym@test.com', nickname: '득근득근', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u18', deposit: 5500, createdAt: '2024-01-12T00:00:00.000Z' },
+  { id: 'u19', email: 'art@test.com', nickname: '그림쟁이', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u19', deposit: 7000, createdAt: '2024-01-13T00:00:00.000Z' },
+  { id: 'u20', email: 'retro@test.com', nickname: '레트로매니아', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u20', deposit: 23000, createdAt: '2024-01-14T00:00:00.000Z' },
 ];
 
 export const MOCK_USER = MOCK_USERS_DATA[0];

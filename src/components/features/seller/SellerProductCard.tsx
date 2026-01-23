@@ -3,7 +3,11 @@
  */
 
 import { Link } from 'react-router-dom';
-import { Eye, Heart, MessageCircle, MoreVertical, Truck } from 'lucide-react';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import Heart from 'lucide-react/dist/esm/icons/heart';
+import MessageCircle from 'lucide-react/dist/esm/icons/message-circle';
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
+import Truck from 'lucide-react/dist/esm/icons/truck';
 import type { SaleStatus } from '@/mocks/products';
 import { useSellerStore } from '@/stores/useSellerStore';
 import { useToast } from '@/components/common/Toast';
@@ -27,7 +31,7 @@ interface SellerProductCardProps {
   };
 }
 
-const STATUS_LABELS: Record<SaleStatus, { text: string; className: string }> = {
+const STATUS_LABELS: Record<string, { text: string; className: string }> = {
   ON_SALE: { text: '판매중', className: 'bg-blue-100 text-blue-700' },
   RESERVED: { text: '예약중', className: 'bg-yellow-100 text-yellow-700' },
   SOLD_OUT: { text: '판매완료', className: 'bg-green-100 text-green-700' },

@@ -9,7 +9,13 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, RotateCcw, Save, GripVertical, AlertCircle } from 'lucide-react';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Pencil from 'lucide-react/dist/esm/icons/pencil';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
+import Save from 'lucide-react/dist/esm/icons/save';
+import GripVertical from 'lucide-react/dist/esm/icons/grip-vertical';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import { Button } from '@/components/common/Button';
 import { useBannerStore } from '@/stores/useBannerStore';
 import { BannerFormModal } from '@/components/features/admin/BannerFormModal';

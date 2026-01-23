@@ -3,7 +3,12 @@
  */
 
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, FolderTree } from 'lucide-react';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import FolderTree from 'lucide-react/dist/esm/icons/folder-tree';
 import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
 import { findCategoryPath } from '@/utils/category';
 import { 
@@ -102,8 +107,6 @@ const CategoryTree = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [parentId, setParentId] = useState<string | null>(null);
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
 
   // 카테고리 삭제
   const handleDelete = (categoryId: string) => {
@@ -131,8 +134,7 @@ const CategoryTree = () => {
   const handleAddChild = (pId: string) => {
     const path = findCategoryPath(categories, pId);
     if (path && path.length >= CATEGORY.MAX_DEPTH) {
-      setAlertMessage(ERROR_MESSAGES.CATEGORY_DEPTH_LIMIT);
-      setIsAlertOpen(true);
+      alert(ERROR_MESSAGES.CATEGORY_DEPTH_LIMIT);
       return;
     }
     setParentId(pId);

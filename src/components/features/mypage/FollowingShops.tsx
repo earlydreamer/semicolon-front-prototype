@@ -3,7 +3,9 @@
  */
 
 import { Link } from 'react-router-dom';
-import { Star, Store, UserMinus } from 'lucide-react';
+import Star from 'lucide-react/dist/esm/icons/star';
+import Store from 'lucide-react/dist/esm/icons/store';
+import UserMinus from 'lucide-react/dist/esm/icons/user-minus';
 import { useFollowStore } from '@/stores/useFollowStore';
 import { MOCK_SHOPS } from '@/mocks/users';
 import { Button } from '@/components/common/Button';

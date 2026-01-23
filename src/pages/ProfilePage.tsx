@@ -4,7 +4,8 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera } from 'lucide-react';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import Camera from 'lucide-react/dist/esm/icons/camera';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 import { useAuthStore } from '@/stores/useAuthStore';

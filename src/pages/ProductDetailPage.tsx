@@ -1,5 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { Share2, ChevronRight, ShoppingBag, Clock, EllipsisVertical, Flag, Link2 } from 'lucide-react';
+import Share2 from 'lucide-react/dist/esm/icons/share-2';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import EllipsisVertical from 'lucide-react/dist/esm/icons/ellipsis-vertical';
+import Flag from 'lucide-react/dist/esm/icons/flag';
+import Link2 from 'lucide-react/dist/esm/icons/link-2';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -7,7 +13,7 @@ import { formatTimeAgo } from '@/utils/date';
 import { findCategoryPath } from '@/utils/category';
 import { sanitizeUrlParam, isValidId } from '@/utils/sanitize';
 import { formatPrice } from '@/utils/formatPrice';
-import { MOCK_CATEGORIES } from '@/mocks/categories';
+import { type Category } from '@/mocks/categories';
 import { useToast } from '@/components/common/Toast';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useCartStore } from '@/stores/useCartStore';
@@ -28,6 +34,7 @@ import { ProductComments } from '@/components/features/product/ProductComments';
 import { ProductActionBar } from '@/components/features/product/ProductActionBar';
 import { useOrderStore } from '@/stores/useOrderStore';
 import { useProductStore } from '@/stores/useProductStore';
+import { productService } from '@/services/productService';
 
 export default function ProductDetailPage() {
   const { productId: rawProductId } = useParams();
@@ -37,6 +44,7 @@ export default function ProductDetailPage() {
   const { user } = useAuthStore();
   const { isLiked: checkIsLiked, toggleLike } = useLikeStore();
   const { currentProduct: apiProduct, isLoading, error, fetchProductDetail } = useProductStore();
+  const [categories, setCategories] = useState<Category[]>([]);
   
   // URL 파라미터 검증 (XSS 방지)
   const productId = sanitizeUrlParam(rawProductId);
@@ -46,6 +54,36 @@ export default function ProductDetailPage() {
       fetchProductDetail(productId);
     }
   }, [productId, fetchProductDetail]);
+
+  // 카테고리 데이터 로드
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await productService.getCategories();
+        // CategoryResponse[] → Category[] 변환
+        const convertToCategories = (items: typeof data): Category[] => {
+          const buildTree = (parentId: number | null, currentDepth: number): Category[] => {
+            return items
+              .filter((cat) => cat.parentId === parentId)
+              .map((cat) => ({
+                id: String(cat.id),
+                name: cat.name,
+                depth: Math.min(Math.max(currentDepth, 1), 3) as 1 | 2 | 3,
+                parentId: cat.parentId === null ? null : String(cat.parentId),
+                children: buildTree(cat.id, currentDepth + 1),
+              }));
+          };
+          
+          return buildTree(null, 1);
+        };
+        
+        setCategories(convertToCategories(data));
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    };
+    loadCategories();
+  }, []);
 
   // Mapping API response to the format used in this component
   const product = apiProduct ? {
@@ -90,7 +128,7 @@ export default function ProductDetailPage() {
       return;
     }
     
-    toggleLike(user.id, productId);
+    toggleLike(String((user as any).userUuid || user.id), String(productId));
     const nextLiked = !isLiked;
     showToast(
       nextLiked ? TOAST_MESSAGES.ADDED_TO_LIKES : TOAST_MESSAGES.REMOVED_FROM_LIKES,
@@ -100,7 +138,8 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = async () => {
     if (!product) return;
-    const added = await addToCart((product as any).id || product.productUuid);
+    const productId = (product as any).productUuid || (product as any).id;
+    const added = await addToCart(productId);
     if (added) {
       showToast(TOAST_MESSAGES.ADDED_TO_CART, 'success');
     } else {
@@ -120,11 +159,11 @@ export default function ProductDetailPage() {
     // 2. 현재 상품을 주문 목록에 설정 (CartItem 형식)
     const orderItem: any = {
       cartId: Date.now(),
-      productUuid: product.productUuid || (product as any).id,
+      productUuid: (product as any).productUuid || (product as any).id,
       title: product.title,
       price: product.price,
       saleStatus: product.saleStatus || 'ON_SALE',
-      thumbnailUrl: (product as any).thumbnailUrl || product.imageUrls?.[0] || '',
+      thumbnailUrl: (product as any).thumbnailUrl || (product as any).images?.[0] || '',
       createdAt: new Date().toISOString(),
       selected: true
     };
@@ -166,7 +205,7 @@ export default function ProductDetailPage() {
   } = product;
 
   // Calculate category path for breadcrumbs
-  const categoryPath = findCategoryPath(MOCK_CATEGORIES, categoryId) || [];
+  const categoryPath = findCategoryPath(categories, String(categoryId)) || [];
 
   return (
     <div className="pb-24 md:pb-10">
@@ -298,14 +337,14 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  {product.shippingFee === 0 ? (
+                  {((product as any).shippingFee ?? 3000) === 0 ? (
                     <span className="inline-flex items-center gap-1 text-sm font-semibold text-green-600">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                       무료배송
                     </span>
                   ) : (
                     <div className="text-sm text-neutral-500">
-                      배송비 <span className="font-semibold text-neutral-700">{formatPrice(product.shippingFee)}</span>
+                      배송비 <span className="font-semibold text-neutral-700">{formatPrice((product as any).shippingFee ?? 3000)}</span>
                     </div>
                   )}
                 </div>
@@ -342,7 +381,15 @@ export default function ProductDetailPage() {
             )}
 
             {/* Seller Profile - 분할된 컴포넌트 사용 */}
-            <SellerProfileCard seller={seller} />
+            <SellerProfileCard seller={{
+              id: seller.userUuid,
+              nickname: seller.nickname,
+              avatar: seller.profileImageUrl,
+              rating: seller.trustScore || 0,
+              intro: '',
+              salesCount: seller.reviewCount || 0,
+              activeListingCount: seller.dealCount || 0
+            }} />
 
             {/* Content - 상품 정보 (상세 필드 추가) */}
             <div className="py-6 min-h-[200px]">
@@ -380,7 +427,7 @@ export default function ProductDetailPage() {
             {/* Comments Section - 분할된 컴포넌트 사용 */}
             <ProductComments 
               comments={comments} 
-              sellerUserId={seller.userId} 
+              sellerUserId={seller.userUuid} 
             />
 
             {/* Desktop Actions - 분할된 컴포넌트 사용 */}

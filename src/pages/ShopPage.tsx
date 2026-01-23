@@ -4,7 +4,7 @@
 
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 import { MOCK_SHOPS } from '../mocks/users';
 import { MOCK_PRODUCTS } from '../mocks/products';
 import { sanitizeUrlParam, isValidId } from '../utils/sanitize';

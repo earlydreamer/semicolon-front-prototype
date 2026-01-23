@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import Heart from 'lucide-react/dist/esm/icons/heart';
 import { Card } from '@/components/common/Card';
-import type { Product, ProductListItem } from '@/types/product';
+import type { Product, ProductListItem, SaleStatus } from '@/types/product';
 import { formatTimeAgo } from '@/utils/date';
 import { SALE_STATUS_LABELS } from '@/constants';
 import { useLikeStore } from '@/stores/useLikeStore';
@@ -13,12 +13,12 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   // 대응 필드 추출 (API vs Mock)
-  const id = 'productUuid' in product ? product.productUuid : (product as Product).id;
+  const id = 'productUuid' in product ? product.productUuid : (product as any).id;
   const title = product.title;
   const price = product.price;
-  const image = 'thumbnailUrl' in product ? product.thumbnailUrl : (product as Product).image;
-  const saleStatus = 'saleStatus' in product ? product.saleStatus : (product as Product).saleStatus;
-  const createdAt = 'createdAt' in product ? product.createdAt : (product as Product).createdAt;
+  const image = 'thumbnailUrl' in product ? product.thumbnailUrl : (product as any).image;
+  const saleStatus = 'saleStatus' in product ? product.saleStatus : (product as any).saleStatus;
+  const createdAt = 'createdAt' in product ? product.createdAt : (product as any).createdAt;
   
   const isUnavailable = saleStatus === 'SOLD_OUT' || saleStatus === 'RESERVED';
   const { user } = useAuthStore();
@@ -79,7 +79,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   : 'bg-primary-500/90 text-white'
                 }
               `}>
-                {SALE_STATUS_LABELS[saleStatus]}
+                {SALE_STATUS_LABELS[saleStatus as SaleStatus] || saleStatus}
               </span>
             </div>
           )}

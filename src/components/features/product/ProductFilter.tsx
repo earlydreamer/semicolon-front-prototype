@@ -3,7 +3,8 @@
  * 가격대 및 판매 상태 필터 제공 (Desktop/Mobile 모두 지원)
  */
 
-import { SlidersHorizontal, X } from 'lucide-react';
+import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
+import X from 'lucide-react/dist/esm/icons/x';
 import type { SaleStatus } from '@/mocks/products';
 import { MOCK_CATEGORIES } from '@/mocks/categories';
 

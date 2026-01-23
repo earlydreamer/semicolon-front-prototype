@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { TouchEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { Button } from '@/components/common/Button';
 import { useBannerStore } from '@/stores/useBannerStore';
 

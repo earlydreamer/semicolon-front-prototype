@@ -68,11 +68,11 @@ const MyPage = () => {
         <ProfileStats
           salesCount={salesCount}
           purchaseCount={purchaseCount}
-          point={balance?.balance || 0}
+          deposit={balance?.balance || 0}
         />
 
         {/* 정산 계좌 */}
-        <SettlementCard user={user as any} />
+        <SettlementCard />
 
         {/* 빠른 메뉴 */}
         <MyPageNav likeCount={likeCount} orderCount={purchaseCount} />

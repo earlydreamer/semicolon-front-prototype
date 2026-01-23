@@ -4,67 +4,76 @@
  * @see https://docs.tosspayments.com/guides/v2/payment-widget/integration
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { paymentService } from '../services/paymentService';
 import { useOrderStore } from '../stores/useOrderStore';
+import { useCartStore } from '../stores/useCartStore';
 import { useToast } from '../components/common/Toast';
 
 export default function SuccessPage() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { showToast } = useToast();
-  const { clearOrder } = useOrderStore();
-  
-  const [responseData, setResponseData] = useState<any>(null);
-  const [isConfirming, setIsConfirming] = useState(true);
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const { showToast } = useToast();
+    const { clearOrder } = useOrderStore();
+    const { fetchItems } = useCartStore();
+    
+    const [responseData, setResponseData] = useState<any>(null);
+    const [isConfirming, setIsConfirming] = useState(true);
+    const hasConfirmed = useRef(false);
 
-  useEffect(() => {
-    async function confirm() {
-      const paymentKey = searchParams.get('paymentKey');
-      const orderId = searchParams.get('orderId');
-      const amount = searchParams.get('amount');
-      const paymentUuid = searchParams.get('paymentUuid');
-
-      if (!paymentKey || !orderId || !amount || !paymentUuid) {
-        showToast('필수 결제 정보가 누락되었습니다.', 'error');
-        navigate('/payment/fail?message=MISSING_PARAMS');
-        return;
-      }
-
-      // 백엔드에 결제 승인 요청
-      try {
-        // [FIX] paymentUuid를 멱등키로 사용하여 새로고침 시 중복 승인 방지
-        const idempotencyKey = paymentUuid;
+    useEffect(() => {
+        // [FIX] 중복 요청 방지 (StrictMode 대응)
+        if (hasConfirmed.current) return;
         
-        const response = await paymentService.confirmPayment({
-          paymentUuid,
-          toss: {
-            paymentKey,
-            orderId,
-            amount: Number(amount),
-          },
-        }, idempotencyKey);
+        async function confirm() {
+            const paymentKey = searchParams.get('paymentKey');
+            const orderId = searchParams.get('orderId');
+            const amount = searchParams.get('amount');
+            const paymentUuid = searchParams.get('paymentUuid');
 
-        if (response.success) {
-          setResponseData(response.data);
-          showToast('결제가 성공적으로 완료되었습니다.', 'success');
-          // [TIP] 실제 서비스에서는 바로 이동하거나, 결과 영수증을 보여준 뒤 이동
-          // 여기서는 결과 확인을 위해 잠시 머무름 (1.5초 뒤 이동 시뮬레이션 가능)
-          // clearOrder(); // 주문 정보 정리
-        } else {
-          throw new Error(response.message || '승인 실패');
+            if (!paymentKey || !orderId || !amount || !paymentUuid) {
+                showToast('필수 결제 정보가 누락되었습니다.', 'error');
+                navigate('/payment/fail?message=MISSING_PARAMS');
+                return;
+            }
+
+            hasConfirmed.current = true;
+
+            // 백엔드에 결제 승인 요청
+            try {
+                // [FIX] paymentUuid를 멱등키로 사용하여 새로고침 시 중복 승인 방지
+                const idempotencyKey = paymentUuid;
+                
+                const response = await paymentService.confirmPayment({
+                    paymentUuid,
+                    toss: {
+                        paymentKey,
+                        orderId,
+                        amount: Number(amount),
+                    },
+                }, idempotencyKey);
+
+                if (response.success) {
+                    setResponseData(response.data);
+                    showToast('결제가 성공적으로 완료되었습니다.', 'success');
+                    fetchItems(); // 장바구니 새로고침 (백엔드에서 비워진 상태 반영)
+                    // [TIP] 실제 서비스에서는 바로 이동하거나, 결과 영수증을 보여준 뒤 이동
+                    // 여기서는 결과 확인을 위해 잠시 머무름 (1.5초 뒤 이동 시뮬레이션 가능)
+                    // clearOrder(); // 주문 정보 정리
+                } else {
+                    throw new Error(response.message || '승인 실패');
+                }
+            } catch (error: any) {
+                console.error('결제 승인 실패:', error);
+                navigate(`/payment/fail?code=${error.response?.data?.code || 'CONFIRM_ERROR'}&message=${encodeURIComponent(error.message)}`);
+            } finally {
+                setIsConfirming(false);
+            }
         }
-      } catch (error: any) {
-        console.error('결제 승인 실패:', error);
-        navigate(`/payment/fail?code=${error.response?.data?.code || 'CONFIRM_ERROR'}&message=${encodeURIComponent(error.message)}`);
-      } finally {
-        setIsConfirming(false);
-      }
-    }
 
-    confirm();
-  }, [searchParams, navigate, showToast, clearOrder]);
+        confirm();
+    }, [searchParams, navigate, showToast, clearOrder, fetchItems]);
 
   if (isConfirming) {
     return (

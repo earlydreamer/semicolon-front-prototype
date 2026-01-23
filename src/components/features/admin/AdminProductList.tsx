@@ -3,7 +3,11 @@
  */
 
 import { useState } from 'react';
-import { Search, MoreVertical, Eye, Pause, Trash2 } from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search';
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import Pause from 'lucide-react/dist/esm/icons/pause';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import { MOCK_PRODUCTS, type Product, type SaleStatus } from '@/mocks/products';
 import { formatPrice } from '@/utils/formatPrice';
 import { SALE_STATUS_LABELS } from '@/constants';
@@ -14,8 +18,6 @@ const STATUS_COLORS: Record<SaleStatus, string> = {
   ON_SALE: 'bg-green-100 text-green-700',
   RESERVED: 'bg-yellow-100 text-yellow-700',
   SOLD_OUT: 'bg-neutral-100 text-neutral-700',
-  HIDDEN: 'bg-neutral-100 text-neutral-500',
-  BLOCKED: 'bg-red-100 text-red-700',
 };
 
 const AdminProductList = () => {
@@ -122,8 +124,8 @@ const AdminProductList = () => {
                   </p>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${STATUS_COLORS[product.saleStatus]}`}>
-                    {SALE_STATUS_LABELS[product.saleStatus]}
+                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${STATUS_COLORS[product.saleStatus as SaleStatus] || STATUS_COLORS.ON_SALE}`}>
+                    {SALE_STATUS_LABELS[product.saleStatus as SaleStatus] || product.saleStatus}
                   </span>
                 </td>
                 <td className="px-4 py-3">

@@ -3,7 +3,10 @@
  */
 
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Heart, Package, ChevronRight } from 'lucide-react';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import Heart from 'lucide-react/dist/esm/icons/heart';
+import Package from 'lucide-react/dist/esm/icons/package';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 
 interface MenuItem {
   icon: React.ElementType;

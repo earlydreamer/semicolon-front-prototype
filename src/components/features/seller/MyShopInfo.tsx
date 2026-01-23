@@ -3,7 +3,8 @@
  */
 
 import { useState } from 'react';
-import { Camera, Save } from 'lucide-react';
+import Camera from 'lucide-react/dist/esm/icons/camera';
+import Save from 'lucide-react/dist/esm/icons/save';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';

@@ -4,6 +4,7 @@
 
 import { Link } from 'react-router-dom';
 import type { CartItem as CartItemType } from '../../../types/cart';
+import type { SaleStatus } from '../../../types/product';
 import { formatPrice } from '../../../utils/formatPrice';
 
 // 상품 상태 라벨 매핑
@@ -25,7 +26,7 @@ const CartItem = ({
   onToggleSelect,
 }: CartItemProps) => {
   const isSoldOut = item.saleStatus === 'SOLD_OUT';
-  const statusInfo = SALE_STATUS_LABELS[item.saleStatus] || SALE_STATUS_LABELS.ON_SALE;
+  const statusInfo = SALE_STATUS_LABELS[item.saleStatus as SaleStatus] || SALE_STATUS_LABELS.ON_SALE;
 
   return (
     <div

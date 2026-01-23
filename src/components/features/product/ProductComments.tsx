@@ -4,7 +4,7 @@
  * ProductDetailPage에서 분리된 댓글/문의 관리 컴포넌트
  */
 
-import { User } from 'lucide-react';
+import User from 'lucide-react/dist/esm/icons/user';
 import { formatTimeAgo } from '@/utils/date';
 
 interface CommentUser {

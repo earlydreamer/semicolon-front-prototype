@@ -3,15 +3,19 @@
  * 카테고리 페이지와 동일한 레이아웃 구조 사용
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
+import X from 'lucide-react/dist/esm/icons/x';
 import { ProductList } from '@/components/features/product/ProductList';
 import { ProductSortDropdown, type SortOption } from '@/components/features/product/ProductSortDropdown';
-import { MOCK_PRODUCTS, type SaleStatus } from '@/mocks/products';
-import { MOCK_CATEGORIES } from '@/mocks/categories';
+import { type SaleStatus, type ProductListItem } from '@/types/product';
+import { type Category } from '@/mocks/categories';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
 import { sanitizeUrlParam } from '@/utils/sanitize';
+import { productService } from '@/services/productService';
 
 const SALE_STATUS_OPTIONS: { value: SaleStatus | 'all'; label: string }[] = [
   { value: 'all', label: '전체' },
@@ -23,6 +27,9 @@ const SALE_STATUS_OPTIONS: { value: SaleStatus | 'all'; label: string }[] = [
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [products, setProducts] = useState<ProductListItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [, setLoading] = useState(true);
 
   // URL 파라미터에서 검색 조건 읽기 (XSS 방지를 위해 sanitize 적용)
   const query = sanitizeUrlParam(searchParams.get('q'));
@@ -37,11 +44,72 @@ const SearchPage = () => {
                            sortParam === 'price_desc' ? 'price-desc' : 
                            sortParam as SortOption;
 
+  // 카테고리 데이터 로드
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await productService.getCategories();
+        // CategoryResponse[] → Category[] 변환
+        const convertToCategories = (items: typeof data): Category[] => {
+          const buildTree = (parentId: number | null, currentDepth: number): Category[] => {
+            return items
+              .filter((cat) => cat.parentId === parentId)
+              .map((cat) => ({
+                id: String(cat.id),
+                name: cat.name,
+                depth: Math.min(Math.max(currentDepth, 1), 3) as 1 | 2 | 3,
+                parentId: cat.parentId === null ? null : String(cat.parentId),
+                children: buildTree(cat.id, currentDepth + 1),
+              }));
+          };
+          
+          return buildTree(null, 1);
+        };
+        
+        setCategories(convertToCategories(data));
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  // 상품 데이터 로드
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        const sortMap: Record<SortOption, string> = {
+          'latest': 'recent',
+          'price-asc': 'price_asc',
+          'price-desc': 'price_desc',
+          'popular': 'popular'
+        };
+
+        const response = await productService.getProducts({
+          categoryId: categoryId ? parseInt(categoryId) : undefined,
+          sort: sortMap[sort],
+          page: 0,
+          size: 100
+        });
+        setProducts(response.content);
+      } catch (error) {
+        console.error('Failed to load products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, [categoryId, sort]);
+
   // 현재 카테고리 이름 찾기
   const getCategoryName = (catId: string): string => {
-    const findInTree = (cats: typeof MOCK_CATEGORIES): string | null => {
+    const findInTree = (cats: Category[]): string | null => {
       for (const cat of cats) {
-        if (cat.id === catId) return cat.name;
+        if (String(cat.id) === catId) return cat.name;
         if (cat.children) {
           const found = findInTree(cat.children);
           if (found) return found;
@@ -49,61 +117,30 @@ const SearchPage = () => {
       }
       return null;
     };
-    return findInTree(MOCK_CATEGORIES) || '';
+    return findInTree(categories) || '';
   };
 
   const currentCategoryName = categoryId ? getCategoryName(categoryId) : '';
 
-  // 필터링 및 정렬
+  // 필터링 (프론트엔드에서 추가 검색 및 필터)
   const filteredProducts = useMemo(() => {
-    let results = [...MOCK_PRODUCTS];
+    let results = [...products];
 
     // 키워드 검색
     if (query) {
       const lowerQuery = query.toLowerCase();
-      // @로 시작하면 상점명만 검색 (전체 일치만 허용)
+      // @로 시작하면 상점명만 검색 (백엔드에서 지원 안되므로 프론트에서 처리)
       if (query.startsWith('@')) {
         const targetShopName = query.slice(1).toLowerCase();
         results = results.filter(
-          (p) => p.seller.nickname.toLowerCase() === targetShopName
+          (p) => String(p.title).toLowerCase().includes(targetShopName)
         );
       } else {
-        // 일반 검색: 상품명과 설명만 검색 (상점명 제외)
+        // 일반 검색: 상품명만 검색
         results = results.filter(
-          (p) =>
-            p.title.toLowerCase().includes(lowerQuery) ||
-            p.description.toLowerCase().includes(lowerQuery)
+          (p) => p.title.toLowerCase().includes(lowerQuery)
         );
       }
-    }
-
-    // 카테고리 필터
-    if (categoryId) {
-      // 해당 카테고리 및 하위 카테고리 모두 포함
-      const targetIds = new Set<string>();
-      targetIds.add(categoryId);
-
-      const collectChildIds = (cats: typeof MOCK_CATEGORIES) => {
-        for (const cat of cats) {
-          if (cat.id === categoryId || targetIds.has(cat.id)) {
-            targetIds.add(cat.id);
-            if (cat.children) {
-              const addChildren = (children: typeof MOCK_CATEGORIES) => {
-                for (const child of children) {
-                  targetIds.add(child.id);
-                  if (child.children) addChildren(child.children);
-                }
-              };
-              addChildren(cat.children);
-            }
-          } else if (cat.children) {
-            collectChildIds(cat.children);
-          }
-        }
-      };
-      collectChildIds(MOCK_CATEGORIES);
-
-      results = results.filter((p) => p.categoryId && targetIds.has(p.categoryId));
     }
 
     // 가격 필터
@@ -119,21 +156,8 @@ const SearchPage = () => {
       results = results.filter((p) => p.saleStatus === status);
     }
 
-    // 정렬
-    switch (sort) {
-      case 'price-asc':
-        results.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        results.sort((a, b) => b.price - a.price);
-        break;
-      case 'latest':
-      default:
-        results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
-
     return results;
-  }, [query, categoryId, minPrice, maxPrice, status, sort]);
+  }, [products, query, minPrice, maxPrice, status]);
 
   // 정렬 변경
   const handleSortChange = (newSort: SortOption) => {
@@ -322,12 +346,12 @@ const SearchPage = () => {
                   >
                     전체
                   </button>
-                  {MOCK_CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <button
                       key={cat.id}
-                      onClick={() => updateFilter('category', cat.id)}
+                      onClick={() => updateFilter('category', String(cat.id))}
                       className={`w-full text-left px-3 py-2 rounded text-sm ${
-                        categoryId === cat.id ? 'bg-primary-50 text-primary-600 font-medium' : 'hover:bg-neutral-50'
+                        categoryId === String(cat.id) ? 'bg-primary-50 text-primary-600 font-medium' : 'hover:bg-neutral-50'
                       }`}
                     >
                       {cat.name}

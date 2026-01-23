@@ -2,7 +2,8 @@
  * 팔로우 버튼 컴포넌트
  */
 
-import { UserPlus, UserCheck } from 'lucide-react';
+import UserPlus from 'lucide-react/dist/esm/icons/user-plus';
+import UserCheck from 'lucide-react/dist/esm/icons/user-check';
 import { useFollowStore } from '../../../stores/useFollowStore';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useToast } from '../../common/Toast';

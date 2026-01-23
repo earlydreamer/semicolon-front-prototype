@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '../../common/Modal';
 import { Button } from '../../common/Button';
-import { AlertCircle } from 'lucide-react';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 
 interface DepositUseFormProps {
   balance: number;      // 보유 잔액

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useOrderStore } from '../stores/useOrderStore';
-import { ChevronLeft } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 
 import OrderItemList from '../components/features/order/OrderItemList';
 import ShippingInfoForm from '../components/features/order/ShippingInfoForm';
@@ -26,6 +26,7 @@ const OrderPage = () => {
     depositUseAmount,
     setShippingInfo,
     setOrderUuid,
+    setOrderResponseItems,
     setCouponUuid,
     setDepositUseAmount,
     getOrderSummary
@@ -90,6 +91,7 @@ const OrderPage = () => {
       const response = await orderService.createOrder(orderRequest);
       
       setOrderUuid(response.orderUuid);
+      setOrderResponseItems(response.items); // 주문 응답의 items 저장 (결제 요청에 사용)
       setCouponUuid(selectedCoupon?.id || null);
       
       // 토스 결제 위젯 페이지로 이동

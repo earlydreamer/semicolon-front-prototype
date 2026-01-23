@@ -9,7 +9,13 @@
  */
 
 import { useMemo } from 'react';
-import { DollarSign, Users, Package, ShoppingCart, Clock, Calendar, Info } from 'lucide-react';
+import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
+import Users from 'lucide-react/dist/esm/icons/users';
+import Package from 'lucide-react/dist/esm/icons/package';
+import ShoppingCart from 'lucide-react/dist/esm/icons/shopping-cart';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import Info from 'lucide-react/dist/esm/icons/info';
 import StatsCard from '@/components/features/admin/StatsCard';
 import { MOCK_ORDER_HISTORY, MOCK_USERS_DATA } from '@/mocks/users';
 import { getDashboardStats, STATS_AGGREGATION_INFO } from '@/mocks/stats';

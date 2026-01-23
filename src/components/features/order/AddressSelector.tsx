@@ -5,7 +5,8 @@
 import { useState, useEffect } from 'react';
 import { MOCK_ADDRESSES, type Address } from '../../../mocks/address';
 import { Button } from '../../common/Button';
-import { MapPin, Check } from 'lucide-react';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import Check from 'lucide-react/dist/esm/icons/check';
 
 interface AddressSelectorProps {
   selectedAddress: Address | null;

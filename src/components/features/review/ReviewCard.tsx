@@ -3,7 +3,7 @@
  */
 
 import { StarRating } from './StarRating';
-import { User as UserIcon } from 'lucide-react';
+import UserIcon from 'lucide-react/dist/esm/icons/user';
 
 interface Review {
   id: string;

@@ -40,9 +40,12 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
 
   const statusInfo = ORDER_STATUS_LABELS[status] || { text: status, className: 'bg-neutral-100 text-neutral-600' };
 
-  // 구매 확정 가능 여부
-  const canConfirm = status === 'DELIVERED';
-  // 취소 가능 여부
+  // 개별 아이템 상태 확인 (API 데이터인 경우)
+  const itemStatus = isApiData ? (order as OrderListResponse).items[0]?.itemStatus : undefined;
+  
+  // 구매 확정 가능 여부 - 아이템 상태 기준
+  const canConfirm = itemStatus === 'DELIVERED' || itemStatus === 'CONFIRM_PENDING';
+  // 취소 가능 여부 - 주문 상태 기준
   const canCancel = status === 'PENDING' || status === 'PAID';
 
   const handleConfirm = () => {

@@ -3,7 +3,7 @@
  */
 
 import { Link, Navigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 import { useAuthStore } from '../stores/useAuthStore';
 import { orderService } from '../services/orderService';
 import { useState, useEffect } from 'react';

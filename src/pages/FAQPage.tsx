@@ -3,7 +3,9 @@
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ChevronLeft, ChevronUp } from 'lucide-react';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
 
 type FAQCategory = '전체' | '가입/계정' | '구매/결제' | '판매/정산' | '이용정책';
 

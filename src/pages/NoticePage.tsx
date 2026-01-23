@@ -2,7 +2,7 @@
  * 공지사항 페이지
  */
 import { Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 
 const NOTICES = [
   {
