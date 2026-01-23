@@ -7,10 +7,10 @@ import { Package, ShoppingBag, Coins } from 'lucide-react';
 interface ProfileStatsProps {
   salesCount: number;
   purchaseCount: number;
-  point: number;
+  deposit: number;
 }
 
-const ProfileStats = ({ salesCount, purchaseCount, point }: ProfileStatsProps) => {
+const ProfileStats = ({ salesCount, purchaseCount, deposit }: ProfileStatsProps) => {
   const stats = [
     {
       label: '판매',
@@ -27,9 +27,9 @@ const ProfileStats = ({ salesCount, purchaseCount, point }: ProfileStatsProps) =
       bgColor: 'bg-green-50',
     },
     {
-      label: '포인트',
-      value: point.toLocaleString('ko-KR'),
-      suffix: 'P',
+      label: '예치금',
+      value: deposit.toLocaleString('ko-KR'),
+      suffix: '원',
       icon: Coins,
       color: 'text-amber-500',
       bgColor: 'bg-amber-50',

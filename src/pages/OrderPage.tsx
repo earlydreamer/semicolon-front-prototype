@@ -26,6 +26,7 @@ const OrderPage = () => {
     depositUseAmount,
     setShippingInfo,
     setOrderUuid,
+    setOrderResponseItems,
     setCouponUuid,
     setDepositUseAmount,
     getOrderSummary
@@ -90,6 +91,7 @@ const OrderPage = () => {
       const response = await orderService.createOrder(orderRequest);
       
       setOrderUuid(response.orderUuid);
+      setOrderResponseItems(response.items); // 주문 응답의 items 저장 (결제 요청에 사용)
       setCouponUuid(selectedCoupon?.id || null);
       
       // 토스 결제 위젯 페이지로 이동
