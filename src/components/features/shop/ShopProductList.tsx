@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import type { Product, SaleStatus } from '../../../mocks/products';
 import { Store, CheckCircle, Clock } from 'lucide-react';
 
-const STATUS_BADGE: Record<SaleStatus, { text: string; className: string }> = {
+const STATUS_BADGE: Record<string, { text: string; className: string }> = {
   ON_SALE: { text: '판매중', className: 'bg-blue-100 text-blue-700' },
   RESERVED: { text: '예약중', className: 'bg-yellow-100 text-yellow-700' },
   SOLD_OUT: { text: '판매완료', className: 'bg-green-100 text-green-700' },

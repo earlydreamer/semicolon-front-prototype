@@ -56,8 +56,8 @@ export function ProductList({
         md(768px) 이상: 4열
       */}
       <div className="grid grid-cols-1 gap-3 min-[320px]:grid-cols-2 min-[320px]:gap-4 sm:grid-cols-3 md:grid-cols-4">
-        {itemsToRender.map((product: Product) => (
-          <ProductCard key={product.id} product={product} />
+        {itemsToRender.map((product: any) => (
+          <ProductCard key={('productUuid' in product ? product.productUuid : product.id)} product={product} />
         ))}
         
         {/* 로딩 중 스켈레톤 표시 */}

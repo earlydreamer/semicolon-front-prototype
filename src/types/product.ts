@@ -6,7 +6,10 @@
 export type ConditionStatus = 'SEALED' | 'NO_WEAR' | 'MINOR_WEAR' | 'VISIBLE_WEAR' | 'DAMAGED';
 
 /** 판매 상태 */
-export type SaleStatus = 'ON_SALE' | 'RESERVED' | 'SOLD_OUT' | 'HIDDEN' | 'BLOCKED';
+export type SaleStatus = 'ON_SALE' | 'RESERVED' | 'SOLD_OUT';
+
+/** 가시성 상태 */
+export type VisibilityStatus = 'VISIBLE' | 'HIDDEN' | 'BLOCKED';
 
 /** 판매자 정보 */
 export interface ProductSeller {
@@ -45,6 +48,7 @@ export interface Product {
   createdAt: string;
   conditionStatus: ConditionStatus;
   saleStatus: SaleStatus;
+  visibilityStatus?: VisibilityStatus;
   shippingFee: number;
   viewCount: number;
   likeCount: number;
@@ -73,15 +77,20 @@ export interface ProductListItem {
   title: string;
   price: number;
   thumbnailUrl: string | null;
-  likeCount: number;
-}
+  likeCount: number;  createdAt?: string;
+  saleStatus?: SaleStatus;
+  visibilityStatus?: VisibilityStatus;}
 
 export interface ProductListResponse {
   items: ProductListItem[];
-  page: number;
-  size: number;
-  totalCount: number;
-  hasNext: boolean;
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+  };
+  totalPages: number;
+  totalElements: number;
+  last: boolean;
+  first: boolean;
 }
 
 export interface ProductDetailResponse {

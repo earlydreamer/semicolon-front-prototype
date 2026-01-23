@@ -102,8 +102,6 @@ const CategoryTree = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [parentId, setParentId] = useState<string | null>(null);
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
 
   // 카테고리 삭제
   const handleDelete = (categoryId: string) => {
@@ -131,8 +129,7 @@ const CategoryTree = () => {
   const handleAddChild = (pId: string) => {
     const path = findCategoryPath(categories, pId);
     if (path && path.length >= CATEGORY.MAX_DEPTH) {
-      setAlertMessage(ERROR_MESSAGES.CATEGORY_DEPTH_LIMIT);
-      setIsAlertOpen(true);
+      alert(ERROR_MESSAGES.CATEGORY_DEPTH_LIMIT);
       return;
     }
     setParentId(pId);

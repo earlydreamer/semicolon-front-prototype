@@ -107,6 +107,7 @@ export default function CheckoutPage() {
           pgPayAmount: summary.pgPayAmount,
         },
         orderName,
+        items: []
       }, idempotencyKey);
 
       if (!prepareResponse.success) {

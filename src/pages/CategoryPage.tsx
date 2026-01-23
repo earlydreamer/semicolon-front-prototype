@@ -3,7 +3,7 @@
  * 필터 기능 포함 (가격대, 판매상태)
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { ChevronRight, Search } from 'lucide-react';
 import { ProductList } from '@/components/features/product/ProductList';
@@ -15,17 +15,21 @@ import {
   getActiveFilterCount,
   type ProductFilterState 
 } from '@/components/features/product/ProductFilter';
-import { MOCK_PRODUCTS, type SaleStatus } from '@/mocks/products';
-import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
+import { type SaleStatus, type ProductListItem } from '@/types/product';
+import { type Category } from '@/mocks/categories';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
-import { findCategoryPath, getCategoryChildren } from '@/utils/category';
+import { findCategoryPath, getCategoryChildren, transformCategories } from '@/utils/category';
 import { cn } from '@/utils/cn';
 import { sanitizeUrlParam } from '@/utils/sanitize';
+import { productService } from '@/services/productService';
 
 export default function CategoryPage() {
   const { categoryId: rawCategoryId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [products, setProducts] = useState<ProductListItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // URL 파라미터 검증 (XSS 방지)
   const categoryId = sanitizeUrlParam(rawCategoryId);
@@ -48,82 +52,81 @@ export default function CategoryPage() {
     status,
   };
 
+  // 카테고리 데이터 로드
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await productService.getCategories();
+        setCategories(transformCategories(data));
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  // 상품 데이터 로드
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      setProducts([]); // Clear previous products to avoid confusion
+      try {
+        const sortMap: Record<SortOption, string> = {
+          'latest': 'recent',
+          'price-asc': 'price_asc',
+          'price-desc': 'price_desc',
+          'popular': 'popular'
+        };
+
+        const response = await productService.getProducts({
+          categoryId: categoryId && !isNaN(parseInt(categoryId)) ? parseInt(categoryId) : undefined,
+          sort: sortMap[sort],
+          page: 0,
+          size: 20
+        });
+        // Backend response structure might use 'items' instead of 'content' depending on implementation
+        // or might return the array directly. This handles common Spring Data Page structures.
+        const productList = response.items || [];
+        setProducts(productList);
+      } catch (error) {
+        console.error('Failed to load products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, [categoryId, sort]);
+
   // Find current category path
   const categoryPath = useMemo(() => {
-    if (!categoryId) return [];
-    return findCategoryPath(MOCK_CATEGORIES, categoryId) || [];
-  }, [categoryId]);
+    if (!categoryId || !categories.length) return [];
+    return findCategoryPath(categories, categoryId) || [];
+  }, [categoryId, categories]);
 
   const currentCategoryName = categoryPath.length > 0 ? categoryPath[categoryPath.length - 1].name : '전체 상품';
 
-  // Filter and Sort Products
+  // Filter Products (프론트엔드에서 추가 필터링)
   const filteredProducts = useMemo(() => {
-    let products = [...MOCK_PRODUCTS];
-
-    if (categoryId) {
-      // Find all descendant category IDs
-      const targetIds = new Set<string>();
-      targetIds.add(categoryId);
-
-      // Helper to find node and collect descendants
-      const queue = [...MOCK_CATEGORIES];
-      let targetNode = null;
-
-      // 1. Find the target node
-      while (queue.length > 0) {
-        const node = queue.shift();
-        if (node?.id === categoryId) {
-          targetNode = node;
-          break;
-        }
-        if (node?.children) queue.push(...node.children);
-      }
-
-      // 2. If found, collect all children IDs
-      if (targetNode) {
-        const childQueue = [targetNode];
-        while (childQueue.length > 0) {
-          const node = childQueue.shift();
-          if (node) {
-            targetIds.add(node.id);
-            if (node.children) {
-              childQueue.push(...node.children);
-            }
-          }
-        }
-      }
-
-      products = products.filter(p => p.categoryId && targetIds.has(p.categoryId));
-    }
+    let filtered = [...products];
 
     // 가격 필터
     if (minPrice > 0) {
-      products = products.filter((p) => p.price >= minPrice);
+      filtered = filtered.filter((p) => p.price >= minPrice);
     }
     if (maxPrice > 0) {
-      products = products.filter((p) => p.price <= maxPrice);
+      filtered = filtered.filter((p) => p.price <= maxPrice);
     }
 
     // 상태 필터
     if (status !== 'all') {
-      products = products.filter((p) => p.saleStatus === status);
+      filtered = filtered.filter((p) => p.saleStatus === status);
     }
 
-    // 정렬
-    switch (sort) {
-      case 'price-asc':
-        products.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        products.sort((a, b) => b.price - a.price);
-        break;
-      case 'latest':
-      default:
-        products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
-
-    return products;
-  }, [categoryId, minPrice, maxPrice, status, sort]);
+    return filtered;
+  }, [products, minPrice, maxPrice, status]);
 
   // 정렬 변경
   const handleSortChange = (newSort: SortOption) => {
@@ -183,8 +186,8 @@ export default function CategoryPage() {
           </Link>
           {/* Current siblings or children */}
           {(categoryId ? 
-            (getCategoryChildren(MOCK_CATEGORIES, categoryId) || []) : 
-            MOCK_CATEGORIES
+            (getCategoryChildren(categories, categoryId) || []) : 
+            categories
           ).map((cat: Category) => (
             <Link
               key={cat.id}
@@ -220,9 +223,13 @@ export default function CategoryPage() {
           {/* Toolbar */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-200">
             <div className="flex items-center gap-4">
-              <span className="text-sm text-neutral-500">
-                총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
-              </span>
+              {loading ? (
+                <span className="text-sm text-neutral-500">로딩 중...</span>
+              ) : (
+                <span className="text-sm text-neutral-500">
+                  총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
+                </span>
+              )}
               
               {/* 모바일 필터 버튼 */}
               <MobileFilterButton 

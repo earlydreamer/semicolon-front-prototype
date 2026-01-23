@@ -4,7 +4,7 @@
 
 import { Link } from 'react-router-dom';
 import type { User } from '../../../mocks/users';
-import { Mail, Phone, Calendar } from 'lucide-react';
+import { Mail, Calendar } from 'lucide-react';
 
 interface ProfileCardProps {
   user: User;
@@ -56,7 +56,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
       </div>
 
       {/* 연락처 & 가입일 */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl">
           <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
             <Mail className="w-4 h-4 text-blue-500" />
@@ -67,15 +67,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl">
-          <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-            <Phone className="w-4 h-4 text-green-500" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs text-neutral-400">휴대폰</p>
-            <p className="text-sm font-medium text-neutral-900">{user.phone || '미등록'}</p>
-          </div>
-        </div>
+
 
         <div className="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl">
           <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
