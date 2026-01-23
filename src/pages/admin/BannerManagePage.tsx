@@ -11,7 +11,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Plus from 'lucide-react/dist/esm/icons/plus';
 import Pencil from 'lucide-react/dist/esm/icons/pencil';
-import Trash2 from 'lucide-react/dist/esm/icons/trash2';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
 import Save from 'lucide-react/dist/esm/icons/save';
 import GripVertical from 'lucide-react/dist/esm/icons/grip-vertical';

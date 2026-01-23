@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import Share2 from 'lucide-react/dist/esm/icons/share2';
+import Share2 from 'lucide-react/dist/esm/icons/share-2';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
 import Clock from 'lucide-react/dist/esm/icons/clock';
 import EllipsisVertical from 'lucide-react/dist/esm/icons/ellipsis-vertical';
 import Flag from 'lucide-react/dist/esm/icons/flag';
-import Link2 from 'lucide-react/dist/esm/icons/link2';
+import Link2 from 'lucide-react/dist/esm/icons/link-2';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 

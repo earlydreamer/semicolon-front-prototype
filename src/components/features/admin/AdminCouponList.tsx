@@ -4,8 +4,8 @@
 
 import { useState } from 'react';
 import Plus from 'lucide-react/dist/esm/icons/plus';
-import Edit2 from 'lucide-react/dist/esm/icons/edit2';
-import Trash2 from 'lucide-react/dist/esm/icons/trash2';
+import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import Gift from 'lucide-react/dist/esm/icons/gift';
 import Percent from 'lucide-react/dist/esm/icons/percent';
 import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';

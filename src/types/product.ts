@@ -82,7 +82,7 @@ export interface ProductListItem {
   visibilityStatus?: VisibilityStatus;}
 
 export interface ProductListResponse {
-  items: ProductListItem[];
+  content: ProductListItem[];
   pageable: {
     pageNumber: number;
     pageSize: number;

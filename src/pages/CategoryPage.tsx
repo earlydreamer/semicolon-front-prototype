@@ -89,7 +89,7 @@ export default function CategoryPage() {
         });
         // Backend response structure might use 'items' instead of 'content' depending on implementation
         // or might return the array directly. This handles common Spring Data Page structures.
-        const productList = response.items || [];
+        const productList = response.content || [];
         setProducts(productList);
       } catch (error) {
         console.error('Failed to load products:', error);
