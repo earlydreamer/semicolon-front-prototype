@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { useAuthStore } from '../stores/useAuthStore';
 
-// TODO: 추후 환경변수로 분리
-const BASE_URL = ''; // 프록시 설정을 따르거나 직접 주소 입력
+// Vite 환경변수 사용 (VITE_ 접두사 필수)
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const api = axios.create({
   baseURL: BASE_URL,
