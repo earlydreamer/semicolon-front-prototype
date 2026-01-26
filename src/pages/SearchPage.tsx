@@ -94,7 +94,7 @@ const SearchPage = () => {
           page: 0,
           size: 100
         });
-        setProducts(response.content);
+        setProducts(response.items || response.content || []);
       } catch (error) {
         console.error('Failed to load products:', error);
         setProducts([]);
