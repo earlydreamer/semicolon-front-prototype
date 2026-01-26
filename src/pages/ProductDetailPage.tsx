@@ -101,10 +101,10 @@ export default function ProductDetailPage() {
     viewCount: apiProduct.viewCount || 0,
     likeCount: apiProduct.likeCount || 0,
     seller: {
-      userUuid: '00000000-0000-0000-0000-000000000000', // DTO에 seller 정보 누락
-      nickname: 'Semicolon Seller',
+      userUuid: apiProduct.seller?.shopUuid || '00000000-0000-0000-0000-000000000000',
+      nickname: apiProduct.seller?.nickname || '알 수 없음',
       profileImageUrl: '',
-      trustScore: 36.5,
+      trustScore: 4.5, // 기본값 4.5
       dealCount: 0,
       reviewCount: 0
     },

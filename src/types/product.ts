@@ -82,7 +82,8 @@ export interface ProductListItem {
   visibilityStatus?: VisibilityStatus;}
 
 export interface ProductListResponse {
-  content: ProductListItem[];
+  items: ProductListItem[];
+  content?: ProductListItem[]; // 호환성을 위해 유지
   pageable: {
     pageNumber: number;
     pageSize: number;
@@ -110,4 +111,16 @@ export interface ProductDetailResponse {
     name: string;
     depth: number;
   };
+  seller?: {
+    shopUuid: string;
+    nickname: string;
+  };
+}
+
+export interface ShopResponse {
+  shopUuid: string;
+  nickname: string;
+  intro: string;
+  salesCount: number;
+  activeListingCount: number;
 }

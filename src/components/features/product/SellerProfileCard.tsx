@@ -4,9 +4,7 @@
  * ProductDetailPage에서 분리된 판매자 정보 표시 컴포넌트
  */
 
-import { Link } from 'react-router-dom';
 import Star from 'lucide-react/dist/esm/icons/star';
-import { Button } from '@/components/common/Button';
 
 interface Seller {
   id: string;
@@ -35,9 +33,9 @@ export const SellerProfileCard = ({ seller }: SellerProfileCardProps) => {
             />
           </div>
           <div>
-            <Link to={`/shop/${seller.id}`} className="font-bold text-gray-900 hover:underline">
+            <div className="font-bold text-gray-900">
               {seller.nickname}
-            </Link>
+            </div>
             <div className="text-sm text-gray-500">
               상품 {seller.activeListingCount} • 판매 {seller.salesCount}
             </div>
@@ -51,11 +49,6 @@ export const SellerProfileCard = ({ seller }: SellerProfileCardProps) => {
             </div>
             <div className="text-xs text-gray-400">판매자 신뢰지수</div>
           </div>
-          <Link to={`/shop/${seller.id}`}>
-            <Button size="sm" variant="outline" className="h-8 text-xs">
-              상점 보기
-            </Button>
-          </Link>
         </div>
       </div>
       {/* 판매자 소개 */}
