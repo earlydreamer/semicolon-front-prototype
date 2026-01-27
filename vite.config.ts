@@ -13,8 +13,9 @@ export default defineConfig({
         react(),
         mkcert(),
     ],
-    // GitHub Pages 배포 시 레포지토리 이름으로 서브 URL 설정
-    base: process.env.GITHUB_ACTIONS ? '/semicolon-front-prototype/' : '/',
+    // 배포 환경에 따라 base 경로를 유연하게 설정 (Vercel/Local: '/', GitHub Pages: '/semicolon-front-prototype/')
+    // base: process.env.GITHUB_ACTIONS ? '/semicolon-front-prototype/' : '/',
+    base: process.env.VITE_BASE_PATH || '/',
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
