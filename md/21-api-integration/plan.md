@@ -49,3 +49,10 @@
 - 엔드포인트는 `src/constants/apiEndpoints.ts` 관리
 - 에러 처리는 공통 인터셉터 또는 각 서비스 레벨에서 수행
 - 구현 결과는 `frontend/md/21-api-integration/implementation.md`에 기록
+
+## 2026-02-11 진행 체크
+- [x] Like 경로/찜 목록 경로 백엔드 최신화
+- [x] Shop/Follow/Review/Comment API 연동
+- [x] 상품 상세 댓글 mock 제거
+- [x] 팔로우 목록 mock 제거
+- [/] 관리자/배너/판매자 관리 영역 mock 제거 (진행 필요)

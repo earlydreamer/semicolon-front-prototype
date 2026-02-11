@@ -41,3 +41,86 @@
 ## 6. 알려진 이슈 및 개선 필요 사항
 - **CartDto sellerUuid 부재**: 주문 생성 시 `sellerUuid`가 필수(`@NotNull`)이나, `CartDto` 응답에 해당 필드가 없어 현재 임시 UUID값으로 처리 중임. 백엔드 DTO 수정 필요.
 - **배송비 정보**: 백엔드 `CartDto`에 `shippingFee`가 포함되지 않아 장바구니 요약에서 배송비가 0으로 고정됨.
+
+---
+
+## 2026-02-11 추가 연동 내역 (백엔드 최신 반영)
+
+### 완료 항목
+- Like API 경로를 백엔드 구현과 일치하도록 수정
+  - `POST/DELETE /api/v1/products/{productUuid}/like`
+  - `GET /api/v1/products/likes/me`
+- 상점 페이지 실데이터 연동
+  - `GET /api/v1/shops/{shopUuid}`
+  - `GET /api/v1/shops/{shopUuid}/products`
+  - `GET /api/v1/sellers/{sellerUuid}/followers`
+  - `GET /api/v1/sellers/{sellerUuid}/reviews`
+  - `GET /api/v1/sellers/{sellerUuid}/reviews-summary`
+- 팔로우 스토어/컴포넌트 API 연동
+  - `POST/DELETE /api/v1/sellers/{sellerUuid}/follow`
+  - `GET /api/v1/sellers/me/following`
+- 상품 상세 댓글 연동
+  - `GET /api/v1/products/{productUuid}/comments`
+- 주소 타입 분리 및 주소 선택 컴포넌트 API 연동
+  - `GET /api/v1/users/me/addresse`
+
+### 신규/수정 파일
+- 신규
+  - `src/types/category.ts`
+  - `src/types/address.ts`
+  - `src/services/shopService.ts`
+  - `src/services/followService.ts`
+  - `src/services/reviewService.ts`
+  - `src/services/commentService.ts`
+- 주요 수정
+  - `src/constants/apiEndpoints.ts`
+  - `src/services/userService.ts`
+  - `src/stores/useFollowStore.ts`
+  - `src/components/features/mypage/FollowingShops.tsx`
+  - `src/components/features/shop/FollowButton.tsx`
+  - `src/pages/ShopPage.tsx`
+  - `src/pages/ProductDetailPage.tsx`
+  - `src/components/features/review/ReviewList.tsx`
+  - `src/components/features/product/ProductComments.tsx`
+  - `src/components/features/order/AddressSelector.tsx`
+  - `src/stores/useUserStore.ts`
+
+### 남은 mock 사용 항목 (추가 교체 필요)
+- 판매자 상품 관리 스토어/컴포넌트
+  - `src/stores/useSellerStore.ts`
+  - `src/components/features/seller/*`
+- 관리자 화면 일부
+  - `src/pages/admin/AdminDashboardPage.tsx`
+  - `src/components/features/admin/AdminProductList.tsx`
+  - `src/components/features/admin/AdminUserList.tsx`
+  - `src/components/features/admin/CategoryTree.tsx`
+- 배너 스토어
+  - `src/stores/useBannerStore.ts`
+- 상품 필터 카테고리 mock 참조
+  - `src/components/features/product/ProductFilter.tsx`
+
+### 스펙/구현 이슈 리스트
+- 주소 API 경로 오탈자성 스펙
+  - 현재 백엔드 구현 경로: `/api/v1/users/me/addresse`
+  - 일반적 네이밍은 `/addresses`가 자연스러움
+- ShopResponse에 닉네임 필드 부재
+  - `ShopResponse`에는 `shopUuid, intro, salesCount, activeListingCount`만 존재
+  - 프론트 상점명 표시는 현재 UUID 기반 임시 처리
+- 댓글/리뷰 응답에 표시용 사용자 프로필 데이터 부재
+  - buyer/seller 닉네임, 아바타가 없어 프론트는 UUID 축약 표시
+- Order 생성 시 `sellerUuid` 보강 이슈는 여전히 존재
+  - Cart 응답 기반으로 sellerUuid 확보가 어려운 케이스가 남아 있음
+
+## 2026-02-11 추가 반영 (2차)
+- 주소 경로 기준을 `adresses`로 통일
+  - `src/constants/apiEndpoints.ts` (`/api/v1/users/me/adresses`)
+- 판매자 영역 mock 제거
+  - `src/stores/useSellerStore.ts`: `MOCK_PRODUCTS` 제거, `GET /api/v1/shops/me/products` 연동
+  - `src/components/features/seller/ProductForm.tsx`: `MOCK_CATEGORIES` 제거, 카테고리 API 연동
+- 필터/마이페이지/판매자 컴포넌트의 mock 타입 의존 제거
+  - `src/components/features/product/ProductFilter.tsx`
+  - `src/components/features/mypage/ProfileCard.tsx`
+  - `src/components/features/mypage/SalesTabs.tsx`
+  - `src/components/features/seller/SellerProductList.tsx`
+  - `src/components/features/seller/SellerProductCard.tsx`
+- 빌드 검증 통과 (`npm run build`)
