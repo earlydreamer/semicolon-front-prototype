@@ -1,4 +1,4 @@
-import type { Category } from '@/mocks/categories';
+﻿import type { Category } from '@/types/category';
 import type { CategoryResponse } from '@/types/product';
 
 /**
@@ -79,3 +79,4 @@ export function getCategoryChildren(categories: Category[], id: string): Categor
 
   return categories; // Fallback to top level
 }
+

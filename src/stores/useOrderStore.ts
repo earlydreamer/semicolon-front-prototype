@@ -1,12 +1,12 @@
-/**
- * 주문 상태 관리 Store (Zustand)
+﻿/**
+ * 二쇰Ц ?곹깭 愿由?Store (Zustand)
  */
 
 import { create } from 'zustand';
 import type { CartItem } from '../types/cart';
-import type { Address } from '../mocks/address';
+import type { Address } from '../types/address';
 
-// OrderResponse.items 타입 정의
+// OrderResponse.items ????뺤쓽
 export interface OrderItemResponse {
   orderItemUuid: string;
   productId: number;
@@ -18,13 +18,13 @@ export interface OrderItemResponse {
 }
 
 interface OrderState {
-  orderUuid: string | null; // 주문 고유 식별자
-  orderItems: CartItem[]; // 주문할 상품 목록 (UI 표시용)
-  orderResponseItems: OrderItemResponse[] | null; // 주문 생성 후 받은 실제 OrderItem 정보 (결제 요청용)
-  shippingInfo: Address | null; // 선택된 배송지
-  paymentMethod: string | null; // 선택된 결제 수단
-  couponUuid: string | null; // 선택된 쿠폰 UUID
-  depositUseAmount: number; // 사용한 예치금 금액
+  orderUuid: string | null; // 二쇰Ц 怨좎쑀 ?앸퀎??
+  orderItems: CartItem[]; // 二쇰Ц???곹뭹 紐⑸줉 (UI ?쒖떆??
+  orderResponseItems: OrderItemResponse[] | null; // 二쇰Ц ?앹꽦 ??諛쏆? ?ㅼ젣 OrderItem ?뺣낫 (寃곗젣 ?붿껌??
+  shippingInfo: Address | null; // ?좏깮??諛곗넚吏
+  paymentMethod: string | null; // ?좏깮??寃곗젣 ?섎떒
+  couponUuid: string | null; // ?좏깮??荑좏룿 UUID
+  depositUseAmount: number; // ?ъ슜???덉튂湲?湲덉븸
   
   // Actions
   setOrderUuid: (uuid: string | null) => void;
@@ -67,17 +67,17 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   getOrderSummary: () => {
     const { orderItems, depositUseAmount } = get();
     
-    // 상품 총 가격
+    // ?곹뭹 珥?媛寃?
     const totalProductPrice = orderItems.reduce(
       (sum, item) => sum + item.price,
       0
     );
 
-    // 총 배송비 (CartItem에 shippingFee가 없는 경우 0으로 처리)
-    // CartItem 타입 업데이트 시 추가 필요 현재는 Mock 대비 제거됨
+    // 珥?諛곗넚鍮?(CartItem??shippingFee媛 ?녿뒗 寃쎌슦 0?쇰줈 泥섎━)
+    // CartItem ????낅뜲?댄듃 ??異붽? ?꾩슂 ?꾩옱??Mock ?鍮??쒓굅??
     const totalShippingFee = 0;
 
-    // TODO: 쿠폰 할인 로직 연동
+    // TODO: 荑좏룿 ?좎씤 濡쒖쭅 ?곕룞
     const couponDiscount = 0;
 
     const finalPrice = totalProductPrice + totalShippingFee - couponDiscount;
@@ -103,3 +103,4 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     depositUseAmount: 0,
   }),
 }));
+

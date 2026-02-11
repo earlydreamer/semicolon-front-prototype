@@ -1,11 +1,7 @@
-/**
- * 판매자 상품 목록 (탭 포함)
- */
-
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Plus from 'lucide-react/dist/esm/icons/plus';
-import type { SaleStatus } from '@/mocks/products';
+import type { SaleStatus } from '@/types/product';
 import { useSellerStore } from '@/stores/useSellerStore';
 import SellerProductCard from './SellerProductCard';
 import { Button } from '@/components/common/Button';
@@ -26,7 +22,6 @@ const SellerProductList = () => {
 
   const filteredProducts = getProductsByStatus(activeTab);
 
-  // 탭별 카운트
   const counts = {
     all: stats.total,
     ON_SALE: stats.onSale,
@@ -36,7 +31,6 @@ const SellerProductList = () => {
 
   return (
     <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-      {/* 헤더 */}
       <div className="flex items-center justify-between p-4 border-b border-neutral-200">
         <h2 className="text-lg font-semibold text-neutral-900">내 상품</h2>
         <Link to="/seller/products/new">
@@ -47,35 +41,24 @@ const SellerProductList = () => {
         </Link>
       </div>
 
-      {/* 탭 */}
       <div className="flex border-b border-neutral-200">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 py-3 text-sm font-medium transition-colors relative
-              ${
-                activeTab === tab.key
-                  ? 'text-primary-600'
-                  : 'text-neutral-500 hover:text-neutral-700'
-              }`}
+            className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
+              activeTab === tab.key ? 'text-primary-600' : 'text-neutral-500 hover:text-neutral-700'
+            }`}
           >
             {tab.label}
-            <span
-              className={`ml-1 text-xs ${
-                activeTab === tab.key ? 'text-primary-500' : 'text-neutral-400'
-              }`}
-            >
+            <span className={`ml-1 text-xs ${activeTab === tab.key ? 'text-primary-500' : 'text-neutral-400'}`}>
               {counts[tab.key as keyof typeof counts]}
             </span>
-            {activeTab === tab.key && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
-            )}
+            {activeTab === tab.key && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />}
           </button>
         ))}
       </div>
 
-      {/* 상품 목록 */}
       <div className="p-4">
         {filteredProducts.length === 0 ? (
           <div className="py-12 text-center">

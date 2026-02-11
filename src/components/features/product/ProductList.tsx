@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import type { Product } from '@/mocks/products';
-import type { ProductListItem } from '@/types/product';
+import type { Product, ProductListItem } from '@/types/product';
 import { ProductCard } from './ProductCard';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { ProductSkeletonList } from './ProductSkeleton';

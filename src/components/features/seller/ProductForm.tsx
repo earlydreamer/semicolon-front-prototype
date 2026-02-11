@@ -9,8 +9,9 @@ import { z } from 'zod';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import ProductImageUploader from './ProductImageUploader';
-import { MOCK_CATEGORIES } from '@/mocks/categories';
-import type { ConditionStatus } from '@/mocks/products';
+import { productService } from '@/services/productService';
+import type { Category } from '@/types/category';
+import type { ConditionStatus } from '@/types/product';
 import { findCategoryPath } from '@/utils/category';
 
 // Zod 스키마 (location 필드 제거)
@@ -80,22 +81,47 @@ const ProductForm = ({
   const [largeCategory, setLargeCategory] = useState<string>('');
   const [mediumCategory, setMediumCategory] = useState<string>('');
   const [smallCategory, setSmallCategory] = useState<string>('');
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await productService.getCategories();
+        const buildTree = (parentId: number | null, depth: number): Category[] =>
+          data
+            .filter((cat) => cat.parentId === parentId)
+            .map((cat) => ({
+              id: String(cat.id),
+              name: cat.name,
+              depth: Math.min(Math.max(depth, 1), 3) as 1 | 2 | 3,
+              parentId: cat.parentId === null ? null : String(cat.parentId),
+              children: buildTree(cat.id, depth + 1),
+            }));
+
+        setCategories(buildTree(null, 1));
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   // 수정 모드 시 초기 카테고리 설정
   useEffect(() => {
     if (defaultValues?.categoryId) {
-      const path = findCategoryPath(MOCK_CATEGORIES, defaultValues.categoryId);
+      const path = findCategoryPath(categories, defaultValues.categoryId);
       if (path) {
         if (path[0]) setLargeCategory(path[0].id);
         if (path[1]) setMediumCategory(path[1].id);
         if (path[2]) setSmallCategory(path[2].id);
       }
     }
-  }, [defaultValues?.categoryId]);
+  }, [categories, defaultValues?.categoryId]);
 
   // 대분류 선택 시 하위 목록 계산
   const mediumCategories = useMemo(() => {
-    const found = MOCK_CATEGORIES.find((cat) => cat.id === largeCategory);
+    const found = categories.find((cat) => cat.id === largeCategory);
     return found?.children || [];
   }, [largeCategory]);
 
@@ -166,7 +192,7 @@ const ProductForm = ({
                 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
               <option value="">대분류 선택</option>
-              {MOCK_CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>

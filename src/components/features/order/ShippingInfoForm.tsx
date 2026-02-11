@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import type { Address } from '../../../mocks/address';
+﻿import { useState, useEffect } from 'react';
+import type { Address } from '@/types/address';
 import { Modal } from '../../common/Modal';
 import { Button } from '../../common/Button';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 
-// 카카오 우편번호 API 타입 정의
+// 移댁뭅???고렪踰덊샇 API ????뺤쓽
 declare global {
   interface Window {
     daum: any;
@@ -19,11 +19,11 @@ interface ShippingInfoFormProps {
 const KAKAO_POSTCODE_URL = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
 const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => {
-  // 초기 상태 설정
+  // 珥덇린 ?곹깭 ?ㅼ젙
   const [formData, setFormData] = useState<Address>(
     shippingInfo || {
       id: 'manual',
-      name: '기본 배송지',
+      name: '湲곕낯 諛곗넚吏',
       recipient: '',
       phone: '',
       zipCode: '',
@@ -36,7 +36,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
-  // 스크립트 동적 로드
+  // ?ㅽ겕由쏀듃 ?숈쟻 濡쒕뱶
   useEffect(() => {
     if (window.daum && window.daum.Postcode) return;
 
@@ -46,12 +46,12 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
     document.head.appendChild(script);
 
     return () => {
-      // 컴포넌트 언마운트 시 스크립트 제거 여부는 선택사항이나, 
-      // 다중 로딩 방지를 위해 보통 그대로 둠
+      // 而댄룷?뚰듃 ?몃쭏?댄듃 ???ㅽ겕由쏀듃 ?쒓굅 ?щ????좏깮?ы빆?대굹, 
+      // ?ㅼ쨷 濡쒕뵫 諛⑹?瑜??꾪빐 蹂댄넻 洹몃?濡???
     };
   }, []);
 
-  // 입력 핸들러
+  // ?낅젰 ?몃뱾??
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const updatedData = { ...formData, [name]: value };
@@ -59,17 +59,17 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
     onUpdate(updatedData);
   };
 
-  // 카카오 우편번호 검색 핸들러
+  // 移댁뭅???고렪踰덊샇 寃???몃뱾??
   const handleAddressSearch = () => {
     if (!window.daum || !window.daum.Postcode) {
-      setModalMessage('주소 검색 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+      setModalMessage('二쇱냼 寃???쒕퉬?ㅻ? 遺덈윭?ㅻ뒗 以묒엯?덈떎. ?좎떆 ???ㅼ떆 ?쒕룄?댁＜?몄슂.');
       setIsModalOpen(true);
       return;
     }
 
     new window.daum.Postcode({
       oncomplete: (data: any) => {
-        // 주소 선택 시 처리 (도로명 주소 우선)
+        // 二쇱냼 ?좏깮 ??泥섎━ (?꾨줈紐?二쇱냼 ?곗꽑)
         const fullAddress = data.address;
         const zipCode = data.zonecode;
 
@@ -89,44 +89,44 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
     <>
       <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-neutral-200 bg-neutral-50">
-          <h3 className="font-bold text-neutral-900">배송지 정보</h3>
+          <h3 className="font-bold text-neutral-900">諛곗넚吏 ?뺣낫</h3>
         </div>
 
         <div className="p-5 space-y-4">
-          {/* 수령인 */}
+          {/* ?섎졊??*/}
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
-              수령인
+              ?섎졊??
             </label>
             <input
               type="text"
               name="recipient"
               value={formData.recipient}
               onChange={handleChange}
-              placeholder="이름을 입력해주세요"
+              placeholder="?대쫫???낅젰?댁＜?몄슂"
               className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
             />
           </div>
 
-          {/* 연락처 */}
+          {/* ?곕씫泥?*/}
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
-              연락처
+              ?곕씫泥?
             </label>
             <input
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              placeholder="숫자만 입력해주세요"
+              placeholder="?レ옄留??낅젰?댁＜?몄슂"
               className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
             />
           </div>
 
-          {/* 주소 검색 */}
+          {/* 二쇱냼 寃??*/}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-neutral-700">
-              주소
+              二쇱냼
             </label>
             <div className="flex gap-2">
               <input
@@ -135,7 +135,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
                 value={formData.zipCode}
                 onChange={handleChange}
                 readOnly
-                placeholder="우편번호"
+                placeholder="?고렪踰덊샇"
                 className="w-32 px-4 py-3 rounded-xl border border-neutral-200 bg-neutral-50 focus:outline-none"
               />
               <button
@@ -143,7 +143,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
                 className="px-4 py-3 bg-neutral-900 text-white rounded-xl font-bold hover:bg-neutral-800 transition-colors shrink-0 text-sm"
                 onClick={handleAddressSearch}
               >
-                주소 검색
+                二쇱냼 寃??
               </button>
             </div>
             <input
@@ -152,7 +152,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
               value={formData.address}
               onChange={handleChange}
               readOnly
-              placeholder="기본 주소 (주소 검색을 이용해주세요)"
+              placeholder="湲곕낯 二쇱냼 (二쇱냼 寃?됱쓣 ?댁슜?댁＜?몄슂)"
               className="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-neutral-50 focus:outline-none"
             />
             <input
@@ -160,18 +160,18 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
               name="detailAddress"
               value={formData.detailAddress}
               onChange={handleChange}
-              placeholder="상세 주소를 입력해주세요"
+              placeholder="?곸꽭 二쇱냼瑜??낅젰?댁＜?몄슂"
               className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
             />
           </div>
         </div>
       </div>
 
-      {/* 알림 모달 */}
+      {/* ?뚮┝ 紐⑤떖 */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="알림"
+        title="?뚮┝"
         size="sm"
       >
         <div className="flex flex-col items-center text-center py-2">
@@ -185,7 +185,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
             onClick={() => setIsModalOpen(false)}
             className="w-full font-bold"
           >
-            확인
+            ?뺤씤
           </Button>
         </div>
       </Modal>
@@ -194,3 +194,4 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
 };
 
 export default ShippingInfoForm;
+

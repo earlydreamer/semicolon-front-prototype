@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { cn } from '@/utils/cn';
 import { productService } from '@/services/productService';
 import { transformCategories } from '@/utils/category';
-import type { Category } from '@/mocks/categories';
+import type { Category } from '@/types/category';
 
 interface CategoryItemProps {
   category: Category;
@@ -126,7 +126,7 @@ export function CategorySidebar() {
     <aside className="w-full">
       <div className="border border-neutral-200 rounded-lg bg-white overflow-hidden">
         <div className="p-4 border-b border-neutral-100 font-bold bg-neutral-50 text-neutral-800">
-          카테고리 탐색
+          移댄뀒怨좊━ ?먯깋
         </div>
         <div className="p-2">
           {categories.map((category) => (
@@ -141,3 +141,4 @@ export function CategorySidebar() {
     </aside>
   );
 }
+

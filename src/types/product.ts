@@ -77,9 +77,13 @@ export interface ProductListItem {
   title: string;
   price: number;
   thumbnailUrl: string | null;
-  likeCount: number;  createdAt?: string;
+  likeCount: number;
+  viewCount?: number;
+  commentCount?: number;
+  createdAt?: string;
   saleStatus?: SaleStatus;
-  visibilityStatus?: VisibilityStatus;}
+  visibilityStatus?: VisibilityStatus;
+}
 
 export interface ProductListResponse {
   items: ProductListItem[];
