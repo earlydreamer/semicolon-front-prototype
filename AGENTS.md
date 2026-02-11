@@ -531,3 +531,23 @@ xl: 1280px  /* 데스크톱 */
 
 > **마지막 업데이트**: 2026-01-12  
 > **버전**: 1.0.0
+
+---
+
+## Branch Convention Update (2026-02-11)
+
+### 브랜치 역할
+- `main`: GitHub Pages mock 배포 전용 브랜치
+- `real-data`: 실데이터/API 연동 통합 및 배포 기준 브랜치
+
+### PR 기본 규칙
+1. 신규 작업 브랜치는 반드시 최신 `real-data`에서 분기한다.
+2. 기본 PR base는 `real-data`로 설정한다.
+3. mock 페이지 배포 관련 변경만 `main` 대상으로 PR을 생성한다.
+
+### 권장 절차
+1. `git checkout real-data`
+2. `git pull --ff-only origin real-data`
+3. `git checkout -b feature/<issue-number>-<slug>`
+4. 구현/검증/커밋
+5. `base: real-data`로 PR 생성 후 squash merge
