@@ -41,8 +41,9 @@ export function useInfiniteScroll<T>(
     const initialItems = allItems.slice(0, pageSize);
     setDisplayItems((prev) => {
       // 이미 내용이 같다면 업데이트하지 않음 (무한 루프 방지 장치)
+      const getId = (item: any) => item.productUuid || item.id;
       if (prev.length === initialItems.length && 
-          prev.every((item, idx) => (item as any).id === (initialItems[idx] as any).id)) {
+          prev.every((item, idx) => getId(item) === getId(initialItems[idx]))) {
         return prev;
       }
       return initialItems;

@@ -9,6 +9,10 @@ export const SALE_STATUS_LABELS: Record<SaleStatus, string> = {
   ON_SALE: '판매중',
   RESERVED: '예약중',
   SOLD_OUT: '판매완료',
+};
+
+export const VISIBILITY_STATUS_LABELS: Record<string, string> = {
+  VISIBLE: '공개',
   HIDDEN: '숨김',
   BLOCKED: '차단',
 };
@@ -17,6 +21,10 @@ export const SALE_STATUS_COLORS: Record<SaleStatus, string> = {
   ON_SALE: 'bg-green-100 text-green-700',
   RESERVED: 'bg-yellow-100 text-yellow-700',
   SOLD_OUT: 'bg-neutral-200 text-neutral-500',
+};
+
+export const VISIBILITY_STATUS_COLORS: Record<string, string> = {
+  VISIBLE: 'bg-blue-100 text-blue-700',
   HIDDEN: 'bg-neutral-100 text-neutral-500',
   BLOCKED: 'bg-red-100 text-red-700',
 };
@@ -36,6 +44,10 @@ export const SALE_STATUS_DESCRIPTIONS: Record<SaleStatus, string> = {
   ON_SALE: '현재 구매 가능한 상품입니다.',
   RESERVED: '다른 구매자가 결제를 진행 중인 상품입니다. 구매 확정 전까지는 거래가 취소될 수 있습니다.',
   SOLD_OUT: '이미 판매가 완료된 상품입니다.',
+};
+
+export const VISIBILITY_STATUS_DESCRIPTIONS: Record<string, string> = {
+  VISIBLE: '모든 사용자에게 보이는 상품입니다.',
   HIDDEN: '판매자가 일시적으로 숨긴 상품입니다.',
   BLOCKED: '정책 위반으로 차단된 상품입니다.',
 };
@@ -54,11 +66,24 @@ export const CONDITION_STATUS_DESCRIPTIONS: Record<ConditionStatus, string> = {
 export const ORDER_STATUS_LABELS: Record<OrderStatus, { text: string; className: string }> = {
   PENDING: { text: '결제 대기', className: 'bg-yellow-100 text-yellow-700' },
   PAID: { text: '결제 완료', className: 'bg-blue-100 text-blue-700' },
-  SHIPPING: { text: '배송중', className: 'bg-purple-100 text-purple-700' },
+  PAYMENT_FAILED: { text: '결제 실패', className: 'bg-red-100 text-red-700' },
+  CANCELED: { text: '취소됨', className: 'bg-red-100 text-red-700' },
+  PARTIAL_REFUNDED: { text: '부분 환불됨', className: 'bg-orange-100 text-orange-600' },
+};
+
+export const ORDER_ITEM_STATUS_LABELS: Record<string, { text: string; className: string }> = {
+  PAYMENT_COMPLETED: { text: '결제 완료', className: 'bg-blue-100 text-blue-700' },
+  PREPARING_SHIPMENT: { text: '배송 준비 중', className: 'bg-purple-100 text-purple-700' },
+  SHIPPED: { text: '배송 중', className: 'bg-purple-100 text-purple-700' },
   DELIVERED: { text: '배송 완료', className: 'bg-green-100 text-green-700' },
+  CONFIRM_PENDING: { text: '구매 확정 대기', className: 'bg-yellow-100 text-yellow-700' },
   CONFIRMED: { text: '구매 확정', className: 'bg-neutral-100 text-neutral-700' },
-  CANCELLED: { text: '취소됨', className: 'bg-red-100 text-red-700' },
-  REFUNDED: { text: '환불됨', className: 'bg-orange-100 text-orange-700' },
+  CANCEL_REQUESTED: { text: '취소 요청', className: 'bg-orange-100 text-orange-700' },
+  CANCEL_IN_PROGRESS: { text: '취소 처리 중', className: 'bg-orange-100 text-orange-700' },
+  CANCELED: { text: '취소 완료', className: 'bg-red-100 text-red-700' },
+  REFUND_REQUESTED: { text: '환불 요청', className: 'bg-orange-100 text-orange-700' },
+  REFUND_IN_PROGRESS: { text: '환불 진행 중', className: 'bg-orange-100 text-orange-700' },
+  REFUND_COMPLETED: { text: '환불 완료', className: 'bg-orange-100 text-orange-700' },
 };
 
 export const CONFIRM_MESSAGES = {

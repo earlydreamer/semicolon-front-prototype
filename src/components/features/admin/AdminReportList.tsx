@@ -3,7 +3,11 @@
  */
 
 import { useState, Fragment } from 'react';
-import { AlertTriangle, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
+import Check from 'lucide-react/dist/esm/icons/check';
+import X from 'lucide-react/dist/esm/icons/x';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
 import { Button } from '@/components/common/Button';
 
 type ReportType = 'PRODUCT' | 'USER';

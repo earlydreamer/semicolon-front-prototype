@@ -3,17 +3,15 @@
  */
 
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Package, 
-  Users, 
-  FolderTree,
-  AlertTriangle,
-  Ticket,
-  Wallet,
-  LogOut,
-  Image
-} from 'lucide-react';
+import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard';
+import Package from 'lucide-react/dist/esm/icons/package';
+import Users from 'lucide-react/dist/esm/icons/users';
+import FolderTree from 'lucide-react/dist/esm/icons/folder-tree';
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
+import Ticket from 'lucide-react/dist/esm/icons/ticket';
+import Wallet from 'lucide-react/dist/esm/icons/wallet';
+import LogOut from 'lucide-react/dist/esm/icons/log-out';
+import Image from 'lucide-react/dist/esm/icons/image';
 
 const navItems = [
   { icon: LayoutDashboard, label: '대시보드', href: '/admin' },

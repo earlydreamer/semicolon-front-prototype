@@ -4,41 +4,56 @@
 
 import { Link } from 'react-router-dom';
 import type { OrderHistory } from '@/types/user';
+import type { OrderListResponse } from '@/types/order';
 import { ORDER_STATUS_LABELS } from '@/constants/labels';
 import { formatTimeAgo } from '@/utils/date';
 import { formatPrice } from '@/utils/formatPrice';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
-
-interface OrderHistoryCardProps {
-  order: OrderHistory;
-}
-
 import { useState } from 'react';
 import { Modal } from '../../common/Modal';
 import { ReviewForm } from '../review/ReviewForm';
 
-// ... existing imports ...
+interface OrderHistoryCardProps {
+  order: OrderHistory | OrderListResponse;
+}
 
 const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
   const { showToast } = useToast();
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const statusInfo = ORDER_STATUS_LABELS[order.status];
 
-  // 구매 확정 가능 여부
-  const canConfirm = order.status === 'DELIVERED';
-  // 취소 가능 여부
-  const canCancel = order.status === 'PENDING' || order.status === 'PAID';
+  // API 데이터 여부 확인 및 통합 매핑
+  const isApiData = 'orderUuid' in order;
+  const id = isApiData ? (order as OrderListResponse).orderUuid : (order as OrderHistory).id;
+  const createdAt = isApiData ? (order as OrderListResponse).orderDate : (order as OrderHistory).createdAt;
+  const status = isApiData ? (order as OrderListResponse).status : (order as OrderHistory).status;
+  const totalAmount = isApiData ? (order as OrderListResponse).totalAmount : (order as OrderHistory).totalPrice;
+  
+  // 첫 번째 아이템 정보를 대표로 사용 (API의 경우)
+  const productId = isApiData 
+    ? (order as OrderListResponse).items[0]?.productUuid 
+    : (order as OrderHistory).productId;
+
+  const title = isApiData ? (order as OrderListResponse).items[0]?.productName : (order as OrderHistory).product.title;
+  const image = isApiData ? (order as OrderListResponse).items[0]?.imageUrl : (order as OrderHistory).product.image;
+  const sellerNickname = isApiData ? '판매자' : (order as OrderHistory).product.seller.nickname;
+
+  const statusInfo = ORDER_STATUS_LABELS[status] || { text: status, className: 'bg-neutral-100 text-neutral-600' };
+
+  // 개별 아이템 상태 확인 (API 데이터인 경우)
+  const itemStatus = isApiData ? (order as OrderListResponse).items[0]?.itemStatus : undefined;
+  
+  // 구매 확정 가능 여부 - 아이템 상태 기준
+  const canConfirm = itemStatus === 'DELIVERED' || itemStatus === 'CONFIRM_PENDING';
+  // 취소 가능 여부 - 주문 상태 기준
+  const canCancel = status === 'PENDING' || status === 'PAID';
 
   const handleConfirm = () => {
-    // 구매 확정 로직 (API 호출 등)
-    // 여기서는 바로 리뷰 작성 모달을 띄우는 것으로 가정 (또는 구매 확정 후 띄우기)
     setShowReviewModal(true);
   };
 
   const handleReviewSubmit = () => {
     setShowReviewModal(false);
-    // 상태 업데이트 로직이 있다면 여기서 수행 (예: order.hasReview = true)
   };
 
   const handleCancel = () => {
@@ -51,9 +66,9 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
         {/* 상단: 주문 정보 */}
         <div className="flex items-center justify-between mb-3 pb-3 border-b border-neutral-100">
           <div className="text-xs text-neutral-500">
-            <span>주문번호 {order.id}</span>
+            <span>주문번호 {id}</span>
             <span className="mx-2">•</span>
-            <span>{formatTimeAgo(order.createdAt)}</span>
+            <span>{formatTimeAgo(createdAt)}</span>
           </div>
           <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${statusInfo.className}`}>
             {statusInfo.text}
@@ -63,29 +78,29 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
         {/* 상품 정보 */}
         <div className="flex gap-4">
           <Link
-            to={`/products/${order.productId}`}
+            to={`/products/${productId}`}
             className="w-20 h-20 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0"
           >
             <img
-              src={order.product.image}
-              alt={order.product.title}
+              src={image || '/images/placeholder.png'}
+              alt={title}
               className="w-full h-full object-cover"
             />
           </Link>
 
           <div className="flex-1 min-w-0">
             <Link
-              to={`/products/${order.productId}`}
+              to={`/products/${productId}`}
               className="block text-sm font-medium text-neutral-900 hover:text-primary-600 line-clamp-2"
             >
-              {order.product.title}
+              {title}
             </Link>
             <p className="text-xs text-neutral-500 mt-1">
-              판매자: {order.product.seller.nickname}
+              판매자: {sellerNickname}
             </p>
             <p className="text-base font-bold text-neutral-900 mt-2">
-              {formatPrice(order.totalPrice)}
-              {order.shippingFee > 0 && (
+              {formatPrice(totalAmount)}
+              {!isApiData && (order as OrderHistory).shippingFee > 0 && (
                 <span className="text-xs font-normal text-neutral-500 ml-1">
                   (배송비 포함)
                 </span>
@@ -93,19 +108,19 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
             </p>
             
             {/* 운송장 정보 (배송중/배송완료/구매확정 시 노출) */}
-            {(order.trackingNumber && (['SHIPPING', 'DELIVERED', 'CONFIRMED'].includes(order.status))) && (
+            {(!isApiData && (order as OrderHistory).trackingNumber && (['SHIPPING', 'DELIVERED', 'CONFIRMED'].includes(status))) && (
               <div className="mt-3 p-3 bg-neutral-50 rounded-lg border border-neutral-100 flex items-center justify-between">
                 <div>
                   <p className="text-[10px] text-neutral-400 font-medium leading-none mb-1">배송정보</p>
                   <p className="text-xs font-semibold text-neutral-700">
-                    {order.deliveryCompany} {order.trackingNumber}
+                    {(order as OrderHistory).deliveryCompany} {(order as OrderHistory).trackingNumber}
                   </p>
                 </div>
                 <Button 
                   size="sm" 
                   variant="outline" 
                   className="h-8 text-[11px] px-3 border-neutral-300 text-neutral-600 hover:bg-white"
-                  onClick={() => window.open(`https://search.naver.com/search.naver?query=${order.deliveryCompany}+${order.trackingNumber}`, '_blank')}
+                  onClick={() => window.open(`https://search.naver.com/search.naver?query=${(order as OrderHistory).deliveryCompany}+${(order as OrderHistory).trackingNumber}`, '_blank')}
                 >
                   배송 조회
                 </Button>
@@ -138,8 +153,8 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
         title="리뷰 작성"
       >
         <ReviewForm
-          orderId={order.id}
-          productTitle={order.product.title}
+          orderId={id}
+          productTitle={title}
           onSubmit={handleReviewSubmit}
           onCancel={() => setShowReviewModal(false)}
         />

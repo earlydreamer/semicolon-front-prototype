@@ -4,7 +4,9 @@
 
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { CheckCircle, ShoppingBag, Home } from 'lucide-react';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import Home from 'lucide-react/dist/esm/icons/home';
 import { useOrderStore } from '../stores/useOrderStore';
 import { useCartStore } from '../stores/useCartStore';
 import { Button } from '../components/common/Button';

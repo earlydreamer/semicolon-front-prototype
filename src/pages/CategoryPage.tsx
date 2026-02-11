@@ -1,11 +1,12 @@
-/**
- * 카테고리 페이지
- * 필터 기능 포함 (가격대, 판매상태)
+﻿/**
+ * 移댄뀒怨좊━ ?섏씠吏
+ * ?꾪꽣 湲곕뒫 ?ы븿 (媛寃⑸?, ?먮ℓ?곹깭)
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { ChevronRight, Search } from 'lucide-react';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import Search from 'lucide-react/dist/esm/icons/search';
 import { ProductList } from '@/components/features/product/ProductList';
 import { ProductSortDropdown, type SortOption } from '@/components/features/product/ProductSortDropdown';
 import { 
@@ -15,117 +16,119 @@ import {
   getActiveFilterCount,
   type ProductFilterState 
 } from '@/components/features/product/ProductFilter';
-import { MOCK_PRODUCTS, type SaleStatus } from '@/mocks/products';
-import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
+import { type SaleStatus, type ProductListItem } from '@/types/product';
+import type { Category } from '@/types/category';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
-import { findCategoryPath, getCategoryChildren } from '@/utils/category';
+import { findCategoryPath, getCategoryChildren, transformCategories } from '@/utils/category';
 import { cn } from '@/utils/cn';
 import { sanitizeUrlParam } from '@/utils/sanitize';
+import { productService } from '@/services/productService';
 
 export default function CategoryPage() {
   const { categoryId: rawCategoryId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [products, setProducts] = useState<ProductListItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  // URL 파라미터 검증 (XSS 방지)
+  // URL ?뚮씪誘명꽣 寃利?(XSS 諛⑹?)
   const categoryId = sanitizeUrlParam(rawCategoryId);
   
-  // URL 파라미터에서 필터 조건 읽기
+  // URL ?뚮씪誘명꽣?먯꽌 ?꾪꽣 議곌굔 ?쎄린
   const minPrice = parseInt(searchParams.get('minPrice') || '0');
   const maxPrice = parseInt(searchParams.get('maxPrice') || '0');
   const status = (searchParams.get('status') || 'all') as SaleStatus | 'all';
   const sortParam = searchParams.get('sort') || 'latest';
   
-  // SortOption 타입 매핑
+  // SortOption ???留ㅽ븨
   const sort: SortOption = sortParam === 'price_asc' ? 'price-asc' : 
                            sortParam === 'price_desc' ? 'price-desc' : 
                            sortParam as SortOption;
 
-  // 필터 상태
+  // ?꾪꽣 ?곹깭
   const filters: ProductFilterState = {
     minPrice,
     maxPrice,
     status,
   };
 
+  // 移댄뀒怨좊━ ?곗씠??濡쒕뱶
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await productService.getCategories();
+        setCategories(transformCategories(data));
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  // ?곹뭹 ?곗씠??濡쒕뱶
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      setProducts([]); // Clear previous products to avoid confusion
+      try {
+        const sortMap: Record<SortOption, string> = {
+          'latest': 'recent',
+          'price-asc': 'price_asc',
+          'price-desc': 'price_desc',
+          'popular': 'popular'
+        };
+
+        const response = await productService.getProducts({
+          categoryId: categoryId && !isNaN(parseInt(categoryId)) ? parseInt(categoryId) : undefined,
+          sort: sortMap[sort],
+          page: 0,
+          size: 20
+        });
+        // Backend response uses 'items' field
+        const productList = response.items || [];
+        setProducts(productList);
+      } catch (error) {
+        console.error('Failed to load products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, [categoryId, sort]);
+
   // Find current category path
   const categoryPath = useMemo(() => {
-    if (!categoryId) return [];
-    return findCategoryPath(MOCK_CATEGORIES, categoryId) || [];
-  }, [categoryId]);
+    if (!categoryId || !categories.length) return [];
+    return findCategoryPath(categories, categoryId) || [];
+  }, [categoryId, categories]);
 
-  const currentCategoryName = categoryPath.length > 0 ? categoryPath[categoryPath.length - 1].name : '전체 상품';
+  const currentCategoryName = categoryPath.length > 0 ? categoryPath[categoryPath.length - 1].name : '?꾩껜 ?곹뭹';
 
-  // Filter and Sort Products
+  // Filter Products (?꾨줎?몄뿏?쒖뿉??異붽? ?꾪꽣留?
   const filteredProducts = useMemo(() => {
-    let products = [...MOCK_PRODUCTS];
+    let filtered = [...products];
 
-    if (categoryId) {
-      // Find all descendant category IDs
-      const targetIds = new Set<string>();
-      targetIds.add(categoryId);
-
-      // Helper to find node and collect descendants
-      const queue = [...MOCK_CATEGORIES];
-      let targetNode = null;
-
-      // 1. Find the target node
-      while (queue.length > 0) {
-        const node = queue.shift();
-        if (node?.id === categoryId) {
-          targetNode = node;
-          break;
-        }
-        if (node?.children) queue.push(...node.children);
-      }
-
-      // 2. If found, collect all children IDs
-      if (targetNode) {
-        const childQueue = [targetNode];
-        while (childQueue.length > 0) {
-          const node = childQueue.shift();
-          if (node) {
-            targetIds.add(node.id);
-            if (node.children) {
-              childQueue.push(...node.children);
-            }
-          }
-        }
-      }
-
-      products = products.filter(p => p.categoryId && targetIds.has(p.categoryId));
-    }
-
-    // 가격 필터
+    // 媛寃??꾪꽣
     if (minPrice > 0) {
-      products = products.filter((p) => p.price >= minPrice);
+      filtered = filtered.filter((p) => p.price >= minPrice);
     }
     if (maxPrice > 0) {
-      products = products.filter((p) => p.price <= maxPrice);
+      filtered = filtered.filter((p) => p.price <= maxPrice);
     }
 
-    // 상태 필터
+    // ?곹깭 ?꾪꽣
     if (status !== 'all') {
-      products = products.filter((p) => p.saleStatus === status);
+      filtered = filtered.filter((p) => p.saleStatus === status);
     }
 
-    // 정렬
-    switch (sort) {
-      case 'price-asc':
-        products.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        products.sort((a, b) => b.price - a.price);
-        break;
-      case 'latest':
-      default:
-        products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
+    return filtered;
+  }, [products, minPrice, maxPrice, status]);
 
-    return products;
-  }, [categoryId, minPrice, maxPrice, status, sort]);
-
-  // 정렬 변경
+  // ?뺣젹 蹂寃?
   const handleSortChange = (newSort: SortOption) => {
     const params = new URLSearchParams(searchParams);
     const sortValue = newSort === 'price-asc' ? 'price_asc' : 
@@ -134,7 +137,7 @@ export default function CategoryPage() {
     setSearchParams(params);
   };
 
-  // 필터 변경
+  // ?꾪꽣 蹂寃?
   const updateFilter = (key: keyof ProductFilterState, value: string) => {
     const params = new URLSearchParams(searchParams);
     if (value && value !== 'all' && value !== '0') {
@@ -145,7 +148,7 @@ export default function CategoryPage() {
     setSearchParams(params);
   };
 
-  // 필터 초기화
+  // ?꾪꽣 珥덇린??
   const clearFilters = () => {
     setSearchParams({});
   };
@@ -179,12 +182,12 @@ export default function CategoryPage() {
               : '/'}
             className="flex-shrink-0 px-4 py-1.5 rounded-full bg-neutral-100 text-sm font-medium text-neutral-600 hover:bg-neutral-200"
           >
-            전체
+            ?꾩껜
           </Link>
           {/* Current siblings or children */}
           {(categoryId ? 
-            (getCategoryChildren(MOCK_CATEGORIES, categoryId) || []) : 
-            MOCK_CATEGORIES
+            (getCategoryChildren(categories, categoryId) || []) : 
+            categories
           ).map((cat: Category) => (
             <Link
               key={cat.id}
@@ -220,11 +223,15 @@ export default function CategoryPage() {
           {/* Toolbar */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-200">
             <div className="flex items-center gap-4">
-              <span className="text-sm text-neutral-500">
-                총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
-              </span>
+              {loading ? (
+                <span className="text-sm text-neutral-500">濡쒕뵫 以?..</span>
+              ) : (
+                <span className="text-sm text-neutral-500">
+                  珥?<strong className="text-neutral-900">{filteredProducts.length}</strong>媛?
+                </span>
+              )}
               
-              {/* 모바일 필터 버튼 */}
+              {/* 紐⑤컮???꾪꽣 踰꾪듉 */}
               <MobileFilterButton 
                 activeFilterCount={activeFilterCount}
                 onClick={() => setShowMobileFilters(true)}
@@ -240,13 +247,13 @@ export default function CategoryPage() {
           ) : (
             <div className="py-20 text-center text-neutral-500 bg-neutral-50 rounded-lg">
               <Search className="w-12 h-12 mx-auto mb-4 text-neutral-300" />
-              <p className="mb-2">해당 조건에 맞는 상품이 없습니다.</p>
+              <p className="mb-2">?대떦 議곌굔??留욌뒗 ?곹뭹???놁뒿?덈떎.</p>
               {activeFilterCount > 0 && (
                 <button
                   onClick={clearFilters}
                   className="text-primary-600 hover:underline text-sm"
                 >
-                  필터 초기화
+                  ?꾪꽣 珥덇린??
                 </button>
               )}
             </div>
@@ -254,7 +261,7 @@ export default function CategoryPage() {
         </main>
       </div>
 
-      {/* 모바일 필터 모달 */}
+      {/* 紐⑤컮???꾪꽣 紐⑤떖 */}
       <MobileFilterModal
         isOpen={showMobileFilters}
         onClose={() => setShowMobileFilters(false)}
@@ -265,3 +272,5 @@ export default function CategoryPage() {
     </div>
   );
 }
+
+

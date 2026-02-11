@@ -3,17 +3,37 @@
  */
 
 import { Link, Navigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 import { useAuthStore } from '../stores/useAuthStore';
-import { MOCK_ORDER_HISTORY } from '../mocks/users';
+import { orderService } from '../services/orderService';
+import { useState, useEffect } from 'react';
+import type { OrderListResponse } from '../types/order';
 import OrderHistoryCard from '../components/features/mypage/OrderHistoryCard';
 
 const OrderHistoryPage = () => {
   const { isAuthenticated } = useAuthStore();
+  const [orders, setOrders] = useState<OrderListResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      orderService.getMyOrders()
+        .then(res => setOrders(res.content))
+        .finally(() => setIsLoading(false));
+    }
+  }, [isAuthenticated]);
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent"></div>
+      </div>
+    );
   }
 
   return (
@@ -31,7 +51,7 @@ const OrderHistoryPage = () => {
         </div>
 
         {/* 주문 목록 */}
-        {MOCK_ORDER_HISTORY.length === 0 ? (
+        {orders.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-neutral-500 mb-4">구매 내역이 없습니다</p>
             <Link
@@ -43,8 +63,8 @@ const OrderHistoryPage = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {MOCK_ORDER_HISTORY.map((order) => (
-              <OrderHistoryCard key={order.id} order={order} />
+            {orders.map((order) => (
+              <OrderHistoryCard key={order.orderUuid} order={order as any} />
             ))}
           </div>
         )}

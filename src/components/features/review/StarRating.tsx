@@ -2,7 +2,7 @@
  * 별점 입력/표시 컴포넌트
  */
 
-import { Star } from 'lucide-react';
+import Star from 'lucide-react/dist/esm/icons/star';
 
 interface StarRatingProps {
   value: number;

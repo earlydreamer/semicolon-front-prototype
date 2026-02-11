@@ -3,7 +3,9 @@
  */
 
 import { Link } from 'react-router-dom';
-import { Eye, Heart, MoreVertical } from 'lucide-react';
+import Eye from 'lucide-react/dist/esm/icons/eye';
+import Heart from 'lucide-react/dist/esm/icons/heart';
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
 import type { SaleStatus } from '@/types/product';
 import { formatTimeAgo } from '@/utils/date';
 import { formatPrice } from '@/utils/formatPrice';
@@ -40,8 +42,8 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
       {/* 상품 정보 */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${SALE_STATUS_COLORS[product.saleStatus]}`}>
-            {SALE_STATUS_LABELS[product.saleStatus]}
+          <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${SALE_STATUS_COLORS[product.saleStatus as SaleStatus] || SALE_STATUS_COLORS.ON_SALE}`}>
+            {SALE_STATUS_LABELS[product.saleStatus as SaleStatus] || product.saleStatus}
           </span>
         </div>
         <Link

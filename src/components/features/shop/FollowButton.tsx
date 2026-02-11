@@ -2,7 +2,8 @@
  * 팔로우 버튼 컴포넌트
  */
 
-import { UserPlus, UserCheck } from 'lucide-react';
+import UserPlus from 'lucide-react/dist/esm/icons/user-plus';
+import UserCheck from 'lucide-react/dist/esm/icons/user-check';
 import { useFollowStore } from '../../../stores/useFollowStore';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useToast } from '../../common/Toast';
@@ -19,7 +20,7 @@ const FollowButton = ({ shopId, className = '' }: FollowButtonProps) => {
   
   const following = user ? isFollowing(user.id, shopId) : false;
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -28,7 +29,7 @@ const FollowButton = ({ shopId, className = '' }: FollowButtonProps) => {
       return;
     }
 
-    toggleFollow(user.id, shopId);
+    await toggleFollow(user.id, shopId);
     
     // toggleFollow가 void를 반환한다고 로깅에 나와있으므로, 
     // 결과값(nowFollowing) 대신 상태를 다시 체크하거나 단순히 메시지 노출

@@ -1,7 +1,7 @@
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Card } from '@/components/common/Card';
-import { Search } from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search';
 
 export default function DesignSystemPage() {
   return (

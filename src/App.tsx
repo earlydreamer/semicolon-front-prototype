@@ -1,6 +1,8 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DefaultLayout } from '@/components/layout/DefaultLayout';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useCartStore } from '@/stores/useCartStore';
 
 // Lazy load page components
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -16,6 +18,13 @@ const LikedProductsPage = lazy(() => import('./pages/LikedProductsPage'));
 const ShopPage = lazy(() => import('./pages/ShopPage'));
 const OrderPage = lazy(() => import('./pages/OrderPage'));
 const OrderCompletePage = lazy(() => import('./pages/OrderCompletePage'));
+
+// 토스 결제 페이지 (공식 샘플 스타일)
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const PaymentSuccessPage = lazy(() => import('./pages/SuccessPage'));
+const PaymentFailPage = lazy(() => import('./pages/FailPage'));
+
+
 const SellerPage = lazy(() => import('./pages/SellerPage'));
 const ProductRegisterPage = lazy(() => import('./pages/ProductRegisterPage'));
 const ProductEditPage = lazy(() => import('./pages/ProductEditPage'));
@@ -47,6 +56,30 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 const basename = import.meta.env.BASE_URL;
 
 function App() {
+  const { initialize, isInitialized, isAuthenticated } = useAuthStore();
+  const { fetchItems } = useCartStore();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchItems();
+    } else {
+      // 로그아웃 시 장바구니 상태 초기화
+      useCartStore.setState({ items: [] });
+    }
+  }, [isAuthenticated, fetchItems]);
+
+  if (!isInitialized) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <BrowserRouter basename={basename}>
@@ -79,7 +112,19 @@ function App() {
                 <Route path="faq" element={<FAQPage />} />
                 <Route path="policy" element={<PolicyPage />} />
                 <Route path="categories" element={<Navigate to="/" replace />} />
+
+                {/* 토스 결제 페이지 */}
+                <Route path="checkout" element={<CheckoutPage />} />
+                <Route path="payment/success" element={<PaymentSuccessPage />} />
+                <Route path="payment/fail" element={<PaymentFailPage />} />
+                
+                {/* 백엔드 리다이렉트 경로 호환성 (Aliasing) */}
+                <Route path="payments/success" element={<PaymentSuccessPage />} />
+                <Route path="payments/fail" element={<PaymentFailPage />} />
+                <Route path="payments/toss/success" element={<PaymentSuccessPage />} />
+                <Route path="payments/toss/fail" element={<PaymentFailPage />} />
               </Route>
+
 
               {/* 
                 관리자 페이지

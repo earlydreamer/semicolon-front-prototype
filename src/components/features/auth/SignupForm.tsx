@@ -4,6 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
+import { Modal } from '@/components/common/Modal';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useToast } from '@/components/common/Toast';
 
 const signupSchema = z
   .object({
@@ -16,10 +20,7 @@ const signupSchema = z
         '영문, 숫자, 특수문자를 포함해야 합니다.'
       ),
     confirmPassword: z.string(),
-    name: z.string().min(2, '이름은 2자 이상이어야 합니다.'),
-    phone: z
-      .string()
-      .regex(/^01[0-9]\d{7,8}$/, '올바른 휴대폰 번호 형식이 아닙니다. (- 제외)'),
+    nickname: z.string().min(2, '닉네임은 2자 이상이어야 합니다.'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: '비밀번호가 일치하지 않습니다.',
@@ -29,7 +30,11 @@ const signupSchema = z
 type SignupSchema = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { register: registerUser } = useAuthStore();
+  const { showToast } = useToast();
 
   const {
     register,
@@ -41,11 +46,20 @@ export function SignupForm() {
 
   const onSubmit = async (data: SignupSchema) => {
     setIsLoading(true);
-    // Mock API Call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log('[MOCK] Signup attempt:', data);
-    alert('회원가입 성공 (Mock)');
-    setIsLoading(false);
+    try {
+      await registerUser({
+        email: data.email,
+        password: data.password,
+        nickname: data.nickname,
+      });
+      setIsModalOpen(true);
+    } catch (error: any) {
+      console.error(error);
+      const message = error.response?.data?.message || '회원가입 중 문제가 발생했습니다.';
+      showToast(message, 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -58,18 +72,10 @@ export function SignupForm() {
         {...register('email')}
       />
       <Input
-        label="이름"
-        placeholder="홍길동"
-        error={errors.name?.message}
-        {...register('name')}
-      />
-      <Input
-        label="휴대폰 번호"
-        placeholder="01012345678"
-        helperText="- 없이 숫자만 입력해주세요"
-        error={errors.phone?.message}
-        maxLength={11}
-        {...register('phone')}
+        label="닉네임"
+        placeholder="닉네임을 입력해주세요"
+        error={errors.nickname?.message}
+        {...register('nickname')}
       />
       <Input
         label="비밀번호"
@@ -89,6 +95,34 @@ export function SignupForm() {
       <Button type="submit" className="w-full mt-6" isLoading={isLoading} size="lg">
         가입하기
       </Button>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          navigate('/login');
+        }}
+        title="가입 완료"
+        size="sm"
+      >
+        <div className="text-center py-4">
+          <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
+            <span className="text-green-500 text-xl font-bold">✓</span>
+          </div>
+          <p className="text-neutral-700 font-medium mb-6">
+            회원가입이 성공적으로 완료되었습니다!
+          </p>
+          <Button 
+            onClick={() => {
+              setIsModalOpen(false);
+              navigate('/login');
+            }} 
+            className="w-full font-bold"
+          >
+            로그인하러 가기
+          </Button>
+        </div>
+      </Modal>
     </form>
   );
 }

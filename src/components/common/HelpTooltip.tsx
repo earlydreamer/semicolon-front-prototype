@@ -6,7 +6,8 @@
  */
 
 import { useState, useRef, useEffect, type ReactNode } from 'react';
-import { HelpCircle, X } from 'lucide-react';
+import HelpCircle from 'lucide-react/dist/esm/icons/help-circle';
+import X from 'lucide-react/dist/esm/icons/x';
 
 interface HelpTooltipProps {
   content: ReactNode;

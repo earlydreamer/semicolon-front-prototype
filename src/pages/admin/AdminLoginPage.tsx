@@ -17,7 +17,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { ShieldCheck, AlertTriangle } from 'lucide-react';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 
 const AdminLoginPage = () => {
   const [adminId, setAdminId] = useState('');

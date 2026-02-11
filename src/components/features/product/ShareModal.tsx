@@ -1,5 +1,6 @@
 import { Modal } from '@/components/common/Modal';
-import { Copy, Twitter } from 'lucide-react';
+import Copy from 'lucide-react/dist/esm/icons/copy';
+import Twitter from 'lucide-react/dist/esm/icons/twitter';
 import { useToast } from '@/components/common/Toast';
 
 interface ShareModalProps {

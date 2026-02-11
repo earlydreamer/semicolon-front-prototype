@@ -6,26 +6,29 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useOrderStore } from '../stores/useOrderStore';
-import { ChevronLeft } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 
 import OrderItemList from '../components/features/order/OrderItemList';
-import AddressSelector from '../components/features/order/AddressSelector';
-import PaymentMethodSelector from '../components/features/order/PaymentMethodSelector';
+import ShippingInfoForm from '../components/features/order/ShippingInfoForm';
 import OrderSummary from '../components/features/order/OrderSummary';
+import DepositUseForm from '../components/features/order/DepositUseForm';
 import { CouponSelector, calculateCouponDiscount, type UserCoupon } from '../components/features/order/CouponSelector';
 import { useToast } from '../components/common/Toast';
 
 const OrderPage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const { showToast } = useToast();
   
   const { 
     orderItems, 
     shippingInfo, 
-    paymentMethod,
+    depositUseAmount,
     setShippingInfo,
-    setPaymentMethod,
+    setOrderUuid,
+    setOrderResponseItems,
+    setCouponUuid,
+    setDepositUseAmount,
     getOrderSummary
   } = useOrderStore();
 
@@ -55,24 +58,50 @@ const OrderPage = () => {
   const couponDiscount = calculateCouponDiscount(selectedCoupon, totalProductPrice);
   const finalPriceWithCoupon = finalPrice - couponDiscount;
   
-  const isFormValid = shippingInfo !== null && paymentMethod !== null;
+  // 배송지 유효성 검사 (MVP: 직접 입력 시 필수 필드 체크)
+  const isFormValid = !!(
+    shippingInfo?.recipient &&
+    shippingInfo?.phone &&
+    shippingInfo?.zipCode &&
+    shippingInfo?.address &&
+    shippingInfo?.detailAddress
+  );
 
   const handlePayment = async () => {
-    if (!isFormValid) return;
+    if (!isFormValid || !shippingInfo) return;
 
     setIsLoading(true);
     
-    // 결제 처리 시뮬레이션 (1.5초)
-    setTimeout(() => {
+    try {
+      // 실데이터 연동: 백엔드 주문 생성 API 호출
+      const orderRequest = {
+        address: `${shippingInfo.address} ${shippingInfo.detailAddress}`,
+        recipient: shippingInfo.recipient,
+        contactNumber: shippingInfo.phone,
+        items: orderItems.map(item => ({
+          productUuid: item.productUuid,
+          sellerUuid: '00000000-0000-0000-0000-000000000000', // FIXME: 백엔드 CartDto에 sellerUuid 부재로 임시 처리
+          productName: item.title,
+          productPrice: item.price,
+          imageUrl: item.thumbnailUrl || ''
+        }))
+      };
+
+      const orderService = (await import('../services/orderService')).orderService;
+      const response = await orderService.createOrder(orderRequest);
+      
+      setOrderUuid(response.orderUuid);
+      setOrderResponseItems(response.items); // 주문 응답의 items 저장 (결제 요청에 사용)
+      setCouponUuid(selectedCoupon?.id || null);
+      
+      // 토스 결제 위젯 페이지로 이동
+      navigate('/checkout');
+    } catch (error: any) {
+      console.error('Order creation failed:', error);
+      showToast(error.response?.data?.message || '주문 생성에 실패했습니다.', 'error');
+    } finally {
       setIsLoading(false);
-      
-      // 여기서 실제로는 API 호출로 주문 생성
-      
-      // 주문 성공 처리
-      navigate('/order/complete');
-      // 주문 완료 후 Store 정리는 OrderCompletePage 마운트 시 하거나 여기서 해도 됨
-      // 여기서는 성공 페이지에서 정보를 보여줘야 하므로 아직 정리하지 않음
-    }, 1500);
+    }
   };
 
   return (
@@ -92,26 +121,27 @@ const OrderPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 왼쪽: 주문 정보 입력 */}
           <div className="lg:col-span-2 space-y-6">
-            {/* 배송지 정보 */}
-            <AddressSelector 
-              selectedAddress={shippingInfo} 
-              onSelect={setShippingInfo} 
+            {/* 배송지 정보 (직접 입력) */}
+            <ShippingInfoForm 
+              shippingInfo={shippingInfo} 
+              onUpdate={setShippingInfo} 
             />
 
             {/* 주문 상품 */}
             <OrderItemList items={orderItems} />
 
-            {/* 쿠폰 적용 */}
             <CouponSelector
               orderAmount={totalProductPrice}
               selectedCoupon={selectedCoupon}
               onSelectCoupon={setSelectedCoupon}
             />
 
-            {/* 결제 수단 */}
-            <PaymentMethodSelector 
-              selectedMethod={paymentMethod} 
-              onSelect={setPaymentMethod} 
+            {/* 예치금 사용 */}
+            <DepositUseForm
+              balance={(user as any)?.deposit || 0}
+              useAmount={depositUseAmount}
+              onUseAmountChange={setDepositUseAmount}
+              maxUseAmount={finalPriceWithCoupon}
             />
           </div>
 
@@ -121,7 +151,8 @@ const OrderPage = () => {
               productPrice={totalProductPrice}
               shippingFee={totalShippingFee}
               couponDiscount={couponDiscount}
-              finalPrice={finalPriceWithCoupon}
+              depositUseAmount={depositUseAmount}
+              finalPrice={Math.max(0, finalPriceWithCoupon - depositUseAmount)}
               disabled={!isFormValid}
               onPayment={handlePayment}
               isLoading={isLoading}

@@ -6,7 +6,8 @@ import { useState } from 'react';
 import { useToast } from '../../common/Toast';
 import { Button } from '../../common/Button';
 import { StarRating } from './StarRating';
-import { ImagePlus, X } from 'lucide-react';
+import ImagePlus from 'lucide-react/dist/esm/icons/image-plus';
+import X from 'lucide-react/dist/esm/icons/x';
 
 interface ReviewFormProps {
   orderId: string;

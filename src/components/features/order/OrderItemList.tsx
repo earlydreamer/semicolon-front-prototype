@@ -21,12 +21,12 @@ const OrderItemList = ({ items }: OrderItemListProps) => {
       </div>
       <div className="divide-y divide-neutral-100">
         {items.map((item) => (
-          <div key={item.product.id} className="p-5 flex gap-4">
+          <div key={item.cartId || item.productUuid} className="p-5 flex gap-4">
             {/* 상품 이미지 */}
             <div className="w-20 h-20 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0 border border-neutral-200">
               <img
-                src={item.product.image}
-                alt={item.product.title}
+                src={item.thumbnailUrl || ''}
+                alt={item.title}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -34,22 +34,20 @@ const OrderItemList = ({ items }: OrderItemListProps) => {
             {/* 상품 정보 */}
             <div className="flex-1 min-w-0">
               <Link
-                to={`/products/${item.product.id}`}
+                to={`/products/${item.productUuid}`}
                 className="text-sm font-medium text-neutral-900 line-clamp-2 hover:underline"
               >
-                {item.product.title}
+                {item.title}
               </Link>
               <div className="mt-1 text-xs text-neutral-500">
-                {item.product.conditionStatus === 'SEALED' ? '미개봉' : '중고'}
+                {item.saleStatus === 'RESERVED' ? '예약중' : '판매중'}
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <span className="font-bold text-neutral-900">
-                  {item.product.price.toLocaleString('ko-KR')}원
+                  {item.price.toLocaleString('ko-KR')}원
                 </span>
                 <span className="text-xs text-neutral-500">
-                  {item.product.shippingFee > 0
-                    ? `배송비 ${item.product.shippingFee.toLocaleString('ko-KR')}원`
-                    : '무료배송'}
+                  배송비 별도
                 </span>
               </div>
             </div>

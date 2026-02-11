@@ -2,7 +2,10 @@
  * 상점 통계 컴포넌트
  */
 
-import { Package, ShoppingBag, Users, Star } from 'lucide-react';
+import Package from 'lucide-react/dist/esm/icons/package';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import Users from 'lucide-react/dist/esm/icons/users';
+import Star from 'lucide-react/dist/esm/icons/star';
 
 interface ShopStatsProps {
   salesCount: number;

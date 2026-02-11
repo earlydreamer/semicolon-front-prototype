@@ -3,32 +3,61 @@
  */
 
 import { Link, Navigate } from 'react-router-dom';
-import { ChevronLeft, Heart } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
+import Heart from 'lucide-react/dist/esm/icons/heart';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLikeStore } from '../stores/useLikeStore';
-import { MOCK_PRODUCTS } from '../mocks/products';
 import { useToast } from '../components/common/Toast';
+import { useEffect, useState } from 'react';
+import { userService } from '@/services/userService';
+import { formatPrice } from '@/utils/formatPrice';
 
 const LikedProductsPage = () => {
   const { isAuthenticated, user } = useAuthStore();
-  const { userLikes, toggleLike } = useLikeStore();
+  const { toggleLike, fetchUserLikes } = useLikeStore();
   const { showToast } = useToast();
+  
+  const [likedProducts, setLikedProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadLikedProducts();
+    }
+  }, [isAuthenticated, user?.id]);
+
+  const loadLikedProducts = async () => {
+    setIsLoading(true);
+    try {
+      const response = await userService.getLikedProducts();
+      setLikedProducts(response.content || []);
+      // store의 ID 목록도 동기화
+      if (user?.id) {
+        fetchUserLikes(user.id);
+      }
+    } catch (error) {
+      console.error('Failed to load liked products:', error);
+      showToast('찜한 상품을 불러오는데 실패했습니다.', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // 찜한 상품 필터링
-  const likedProductIds = user ? (userLikes[user.id] || []) : [];
-  const likedProducts = MOCK_PRODUCTS.filter((p) =>
-    likedProductIds.includes(p.id)
-  );
-
-  const handleUnlike = (productId: string, productTitle: string) => {
+  const handleUnlike = async (productId: string, productTitle: string) => {
     if (!user) return;
-    toggleLike(user.id, productId);
-    showToast(`"${productTitle}" 찜한 상품에서 제거되었습니다`, 'info');
+    try {
+      await toggleLike(user.id, productId);
+      setLikedProducts((prev) => prev.filter((p) => p.productUuid !== productId));
+      showToast(`"${productTitle}" 찜한 상품에서 제거되었습니다`, 'info');
+    } catch (error) {
+      showToast('처리에 실패했습니다.', 'error');
+    }
   };
 
   return (
@@ -44,14 +73,21 @@ const LikedProductsPage = () => {
           </Link>
           <h1 className="text-xl font-bold text-neutral-900">
             찜한 상품
-            <span className="ml-2 text-sm font-normal text-neutral-500">
-              {likedProducts.length}
-            </span>
+            {!isLoading && (
+              <span className="ml-2 text-sm font-normal text-neutral-500">
+                {likedProducts.length}
+              </span>
+            )}
           </h1>
         </div>
 
-        {/* 상품 목록 */}
-        {likedProducts.length === 0 ? (
+        {/* 로딩 상태 */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-primary-500 animate-spin mb-4" />
+            <p className="text-neutral-500">불러오는 중...</p>
+          </div>
+        ) : likedProducts.length === 0 ? (
           <div className="py-16 text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-neutral-100 flex items-center justify-center">
               <Heart className="w-8 h-8 text-neutral-400" />
@@ -68,16 +104,16 @@ const LikedProductsPage = () => {
           <div className="space-y-3">
             {likedProducts.map((product) => (
               <div
-                key={product.id}
+                key={product.productUuid}
                 className="flex gap-4 p-4 bg-white rounded-xl border border-neutral-200"
               >
                 {/* 상품 이미지 */}
                 <Link
-                  to={`/products/${product.id}`}
+                  to={`/products/${product.productUuid}`}
                   className="w-24 h-24 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0"
                 >
                   <img
-                    src={product.image}
+                    src={product.thumbnailUrl || '/images/placeholder.png'}
                     alt={product.title}
                     className="w-full h-full object-cover"
                   />
@@ -86,20 +122,19 @@ const LikedProductsPage = () => {
                 {/* 상품 정보 */}
                 <div className="flex-1 min-w-0">
                   <Link
-                    to={`/products/${product.id}`}
+                    to={`/products/${product.productUuid}`}
                     className="block text-sm font-medium text-neutral-900 hover:text-primary-600 line-clamp-2"
                   >
                     {product.title}
                   </Link>
                   <p className="text-base font-bold text-neutral-900 mt-1">
-                    {product.price.toLocaleString('ko-KR')}원
+                    {formatPrice(product.price)}
                   </p>
-
                 </div>
 
                 {/* 찜 해제 버튼 */}
                 <button
-                  onClick={() => handleUnlike(product.id, product.title)}
+                  onClick={() => handleUnlike(product.productUuid, product.title)}
                   className="p-2 text-red-500 hover:text-red-600 self-center"
                   title="찜 해제"
                 >

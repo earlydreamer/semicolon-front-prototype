@@ -5,14 +5,14 @@
  * 데스크톱/모바일 레이아웃 모두 포함
  */
 
-import { Heart, ShoppingBag } from 'lucide-react';
+import Heart from 'lucide-react/dist/esm/icons/heart';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
 import type { SaleStatus } from '@/types/product';
 
 interface ProductActionBarProps {
   // 상품 정보
   saleStatus: SaleStatus;
   likeCount: number;
-  isSafe: boolean;
   // 상태
   isLiked: boolean;
   // 핸들러
@@ -24,7 +24,6 @@ interface ProductActionBarProps {
 export const ProductActionBar = ({
   saleStatus,
   likeCount,
-  isSafe,
   isLiked,
   onLike,
   onAddToCart,
@@ -36,13 +35,13 @@ export const ProductActionBar = ({
   const getPurchaseButtonText = () => {
     if (saleStatus === 'SOLD_OUT') return '품절된 상품';
     if (saleStatus === 'RESERVED') return '예약중';
-    return '안전결제';
+    return '구매하기';
   };
 
   const getMobilePurchaseText = () => {
     if (saleStatus === 'SOLD_OUT') return '품절';
     if (saleStatus === 'RESERVED') return '예약중';
-    return '안전결제';
+    return '구매하기';
   };
 
   return (
@@ -68,19 +67,17 @@ export const ProductActionBar = ({
           <ShoppingBag className="h-5 w-5" />
           장바구니
         </button>
-        {isSafe && (
-          <button 
-            onClick={onPurchase}
-            disabled={isDisabled}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white transition-all active:scale-95 ${
-              isDisabled
-              ? 'bg-neutral-300 cursor-not-allowed'
-              : 'bg-primary-500 hover:bg-primary-600'
-            }`}
-          >
-            {getPurchaseButtonText()}
-          </button>
-        )}
+        <button 
+          onClick={onPurchase}
+          disabled={isDisabled}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white transition-all active:scale-95 ${
+            isDisabled
+            ? 'bg-neutral-300 cursor-not-allowed'
+            : 'bg-primary-500 hover:bg-primary-600'
+          }`}
+        >
+          {getPurchaseButtonText()}
+        </button>
       </div>
 
       {/* Mobile Fixed Bar */}
@@ -106,19 +103,17 @@ export const ProductActionBar = ({
           >
             장바구니
           </button>
-          {isSafe && (
-            <button 
-              onClick={onPurchase}
-              disabled={isDisabled}
-              className={`flex-1 rounded-md py-2 min-[360px]:py-2.5 text-xs min-[360px]:text-sm font-bold text-white shadow-sm transition-transform active:scale-95 ${
-                isDisabled
-                ? 'bg-neutral-300 cursor-not-allowed'
-                : 'bg-primary-500'
-              }`}
-            >
-              {getMobilePurchaseText()}
-            </button>
-          )}
+          <button 
+            onClick={onPurchase}
+            disabled={isDisabled}
+            className={`flex-1 rounded-md py-2 min-[360px]:py-2.5 text-xs min-[360px]:text-sm font-bold text-white shadow-sm transition-transform active:scale-95 ${
+              isDisabled
+              ? 'bg-neutral-300 cursor-not-allowed'
+              : 'bg-primary-500'
+            }`}
+          >
+            {getMobilePurchaseText()}
+          </button>
         </div>
       </div>
     </>

@@ -1,18 +1,15 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { followService } from '../services/followService';
 
 interface FollowState {
-  // 유저별 팔로우 목록: { [userId: string]: string[] }
   userFollowing: Record<string, string[]>;
-  
-  // Actions
-  toggleFollow: (userId: string, shopId: string) => void;
+
+  toggleFollow: (userId: string, shopId: string) => Promise<void>;
   isFollowing: (userId: string, shopId: string) => boolean;
-  addFollow: (userId: string, shopId: string) => void;
-  removeFollow: (userId: string, shopId: string) => void;
-  initFollowing: (userId: string) => void;
-  
-  // Computed
+  removeFollow: (userId: string, shopId: string) => Promise<void>;
+  initFollowing: (userId: string) => Promise<void>;
+
   getFollowingCount: (userId: string) => number;
 }
 
@@ -20,52 +17,62 @@ export const useFollowStore = create<FollowState>()(
   persist(
     (set, get) => ({
       userFollowing: {},
-      
-      initFollowing: (userId: string) => {
-        if (!get().userFollowing[userId]) {
-          // 초기 팔로우 상점 (Mock - 's3')
+
+      initFollowing: async (userId: string) => {
+        try {
+          const following = await followService.getMyFollowing();
+          const ids = following.map((item) => item.sellerUuid);
           set((state) => ({
-            userFollowing: { ...state.userFollowing, [userId]: ['s3'] }
+            userFollowing: { ...state.userFollowing, [userId]: ids },
           }));
+        } catch (error) {
+          console.error('Failed to initialize following list:', error);
         }
       },
 
-      toggleFollow: (userId: string, shopId: string) => {
+      toggleFollow: async (userId: string, shopId: string) => {
         const currentFollowing = get().userFollowing[userId] || [];
         const isCurrentlyFollowing = currentFollowing.includes(shopId);
-        
-        let newFollowing: string[];
-        if (isCurrentlyFollowing) {
-          newFollowing = currentFollowing.filter((id) => id !== shopId);
-        } else {
-          newFollowing = [...currentFollowing, shopId];
-        }
 
-        set((state) => ({
-          userFollowing: { ...state.userFollowing, [userId]: newFollowing }
-        }));
+        try {
+          if (isCurrentlyFollowing) {
+            await followService.unfollowSeller(shopId);
+          } else {
+            await followService.followSeller(shopId);
+          }
+
+          const newFollowing = isCurrentlyFollowing
+            ? currentFollowing.filter((id) => id !== shopId)
+            : [...currentFollowing, shopId];
+
+          set((state) => ({
+            userFollowing: { ...state.userFollowing, [userId]: newFollowing },
+          }));
+        } catch (error) {
+          console.error('Failed to toggle follow:', error);
+        }
       },
-      
+
       isFollowing: (userId: string, shopId: string) => {
         return (get().userFollowing[userId] || []).includes(shopId);
       },
-      
-      addFollow: (userId: string, shopId: string) => {
+
+      removeFollow: async (userId: string, shopId: string) => {
         const current = get().userFollowing[userId] || [];
-        if (!current.includes(shopId)) {
+
+        try {
+          await followService.unfollowSeller(shopId);
           set((state) => ({
-            userFollowing: { ...state.userFollowing, [userId]: [...current, shopId] }
+            userFollowing: {
+              ...state.userFollowing,
+              [userId]: current.filter((id) => id !== shopId),
+            },
           }));
+        } catch (error) {
+          console.error('Failed to unfollow:', error);
         }
       },
-      
-      removeFollow: (userId: string, shopId: string) => {
-        const current = get().userFollowing[userId] || [];
-        set((state) => ({
-          userFollowing: { ...state.userFollowing, [userId]: current.filter((id) => id !== shopId) }
-        }));
-      },
-      
+
       getFollowingCount: (userId: string) => {
         return (get().userFollowing[userId] || []).length;
       },

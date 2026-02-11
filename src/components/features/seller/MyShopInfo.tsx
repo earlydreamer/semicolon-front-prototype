@@ -3,7 +3,8 @@
  */
 
 import { useState } from 'react';
-import { Camera, Save } from 'lucide-react';
+import Camera from 'lucide-react/dist/esm/icons/camera';
+import Save from 'lucide-react/dist/esm/icons/save';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
@@ -22,8 +23,8 @@ const MyShopInfo = () => {
   
   const initialShopInfo: ShopInfo = {
     name: user?.nickname || '',
-    intro: user?.intro || '',
-    avatar: user?.avatar || '',
+    intro: (user as any)?.intro || '',
+    avatar: (user as any)?.avatar || '',
   };
 
   const [shopInfo, setShopInfo] = useState<ShopInfo>(initialShopInfo);

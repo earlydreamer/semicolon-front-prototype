@@ -1,21 +1,35 @@
-import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Search, ShoppingBag, Bell, X, User as UserIcon } from 'lucide-react';
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import Search from 'lucide-react/dist/esm/icons/search';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import Bell from 'lucide-react/dist/esm/icons/bell';
+import X from 'lucide-react/dist/esm/icons/x';
+import UserIcon from 'lucide-react/dist/esm/icons/user';
 import { Button } from '@/components/common/Button';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useCartStore } from '@/stores/useCartStore';
 import { CategoryNav } from '@/components/features/category/CategoryNav';
-import { MOCK_CATEGORIES } from '@/mocks/categories';
+import { productService } from '@/services/productService';
+import { transformCategories } from '@/utils/category';
+import type { Category } from '@/types/category';
 import logo from '@/assets/logo.png';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
   
   const { isAuthenticated, user, logout } = useAuthStore();
   const cartItemCount = useCartStore((state) => state.getTotalCount());
   const navigate = useNavigate();
+
+  useEffect(() => {
+    productService.getCategories()
+      .then(data => setCategories(transformCategories(data)))
+      .catch((error) => console.error('Failed to load categories', error));
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -44,7 +58,7 @@ export function Header() {
           <Link to="/" className="flex items-center flex-shrink-0">
             <img 
               src={logo} 
-              alt="덕쿠" 
+              alt="?뺤퓼" 
               className="h-8 min-[320px]:h-10 md:h-12 w-auto transition-transform hover:scale-105" 
             />
           </Link>
@@ -59,7 +73,7 @@ export function Header() {
               className="flex items-center gap-2 text-sm font-medium text-neutral-900 hover:text-primary-600"
             >
               <Menu className="h-5 w-5" />
-              카테고리
+              移댄뀒怨좊━
             </button>
             
             {/* Category Dropdown Overlay */}
@@ -77,7 +91,7 @@ export function Header() {
                type="text"
                value={searchQuery}
                onChange={(e) => setSearchQuery(e.target.value)}
-               placeholder="상품명, @상점명 입력" 
+               placeholder="?곹뭹紐? @?곸젏紐??낅젰" 
                className="h-10 w-full px-4 pr-10 bg-neutral-100 border-none rounded-lg focus:bg-white focus:ring-1 focus:ring-primary-500 transition-all text-sm"
              />
              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -113,7 +127,7 @@ export function Header() {
                  <div className="w-6 h-6 rounded-full bg-neutral-300 flex items-center justify-center">
                    <UserIcon className="h-4 w-4 text-white" />
                  </div>
-                 <span className="text-xs font-semibold">{user?.nickname}님</span>
+                  <span className="text-xs font-semibold">{user?.nickname}님</span>
                </Link>
                <Button 
                   variant="ghost" 
@@ -121,7 +135,7 @@ export function Header() {
                   onClick={handleLogout}
                   className="hidden md:flex text-neutral-500 hover:text-red-600"
                 >
-                 로그아웃
+                 濡쒓렇?꾩썐
                </Button>
              </>
           ) : (
@@ -152,7 +166,7 @@ export function Header() {
         onMouseLeave={() => setIsCategoryOpen(false)}
       >
         <CategoryNav 
-          categories={MOCK_CATEGORIES} 
+          categories={categories} 
           onClose={() => setIsCategoryOpen(false)}
         />
       </div>
@@ -165,7 +179,7 @@ export function Header() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b border-neutral-100">
-              <h2 className="text-lg font-bold">메뉴</h2>
+              <h2 className="text-lg font-bold">硫붾돱</h2>
               <button onClick={() => setIsMenuOpen(false)}>
                 <X className="h-6 w-6 text-neutral-900" />
               </button>
@@ -185,9 +199,9 @@ export function Header() {
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <Link to="/mypage" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="outline" className="w-full justify-center">마이페이지</Button>
+                      <Button variant="outline" className="w-full justify-center">留덉씠?섏씠吏</Button>
                     </Link>
-                    <Button variant="outline" className="w-full justify-center" onClick={handleLogout}>로그아웃</Button>
+                    <Button variant="outline" className="w-full justify-center" onClick={handleLogout}>濡쒓렇?꾩썐</Button>
                   </div>
                 </div>
               ) : (
@@ -199,10 +213,10 @@ export function Header() {
               )}
 
               <div className="pt-4 border-t border-neutral-100">
-                <h3 className="mb-4 text-sm font-bold text-neutral-500">카테고리</h3>
+                <h3 className="mb-4 text-sm font-bold text-neutral-500">移댄뀒怨좊━</h3>
                 <CategoryNav 
                   variant="mobile" 
-                  categories={MOCK_CATEGORIES} 
+                  categories={categories} 
                   onClose={() => setIsMenuOpen(false)}
                 />
               </div>
@@ -213,3 +227,4 @@ export function Header() {
     </header>
   );
 }
+

@@ -3,7 +3,7 @@
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 
 const PolicyPage = () => {
   const [activeTab, setActiveTab] = useState<'terms' | 'privacy'>('terms');

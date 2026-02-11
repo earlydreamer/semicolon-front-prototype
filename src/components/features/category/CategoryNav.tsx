@@ -1,8 +1,8 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { cn } from '@/utils/cn';
-import type { Category } from '@/mocks/categories';
+import type { Category } from '@/types/category';
 
 interface CategoryNavProps {
   categories: Category[];
@@ -121,10 +121,11 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
           </div>
         ) : (
           <div className="flex h-full items-center justify-center text-neutral-400">
-            카테고리를 선택해주세요
+            移댄뀒怨좊━瑜??좏깮?댁＜?몄슂
           </div>
         )}
       </div>
     </div>
   );
 }
+

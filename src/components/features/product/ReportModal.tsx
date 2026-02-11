@@ -3,7 +3,8 @@
  */
 
 import { useState } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import X from 'lucide-react/dist/esm/icons/x';
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 

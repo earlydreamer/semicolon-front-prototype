@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import type { Product } from '@/mocks/products';
+import type { Product, ProductListItem } from '@/types/product';
 import { ProductCard } from './ProductCard';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { ProductSkeletonList } from './ProductSkeleton';
 import { PAGINATION } from '@/constants';
 
 interface ProductListProps {
-  products: Product[];
+  products: (Product | ProductListItem)[];
   title?: string;
   enableInfiniteScroll?: boolean;
 }
@@ -23,8 +23,10 @@ export function ProductList({
   // 품절 상품을 뒤로 보내는 정렬 로직 (useMemo로 참조 고정)
   const sortedProducts = useMemo(() => {
     return [...products].sort((a, b) => {
-      const aSoldOut = a.saleStatus === 'SOLD_OUT' || a.saleStatus === 'RESERVED';
-      const bSoldOut = b.saleStatus === 'SOLD_OUT' || b.saleStatus === 'RESERVED';
+      const aSaleStatus = ('saleStatus' in a) ? a.saleStatus : (a as any).saleStatus || 'ON_SALE';
+      const bSaleStatus = ('saleStatus' in b) ? b.saleStatus : (b as any).saleStatus || 'ON_SALE';
+      const aSoldOut = aSaleStatus === 'SOLD_OUT' || aSaleStatus === 'RESERVED';
+      const bSoldOut = bSaleStatus === 'SOLD_OUT' || bSaleStatus === 'RESERVED';
       if (aSoldOut && !bSoldOut) return 1;
       if (!aSoldOut && bSoldOut) return -1;
       return 0;
@@ -53,8 +55,8 @@ export function ProductList({
         md(768px) 이상: 4열
       */}
       <div className="grid grid-cols-1 gap-3 min-[320px]:grid-cols-2 min-[320px]:gap-4 sm:grid-cols-3 md:grid-cols-4">
-        {itemsToRender.map((product: Product) => (
-          <ProductCard key={product.id} product={product} />
+        {itemsToRender.map((product: any) => (
+          <ProductCard key={('productUuid' in product ? product.productUuid : product.id)} product={product} />
         ))}
         
         {/* 로딩 중 스켈레톤 표시 */}

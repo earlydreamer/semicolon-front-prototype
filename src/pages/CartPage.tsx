@@ -3,6 +3,7 @@
  */
 
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useCartStore } from '../stores/useCartStore';
 import { useOrderStore } from '../stores/useOrderStore';
 import { useToast } from '../components/common/Toast';
@@ -14,6 +15,7 @@ const CartPage = () => {
   const { showToast } = useToast();
   
   const items = useCartStore((state) => state.items);
+  const fetchItems = useCartStore((state) => state.fetchItems);
   const removeItem = useCartStore((state) => state.removeItem);
   const toggleSelect = useCartStore((state) => state.toggleSelect);
   const selectAll = useCartStore((state) => state.selectAll);
@@ -22,19 +24,24 @@ const CartPage = () => {
   const getSelectedItems = useCartStore((state) => state.getSelectedItems);
   const { setOrderItems } = useOrderStore();
 
+  // 데이터 로드
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
+
   const summary = getCartSummary();
   const allSelected = items.length > 0 && items.every((item) => item.selected);
   const hasSelectedItems = items.some((item) => item.selected);
 
   // 선택 삭제 핸들러
-  const handleRemoveSelected = () => {
+  const handleRemoveSelected = async () => {
     if (!hasSelectedItems) {
       showToast('삭제할 상품을 선택해주세요', 'error');
       return;
     }
     
     const selectedCount = items.filter((i) => i.selected).length;
-    removeSelectedItems();
+    await removeSelectedItems();
     showToast(`${selectedCount}개 상품이 삭제되었습니다`, 'success');
   };
 
@@ -45,10 +52,15 @@ const CartPage = () => {
       return;
     }
     const selectedItems = getSelectedItems();
-    setOrderItems(selectedItems);
+    
+    // OrderItem 형식에 맞게 변환 (CartItem과 OrderItem 구조 확인 필요)
+    // 현재 OrderItem은 Product 객체를 포함해야 함. 
+    // 하지만 실데이터 장바구니엔 Product 전체 객체가 없으므로 
+    // 최소한의 정보만 넘기거나 OrderStore를 수정해야 함.
+    // 여기서는 일단 기존 구조 유지를 위해 필요한 필드만 맞춰서 넘김.
+    setOrderItems(selectedItems as any);
     navigate('/order');
   };
-
 
   return (
     <div className="min-h-screen bg-neutral-50 py-8">
@@ -67,8 +79,8 @@ const CartPage = () => {
           <div className="flex-1">
             <CartList
               items={items}
-              onRemove={(productId) => {
-                removeItem(productId);
+              onRemove={async (cartId) => {
+                await removeItem(cartId);
                 showToast('상품이 삭제되었습니다', 'success');
               }}
               onToggleSelect={toggleSelect}

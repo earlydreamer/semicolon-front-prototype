@@ -11,7 +11,13 @@ export interface User {
   nickname: string;
   avatar?: string;
   intro?: string;
-  point: number;
+  deposit: number;
+  phone?: string;
+  settlementAccount?: {
+    bank: string;
+    accountNumber: string;
+    accountHolder: string;
+  };
   createdAt: string;
 }
 
@@ -19,11 +25,9 @@ export interface User {
 export type OrderStatus =
   | 'PENDING'
   | 'PAID'
-  | 'SHIPPING'
-  | 'DELIVERED'
-  | 'CONFIRMED'
-  | 'CANCELLED'
-  | 'REFUNDED';
+  | 'PAYMENT_FAILED'
+  | 'CANCELED'
+  | 'PARTIAL_REFUNDED';
 
 /** 주문 내역 */
 export interface OrderHistory {

@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { cn } from '@/utils/cn';
-import { type Category, MOCK_CATEGORIES } from '@/mocks/categories';
+import { productService } from '@/services/productService';
+import { transformCategories } from '@/utils/category';
+import type { Category } from '@/types/category';
 
 interface CategoryItemProps {
   category: Category;
@@ -15,9 +18,9 @@ function CategoryItem({ category, currentCategoryId, depth = 0 }: CategoryItemPr
   const hasChildren = category.children && category.children.length > 0;
   
   // Check if this category or any of its descendants is currently selected
-  const isActive = currentCategoryId === category.id;
+  const isActive = currentCategoryId === String(category.id);
   const isChildActive = (cat: Category): boolean => {
-    if (cat.id === currentCategoryId) return true;
+    if (String(cat.id) === currentCategoryId) return true;
     if (cat.children) {
       return cat.children.some(child => isChildActive(child));
     }
@@ -85,15 +88,48 @@ function CategoryItem({ category, currentCategoryId, depth = 0 }: CategoryItemPr
 
 export function CategorySidebar() {
   const { categoryId } = useParams();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await productService.getCategories();
+        setCategories(transformCategories(data));
+      } catch (error) {
+        console.error('Failed to load categories sidebar:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  if (loading) {
+    return (
+      <aside className="w-full">
+        <div className="border border-neutral-200 rounded-lg bg-white overflow-hidden p-4">
+          <div className="animate-pulse space-y-4">
+            <div className="h-6 bg-neutral-200 rounded w-1/2"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-neutral-100 rounded w-full"></div>
+              <div className="h-4 bg-neutral-100 rounded w-full"></div>
+              <div className="h-4 bg-neutral-100 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside className="w-full">
       <div className="border border-neutral-200 rounded-lg bg-white overflow-hidden">
         <div className="p-4 border-b border-neutral-100 font-bold bg-neutral-50 text-neutral-800">
-          카테고리 탐색
+          移댄뀒怨좊━ ?먯깋
         </div>
         <div className="p-2">
-          {MOCK_CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <CategoryItem 
               key={category.id} 
               category={category} 
@@ -105,3 +141,4 @@ export function CategorySidebar() {
     </aside>
   );
 }
+

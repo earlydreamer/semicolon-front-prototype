@@ -3,9 +3,10 @@
  * 가격대 및 판매 상태 필터 제공 (Desktop/Mobile 모두 지원)
  */
 
-import { SlidersHorizontal, X } from 'lucide-react';
-import type { SaleStatus } from '@/mocks/products';
-import { MOCK_CATEGORIES } from '@/mocks/categories';
+import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
+import X from 'lucide-react/dist/esm/icons/x';
+import type { SaleStatus } from '@/types/product';
+import type { Category } from '@/types/category';
 
 export const SALE_STATUS_OPTIONS: { value: SaleStatus | 'all'; label: string }[] = [
   { value: 'all', label: '전체' },
@@ -26,6 +27,7 @@ interface ProductFilterProps {
   onFilterChange: (key: keyof ProductFilterState, value: string) => void;
   onClearFilters: () => void;
   showCategoryFilter?: boolean;
+  categories?: Category[];
 }
 
 /**
@@ -139,6 +141,7 @@ interface MobileFilterModalProps {
   onFilterChange: (key: keyof ProductFilterState, value: string) => void;
   onClearFilters: () => void;
   showCategoryFilter?: boolean;
+  categories?: Category[];
 }
 
 /**
@@ -151,6 +154,7 @@ export const MobileFilterModal = ({
   onFilterChange,
   onClearFilters,
   showCategoryFilter = false,
+  categories = [],
 }: MobileFilterModalProps) => {
   if (!isOpen) return null;
 
@@ -178,7 +182,7 @@ export const MobileFilterModal = ({
                 >
                   전체
                 </button>
-                {MOCK_CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => onFilterChange('categoryId', cat.id)}

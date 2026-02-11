@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { Menu, Bell, User as UserIcon } from 'lucide-react';
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import Bell from 'lucide-react/dist/esm/icons/bell';
+import UserIcon from 'lucide-react/dist/esm/icons/user';
 import AdminSidebar from '../features/admin/AdminSidebar';
 
 const AdminLayout = () => {

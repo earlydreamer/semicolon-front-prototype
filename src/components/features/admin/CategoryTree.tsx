@@ -3,7 +3,12 @@
  */
 
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, FolderTree } from 'lucide-react';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import FolderTree from 'lucide-react/dist/esm/icons/folder-tree';
 import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
 import { findCategoryPath } from '@/utils/category';
 import { 

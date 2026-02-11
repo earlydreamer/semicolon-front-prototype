@@ -1,4 +1,25 @@
-import type { Category } from '@/mocks/categories';
+﻿import type { Category } from '@/types/category';
+import type { CategoryResponse } from '@/types/product';
+
+/**
+ * Converts flat CategoryResponse list to nested Category tree.
+ */
+export function transformCategories(items: CategoryResponse[]): Category[] {
+  const buildTree = (parentId: number | null, currentDepth: number): Category[] => {
+    return items
+      .filter((cat) => cat.parentId === parentId)
+      .map((cat) => ({
+        id: String(cat.id),
+        name: cat.name,
+        depth: Math.min(Math.max(currentDepth, 1), 3) as 1 | 2 | 3,
+        parentId: cat.parentId === null ? null : String(cat.parentId),
+        children: buildTree(cat.id, currentDepth + 1),
+      }));
+  };
+  
+  return buildTree(null, 1);
+}
+
 
 /**
  * Recursively finds the path to a specific category ID within the category tree.
@@ -58,3 +79,4 @@ export function getCategoryChildren(categories: Category[], id: string): Categor
 
   return categories; // Fallback to top level
 }
+

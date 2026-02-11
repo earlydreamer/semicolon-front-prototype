@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSellerStore } from '@/stores/useSellerStore';
 import { useToast } from '@/components/common/Toast';
