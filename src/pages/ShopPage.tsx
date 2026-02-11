@@ -1,18 +1,17 @@
-/**
- * 상점 페이지
- */
-
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
-import { MOCK_SHOPS } from '../mocks/users';
-import { MOCK_PRODUCTS } from '../mocks/products';
 import { sanitizeUrlParam, isValidId } from '../utils/sanitize';
 
 import ShopHeader from '../components/features/shop/ShopHeader';
 import ShopStats from '../components/features/shop/ShopStats';
 import ShopProductList from '../components/features/shop/ShopProductList';
 import { ReviewList } from '../components/features/review/ReviewList';
+import type { ProductListItem } from '@/types/product';
+import type { Review } from '@/components/features/review/ReviewCard';
+import { shopService } from '@/services/shopService';
+import { reviewService } from '@/services/reviewService';
+import { followService } from '@/services/followService';
 
 type TabType = 'all' | 'ON_SALE' | 'RESERVED' | 'SOLD_OUT';
 
@@ -26,20 +25,65 @@ const TABS: { key: TabType; label: string }[] = [
 const ShopPage = () => {
   const { shopId: rawShopId } = useParams();
   const [activeTab, setActiveTab] = useState<TabType>('all');
-  
-  // URL 파라미터 검증 (XSS 방지)
-  const shopId = sanitizeUrlParam(rawShopId);
-  
-  // 상점 정보 조회
-  const shop = isValidId(shopId) ? MOCK_SHOPS.find((s) => s.id === shopId) : undefined;
-  
-  // 상점의 판매 상품 조회
-  const shopProducts = useMemo(() => 
-    MOCK_PRODUCTS.filter((p) => p.seller.id === shopId),
-    [shopId]
-  );
+  const [shop, setShop] = useState<{ shopUuid: string; nickname: string; intro?: string } | null>(null);
+  const [shopProducts, setShopProducts] = useState<ProductListItem[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [rating, setRating] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // 상태별 상품 카운트 (단일 루프로 최적화)
+  const shopId = sanitizeUrlParam(rawShopId);
+
+  useEffect(() => {
+    const loadShopData = async () => {
+      if (!shopId || !isValidId(shopId)) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const [shopRes, reviewRes, reviewSummary, followers, productRes] = await Promise.all([
+          shopService.getShop(shopId),
+          reviewService.getSellerReviews(shopId, { page: 0, size: 20 }),
+          reviewService.getSellerReviewSummary(shopId),
+          followService.getSellerFollowers(shopId),
+          shopService.getShopProducts(shopId, { page: 0, size: 100 }),
+        ]);
+
+        setShop({
+          shopUuid: shopRes.shopUuid,
+          nickname: `${shopRes.shopUuid.slice(0, 8)} 상점`,
+          intro: shopRes.intro,
+        });
+
+        setShopProducts(productRes.items || []);
+        setFollowerCount(followers.length);
+        setRating(reviewSummary.avgRating || 0);
+
+        const mappedReviews: Review[] = (reviewRes.items || []).map((item) => ({
+          id: item.reviewUuid,
+          rating: item.rating,
+          content: item.content,
+          buyer: {
+            nickname: item.buyerUuid.slice(0, 8),
+          },
+          productTitle: `상품 ${item.productUuid.slice(0, 8)}`,
+          createdAt: item.createdAt,
+        }));
+
+        setReviews(mappedReviews);
+      } catch (error) {
+        console.error('Failed to load shop page:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadShopData();
+  }, [shopId]);
+
   const statusCounts = useMemo(() => {
     const counts = { all: 0, ON_SALE: 0, RESERVED: 0, SOLD_OUT: 0 };
     for (const p of shopProducts) {
@@ -51,13 +95,15 @@ const ShopPage = () => {
     return counts;
   }, [shopProducts]);
 
-  // 현재 탭에 해당하는 상품만 필터링
   const filteredProducts = useMemo(() => {
     if (activeTab === 'all') return shopProducts;
-    return shopProducts.filter(p => p.saleStatus === activeTab);
+    return shopProducts.filter((p) => p.saleStatus === activeTab);
   }, [shopProducts, activeTab]);
 
-  // 상점을 찾을 수 없는 경우
+  if (loading) {
+    return <div className="min-h-screen bg-neutral-50 flex items-center justify-center">로딩중...</div>;
+  }
+
   if (!shop) {
     return (
       <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center py-16">
@@ -75,7 +121,6 @@ const ShopPage = () => {
   return (
     <div className="min-h-screen bg-neutral-50 py-6 pb-20">
       <div className="max-w-6xl mx-auto px-4 space-y-6">
-        {/* 뒤로가기 */}
         <Link
           to="/"
           className="inline-flex items-center gap-1 text-sm text-neutral-600 hover:text-neutral-900"
@@ -84,20 +129,16 @@ const ShopPage = () => {
           돌아가기
         </Link>
 
-        {/* 상점 헤더 */}
         <ShopHeader shop={shop} />
 
-        {/* 상점 통계 - 실제 데이터 기반 */}
         <ShopStats
           salesCount={statusCounts.SOLD_OUT}
           activeListingCount={statusCounts.ON_SALE}
-          followerCount={shop.followerCount}
-          rating={shop.rating}
+          followerCount={followerCount}
+          rating={rating}
         />
 
-        {/* 상품 섹션 */}
         <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-          {/* 탭 네비게이션 - 배경색 추가 */}
           <div className="flex border-b border-neutral-200 bg-neutral-50">
             {TABS.map((tab) => (
               <button
@@ -122,23 +163,21 @@ const ShopPage = () => {
             ))}
           </div>
 
-          {/* 상품 리스트 */}
           <div className="p-4">
-            <ShopProductList 
-              products={filteredProducts} 
-              shopName={shop.name} 
+            <ShopProductList
+              products={filteredProducts}
+              shopName={shop.nickname}
               statusFilter={activeTab === 'all' ? 'ON_SALE' : activeTab}
             />
           </div>
         </div>
 
-        {/* 거래 후기 섹션 - 별도 분리 */}
         <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
           <div className="p-4 border-b border-neutral-200 bg-neutral-50">
             <h2 className="text-lg font-semibold text-neutral-900">거래 후기</h2>
           </div>
           <div className="p-4">
-            <ReviewList sellerId={shopId} />
+            <ReviewList reviews={reviews} />
           </div>
         </div>
       </div>
@@ -147,4 +186,3 @@ const ShopPage = () => {
 };
 
 export default ShopPage;
-
