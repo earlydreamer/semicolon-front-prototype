@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import type { SaleStatus, ConditionStatus } from '@/types/product';
 import { shopService } from '@/services/shopService';
 

@@ -1,4 +1,4 @@
-﻿import User from 'lucide-react/dist/esm/icons/user';
+import User from 'lucide-react/dist/esm/icons/user';
 
 interface Reply {
   id: string;

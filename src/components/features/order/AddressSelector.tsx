@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { Address } from '@/types/address';
 import { userService } from '@/services/userService';
 import { Button } from '../../common/Button';

@@ -1,4 +1,4 @@
-﻿import { useAuthStore } from '../../../stores/useAuthStore';
+import { useAuthStore } from '../../../stores/useAuthStore';
 import FollowButton from './FollowButton';
 import Store from 'lucide-react/dist/esm/icons/store';
 

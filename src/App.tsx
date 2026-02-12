@@ -11,6 +11,8 @@ const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const DesignSystemPage = lazy(() => import('./pages/DesignSystemPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignupPage = lazy(() => import('./pages/SignupPage'));
+const EmailVerificationPage = lazy(() => import('./pages/EmailVerificationPage'));
+const EmailVerificationPendingPage = lazy(() => import('./pages/EmailVerificationPendingPage'));
 const CartPage = lazy(() => import('./pages/CartPage'));
 const MyPage = lazy(() => import('./pages/MyPage'));
 const OrderHistoryPage = lazy(() => import('./pages/OrderHistoryPage'));
@@ -94,6 +96,8 @@ function App() {
                 <Route path="design" element={<DesignSystemPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="signup" element={<SignupPage />} />
+                <Route path="email/verify" element={<EmailVerificationPage />} />
+                <Route path="email/pending" element={<EmailVerificationPendingPage />} />
                 <Route path="cart" element={<CartPage />} />
                 <Route path="mypage" element={<MyPage />} />
                 <Route path="mypage/orders" element={<OrderHistoryPage />} />

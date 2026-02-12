@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Plus from 'lucide-react/dist/esm/icons/plus';
 import type { SaleStatus } from '@/types/product';

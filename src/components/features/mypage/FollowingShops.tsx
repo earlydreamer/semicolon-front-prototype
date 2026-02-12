@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Star from 'lucide-react/dist/esm/icons/star';
 import Store from 'lucide-react/dist/esm/icons/store';

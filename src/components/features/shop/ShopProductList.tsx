@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import type { ProductListItem, SaleStatus } from '@/types/product';
 import Store from 'lucide-react/dist/esm/icons/store';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';

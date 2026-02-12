@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import type { User } from '@/types/user';
 import Mail from 'lucide-react/dist/esm/icons/mail';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
