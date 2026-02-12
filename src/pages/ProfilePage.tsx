@@ -46,10 +46,10 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-6 pb-20">
-      <div className="max-w-lg mx-auto px-4">
+    <div className="min-h-screen bg-neutral-50 py-5 pb-20 min-[360px]:py-6">
+      <div className="mx-auto max-w-lg px-3 min-[360px]:px-4">
         {/* 헤더 */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-5 flex items-center gap-2 min-[360px]:mb-6 min-[360px]:gap-3">
           <button
             onClick={() => navigate(-1)}
             className="p-2 -ml-2 rounded-full hover:bg-neutral-100 transition-colors"

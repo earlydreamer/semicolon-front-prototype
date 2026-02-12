@@ -119,8 +119,8 @@ const ShopPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-6 pb-20">
-      <div className="max-w-6xl mx-auto px-4 space-y-6">
+    <div className="min-h-screen bg-neutral-50 py-5 pb-20 min-[360px]:py-6">
+      <div className="mx-auto max-w-6xl space-y-5 px-3 min-[360px]:space-y-6 min-[360px]:px-4">
         <Link
           to="/"
           className="inline-flex items-center gap-1 text-sm text-neutral-600 hover:text-neutral-900"
@@ -138,13 +138,13 @@ const ShopPage = () => {
           rating={rating}
         />
 
-        <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-          <div className="flex border-b border-neutral-200 bg-neutral-50">
+        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+          <div className="flex overflow-x-auto border-b border-neutral-200 bg-neutral-50 no-scrollbar">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
+                className={`relative min-w-[84px] flex-1 py-3 text-xs font-medium transition-colors min-[360px]:text-sm ${
                   activeTab === tab.key
                     ? 'text-primary-600 bg-white'
                     : 'text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100'

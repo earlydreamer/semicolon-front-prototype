@@ -153,10 +153,10 @@ export default function CategoryPage() {
   const activeFilterCount = getActiveFilterCount(filters);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-3 py-6 min-[360px]:px-4 min-[360px]:py-8">
       {/* 브레드크럼/제목 */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-sm text-neutral-500 mb-2">
+      <div className="mb-6 min-[360px]:mb-8">
+        <div className="mb-2 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-xs text-neutral-500 no-scrollbar min-[360px]:text-sm">
           <Link to="/" className="hover:text-neutral-900">홈</Link>
           {categoryPath.map((cat) => (
             <div key={cat.id} className="flex items-center gap-2">
@@ -167,12 +167,12 @@ export default function CategoryPage() {
             </div>
           ))}
         </div>
-        <h1 className="text-2xl font-bold text-neutral-900">{currentCategoryName}</h1>
+        <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">{currentCategoryName}</h1>
       </div>
 
       {/* 모바일 카테고리 탭 */}
-      <div className="md:hidden -mx-4 mb-6 border-b border-neutral-100 bg-white sticky top-16 z-20">
-        <div className="flex gap-4 px-4 py-3 overflow-x-auto no-scrollbar">
+      <div className="sticky top-14 z-20 -mx-3 mb-5 border-b border-neutral-100 bg-white md:hidden min-[360px]:-mx-4 min-[360px]:top-16 min-[360px]:mb-6">
+        <div className="flex gap-3 overflow-x-auto px-3 py-2.5 no-scrollbar min-[360px]:gap-4 min-[360px]:px-4 min-[360px]:py-3">
           <Link
             to={categoryPath.length > 1 ? `/categories/${categoryPath[categoryPath.length - 2].id}` : '/'}
             className="flex-shrink-0 px-4 py-1.5 rounded-full bg-neutral-100 text-sm font-medium text-neutral-600 hover:bg-neutral-200"
@@ -197,7 +197,7 @@ export default function CategoryPage() {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col gap-6 md:flex-row md:gap-8">
         {/* 사이드바 */}
         <div className="hidden md:block w-64 flex-shrink-0">
           <div className="sticky top-24 space-y-6">
@@ -209,12 +209,12 @@ export default function CategoryPage() {
         {/* 메인 영역 */}
         <main className="flex-1">
           {/* 툴바 */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-200">
-            <div className="flex items-center gap-4">
+          <div className="mb-5 flex items-center justify-between border-b border-neutral-200 pb-3 min-[360px]:mb-6 min-[360px]:pb-4">
+            <div className="flex items-center gap-3 min-[360px]:gap-4">
               {loading ? (
                 <span className="text-sm text-neutral-500">로딩 중...</span>
               ) : (
-                <span className="text-sm text-neutral-500">
+                <span className="text-xs text-neutral-500 min-[360px]:text-sm">
                   총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
                 </span>
               )}
@@ -223,12 +223,14 @@ export default function CategoryPage() {
               <MobileFilterButton activeFilterCount={activeFilterCount} onClick={() => setShowMobileFilters(true)} />
             </div>
 
-            <ProductSortDropdown currentSort={sort} onSortChange={handleSortChange} />
+            <div className="shrink-0">
+              <ProductSortDropdown currentSort={sort} onSortChange={handleSortChange} />
+            </div>
           </div>
 
           {/* 상품 목록 */}
           {filteredProducts.length > 0 ? (
-            <ProductList products={filteredProducts} />
+            <ProductList products={filteredProducts} embedded />
           ) : (
             <div className="py-20 text-center text-neutral-500 bg-neutral-50 rounded-lg">
               <Search className="w-12 h-12 mx-auto mb-4 text-neutral-300" />

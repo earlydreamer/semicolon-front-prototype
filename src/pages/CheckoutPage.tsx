@@ -151,8 +151,8 @@ export default function CheckoutPage() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto py-10 px-4">
-            <h1 className="text-2xl font-bold mb-6">결제하기</h1>
+        <div className="mx-auto max-w-2xl px-3 py-6 min-[360px]:px-4 min-[360px]:py-10">
+            <h1 className="mb-5 text-xl font-bold min-[360px]:mb-6 min-[360px]:text-2xl">결제하기</h1>
 
             {/* 결제수단 위젯 */}
             <div id="payment-method" className="mb-4" />

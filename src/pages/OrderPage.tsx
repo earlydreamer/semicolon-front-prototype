@@ -111,20 +111,20 @@ const OrderPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-6 pb-20">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen bg-neutral-50 py-5 pb-16 min-[360px]:py-6 min-[360px]:pb-20">
+      <div className="mx-auto max-w-6xl px-3 min-[360px]:px-4">
         {/* 헤더 */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-5 flex items-center gap-2 min-[360px]:mb-6 min-[360px]:gap-3">
           <button
             onClick={() => navigate(-1)}
             className="p-2 -ml-2 rounded-full hover:bg-neutral-200 transition-colors"
           >
             <ChevronLeft className="w-5 h-5 text-neutral-700" />
           </button>
-          <h1 className="text-xl font-bold text-neutral-900">주문서 작성</h1>
+          <h1 className="text-lg font-bold text-neutral-900 min-[360px]:text-xl">주문서 작성</h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-5 min-[360px]:gap-6 lg:grid-cols-3">
           {/* 왼쪽: 주문 정보 입력 */}
           <div className="lg:col-span-2 space-y-6">
             {/* 배송지 정보 (직접 입력) */}

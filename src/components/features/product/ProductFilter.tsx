@@ -122,7 +122,7 @@ interface MobileFilterButtonProps {
 export const MobileFilterButton = ({ activeFilterCount, onClick }: MobileFilterButtonProps) => (
   <button
     onClick={onClick}
-    className="md:hidden flex items-center gap-1 text-sm text-neutral-600 hover:text-neutral-900"
+    className="flex min-h-9 items-center gap-1 rounded-md px-2 text-xs text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 md:hidden min-[360px]:text-sm"
   >
     <SlidersHorizontal className="w-4 h-4" />
     필터

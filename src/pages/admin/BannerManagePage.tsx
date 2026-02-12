@@ -226,14 +226,14 @@ const BannerManagePage = () => {
   return (
     <div>
       {/* 페이지 헤더 */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex flex-col gap-3 min-[360px]:gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">배너 관리</h1>
+          <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">배너 관리</h1>
           <p className="text-neutral-500 mt-1">
             홈 화면 롤링 배너를 관리합니다 ({localBanners.length} / {MAX_BANNERS})
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button 
             variant="outline" 
             onClick={handleReset}
@@ -282,8 +282,8 @@ const BannerManagePage = () => {
       )}
       
       {/* 배너 목록 */}
-      <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
-        <table className="w-full">
+      <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white">
+        <table className="min-w-[880px] w-full">
           <thead className="bg-neutral-50 border-b border-neutral-200">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600 w-20">순서</th>
@@ -415,3 +415,4 @@ const BannerManagePage = () => {
 };
 
 export default BannerManagePage;
+

@@ -168,10 +168,10 @@ const SearchPage = () => {
   const activeFilterCount = [categoryId, minPrice > 0, maxPrice > 0, status !== 'all'].filter(Boolean).length;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-3 py-6 min-[360px]:px-4 min-[360px]:py-8">
       {/* 브레드크럼/제목 */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-sm text-neutral-500 mb-2">
+      <div className="mb-6 min-[360px]:mb-8">
+        <div className="mb-2 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-xs text-neutral-500 no-scrollbar min-[360px]:text-sm">
           <Link to="/" className="hover:text-neutral-900">홈</Link>
           <ChevronRight className="h-3 w-3" />
           <span>검색</span>
@@ -183,12 +183,12 @@ const SearchPage = () => {
           )}
         </div>
 
-        <h1 className="text-2xl font-bold text-neutral-900">
+        <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">
           {query ? `"${query}" 검색 결과` : '전체 상품'}
         </h1>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col gap-6 md:flex-row md:gap-8">
         {/* 사이드바 */}
         <div className="hidden md:block w-64 flex-shrink-0">
           <div className="sticky top-24 space-y-6">
@@ -251,16 +251,16 @@ const SearchPage = () => {
         {/* 메인 영역 */}
         <main className="flex-1">
           {/* 툴바 */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-200">
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-neutral-500">
+          <div className="mb-5 flex items-center justify-between border-b border-neutral-200 pb-3 min-[360px]:mb-6 min-[360px]:pb-4">
+            <div className="flex items-center gap-3 min-[360px]:gap-4">
+              <span className="text-xs text-neutral-500 min-[360px]:text-sm">
                 총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
               </span>
 
               {/* 모바일 필터 버튼 */}
               <button
                 onClick={() => setShowMobileFilters(true)}
-                className="md:hidden flex items-center gap-1 text-sm text-neutral-600 hover:text-neutral-900"
+                className="flex min-h-9 items-center gap-1 rounded-md px-2 text-xs text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 md:hidden min-[360px]:text-sm"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 필터
@@ -272,12 +272,14 @@ const SearchPage = () => {
               </button>
             </div>
 
-            <ProductSortDropdown currentSort={sort} onSortChange={handleSortChange} />
+            <div className="shrink-0">
+              <ProductSortDropdown currentSort={sort} onSortChange={handleSortChange} />
+            </div>
           </div>
 
           {/* 상품 목록 */}
           {filteredProducts.length > 0 ? (
-            <ProductList products={filteredProducts} />
+            <ProductList products={filteredProducts} embedded />
           ) : (
             <div className="py-20 text-center text-neutral-500 bg-neutral-50 rounded-lg">
               <Search className="w-12 h-12 mx-auto mb-4 text-neutral-300" />

@@ -9,7 +9,7 @@ const ProductManagePage = () => {
     <div>
       {/* 페이지 헤더 */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-neutral-900">상품 관리</h1>
+        <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">상품 관리</h1>
         <p className="text-neutral-500 mt-1">등록된 상품을 관리합니다</p>
       </div>
 
@@ -20,3 +20,4 @@ const ProductManagePage = () => {
 };
 
 export default ProductManagePage;
+

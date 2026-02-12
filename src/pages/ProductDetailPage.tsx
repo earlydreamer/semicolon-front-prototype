@@ -190,8 +190,8 @@ export default function ProductDetailPage() {
 
   return (
     <div className="pb-24 md:pb-10">
-      <div className="mx-auto max-w-6xl px-4 py-6 md:px-6">
-        <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
+      <div className="mx-auto max-w-6xl px-3 py-5 min-[360px]:px-4 min-[360px]:py-6 md:px-6">
+        <div className="mb-4 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-xs text-gray-500 no-scrollbar min-[360px]:text-sm">
           <Link to="/" className="hover:text-neutral-900">홈</Link>
           {categoryPath.map((cat) => (
             <div key={cat.id} className="flex items-center gap-2">
@@ -203,14 +203,14 @@ export default function ProductDetailPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12">
+        <div className="grid grid-cols-1 gap-6 min-[360px]:gap-8 md:grid-cols-2 lg:gap-12">
           <ProductImageGallery images={product.images} mainImage={product.image} title={product.title} />
 
           <div className="flex flex-col">
-            <h1 className="text-xl font-bold text-neutral-900 md:text-2xl leading-tight mb-2">
+            <h1 className="mb-2 text-lg font-bold leading-tight text-neutral-900 min-[360px]:text-xl md:text-2xl">
               {product.title}
             </h1>
-            <div className="text-3xl font-bold text-neutral-900 mb-4">{formatPrice(product.price)}</div>
+            <div className="mb-4 text-2xl font-bold text-neutral-900 min-[360px]:text-3xl">{formatPrice(product.price)}</div>
 
             <SellerProfileCard
               seller={{

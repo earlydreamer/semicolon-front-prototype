@@ -30,7 +30,7 @@ const CartItem = ({
 
   return (
     <div
-      className={`flex gap-4 p-4 rounded-xl bg-white border transition-all
+      className={`flex gap-3 rounded-xl border bg-white p-3 transition-all min-[360px]:gap-4 min-[360px]:p-4
         ${item.selected ? 'border-primary-300 bg-primary-50/30' : 'border-neutral-200'}
         ${isSoldOut ? 'opacity-60' : ''}`}
     >
@@ -51,7 +51,7 @@ const CartItem = ({
       {/* 상품 이미지 제작 */}
       <Link
         to={`/products/${item.productUuid}`}
-        className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-neutral-100"
+        className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-100 min-[360px]:h-24 min-[360px]:w-24"
       >
         <img
           src={item.thumbnailUrl || ''}
@@ -81,7 +81,7 @@ const CartItem = ({
         </Link>
 
         {/* 가격 */}
-        <p className="text-base font-bold text-neutral-900 mb-2">
+        <p className="mb-2 text-sm font-bold text-neutral-900 min-[360px]:text-base">
           {formatPrice(item.price)}
         </p>
 

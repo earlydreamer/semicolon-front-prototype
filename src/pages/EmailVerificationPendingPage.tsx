@@ -55,13 +55,13 @@ export default function EmailVerificationPendingPage() {
     remaining > 0 ? `인증 메일 다시 보내기 (${remaining}s)` : '인증 메일 다시 보내기';
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12 px-4">
-      <Card className="w-full max-w-lg p-8">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-3 py-8 min-[360px]:px-4 min-[360px]:py-12">
+      <Card className="w-full max-w-lg p-5 min-[360px]:p-8">
         <div className="text-center space-y-5">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-600 text-2xl">
             @
           </div>
-          <h1 className="text-2xl font-bold text-neutral-900">이메일 인증이 필요합니다</h1>
+          <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">이메일 인증이 필요합니다</h1>
           <p className="text-neutral-600">
             인증 메일을 발송했습니다. 메일의 인증 링크를 클릭한 뒤 다시 진행해주세요.
           </p>
