@@ -16,6 +16,8 @@ import {
   CONFIRM_MESSAGES, 
   ERROR_MESSAGES 
 } from '@/constants';
+import { MockDataNotice } from '@/components/common/MockDataNotice';
+import { useToast } from '@/components/common/Toast';
 
 interface CategoryItemProps {
   category: Category;
@@ -107,6 +109,7 @@ const CategoryTree = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [parentId, setParentId] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   // 카테고리 삭제
   const handleDelete = (categoryId: string) => {
@@ -122,12 +125,14 @@ const CategoryTree = () => {
     };
 
     setCategories(deleteFromList(categories));
+    showToast('준비중입니다.', 'info');
   };
 
   // 카테고리 수정
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
     setNewCategoryName(category.name);
+    showToast('준비중입니다.', 'info');
   };
 
   // 하위 카테고리 추가 모드 (3단계 제한 로직 도입)
@@ -205,6 +210,7 @@ const CategoryTree = () => {
     setIsAdding(false);
     setNewCategoryName('');
     setParentId(null);
+    showToast('준비중입니다.', 'info');
   };
 
   // 취소
@@ -218,19 +224,22 @@ const CategoryTree = () => {
   return (
     <div className="bg-white rounded-xl border border-neutral-200">
       {/* 헤더 */}
-      <div className="p-4 border-b border-neutral-200 flex justify-between items-center">
-        <h3 className="font-semibold text-neutral-900">카테고리 목록</h3>
-        <button
-          onClick={() => {
-            setIsAdding(true);
-            setParentId(null);
-            setNewCategoryName('');
-          }}
-          className="flex items-center gap-2 px-3 py-2 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          카테고리 추가
-        </button>
+      <div className="p-4 border-b border-neutral-200 space-y-3">
+        <MockDataNotice />
+        <div className="flex justify-between items-center">
+          <h3 className="font-semibold text-neutral-900">카테고리 목록</h3>
+          <button
+            onClick={() => {
+              setIsAdding(true);
+              setParentId(null);
+              setNewCategoryName('');
+            }}
+            className="flex items-center gap-2 px-3 py-2 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            카테고리 추가
+          </button>
+        </div>
       </div>
 
       {/* 수정/추가 폼 */}

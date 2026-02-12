@@ -11,6 +11,8 @@ import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import { MOCK_PRODUCTS, type Product, type SaleStatus } from '@/mocks/products';
 import { formatPrice } from '@/utils/formatPrice';
 import { SALE_STATUS_LABELS } from '@/constants';
+import { MockDataNotice } from '@/components/common/MockDataNotice';
+import { useToast } from '@/components/common/Toast';
 
 type FilterStatus = 'all' | SaleStatus;
 
@@ -25,6 +27,7 @@ const AdminProductList = () => {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   // 필터링된 상품 목록
   const filteredProducts = products.filter((product) => {
@@ -54,7 +57,8 @@ const AdminProductList = () => {
   return (
     <div className="bg-white rounded-xl border border-neutral-200">
       {/* 헤더 */}
-      <div className="p-4 border-b border-neutral-200">
+      <div className="p-4 border-b border-neutral-200 space-y-3">
+        <MockDataNotice />
         <div className="flex flex-col sm:flex-row gap-4">
           {/* 검색 */}
           <div className="relative flex-1">
@@ -152,14 +156,20 @@ const AdminProductList = () => {
                           상품 보기
                         </button>
                         <button
-                          onClick={() => handleSuspend(product.id)}
+                          onClick={() => {
+                            handleSuspend(product.id);
+                            showToast('준비중입니다.', 'info');
+                          }}
                           className="flex items-center gap-2 w-full px-4 py-2 text-sm text-yellow-600 hover:bg-neutral-50"
                         >
                           <Pause className="w-4 h-4" />
                           판매 정지
                         </button>
                         <button
-                          onClick={() => handleDelete(product.id)}
+                          onClick={() => {
+                            handleDelete(product.id);
+                            showToast('준비중입니다.', 'info');
+                          }}
                           className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-neutral-50"
                         >
                           <Trash2 className="w-4 h-4" />
