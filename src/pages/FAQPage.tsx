@@ -57,21 +57,21 @@ const FAQPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white py-6 pb-20">
-      <div className="max-w-3xl mx-auto px-4">
+    <div className="min-h-screen bg-white py-5 pb-20 min-[360px]:py-6">
+      <div className="mx-auto max-w-3xl px-3 min-[360px]:px-4">
         {/* 헤더 */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="mb-6 flex items-center gap-2 min-[360px]:mb-8 min-[360px]:gap-3">
           <Link
             to="/"
             className="p-2 -ml-2 rounded-full hover:bg-neutral-100 transition-colors"
           >
             <ChevronLeft className="w-6 h-6 text-neutral-900" />
           </Link>
-          <h1 className="text-2xl font-bold text-neutral-900">자주 묻는 질문</h1>
+          <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">자주 묻는 질문</h1>
         </div>
 
         {/* 카테고리 탭 */}
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide">
+        <div className="mb-4 flex gap-2 overflow-x-auto pb-4 no-scrollbar">
           {CATEGORIES.map((category) => (
             <button
               key={category}
@@ -96,7 +96,7 @@ const FAQPage = () => {
             >
               <button
                 onClick={() => toggleAccordion(faq.id)}
-                className="w-full flex items-center justify-between p-5 text-left bg-white hover:bg-neutral-50 transition-colors"
+                className="flex w-full items-center justify-between bg-white p-4 text-left transition-colors hover:bg-neutral-50 min-[360px]:p-5"
               >
                 <div>
                   <span className="text-xs font-bold text-primary-600 mb-1 block">

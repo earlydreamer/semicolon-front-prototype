@@ -59,8 +59,8 @@ const MyPage = () => {
   const salesCount = mySalesProducts.length;
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-6 pb-20">
-      <div className="max-w-2xl mx-auto px-4 space-y-6">
+    <div className="min-h-screen bg-neutral-50 py-5 pb-20 min-[360px]:py-6">
+      <div className="mx-auto max-w-2xl space-y-5 px-3 min-[360px]:space-y-6 min-[360px]:px-4">
         {/* 프로필 카드 */}
         <ProfileCard user={user as any} />
 

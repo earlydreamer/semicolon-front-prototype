@@ -4,10 +4,10 @@ import { SignupForm } from '@/components/features/auth/SignupForm';
 
 export default function SignupPage() {
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12">
-      <div className="w-full max-w-md space-y-8 px-4">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-8 min-[360px]:py-12">
+      <div className="w-full max-w-md space-y-6 px-3 min-[360px]:space-y-8 min-[360px]:px-4">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-neutral-900">회원가입</h1>
+          <h1 className="text-2xl font-bold text-neutral-900 min-[360px]:text-3xl">회원가입</h1>
           <p className="mt-2 text-neutral-600">
             덕쿠의 회원이 되어 다양한 혜택을 누려보세요.
           </p>

@@ -85,19 +85,19 @@ export default function SuccessPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
+    <div className="mx-auto max-w-2xl px-3 py-6 min-[360px]:px-4 min-[360px]:py-10">
       <div className="text-center mb-8">
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">결제 성공</h1>
+        <h1 className="mb-2 text-xl font-bold text-gray-900 min-[360px]:text-2xl">결제 성공</h1>
         <p className="text-gray-600">결제가 완료되었습니다.</p>
       </div>
 
       {/* 결제 정보 */}
-      <div className="bg-gray-50 rounded-lg p-6 mb-6">
+      <div className="mb-6 rounded-lg bg-gray-50 p-4 min-[360px]:p-6">
         <h2 className="font-semibold mb-4">결제 정보</h2>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
@@ -108,7 +108,7 @@ export default function SuccessPage() {
             <dt className="text-gray-500">결제금액</dt>
             <dd className="font-medium">{Number(searchParams.get('amount')).toLocaleString()}원</dd>
           </div>
-          <div className="flex justify-between">
+          <div className="flex flex-col justify-between gap-1 min-[360px]:flex-row min-[360px]:items-center">
             <dt className="text-gray-500">결제키</dt>
             <dd className="font-medium text-xs break-all">{searchParams.get('paymentKey')}</dd>
           </div>

@@ -5,10 +5,10 @@ import Search from 'lucide-react/dist/esm/icons/search';
 
 export default function DesignSystemPage() {
   return (
-    <div className="container mx-auto space-y-8 px-4 py-8">
+    <div className="container mx-auto space-y-6 px-3 py-6 min-[360px]:space-y-8 min-[360px]:px-4 min-[360px]:py-8">
       {/* Buttons */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold">Buttons</h2>
+        <h2 className="text-xl font-bold min-[360px]:text-2xl">Buttons</h2>
         <div className="flex flex-wrap gap-4">
           <Button>Primary</Button>
           <Button variant="secondary">Secondary</Button>
@@ -22,7 +22,7 @@ export default function DesignSystemPage() {
 
       {/* Inputs */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold">Inputs</h2>
+        <h2 className="text-xl font-bold min-[360px]:text-2xl">Inputs</h2>
         <div className="grid max-w-md gap-4">
           <Input label="Email" placeholder="example@email.com" />
           <Input label="With Icon" leftIcon={<Search className="h-4 w-4" />} />
@@ -32,7 +32,7 @@ export default function DesignSystemPage() {
 
       {/* Cards */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold">Cards</h2>
+        <h2 className="text-xl font-bold min-[360px]:text-2xl">Cards</h2>
         <div className="grid gap-4 md:grid-cols-3">
           <Card className="p-6">
             <h3 className="font-bold">Elevated Card</h3>

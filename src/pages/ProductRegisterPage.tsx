@@ -46,7 +46,7 @@ const ProductRegisterPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-2xl">
+    <div className="container mx-auto max-w-2xl px-3 py-5 min-[360px]:px-4 min-[360px]:py-6">
       {/* 페이지 헤더 */}
       <div className="mb-6">
         <Link
@@ -56,7 +56,7 @@ const ProductRegisterPage = () => {
           <ArrowLeft className="w-4 h-4" />
           판매 관리로 돌아가기
         </Link>
-        <h1 className="text-2xl font-bold text-neutral-900">상품 등록</h1>
+        <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">상품 등록</h1>
         <p className="text-neutral-500 mt-1">새로운 상품을 등록해보세요</p>
       </div>
 

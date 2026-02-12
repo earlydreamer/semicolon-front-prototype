@@ -18,8 +18,8 @@ const SettlementAccountPage = () => {
   return (
     <div className="min-h-screen bg-neutral-50 pb-20">
       {/* 헤더 */}
-      <header className="bg-white border-b border-neutral-200 sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
+      <header className="sticky top-0 z-10 border-b border-neutral-200 bg-white">
+        <div className="mx-auto flex h-14 max-w-2xl items-center gap-2 px-3 min-[360px]:gap-3 min-[360px]:px-4">
           <button 
             onClick={() => navigate(-1)}
             className="p-1 -ml-1 hover:bg-neutral-100 rounded-full transition-colors"
@@ -30,8 +30,8 @@ const SettlementAccountPage = () => {
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-3xl border border-neutral-200 p-8 text-center shadow-sm">
+      <div className="mx-auto max-w-2xl px-3 py-8 min-[360px]:px-4 min-[360px]:py-12">
+        <div className="rounded-3xl border border-neutral-200 bg-white p-6 text-center shadow-sm min-[360px]:p-8">
           <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <CreditCard className="w-10 h-10 text-neutral-300" />
           </div>

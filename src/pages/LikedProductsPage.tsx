@@ -61,17 +61,17 @@ const LikedProductsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-6 pb-20">
-      <div className="max-w-2xl mx-auto px-4">
+    <div className="min-h-screen bg-neutral-50 py-5 pb-20 min-[360px]:py-6">
+      <div className="mx-auto max-w-2xl px-3 min-[360px]:px-4">
         {/* 헤더 */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-5 flex items-center gap-2 min-[360px]:mb-6 min-[360px]:gap-3">
           <Link
             to="/mypage"
             className="p-2 -ml-2 rounded-full hover:bg-neutral-200 transition-colors"
           >
             <ChevronLeft className="w-5 h-5 text-neutral-700" />
           </Link>
-          <h1 className="text-xl font-bold text-neutral-900">
+            <h1 className="text-lg font-bold text-neutral-900 min-[360px]:text-xl">
             찜한 상품
             {!isLoading && (
               <span className="ml-2 text-sm font-normal text-neutral-500">
@@ -103,14 +103,11 @@ const LikedProductsPage = () => {
         ) : (
           <div className="space-y-3">
             {likedProducts.map((product) => (
-              <div
-                key={product.productUuid}
-                className="flex gap-4 p-4 bg-white rounded-xl border border-neutral-200"
-              >
+              <div key={product.productUuid} className="flex gap-3 rounded-xl border border-neutral-200 bg-white p-3 min-[360px]:gap-4 min-[360px]:p-4">
                 {/* 상품 이미지 */}
                 <Link
                   to={`/products/${product.productUuid}`}
-                  className="w-24 h-24 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0"
+                  className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-100 min-[360px]:h-24 min-[360px]:w-24"
                 >
                   <img
                     src={product.thumbnailUrl || '/images/placeholder.png'}
@@ -127,7 +124,7 @@ const LikedProductsPage = () => {
                   >
                     {product.title}
                   </Link>
-                  <p className="text-base font-bold text-neutral-900 mt-1">
+                  <p className="mt-1 text-sm font-bold text-neutral-900 min-[360px]:text-base">
                     {formatPrice(product.price)}
                   </p>
                 </div>
