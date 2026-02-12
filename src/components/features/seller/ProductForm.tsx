@@ -3,7 +3,7 @@
  */
 
 import { useState, useMemo, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Input } from '@/components/common/Input';
@@ -57,7 +57,6 @@ const ProductForm = ({
     handleSubmit,
     control,
     formState: { errors },
-    watch,
     setValue,
     trigger,
   } = useForm<ProductFormValues>({
@@ -78,9 +77,8 @@ const ProductForm = ({
   });
 
   // 카테고리 상태 관리 (3단계 Cascading)
-  const [largeCategory, setLargeCategory] = useState<string>('');
-  const [mediumCategory, setMediumCategory] = useState<string>('');
-  const [smallCategory, setSmallCategory] = useState<string>('');
+  const [largeCategoryDraft, setLargeCategoryDraft] = useState<string>('');
+  const [mediumCategoryDraft, setMediumCategoryDraft] = useState<string>('');
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -107,23 +105,25 @@ const ProductForm = ({
     loadCategories();
   }, []);
 
-  // 수정 모드 시 초기 카테고리 설정
-  useEffect(() => {
-    if (defaultValues?.categoryId) {
-      const path = findCategoryPath(categories, defaultValues.categoryId);
-      if (path) {
-        if (path[0]) setLargeCategory(path[0].id);
-        if (path[1]) setMediumCategory(path[1].id);
-        if (path[2]) setSmallCategory(path[2].id);
-      }
-    }
-  }, [categories, defaultValues?.categoryId]);
+  const [selectedCategoryId = ''] = useWatch({
+    control,
+    name: ['categoryId'],
+  });
+
+  const selectedPath = useMemo(
+    () => findCategoryPath(categories, selectedCategoryId) || [],
+    [categories, selectedCategoryId]
+  );
+
+  const largeCategory = largeCategoryDraft || selectedPath[0]?.id || '';
+  const mediumCategory = mediumCategoryDraft || selectedPath[1]?.id || '';
+  const smallCategory = selectedPath[2]?.id || '';
 
   // 대분류 선택 시 하위 목록 계산
   const mediumCategories = useMemo(() => {
     const found = categories.find((cat) => cat.id === largeCategory);
     return found?.children || [];
-  }, [largeCategory]);
+  }, [categories, largeCategory]);
 
   // 중분류 선택 시 하위 목록 계산
   const smallCategories = useMemo(() => {
@@ -132,8 +132,10 @@ const ProductForm = ({
   }, [mediumCategory, mediumCategories]);
   
   // 가격 실시간 계산
-  const price = watch('price') || 0;
-  const shippingFee = watch('shippingFee') || 0;
+  const [price = 0, shippingFee = 0] = useWatch({
+    control,
+    name: ['price', 'shippingFee'],
+  });
   const totalPrice = price + shippingFee;
 
   // 음수 방지를 위한 핸들러
@@ -182,9 +184,8 @@ const ProductForm = ({
               value={largeCategory}
               onChange={(e) => {
                 const val = e.target.value;
-                setLargeCategory(val);
-                setMediumCategory('');
-                setSmallCategory('');
+                setLargeCategoryDraft(val);
+                setMediumCategoryDraft('');
                 setValue('categoryId', '');
                 trigger('categoryId');
               }}
@@ -203,8 +204,7 @@ const ProductForm = ({
               disabled={!largeCategory}
               onChange={(e) => {
                 const val = e.target.value;
-                setMediumCategory(val);
-                setSmallCategory('');
+                setMediumCategoryDraft(val);
                 setValue('categoryId', '');
                 trigger('categoryId');
               }}
@@ -223,8 +223,9 @@ const ProductForm = ({
               disabled={!mediumCategory}
               onChange={(e) => {
                 const val = e.target.value;
-                setSmallCategory(val);
                 setValue('categoryId', val);
+                setLargeCategoryDraft('');
+                setMediumCategoryDraft('');
                 trigger('categoryId');
               }}
               className="h-11 px-3 rounded-md border border-neutral-300 bg-neutral-0 

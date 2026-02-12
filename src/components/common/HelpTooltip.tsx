@@ -5,7 +5,7 @@
  * 위치: 아래 방향 (화면 하단 잘림 방지)
  */
 
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useState, useRef, useEffect, useCallback, type ReactNode } from 'react';
 import HelpCircle from 'lucide-react/dist/esm/icons/help-circle';
 import X from 'lucide-react/dist/esm/icons/x';
 
@@ -20,22 +20,26 @@ export function HelpTooltip({ content, title, className = '' }: HelpTooltipProps
   const [position, setPosition] = useState<'bottom' | 'top'>('bottom');
   const tooltipRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const frameRef = useRef<number | null>(null);
 
-  // 툴팁 위치 계산 (화면 하단 잘림 방지)
-  useEffect(() => {
-    if (isOpen && tooltipRef.current && buttonRef.current) {
-      const buttonRect = buttonRef.current.getBoundingClientRect();
-      const tooltipHeight = tooltipRef.current.offsetHeight;
-      const viewportHeight = window.innerHeight;
-      
-      // 아래에 충분한 공간이 없으면 위로 표시
-      if (buttonRect.bottom + tooltipHeight + 10 > viewportHeight) {
-        setPosition('top');
-      } else {
-        setPosition('bottom');
-      }
+  const updateTooltipPosition = useCallback(() => {
+    if (!buttonRef.current) return;
+    const buttonRect = buttonRef.current.getBoundingClientRect();
+    const tooltipHeight = tooltipRef.current?.offsetHeight ?? 180;
+    const viewportHeight = window.innerHeight;
+    setPosition(buttonRect.bottom + tooltipHeight + 10 > viewportHeight ? 'top' : 'bottom');
+  }, []);
+
+  const openTooltip = useCallback(() => {
+    if (frameRef.current !== null) {
+      window.cancelAnimationFrame(frameRef.current);
     }
-  }, [isOpen]);
+    setIsOpen(true);
+    frameRef.current = window.requestAnimationFrame(() => {
+      updateTooltipPosition();
+      frameRef.current = null;
+    });
+  }, [updateTooltipPosition]);
 
   // 외부 클릭 시 닫기
   useEffect(() => {
@@ -61,6 +65,23 @@ export function HelpTooltip({ content, title, className = '' }: HelpTooltipProps
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleResize = () => updateTooltipPosition();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isOpen, updateTooltipPosition]);
+
+  useEffect(() => {
+    return () => {
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+    };
+  }, []);
+
   // ESC 키로 닫기
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -82,8 +103,8 @@ export function HelpTooltip({ content, title, className = '' }: HelpTooltipProps
     <div className={`relative inline-flex ${className}`}>
       <button
         ref={buttonRef}
-        onClick={() => setIsOpen(!isOpen)}
-        onMouseEnter={() => setIsOpen(true)}
+        onClick={() => (isOpen ? setIsOpen(false) : openTooltip())}
+        onMouseEnter={openTooltip}
         onMouseLeave={() => setIsOpen(false)}
         className="text-neutral-400 hover:text-neutral-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded-full"
         aria-label="도움말 보기"

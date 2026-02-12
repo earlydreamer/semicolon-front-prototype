@@ -14,10 +14,13 @@ export function useInfiniteScroll<T>(
   allItems: T[],
   { pageSize, rootMargin = '200px' }: UseInfiniteScrollOptions
 ) {
-  const [displayItems, setDisplayItems] = useState<T[]>([]);
+  const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const loadTimerRef = useRef<number | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
+
+  const displayItems = allItems.slice(0, page * pageSize);
+  const hasMore = displayItems.length < allItems.length;
 
   // 초기화 및 아이템 추가 로드
   const loadMore = useCallback(() => {
@@ -26,31 +29,20 @@ export function useInfiniteScroll<T>(
     setIsLoading(true);
     
     // 목업을 위한 지연 시간 (0.5초)
-    setTimeout(() => {
-      const currentCount = displayItems.length;
-      const nextItems = allItems.slice(0, currentCount + pageSize);
-      
-      setDisplayItems(nextItems);
-      setHasMore(nextItems.length < allItems.length);
+    loadTimerRef.current = window.setTimeout(() => {
+      setPage((prev) => prev + 1);
       setIsLoading(false);
+      loadTimerRef.current = null;
     }, 500);
-  }, [allItems, displayItems.length, hasMore, isLoading, pageSize]);
+  }, [hasMore, isLoading]);
 
-  // 전체 아이템이나 필터가 변경될 때 초기화 (참조가 바뀌어도 내용(ID)이 같으면 무시하도록 개선 가능)
   useEffect(() => {
-    const initialItems = allItems.slice(0, pageSize);
-    setDisplayItems((prev) => {
-      // 이미 내용이 같다면 업데이트하지 않음 (무한 루프 방지 장치)
-      const getId = (item: any) => item.productUuid || item.id;
-      if (prev.length === initialItems.length && 
-          prev.every((item, idx) => getId(item) === getId(initialItems[idx]))) {
-        return prev;
+    return () => {
+      if (loadTimerRef.current !== null) {
+        window.clearTimeout(loadTimerRef.current);
       }
-      return initialItems;
-    });
-    setHasMore(initialItems.length < allItems.length);
-    setIsLoading(false);
-  }, [allItems, pageSize]);
+    };
+  }, []);
 
   // Intersection Observer 설정
   useEffect(() => {

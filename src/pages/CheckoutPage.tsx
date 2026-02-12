@@ -34,12 +34,11 @@ export default function CheckoutPage() {
 
     const [ready, setReady] = useState(false);
     const [widgets, setWidgets] = useState<TossPaymentsWidgets | null>(null);
-
-    // 주문 정보가 없거나 orderResponseItems가 없으면 주문서로 리다이렉트
-    if (!isAuthenticated) return <Navigate to="/login" replace />;
-    if (!orderUuid || orderItems.length === 0 || !orderResponseItems) return <Navigate to="/order" replace />;
+    const shouldRedirectLogin = !isAuthenticated;
+    const shouldRedirectOrder = !orderUuid || orderItems.length === 0 || !orderResponseItems;
 
     useEffect(() => {
+        if (shouldRedirectLogin || shouldRedirectOrder) return;
         async function fetchPaymentWidgets() {
             try {
                 const tossPayments = await loadTossPayments(clientKey);
@@ -54,9 +53,10 @@ export default function CheckoutPage() {
         }
 
         fetchPaymentWidgets();
-    }, [customerKey, showToast]);
+    }, [customerKey, showToast, shouldRedirectLogin, shouldRedirectOrder]);
 
     useEffect(() => {
+        if (shouldRedirectLogin || shouldRedirectOrder) return;
         async function renderPaymentWidgets() {
             if (widgets == null) return;
 
@@ -82,7 +82,11 @@ export default function CheckoutPage() {
         }
 
         renderPaymentWidgets();
-    }, [widgets, summary.pgPayAmount]);
+    }, [widgets, summary.pgPayAmount, shouldRedirectLogin, shouldRedirectOrder]);
+
+    // 주문 정보가 없거나 orderResponseItems가 없으면 주문서로 리다이렉트
+    if (shouldRedirectLogin) return <Navigate to="/login" replace />;
+    if (shouldRedirectOrder) return <Navigate to="/order" replace />;
 
     // 결제 요청 핸들러 (Prepare -> Toss Request)
     async function handlePaymentRequest() {
@@ -142,7 +146,7 @@ export default function CheckoutPage() {
                 customerEmail: user?.email,
                 customerName: user?.nickname,
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('결제 요청 실패:', error);
             showToast('결제 요청 중 오류가 발생했습니다.', 'error');
             // 중대한 오류 시 실패 페이지로 이동 고려

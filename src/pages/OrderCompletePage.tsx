@@ -2,7 +2,7 @@
  * 주문 완료 페이지
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
@@ -17,7 +17,7 @@ const OrderCompletePage = () => {
   const { removeSelectedItems } = useCartStore(); // 장바구니에서 구매한 상품 제거
 
   const { finalPrice } = getOrderSummary();
-  const orderNumber = `ORD-${Date.now()}`;
+  const [orderNumber] = useState(() => `ORD-${Date.now()}`);
 
   // 컴포넌트 마운트 시 장바구니 정리 (구매한 상품만) 및 주문 Store 초기화는 나갈 때
   useEffect(() => {

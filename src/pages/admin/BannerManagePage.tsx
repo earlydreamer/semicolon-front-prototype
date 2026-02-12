@@ -8,7 +8,7 @@
  * - 최대 10개 배너 제한
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import Plus from 'lucide-react/dist/esm/icons/plus';
 import Pencil from 'lucide-react/dist/esm/icons/pencil';
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
@@ -29,9 +29,13 @@ const MAX_BANNERS = 10;
 const BannerManagePage = () => {
   const { banners: storeBanners, setBanners } = useBannerStore();
   const { showToast } = useToast();
+  const baseBanners = useMemo(
+    () => [...storeBanners].sort((a, b) => a.order - b.order),
+    [storeBanners]
+  );
   
   // 로컬 상태 (저장 전까지 변경사항 보관)
-  const [localBanners, setLocalBanners] = useState<Banner[]>([]);
+  const [localBanners, setLocalBanners] = useState<Banner[] | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   
   // 드래그 앤 드롭 상태
@@ -58,15 +62,8 @@ const BannerManagePage = () => {
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   
-  // Store 배너를 로컬 상태로 동기화
-  useEffect(() => {
-    const sorted = [...storeBanners].sort((a, b) => a.order - b.order);
-    setLocalBanners(sorted);
-    setHasChanges(false);
-  }, [storeBanners]);
-  
-  // 정렬된 로컬 배너
-  const sortedBanners = [...localBanners].sort((a, b) => a.order - b.order);
+  const workingBanners = localBanners ?? baseBanners;
+  const sortedBanners = [...workingBanners].sort((a, b) => a.order - b.order);
   
   // 드래그 시작
   const handleDragStart = (index: number) => {
@@ -113,29 +110,30 @@ const BannerManagePage = () => {
   
   // 활성/비활성 토글 (로컬)
   const handleToggleActive = (id: string) => {
-    setLocalBanners(prev =>
-      prev.map(b => b.id === id ? { ...b, isActive: !b.isActive } : b)
-    );
+    setLocalBanners((prev) => {
+      const source = prev ?? baseBanners;
+      return source.map((b) => (b.id === id ? { ...b, isActive: !b.isActive } : b));
+    });
     setHasChanges(true);
   };
   
   // 저장
   const handleSave = () => {
-    setBanners(localBanners);
+    setBanners(workingBanners);
+    setLocalBanners(null);
     setHasChanges(false);
     showToast('준비중입니다.', 'info');
   };
   
   // 초기화 (이전 상태로 복원)
   const handleReset = () => {
-    const sorted = [...storeBanners].sort((a, b) => a.order - b.order);
-    setLocalBanners(sorted);
+    setLocalBanners(null);
     setHasChanges(false);
   };
   
   // 배너 추가 모달 열기
   const handleOpenCreate = () => {
-    if (localBanners.length >= MAX_BANNERS) {
+    if (workingBanners.length >= MAX_BANNERS) {
       setAlertMessage(`배너는 최대 ${MAX_BANNERS}개까지 등록할 수 있습니다.`);
       setIsAlertModalOpen(true);
       return;
@@ -178,23 +176,24 @@ const BannerManagePage = () => {
   const handleSubmit = () => {
     if (editingBanner) {
       // 수정: 로컬 상태 업데이트
-      setLocalBanners(prev =>
-        prev.map(b =>
+      setLocalBanners((prev) => {
+        const source = prev ?? baseBanners;
+        return source.map((b) =>
           b.id === editingBanner.id
             ? { ...b, ...formData, updatedAt: new Date().toISOString() }
             : b
-        )
-      );
+        );
+      });
     } else {
       // 추가: 로컬 상태에 새 배너 추가
       const newBanner = {
         id: `banner-${Date.now()}`,
         ...formData,
-        order: localBanners.length + 1,
+        order: workingBanners.length + 1,
         isActive: true,
         createdAt: new Date().toISOString(),
       };
-      setLocalBanners(prev => [...prev, newBanner]);
+      setLocalBanners((prev) => [...(prev ?? baseBanners), newBanner]);
     }
     setHasChanges(true);
     setIsModalOpen(false);
@@ -203,8 +202,9 @@ const BannerManagePage = () => {
   // 배너 삭제 (로컬 상태)
   const handleDelete = (id: string) => {
     if (confirm('정말로 이 배너를 삭제하시겠습니까?')) {
-      setLocalBanners(prev => {
-        const filtered = prev.filter(b => b.id !== id);
+      setLocalBanners((prev) => {
+        const source = prev ?? baseBanners;
+        const filtered = source.filter((b) => b.id !== id);
         // order 재할당
         return filtered.map((banner, idx) => ({ ...banner, order: idx + 1 }));
       });
@@ -221,7 +221,7 @@ const BannerManagePage = () => {
     { value: 'from-neutral-900 to-neutral-800', label: '어두운색' },
   ];
   
-  const isMaxReached = localBanners.length >= MAX_BANNERS;
+  const isMaxReached = workingBanners.length >= MAX_BANNERS;
   
   return (
     <div>
@@ -230,7 +230,7 @@ const BannerManagePage = () => {
         <div>
           <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">배너 관리</h1>
           <p className="text-neutral-500 mt-1">
-            홈 화면 롤링 배너를 관리합니다 ({localBanners.length} / {MAX_BANNERS})
+            홈 화면 롤링 배너를 관리합니다 ({workingBanners.length} / {MAX_BANNERS})
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -366,7 +366,7 @@ const BannerManagePage = () => {
                 </td>
               </tr>
             ))}
-            {localBanners.length === 0 && (
+            {workingBanners.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center text-neutral-500">
                   등록된 배너가 없습니다. 배너를 추가해주세요.

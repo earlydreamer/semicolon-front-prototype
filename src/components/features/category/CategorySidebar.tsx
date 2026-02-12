@@ -27,12 +27,8 @@ function CategoryItem({ category, currentCategoryId, depth = 0 }: CategoryItemPr
     return false;
   };
 
-  // 하위 카테고리가 활성 상태면 자동으로 펼칩니다.
-  useEffect(() => {
-    if (hasChildren && isChildActive(category)) {
-      setIsOpen(true);
-    }
-  }, [currentCategoryId, category, hasChildren]);
+  const isAutoOpen = hasChildren && isChildActive(category);
+  const visibleOpen = isOpen || isAutoOpen;
 
   return (
     <div className="w-full">
@@ -54,7 +50,7 @@ function CategoryItem({ category, currentCategoryId, depth = 0 }: CategoryItemPr
             }}
             className="p-0.5 hover:bg-neutral-200 rounded text-neutral-400"
           >
-            {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            {visibleOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
         ) : (
           <span className="w-5" />
@@ -67,7 +63,7 @@ function CategoryItem({ category, currentCategoryId, depth = 0 }: CategoryItemPr
       </div>
 
       {/* 하위 카테고리 렌더링 */}
-      {hasChildren && isOpen && (
+      {hasChildren && visibleOpen && (
         <div className="mt-1 border-l border-neutral-100 ml-4 pl-1">
           {category.children!.map((child) => (
             <CategoryItem
