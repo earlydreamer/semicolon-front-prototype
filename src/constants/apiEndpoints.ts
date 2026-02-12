@@ -12,7 +12,7 @@ export const API_ENDPOINTS = {
     REGISTER: `${API_BASE_URL}/users/register`,
     ME: `${API_BASE_URL}/users/me`,
     PASSWORD: `${API_BASE_URL}/users/password`,
-    ADDRESSES: `${API_BASE_URL}/users/me/adresses`,
+    ADDRESSES: `${API_BASE_URL}/users/me/addresses`,
   },
   PAYMENTS: {
     PREPARE: `${API_BASE_URL}/payments/request`,
@@ -45,5 +45,13 @@ export const API_ENDPOINTS = {
   DEPOSITS: {
     BALANCE: `${API_BASE_URL}/deposits/me/balance`,
     HISTORIES: `${API_BASE_URL}/deposits/me/histories`,
+  },
+  COUPONS: {
+    BASE: `${API_BASE_URL}/coupons`,
+    ME: `${API_BASE_URL}/coupons/me`,
+    ISSUABLE: `${API_BASE_URL}/coupons/issuable`,
+  },
+  ADMIN_COUPONS: {
+    BASE: `${API_BASE_URL}/admin/coupons`,
   },
 } as const;

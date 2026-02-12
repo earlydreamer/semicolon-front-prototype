@@ -24,6 +24,7 @@ interface OrderState {
   shippingInfo: Address | null; // ?좏깮??諛곗넚吏
   paymentMethod: string | null; // ?좏깮??寃곗젣 ?섎떒
   couponUuid: string | null; // ?좏깮??荑좏룿 UUID
+  couponDiscountAmount: number; // 쿠폰 할인 금액
   depositUseAmount: number; // ?ъ슜???덉튂湲?湲덉븸
   
   // Actions
@@ -33,6 +34,7 @@ interface OrderState {
   setShippingInfo: (address: Address | null) => void;
   setPaymentMethod: (method: string | null) => void;
   setCouponUuid: (uuid: string | null) => void;
+  setCouponDiscountAmount: (amount: number) => void;
   setDepositUseAmount: (amount: number) => void;
   
   // Computed (helper)
@@ -54,6 +56,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   shippingInfo: null,
   paymentMethod: null,
   couponUuid: null,
+  couponDiscountAmount: 0,
   depositUseAmount: 0,
 
   setOrderUuid: (uuid) => set({ orderUuid: uuid }),
@@ -62,10 +65,11 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   setShippingInfo: (address) => set({ shippingInfo: address }),
   setPaymentMethod: (method) => set({ paymentMethod: method }),
   setCouponUuid: (uuid) => set({ couponUuid: uuid }),
+  setCouponDiscountAmount: (amount) => set({ couponDiscountAmount: amount }),
   setDepositUseAmount: (amount) => set({ depositUseAmount: amount }),
 
   getOrderSummary: () => {
-    const { orderItems, depositUseAmount } = get();
+    const { orderItems, depositUseAmount, couponDiscountAmount } = get();
     
     // ?곹뭹 珥?媛寃?
     const totalProductPrice = orderItems.reduce(
@@ -77,8 +81,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     // CartItem ????낅뜲?댄듃 ??異붽? ?꾩슂 ?꾩옱??Mock ?鍮??쒓굅??
     const totalShippingFee = 0;
 
-    // TODO: 荑좏룿 ?좎씤 濡쒖쭅 ?곕룞
-    const couponDiscount = 0;
+    const couponDiscount = Math.min(couponDiscountAmount, totalProductPrice);
 
     const finalPrice = totalProductPrice + totalShippingFee - couponDiscount;
     const pgPayAmount = Math.max(0, finalPrice - depositUseAmount);
@@ -100,6 +103,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     shippingInfo: null, 
     paymentMethod: null,
     couponUuid: null,
+    couponDiscountAmount: 0,
     depositUseAmount: 0,
   }),
 }));

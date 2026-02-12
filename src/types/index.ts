@@ -28,3 +28,9 @@ export type { CartItem, CartSummary } from './cart';
 
 // 배너 관련
 export type { Banner, BannerInput, BannerImageAlign, BannerImageFit } from './banner';
+export type {
+  CouponStatus,
+  CouponResponse,
+  CouponCreateRequest,
+  CouponUpdateRequest,
+} from './coupon';
