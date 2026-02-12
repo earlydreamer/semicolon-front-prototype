@@ -63,18 +63,18 @@ const CartPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen bg-neutral-50 py-6 min-[360px]:py-8">
+      <div className="mx-auto max-w-6xl px-3 min-[360px]:px-4">
         {/* 페이지 헤더 */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-neutral-900">장바구니</h1>
-          <p className="text-sm text-neutral-500 mt-1">
+        <div className="mb-5 min-[360px]:mb-6">
+          <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">장바구니</h1>
+          <p className="mt-1 text-xs text-neutral-500 min-[360px]:text-sm">
             총 {items.length}개의 상품이 담겨있습니다
           </p>
         </div>
 
         {/* 메인 콘텐츠 */}
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:gap-6">
           {/* 좌측: 상품 목록 */}
           <div className="flex-1">
             <CartList
@@ -116,7 +116,10 @@ const CartPage = () => {
 
       {/* 모바일 하단 고정 바 */}
       {items.length > 0 && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 p-4 z-40">
+        <div
+          className="fixed bottom-0 left-0 right-0 z-40 border-t border-neutral-200 bg-white p-3 min-[360px]:p-4 lg:hidden"
+          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+        >
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-neutral-600">
               선택 {summary.selectedCount}개
@@ -139,7 +142,7 @@ const CartPage = () => {
       )}
 
       {/* 모바일 하단 바 공간 확보 */}
-      {items.length > 0 && <div className="lg:hidden h-32" />}
+      {items.length > 0 && <div className="h-28 lg:hidden" />}
     </div>
   );
 };

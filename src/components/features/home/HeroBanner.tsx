@@ -118,10 +118,10 @@ export function HeroBanner() {
               </div>
 
               {/* 컨텐츠 영역 */}
-              <div className="relative z-10 container mx-auto px-4">
+              <div className="relative z-10 container mx-auto px-3 min-[360px]:px-4">
                 {/* 모바일 레이아웃: 세로 배치 */}
                 <div
-                  className={`md:hidden py-6 min-[360px]:py-8 flex flex-col ${
+                  className={`md:hidden flex min-h-[240px] min-[360px]:min-h-[280px] flex-col justify-center py-7 min-[360px]:py-9 ${
                     banner.textPosition === 'center'
                       ? 'items-center text-center'
                       : banner.textPosition === 'right'
@@ -149,7 +149,7 @@ export function HeroBanner() {
                   )}
 
                   {/* 텍스트 영역 */}
-                  <div className="space-y-2 min-[360px]:space-y-3">
+                  <div className="max-w-[90vw] space-y-2 min-[360px]:max-w-[82vw] min-[360px]:space-y-3">
                     <h2
                       className={`text-xl min-[360px]:text-2xl font-black leading-tight tracking-tight ${
                         banner.imageAlign === 'full' ? 'text-white' : 'text-neutral-900'
@@ -158,7 +158,7 @@ export function HeroBanner() {
                       {banner.title}
                     </h2>
                     <p
-                      className={`text-xs min-[360px]:text-sm leading-relaxed whitespace-pre-line ${
+                      className={`text-xs min-[360px]:text-sm leading-relaxed whitespace-pre-line break-keep ${
                         banner.imageAlign === 'full' ? 'text-neutral-200' : 'text-neutral-600'
                       }`}
                     >
@@ -251,7 +251,7 @@ export function HeroBanner() {
       </div>
 
       {/* 모바일 좌우 이동 버튼 */}
-      <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between pointer-events-none z-20 px-2 md:hidden">
+      <div className="absolute left-0 right-0 top-1/2 z-20 flex -translate-y-1/2 justify-between px-1.5 pointer-events-none min-[360px]:px-2 md:hidden">
         <button
           onClick={handlePrev}
           className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition-all ${

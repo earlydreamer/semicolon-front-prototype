@@ -25,7 +25,7 @@ export function ProductSortDropdown({ currentSort, onSortChange }: ProductSortDr
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 text-sm font-medium text-neutral-600 hover:text-neutral-900"
+        className="flex min-h-9 items-center gap-1 rounded-md px-2 text-xs font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 min-[360px]:text-sm"
       >
         {currentLabel}
         <ChevronDown className="h-4 w-4" />

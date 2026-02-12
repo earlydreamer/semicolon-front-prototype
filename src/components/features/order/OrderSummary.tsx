@@ -26,7 +26,7 @@ const OrderSummary = ({
   isLoading = false
 }: OrderSummaryProps) => {
   return (
-    <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden sticky top-24">
+    <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white lg:sticky lg:top-24">
       <div className="px-5 py-4 border-b border-neutral-200 bg-neutral-50">
         <h3 className="font-bold text-neutral-900">결제 금액</h3>
       </div>
