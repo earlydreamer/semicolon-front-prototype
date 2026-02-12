@@ -20,12 +20,15 @@ import { Button } from '@/components/common/Button';
 import { useBannerStore } from '@/stores/useBannerStore';
 import { BannerFormModal } from '@/components/features/admin/BannerFormModal';
 import { Modal } from '@/components/common/Modal';
+import { MockDataNotice } from '@/components/common/MockDataNotice';
+import { useToast } from '@/components/common/Toast';
 import type { Banner, BannerInput } from '@/types/banner';
 
 const MAX_BANNERS = 10;
 
 const BannerManagePage = () => {
   const { banners: storeBanners, setBanners } = useBannerStore();
+  const { showToast } = useToast();
   
   // 로컬 상태 (저장 전까지 변경사항 보관)
   const [localBanners, setLocalBanners] = useState<Banner[]>([]);
@@ -120,6 +123,7 @@ const BannerManagePage = () => {
   const handleSave = () => {
     setBanners(localBanners);
     setHasChanges(false);
+    showToast('준비중입니다.', 'info');
   };
   
   // 초기화 (이전 상태로 복원)
@@ -205,6 +209,7 @@ const BannerManagePage = () => {
         return filtered.map((banner, idx) => ({ ...banner, order: idx + 1 }));
       });
       setHasChanges(true);
+      showToast('준비중입니다.', 'info');
     }
   };
   
@@ -254,6 +259,10 @@ const BannerManagePage = () => {
             배너 추가
           </Button>
         </div>
+      </div>
+
+      <div className="mb-4">
+        <MockDataNotice message="배너 API 연동 준비중입니다. 현재 변경사항은 mock 데이터로 동작합니다." />
       </div>
       
       {/* 변경사항 알림 */}

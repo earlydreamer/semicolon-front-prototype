@@ -5,6 +5,7 @@ import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { Button } from '@/components/common/Button';
 import { useBannerStore } from '@/stores/useBannerStore';
+import { MockDataNotice } from '@/components/common/MockDataNotice';
 
 // 배너 설정 (하드코딩 방지)
 const BANNER_CONFIG = {
@@ -70,6 +71,9 @@ export function HeroBanner() {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
+      <div className="absolute z-30 top-3 left-3 max-w-xs hidden md:block">
+        <MockDataNotice title="Mock 배너" message="배너 데이터는 현재 mock 기반입니다." />
+      </div>
       {/* Sliding Container */}
       <div 
         className="flex transition-transform duration-500 ease-out"

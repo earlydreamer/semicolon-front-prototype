@@ -17,6 +17,7 @@ import Clock from 'lucide-react/dist/esm/icons/clock';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
 import Info from 'lucide-react/dist/esm/icons/info';
 import StatsCard from '@/components/features/admin/StatsCard';
+import { MockDataNotice } from '@/components/common/MockDataNotice';
 import { MOCK_ORDER_HISTORY, MOCK_USERS_DATA } from '@/mocks/users';
 import { getDashboardStats, STATS_AGGREGATION_INFO } from '@/mocks/stats';
 
@@ -61,6 +62,9 @@ const AdminDashboardPage = () => {
   
   return (
     <div>
+      <div className="mb-6">
+        <MockDataNotice />
+      </div>
       {/* 페이지 헤더 */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-neutral-900">대시보드</h1>

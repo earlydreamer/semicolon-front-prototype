@@ -9,6 +9,8 @@ import User from 'lucide-react/dist/esm/icons/user';
 import Ban from 'lucide-react/dist/esm/icons/ban';
 import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
 import { MOCK_USERS_DATA, type User as UserType } from '@/mocks/users';
+import { MockDataNotice } from '@/components/common/MockDataNotice';
+import { useToast } from '@/components/common/Toast';
 
 type UserStatus = 'active' | 'suspended';
 
@@ -37,6 +39,7 @@ const AdminUserList = () => {
   const [filterStatus, setFilterStatus] = useState<'all' | UserStatus>('all');
   const [users, setUsers] = useState<AdminUser[]>(ADMIN_USERS);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   // 필터링된 회원 목록
   const filteredUsers = users.filter((user) => {
@@ -62,7 +65,8 @@ const AdminUserList = () => {
   return (
     <div className="bg-white rounded-xl border border-neutral-200">
       {/* 헤더 */}
-      <div className="p-4 border-b border-neutral-200">
+      <div className="p-4 border-b border-neutral-200 space-y-3">
+        <MockDataNotice />
         <div className="flex flex-col sm:flex-row gap-4">
           {/* 검색 */}
           <div className="relative flex-1">
@@ -151,7 +155,10 @@ const AdminUserList = () => {
                           프로필 보기
                         </button>
                         <button
-                          onClick={() => handleToggleStatus(user.id)}
+                          onClick={() => {
+                            handleToggleStatus(user.id);
+                            showToast('준비중입니다.', 'info');
+                          }}
                           className={`flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-neutral-50 ${
                             user.status === 'active' ? 'text-red-600' : 'text-green-600'
                           }`}

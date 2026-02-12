@@ -28,12 +28,18 @@ const OrderPage = () => {
     setOrderUuid,
     setOrderResponseItems,
     setCouponUuid,
+    setCouponDiscountAmount,
     setDepositUseAmount,
     getOrderSummary
   } = useOrderStore();
 
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState<UserCoupon | null>(null);
+
+  useEffect(() => {
+    setCouponUuid(null);
+    setCouponDiscountAmount(0);
+  }, [setCouponUuid, setCouponDiscountAmount]);
 
   // 주문할 상품이 없으면 홈으로 리다이렉트
   useEffect(() => {
@@ -56,7 +62,7 @@ const OrderPage = () => {
   
   // 쿠폰 할인 계산
   const couponDiscount = calculateCouponDiscount(selectedCoupon, totalProductPrice);
-  const finalPriceWithCoupon = finalPrice - couponDiscount;
+  const finalPriceWithCoupon = finalPrice;
   
   // 배송지 유효성 검사 (MVP: 직접 입력 시 필수 필드 체크)
   const isFormValid = !!(
@@ -92,7 +98,7 @@ const OrderPage = () => {
       
       setOrderUuid(response.orderUuid);
       setOrderResponseItems(response.items); // 주문 응답의 items 저장 (결제 요청에 사용)
-      setCouponUuid(selectedCoupon?.id || null);
+      setCouponUuid(selectedCoupon?.uuid || null);
       
       // 토스 결제 위젯 페이지로 이동
       navigate('/checkout');
@@ -133,7 +139,11 @@ const OrderPage = () => {
             <CouponSelector
               orderAmount={totalProductPrice}
               selectedCoupon={selectedCoupon}
-              onSelectCoupon={setSelectedCoupon}
+              onSelectCoupon={(coupon) => {
+                setSelectedCoupon(coupon);
+                setCouponUuid(coupon?.uuid ?? null);
+                setCouponDiscountAmount(coupon ? calculateCouponDiscount(coupon, totalProductPrice) : 0);
+              }}
             />
 
             {/* 예치금 사용 */}

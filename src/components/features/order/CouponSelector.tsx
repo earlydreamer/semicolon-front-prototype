@@ -1,52 +1,14 @@
-/**
- * 주문 페이지 쿠폰 선택 컴포넌트
- */
-
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Ticket from 'lucide-react/dist/esm/icons/ticket';
 import Check from 'lucide-react/dist/esm/icons/check';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
 import X from 'lucide-react/dist/esm/icons/x';
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
-import { Modal } from '@/components/common/Modal';
-import { Button } from '@/components/common/Button';
+import { couponService } from '@/services/couponService';
+import type { CouponResponse } from '@/types/coupon';
+import { useToast } from '@/components/common/Toast';
 
-type DiscountType = 'FIXED' | 'PERCENT';
-
-interface UserCoupon {
-  id: string;
-  name: string;
-  code: string;
-  discountType: DiscountType;
-  discountValue: number;
-  minOrderAmount: number;
-  maxDiscount?: number;
-  validUntil: string;
-}
-
-// Mock 사용자 보유 쿠폰
-const MOCK_USER_COUPONS: UserCoupon[] = [
-  {
-    id: 'coupon_1',
-    name: '신규가입 환영 쿠폰',
-    code: 'WELCOME2026',
-    discountType: 'FIXED',
-    discountValue: 5000,
-    minOrderAmount: 30000,
-    validUntil: '2026-12-31',
-  },
-  {
-    id: 'coupon_2',
-    name: '봄맞이 10% 할인',
-    code: 'SPRING10',
-    discountType: 'PERCENT',
-    discountValue: 10,
-    minOrderAmount: 50000,
-    maxDiscount: 10000,
-    validUntil: '2026-03-31',
-  },
-];
+export type UserCoupon = CouponResponse;
 
 interface CouponSelectorProps {
   orderAmount: number;
@@ -56,23 +18,43 @@ interface CouponSelectorProps {
 
 export function CouponSelector({ orderAmount, selectedCoupon, onSelectCoupon }: CouponSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [codeInput, setCodeInput] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
+  const [coupons, setCoupons] = useState<UserCoupon[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
 
-  // 사용 가능한 쿠폰 필터링
-  const availableCoupons = MOCK_USER_COUPONS.filter(
-    (coupon) => orderAmount >= coupon.minOrderAmount
+  useEffect(() => {
+    const loadCoupons = async () => {
+      setIsLoading(true);
+      try {
+        const list = await couponService.getMyCoupons();
+        setCoupons(list);
+      } catch (error) {
+        console.error('Failed to load coupons:', error);
+        showToast('쿠폰 목록을 불러오지 못했습니다.', 'error');
+        setCoupons([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCoupons();
+  }, [showToast]);
+
+  const availableCoupons = useMemo(
+    () => coupons.filter((coupon) => orderAmount >= coupon.minimumOrderAmount),
+    [coupons, orderAmount]
   );
 
-  // 할인 금액 계산
-  const calculateDiscount = (coupon: UserCoupon): number => {
-    if (coupon.discountType === 'FIXED') {
-      return coupon.discountValue;
-    } else {
-      const discount = Math.floor(orderAmount * (coupon.discountValue / 100));
-      return coupon.maxDiscount ? Math.min(discount, coupon.maxDiscount) : discount;
+  useEffect(() => {
+    if (!selectedCoupon) return;
+    const stillValid = availableCoupons.some((coupon) => coupon.uuid === selectedCoupon.uuid);
+    if (!stillValid) {
+      onSelectCoupon(null);
     }
+  }, [availableCoupons, selectedCoupon, onSelectCoupon]);
+
+  const calculateDiscount = (coupon: UserCoupon): number => {
+    return Math.min(coupon.discountAmount, orderAmount);
   };
 
   const formatCurrency = (value: number) => {
@@ -88,29 +70,8 @@ export function CouponSelector({ orderAmount, selectedCoupon, onSelectCoupon }: 
     onSelectCoupon(null);
   };
 
-  const handleApplyCode = () => {
-    // Mock: 코드 입력으로 쿠폰 적용
-    const foundCoupon = MOCK_USER_COUPONS.find(
-      (c) => c.code.toUpperCase() === codeInput.toUpperCase()
-    );
-    if (foundCoupon) {
-      if (orderAmount >= foundCoupon.minOrderAmount) {
-        onSelectCoupon(foundCoupon);
-        setCodeInput('');
-        setIsOpen(false);
-      } else {
-        setModalMessage(`최소 주문 금액 ${formatCurrency(foundCoupon.minOrderAmount)}원 이상이어야 합니다.`);
-        setIsModalOpen(true);
-      }
-    } else {
-      setModalMessage('유효하지 않은 쿠폰 코드입니다.');
-      setIsModalOpen(true);
-    }
-  };
-
   return (
     <div className="border border-neutral-200 rounded-lg overflow-hidden">
-      {/* 헤더 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-4 bg-white hover:bg-neutral-50"
@@ -119,7 +80,7 @@ export function CouponSelector({ orderAmount, selectedCoupon, onSelectCoupon }: 
           <Ticket className="w-5 h-5 text-primary-500" />
           <span className="font-medium">쿠폰 적용</span>
         </div>
-        
+
         {selectedCoupon ? (
           <div className="flex items-center gap-2">
             <span className="text-primary-600 font-semibold">
@@ -143,37 +104,23 @@ export function CouponSelector({ orderAmount, selectedCoupon, onSelectCoupon }: 
         )}
       </button>
 
-      {/* 쿠폰 선택 패널 */}
       {isOpen && (
-        <div className="border-t border-neutral-200 bg-neutral-50 p-4 space-y-4">
-          {/* 쿠폰 코드 입력 */}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={codeInput}
-              onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
-              placeholder="쿠폰 코드 입력"
-              className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg font-mono text-sm"
-            />
-            <button
-              onClick={handleApplyCode}
-              className="px-4 py-2 bg-neutral-900 text-white rounded-lg text-sm font-medium hover:bg-neutral-800"
-            >
-              적용
-            </button>
+        <div className="border-t border-neutral-200 bg-neutral-50 p-4 space-y-3">
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            쿠폰 코드 직접 입력 기능은 준비중입니다.
           </div>
 
-          {/* 보유 쿠폰 목록 */}
-          {availableCoupons.length > 0 ? (
+          {isLoading ? (
+            <p className="text-sm text-neutral-500 text-center py-4">쿠폰을 불러오는 중입니다.</p>
+          ) : availableCoupons.length > 0 ? (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-neutral-700">보유 쿠폰</p>
               {availableCoupons.map((coupon) => {
                 const discount = calculateDiscount(coupon);
-                const isSelected = selectedCoupon?.id === coupon.id;
-                
+                const isSelected = selectedCoupon?.uuid === coupon.uuid;
+
                 return (
                   <button
-                    key={coupon.id}
+                    key={coupon.uuid}
                     onClick={() => handleSelectCoupon(coupon)}
                     className={`w-full text-left p-3 rounded-lg border transition-colors ${
                       isSelected
@@ -183,15 +130,13 @@ export function CouponSelector({ orderAmount, selectedCoupon, onSelectCoupon }: 
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-neutral-900">{coupon.name}</p>
+                        <p className="font-medium text-neutral-900">{coupon.couponName}</p>
                         <p className="text-xs text-neutral-500 mt-0.5">
-                          {formatCurrency(coupon.minOrderAmount)}원 이상 | ~{coupon.validUntil}까지
+                          {formatCurrency(coupon.minimumOrderAmount)}원 이상
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-primary-600 font-bold">
-                          -{formatCurrency(discount)}원
-                        </span>
+                        <span className="text-primary-600 font-bold">-{formatCurrency(discount)}원</span>
                         {isSelected && <Check className="w-4 h-4 text-primary-600" />}
                       </div>
                     </div>
@@ -200,56 +145,21 @@ export function CouponSelector({ orderAmount, selectedCoupon, onSelectCoupon }: 
               })}
             </div>
           ) : (
-            <p className="text-sm text-neutral-500 text-center py-4">
-              사용 가능한 쿠폰이 없습니다.
-            </p>
+            <p className="text-sm text-neutral-500 text-center py-4">사용 가능한 쿠폰이 없습니다.</p>
           )}
 
-          {/* 사용 불가 쿠폰 안내 */}
-          {MOCK_USER_COUPONS.length > availableCoupons.length && (
+          {coupons.length > availableCoupons.length && (
             <p className="text-xs text-neutral-400 text-center">
-              최소 주문 금액 미달로 사용 불가능한 쿠폰이 {MOCK_USER_COUPONS.length - availableCoupons.length}개 있습니다.
+              최소 주문 금액 미달로 사용 불가능한 쿠폰이 {coupons.length - availableCoupons.length}개 있습니다.
             </p>
           )}
         </div>
       )}
-
-      {/* 알림 모달 */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="알림"
-        size="sm"
-      >
-        <div className="flex flex-col items-center text-center py-2">
-          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
-            <AlertCircle className="w-6 h-6 text-red-500" />
-          </div>
-          <p className="text-neutral-700 font-medium mb-6 leading-relaxed">
-            {modalMessage}
-          </p>
-          <Button 
-            onClick={() => setIsModalOpen(false)}
-            className="w-full font-bold"
-          >
-            확인
-          </Button>
-        </div>
-      </Modal>
     </div>
   );
 }
 
-// 할인 금액 계산 유틸 함수 export
 export function calculateCouponDiscount(coupon: UserCoupon | null, orderAmount: number): number {
   if (!coupon) return 0;
-  
-  if (coupon.discountType === 'FIXED') {
-    return coupon.discountValue;
-  } else {
-    const discount = Math.floor(orderAmount * (coupon.discountValue / 100));
-    return coupon.maxDiscount ? Math.min(discount, coupon.maxDiscount) : discount;
-  }
+  return Math.min(coupon.discountAmount, orderAmount);
 }
-
-export type { UserCoupon };
