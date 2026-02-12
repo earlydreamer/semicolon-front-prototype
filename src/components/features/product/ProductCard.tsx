@@ -11,27 +11,37 @@ interface ProductCardProps {
   product: Product | ProductListItem;
 }
 
+const getProductId = (product: Product | ProductListItem) =>
+  'productUuid' in product ? product.productUuid : product.id;
+
+const getProductImage = (product: Product | ProductListItem) =>
+  'thumbnailUrl' in product ? product.thumbnailUrl : product.image;
+
+const getProductSaleStatus = (product: Product | ProductListItem) => product.saleStatus;
+
+const getProductCreatedAt = (product: Product | ProductListItem) => product.createdAt ?? new Date().toISOString();
+
 export function ProductCard({ product }: ProductCardProps) {
   // 대응 필드 추출 (API vs Mock)
-  const id = 'productUuid' in product ? product.productUuid : (product as any).id;
+  const id = getProductId(product);
   const title = product.title;
   const price = product.price;
-  const image = 'thumbnailUrl' in product ? product.thumbnailUrl : (product as any).image;
-  const saleStatus = 'saleStatus' in product ? product.saleStatus : (product as any).saleStatus;
-  const createdAt = 'createdAt' in product ? product.createdAt : (product as any).createdAt;
+  const image = getProductImage(product);
+  const saleStatus = getProductSaleStatus(product);
+  const createdAt = getProductCreatedAt(product);
   
   const isUnavailable = saleStatus === 'SOLD_OUT' || saleStatus === 'RESERVED';
   const { user } = useAuthStore();
   const { isLiked, toggleLike } = useLikeStore();
   
-  // LikeStore도 API 연동용으로 업데이트가 필요할 수 있음
-  const liked = user ? isLiked((user as any).userUuid || user.id, id) : false;
+  const userId = user?.userUuid ?? user?.id;
+  const liked = userId ? isLiked(userId, id) : false;
 
-  const handleLikeClick = (e: React.MouseEvent) => {
+    const handleLikeClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user) return;
-    toggleLike((user as any).userUuid || user.id, id);
+    if (!userId) return;
+    toggleLike(userId, id);
   };
 
   return (

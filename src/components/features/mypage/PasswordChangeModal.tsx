@@ -4,6 +4,7 @@ import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 import { userService } from '@/services/userService';
 import Lock from 'lucide-react/dist/esm/icons/lock';
+import type { AxiosError } from 'axios';
 
 interface PasswordChangeModalProps {
   isOpen: boolean;
@@ -54,8 +55,11 @@ export const PasswordChangeModal = ({ isOpen, onClose }: PasswordChangeModalProp
         newPassword: '',
         confirmPassword: '',
       });
-    } catch (error: any) {
-      showToast(error.response?.data?.message || '비밀번호 변경에 실패했습니다.', 'error');
+    } catch (error: unknown) {
+      const message =
+        (error as AxiosError<{ message?: string }>)?.response?.data?.message ||
+        '비밀번호 변경에 실패했습니다.';
+      showToast(message, 'error');
     } finally {
       setLoading(false);
     }

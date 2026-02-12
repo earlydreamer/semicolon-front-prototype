@@ -10,6 +10,8 @@ import { paymentService } from '../services/paymentService';
 import { useOrderStore } from '../stores/useOrderStore';
 import { useCartStore } from '../stores/useCartStore';
 import { useToast } from '../components/common/Toast';
+import type { PaymentResponseData } from '../types/payment';
+import type { AxiosError } from 'axios';
 
 export default function SuccessPage() {
     const navigate = useNavigate();
@@ -18,7 +20,7 @@ export default function SuccessPage() {
     const { clearOrder } = useOrderStore();
     const { fetchItems } = useCartStore();
     
-    const [responseData, setResponseData] = useState<any>(null);
+    const [responseData, setResponseData] = useState<PaymentResponseData | null>(null);
     const [isConfirming, setIsConfirming] = useState(true);
     const hasConfirmed = useRef(false);
 
@@ -64,9 +66,12 @@ export default function SuccessPage() {
                 } else {
                     throw new Error(response.message || '승인 실패');
                 }
-            } catch (error: any) {
+            } catch (error: unknown) {
                 console.error('결제 승인 실패:', error);
-                navigate(`/payment/fail?code=${error.response?.data?.code || 'CONFIRM_ERROR'}&message=${encodeURIComponent(error.message)}`);
+                const apiError = error as AxiosError<{ code?: string; message?: string }>;
+                const code = apiError.response?.data?.code || 'CONFIRM_ERROR';
+                const message = apiError.response?.data?.message || apiError.message || '결제 승인 실패';
+                navigate(`/payment/fail?code=${code}&message=${encodeURIComponent(message)}`);
             } finally {
                 setIsConfirming(false);
             }

@@ -61,7 +61,7 @@ export interface ReviewPaymentResponse {
     success: boolean;
     code: string;
     message: string;
-    data: any; // 필요시 상세 정의
+    data: Record<string, unknown>; // 필요시 상세 정의
 }
 
 // Alias exports for backward compatibility

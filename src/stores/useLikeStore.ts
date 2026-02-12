@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { userService } from '../services/userService';
+import type { LikedProductItem } from '../services/userService';
 
 interface LikeState {
   // 유저별 찜 목록: { [userId: string]: string[] }
@@ -23,8 +24,8 @@ export const useLikeStore = create<LikeState>()(
       fetchUserLikes: async (userId: string) => {
         try {
           const response = await userService.getLikedProducts();
-          // MyLikedProductListResponse 구조 (items 가 실제 상품 목록)
-          const likedProductUuids = response.items?.map((p: any) => p.productUuid) || [];
+          const likedProducts: LikedProductItem[] = response.items ?? response.content ?? [];
+          const likedProductUuids = likedProducts.map((p) => p.productUuid);
           set((state) => ({
             userLikes: { ...state.userLikes, [userId]: likedProductUuids }
           }));

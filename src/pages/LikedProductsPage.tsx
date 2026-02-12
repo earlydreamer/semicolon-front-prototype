@@ -9,25 +9,20 @@ import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLikeStore } from '../stores/useLikeStore';
 import { useToast } from '../components/common/Toast';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { userService } from '@/services/userService';
 import { formatPrice } from '@/utils/formatPrice';
+import type { LikedProductItem } from '@/services/userService';
 
 const LikedProductsPage = () => {
   const { isAuthenticated, user } = useAuthStore();
   const { toggleLike, fetchUserLikes } = useLikeStore();
   const { showToast } = useToast();
   
-  const [likedProducts, setLikedProducts] = useState<any[]>([]);
+  const [likedProducts, setLikedProducts] = useState<LikedProductItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadLikedProducts();
-    }
-  }, [isAuthenticated, user?.id]);
-
-  const loadLikedProducts = async () => {
+  const loadLikedProducts = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await userService.getLikedProducts();
@@ -42,7 +37,13 @@ const LikedProductsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fetchUserLikes, showToast, user?.id]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      void loadLikedProducts();
+    }
+  }, [isAuthenticated, loadLikedProducts]);
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   if (!isAuthenticated) {
@@ -55,7 +56,7 @@ const LikedProductsPage = () => {
       await toggleLike(user.id, productId);
       setLikedProducts((prev) => prev.filter((p) => p.productUuid !== productId));
       showToast(`"${productTitle}" 찜한 상품에서 제거되었습니다`, 'info');
-    } catch (error) {
+    } catch {
       showToast('처리에 실패했습니다.', 'error');
     }
   };

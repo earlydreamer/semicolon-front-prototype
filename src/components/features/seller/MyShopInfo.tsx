@@ -9,6 +9,7 @@ import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 import { useAuthStore } from '@/stores/useAuthStore';
+import type { User } from '@/types/auth';
 
 interface ShopInfo {
   name: string;
@@ -16,15 +17,21 @@ interface ShopInfo {
   avatar: string;
 }
 
+type UserWithProfile = User & {
+  intro?: string;
+  avatar?: string;
+};
+
 const MyShopInfo = () => {
   const { showToast } = useToast();
   const { user } = useAuthStore();
+  const profileUser = user as UserWithProfile | null;
   const [isEditing, setIsEditing] = useState(false);
   
   const initialShopInfo: ShopInfo = {
     name: user?.nickname || '',
-    intro: (user as any)?.intro || '',
-    avatar: (user as any)?.avatar || '',
+    intro: profileUser?.intro || '',
+    avatar: profileUser?.avatar || '',
   };
 
   const [shopInfo, setShopInfo] = useState<ShopInfo>(initialShopInfo);

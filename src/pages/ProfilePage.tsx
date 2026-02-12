@@ -19,8 +19,8 @@ const ProfilePage = () => {
   const { user, isAuthenticated, refreshUser } = useAuthStore();
   
   const [nickname, setNickname] = useState(user?.nickname || '');
-  const [intro, setIntro] = useState((user as any)?.intro || '');
-  const [avatar] = useState((user as any)?.avatar || '');
+  const [intro, setIntro] = useState(user?.intro || '');
+  const [avatar] = useState(user?.avatar || '');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   if (!isAuthenticated || !user) {
@@ -136,7 +136,7 @@ const ProfilePage = () => {
             <label className="block text-sm font-medium text-neutral-700 mb-2">휴대폰</label>
             <input
               type="tel"
-              value={(user as any).phone || ''}
+              value={user.phone || ''}
               disabled
               className="w-full px-4 py-3 border border-neutral-200 rounded-xl bg-neutral-100 text-neutral-500 cursor-not-allowed"
             />

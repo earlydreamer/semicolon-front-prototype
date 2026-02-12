@@ -58,7 +58,7 @@ const CartPage = () => {
     // 하지만 실데이터 장바구니엔 Product 전체 객체가 없으므로 
     // 최소한의 정보만 넘기거나 OrderStore를 수정해야 함.
     // 여기서는 일단 기존 구조 유지를 위해 필요한 필드만 맞춰서 넘김.
-    setOrderItems(selectedItems as any);
+    setOrderItems(selectedItems);
     navigate('/order');
   };
 

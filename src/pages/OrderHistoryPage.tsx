@@ -64,7 +64,7 @@ const OrderHistoryPage = () => {
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
-              <OrderHistoryCard key={order.orderUuid} order={order as any} />
+              <OrderHistoryCard key={order.orderUuid} order={order} />
             ))}
           </div>
         )}

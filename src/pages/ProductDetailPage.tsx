@@ -19,6 +19,7 @@ import { ProductComments } from '@/components/features/product/ProductComments';
 import { ProductActionBar } from '@/components/features/product/ProductActionBar';
 import { ShareModal } from '@/components/features/product/ShareModal';
 import { ReportModal } from '@/components/features/product/ReportModal';
+import type { CartItem } from '@/types/cart';
 
 export default function ProductDetailPage() {
   const { productId: rawProductId } = useParams();
@@ -150,18 +151,17 @@ export default function ProductDetailPage() {
     if (!product) return;
 
     clearOrder();
-    setOrderItems([
-      {
-        cartId: Date.now(),
-        productUuid: product.id,
-        title: product.title,
-        price: product.price,
-        saleStatus: product.saleStatus,
-        thumbnailUrl: product.images?.[0] || '',
-        createdAt: new Date().toISOString(),
-        selected: true,
-      } as any,
-    ]);
+    const orderItem: CartItem = {
+      cartId: Date.now(),
+      productUuid: product.id,
+      title: product.title,
+      price: product.price,
+      saleStatus: product.saleStatus,
+      thumbnailUrl: product.images?.[0] || '',
+      createdAt: new Date().toISOString(),
+      selected: true,
+    };
+    setOrderItems([orderItem]);
 
     navigate('/order');
   };

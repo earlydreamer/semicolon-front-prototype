@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import type { User } from '@/types/user';
+import type { User } from '@/types/auth';
 import Mail from 'lucide-react/dist/esm/icons/mail';
 import Calendar from 'lucide-react/dist/esm/icons/calendar';
 
 interface ProfileCardProps {
-  user: User & { avatar?: string; intro?: string };
+  user: User;
 }
 
 const ProfileCard = ({ user }: ProfileCardProps) => {

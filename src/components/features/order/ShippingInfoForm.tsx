@@ -5,9 +5,20 @@ import { Button } from '../../common/Button';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 
 // 카카오 우편번호 API 전역 타입 선언입니다.
+interface DaumPostcodeData {
+  address: string;
+  zonecode: string;
+}
+
+interface DaumPostcodeConstructor {
+  new (options: { oncomplete: (data: DaumPostcodeData) => void }): { open: () => void };
+}
+
 declare global {
   interface Window {
-    daum: any;
+    daum?: {
+      Postcode?: DaumPostcodeConstructor;
+    };
   }
 }
 
@@ -63,7 +74,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
     }
 
     new window.daum.Postcode({
-      oncomplete: (data: any) => {
+      oncomplete: (data: DaumPostcodeData) => {
         const updatedData = {
           ...formData,
           address: data.address,

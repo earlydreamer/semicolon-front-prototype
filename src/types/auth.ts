@@ -3,6 +3,10 @@ export interface User {
   id: string; // userUuid와 동일한 값 (프론트엔드 호환성용)
   email: string;
   nickname: string;
+  intro?: string;
+  avatar?: string;
+  phone?: string;
+  deposit?: number;
   role: 'USER' | 'ADMIN';
   status: 'ACTIVE' | 'INACTIVE' | 'BANNED' | 'WITHDRAWN'; // UserStatus Enum 반영
   createdAt: string; // 가입일

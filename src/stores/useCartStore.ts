@@ -46,8 +46,9 @@ export const useCartStore = create<CartState>((set, get) => ({
         selected: item.saleStatus === 'ON_SALE' // 판매 중인 상품만 기본 선택
       }));
       set({ items: itemsWithSelection, isLoading: false });
-    } catch (error: any) {
-      set({ error: error.message || '장바구니를 불러오는데 실패했습니다.', isLoading: false });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : '장바구니를 불러오는데 실패했습니다.';
+      set({ error: message, isLoading: false });
     }
   },
   

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import Plus from 'lucide-react/dist/esm/icons/plus';
 import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
 import Play from 'lucide-react/dist/esm/icons/play';
@@ -45,7 +45,7 @@ export function AdminCouponList() {
   const [isLoading, setIsLoading] = useState(false);
   const { showToast } = useToast();
 
-  const loadCoupons = async () => {
+  const loadCoupons = useCallback(async () => {
     setIsLoading(true);
     try {
       const list = await couponService.getAdminCoupons();
@@ -56,11 +56,11 @@ export function AdminCouponList() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [showToast]);
 
   useEffect(() => {
     loadCoupons();
-  }, []);
+  }, [loadCoupons]);
 
   const resetForm = () => {
     setFormData(EMPTY_FORM);

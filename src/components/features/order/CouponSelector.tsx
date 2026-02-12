@@ -5,10 +5,8 @@ import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 import ChevronUp from 'lucide-react/dist/esm/icons/chevron-up';
 import X from 'lucide-react/dist/esm/icons/x';
 import { couponService } from '@/services/couponService';
-import type { CouponResponse } from '@/types/coupon';
 import { useToast } from '@/components/common/Toast';
-
-export type UserCoupon = CouponResponse;
+import type { UserCoupon } from './couponUtils';
 
 interface CouponSelectorProps {
   orderAmount: number;
@@ -157,9 +155,4 @@ export function CouponSelector({ orderAmount, selectedCoupon, onSelectCoupon }: 
       )}
     </div>
   );
-}
-
-export function calculateCouponDiscount(coupon: UserCoupon | null, orderAmount: number): number {
-  if (!coupon) return 0;
-  return Math.min(coupon.discountAmount, orderAmount);
 }

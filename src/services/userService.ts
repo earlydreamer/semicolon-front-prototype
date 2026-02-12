@@ -66,6 +66,18 @@ export interface LikeProductResponse {
   isLiked: boolean;
 }
 
+export interface LikedProductItem {
+  productUuid: string;
+  title: string;
+  price: number;
+  thumbnailUrl: string | null;
+}
+
+export interface LikedProductListResponse {
+  content?: LikedProductItem[];
+  items?: LikedProductItem[];
+}
+
 export const userService = {
   // User Profile
   updateProfile: async (data: UserUpdateRequest): Promise<User> => {
@@ -131,8 +143,8 @@ export const userService = {
     return response.data;
   },
 
-  getLikedProducts: async (page = 0, size = 20) => {
-    const response = await api.get(API_ENDPOINTS.PRODUCTS.ME_LIKES, {
+  getLikedProducts: async (page = 0, size = 20): Promise<LikedProductListResponse> => {
+    const response = await api.get<LikedProductListResponse>(API_ENDPOINTS.PRODUCTS.ME_LIKES, {
       params: { page, size },
     });
     return response.data;

@@ -93,7 +93,7 @@ export const useAuthStore = create<AuthState>()(
             isAdminAuthenticated: user.role === 'ADMIN' || isAdminAuthenticated,
             isInitialized: true
           });
-        } catch (error) {
+        } catch {
           // 토큰 만료 등으로 조회 실패 시 로그아웃 처리
           set({ 
             user: null, 

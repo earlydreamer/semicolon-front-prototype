@@ -12,8 +12,10 @@ import OrderItemList from '../components/features/order/OrderItemList';
 import ShippingInfoForm from '../components/features/order/ShippingInfoForm';
 import OrderSummary from '../components/features/order/OrderSummary';
 import DepositUseForm from '../components/features/order/DepositUseForm';
-import { CouponSelector, calculateCouponDiscount, type UserCoupon } from '../components/features/order/CouponSelector';
+import { CouponSelector } from '../components/features/order/CouponSelector';
+import { calculateCouponDiscount, type UserCoupon } from '../components/features/order/couponUtils';
 import { useToast } from '../components/common/Toast';
+import type { AxiosError } from 'axios';
 
 const OrderPage = () => {
   const navigate = useNavigate();
@@ -102,9 +104,12 @@ const OrderPage = () => {
       
       // 토스 결제 위젯 페이지로 이동
       navigate('/checkout');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Order creation failed:', error);
-      showToast(error.response?.data?.message || '주문 생성에 실패했습니다.', 'error');
+      const message =
+        (error as AxiosError<{ message?: string }>)?.response?.data?.message ||
+        '주문 생성에 실패했습니다.';
+      showToast(message, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -148,7 +153,7 @@ const OrderPage = () => {
 
             {/* 예치금 사용 */}
             <DepositUseForm
-              balance={(user as any)?.deposit || 0}
+              balance={user?.deposit || 0}
               useAmount={depositUseAmount}
               onUseAmountChange={setDepositUseAmount}
               maxUseAmount={finalPriceWithCoupon}

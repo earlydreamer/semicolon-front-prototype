@@ -62,7 +62,7 @@ const MyPage = () => {
     <div className="min-h-screen bg-neutral-50 py-5 pb-20 min-[360px]:py-6">
       <div className="mx-auto max-w-2xl space-y-5 px-3 min-[360px]:space-y-6 min-[360px]:px-4">
         {/* 프로필 카드 */}
-        <ProfileCard user={user as any} />
+        <ProfileCard user={user} />
 
         {/* 통계 */}
         <ProfileStats
@@ -80,7 +80,7 @@ const MyPage = () => {
         {/* 판매 내역 */}
         <div>
           <h2 className="text-lg font-bold text-neutral-900 mb-3">내 판매 상품</h2>
-          <SalesTabs products={mySalesProducts as any} />
+          <SalesTabs products={mySalesProducts} />
         </div>
 
         {/* 팔로우한 상점 */}

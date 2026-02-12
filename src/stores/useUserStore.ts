@@ -40,7 +40,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         nextCursor: response.page.nextCursor,
         isLoading: false,
       }));
-    } catch (error) {
+    } catch {
       set({ error: '예치금 내역을 불러오는데 실패했습니다.', isLoading: false });
     }
   },
