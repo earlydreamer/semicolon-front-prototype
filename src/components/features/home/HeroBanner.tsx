@@ -7,7 +7,7 @@ import { Button } from '@/components/common/Button';
 import { MockDataNotice } from '@/components/common/MockDataNotice';
 import { useBannerStore } from '@/stores/useBannerStore';
 
-// Banner timing config
+// 배너 자동 전환 설정입니다.
 const BANNER_CONFIG = {
   INTERVAL: 5000,
   TRANSITION_SPEED: 500,
@@ -21,7 +21,7 @@ export function HeroBanner() {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
-  // Minimum swipe distance
+  // 스와이프 최소 이동 거리입니다.
   const minSwipeDistance = 50;
 
   const handleNext = useCallback(() => {
@@ -32,7 +32,7 @@ export function HeroBanner() {
     setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
   }, [banners.length]);
 
-  // Touch handlers for mobile swipe
+  // 모바일 스와이프 터치 핸들러입니다.
   const onTouchStart = (e: TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
@@ -85,10 +85,10 @@ export function HeroBanner() {
           const showButton = (banner.ctaEnabled ?? true) && banner.ctaText;
           const bannerLink = banner.ctaLink || '#';
 
-          // Banner content (text + image)
+          // 배너 본문(텍스트 + 이미지)입니다.
           const bannerContent = (
             <>
-              {/* Background image (full or split) */}
+              {/* 배경 이미지(전체/분할) */}
               <div className="absolute inset-0 z-0">
                 {banner.imageAlign === 'full' ? (
                   <>
@@ -96,7 +96,7 @@ export function HeroBanner() {
                     <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/70 via-black/40 to-black/20" />
                   </>
                 ) : (
-                  // Show right-side image only on desktop
+                  // 분할 레이아웃에서는 데스크톱에서만 오른쪽 이미지를 노출합니다.
                   banner.image && (
                     <div className="hidden md:block absolute top-0 right-0 w-1/2 h-full overflow-hidden">
                       <div
@@ -117,9 +117,9 @@ export function HeroBanner() {
                 )}
               </div>
 
-              {/* Content area */}
+              {/* 컨텐츠 영역 */}
               <div className="relative z-10 container mx-auto px-4">
-                {/* Mobile layout: vertical stack */}
+                {/* 모바일 레이아웃: 세로 배치 */}
                 <div
                   className={`md:hidden py-6 min-[360px]:py-8 flex flex-col ${
                     banner.textPosition === 'center'
@@ -129,7 +129,7 @@ export function HeroBanner() {
                         : 'items-center text-center'
                   }`}
                 >
-                  {/* In split layout, show image at top on mobile */}
+                  {/* 분할 레이아웃에서는 모바일 상단에 이미지를 노출합니다. */}
                   {banner.imageAlign === 'split' && banner.image && (
                     <div
                       className={`w-full mb-4 min-[360px]:mb-6 ${
@@ -148,7 +148,7 @@ export function HeroBanner() {
                     </div>
                   )}
 
-                  {/* Text content */}
+                  {/* 텍스트 영역 */}
                   <div className="space-y-2 min-[360px]:space-y-3">
                     <h2
                       className={`text-xl min-[360px]:text-2xl font-black leading-tight tracking-tight ${
@@ -181,7 +181,7 @@ export function HeroBanner() {
                   </div>
                 </div>
 
-                {/* Desktop layout: horizontal arrangement */}
+                {/* 데스크톱 레이아웃: 가로 배치 */}
                 <div
                   className={`hidden md:flex items-center min-h-[460px] lg:min-h-[540px] py-14 lg:py-16 ${
                     banner.textPosition === 'center'
@@ -237,7 +237,7 @@ export function HeroBanner() {
                 banner.imageAlign === 'split' ? `bg-gradient-to-br ${banner.bgColor}` : ''
               } ${!showButton && bannerLink !== '#' ? 'cursor-pointer' : ''}`}
             >
-              {/* Make entire banner clickable when CTA button is hidden */}
+              {/* CTA 버튼이 없으면 배너 전체를 클릭 가능하게 처리합니다. */}
               {!showButton && bannerLink !== '#' ? (
                 <Link to={bannerLink} className="block">
                   {bannerContent}
@@ -250,7 +250,7 @@ export function HeroBanner() {
         })}
       </div>
 
-      {/* Mobile navigation arrows */}
+      {/* 모바일 좌우 이동 버튼 */}
       <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between pointer-events-none z-20 px-2 md:hidden">
         <button
           onClick={handlePrev}
@@ -270,7 +270,7 @@ export function HeroBanner() {
         </button>
       </div>
 
-      {/* Desktop navigation arrows */}
+      {/* 데스크톱 좌우 이동 버튼 */}
       <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between pointer-events-none z-20 hidden md:flex px-4 lg:px-6">
         <Button
           variant="ghost"
@@ -294,7 +294,7 @@ export function HeroBanner() {
         </Button>
       </div>
 
-      {/* Bottom indicators */}
+      {/* 하단 인디케이터 */}
       <div className="absolute bottom-3 min-[360px]:bottom-4 md:bottom-8 left-1/2 flex -translate-x-1/2 gap-2 min-[360px]:gap-3 z-20">
         {banners.map((_: unknown, index: number) => (
           <button
@@ -309,7 +309,7 @@ export function HeroBanner() {
                   ? 'w-1.5 min-[360px]:w-2 bg-white/40 hover:bg-white/60'
                   : 'w-1.5 min-[360px]:w-2 bg-primary-300 hover:bg-primary-400'
             }`}
-            aria-label={`Go to slide ${index + 1}`}
+            aria-label={`슬라이드 ${index + 1}로 이동`}
           />
         ))}
       </div>

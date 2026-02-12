@@ -16,12 +16,12 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
 
   if (variant === 'mobile') {
     return (
-      <div className={cn("flex flex-col", className)}>
+      <div className={cn('flex flex-col', className)}>
         {categories.map((category) => (
           <div key={category.id} className="border-b border-neutral-100 last:border-0">
             <div className="flex items-center justify-between py-3">
-              <Link 
-                to={`/categories/${category.id}`} 
+              <Link
+                to={`/categories/${category.id}`}
                 onClick={onClose}
                 className="font-medium text-neutral-900 hover:text-primary-600"
               >
@@ -32,27 +32,27 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
               <div className="ml-4 flex flex-col gap-2 pb-3">
                 {category.children.map((child) => (
                   <div key={child.id} className="space-y-1">
-                    <Link 
+                    <Link
                       to={`/categories/${child.id}`}
                       onClick={onClose}
                       className="text-sm text-neutral-600 hover:text-primary-600 font-medium"
                     >
                       {child.name}
                     </Link>
-                        {child.children && (
-                          <div className="ml-3 flex flex-wrap gap-x-3 gap-y-1">
-                             {child.children.map((sub) => (
-                               <Link 
-                                 key={sub.id} 
-                                 to={`/categories/${sub.id}`}
-                                 onClick={onClose}
-                                 className="text-xs text-neutral-400 hover:text-primary-600 transition-colors"
-                               >
-                                 {sub.name}
-                               </Link>
-                             ))}
-                          </div>
-                        )}
+                    {child.children && (
+                      <div className="ml-3 flex flex-wrap gap-x-3 gap-y-1">
+                        {child.children.map((sub) => (
+                          <Link
+                            key={sub.id}
+                            to={`/categories/${sub.id}`}
+                            onClick={onClose}
+                            className="text-xs text-neutral-400 hover:text-primary-600 transition-colors"
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -63,23 +63,23 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
     );
   }
 
-  // Desktop implementation
+  // 데스크톱 카테고리 내비게이션입니다.
   return (
-    <div 
+    <div
       className={cn(
-        "absolute top-full left-0 z-50 flex h-[400px] w-full border-t border-neutral-200 bg-white shadow-xl", 
+        'absolute top-full left-0 z-50 flex h-[400px] w-full border-t border-neutral-200 bg-white shadow-xl',
         className
       )}
       onMouseLeave={() => onClose?.()}
     >
-      {/* 1 Depth */}
+      {/* 1뎁스 목록 */}
       <div className="w-60 overflow-y-auto border-r border-neutral-100 bg-neutral-50">
         {categories.map((category) => (
           <button
             key={category.id}
             className={cn(
-              "flex w-full items-center justify-between px-6 py-3 text-left text-sm font-medium transition-colors hover:bg-white hover:text-primary-600",
-              activeCategory?.id === category.id && "bg-white text-primary-600"
+              'flex w-full items-center justify-between px-6 py-3 text-left text-sm font-medium transition-colors hover:bg-white hover:text-primary-600',
+              activeCategory?.id === category.id && 'bg-white text-primary-600'
             )}
             onMouseEnter={() => setActiveCategory(category)}
           >
@@ -89,13 +89,13 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
         ))}
       </div>
 
-      {/* 2 & 3 Depth */}
+      {/* 2~3뎁스 목록 */}
       <div className="flex-1 overflow-y-auto bg-white p-8">
         {activeCategory ? (
           <div className="grid grid-cols-4 gap-8">
             {activeCategory.children?.map((child) => (
               <div key={child.id} className="space-y-3">
-                <Link 
+                <Link
                   to={`/categories/${child.id}`}
                   className="block text-sm font-bold text-neutral-900 hover:text-primary-600 hover:underline"
                   onClick={onClose}
@@ -121,11 +121,10 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
           </div>
         ) : (
           <div className="flex h-full items-center justify-center text-neutral-400">
-            移댄뀒怨좊━瑜??좏깮?댁＜?몄슂
+            카테고리를 선택해 주세요
           </div>
         )}
       </div>
     </div>
   );
 }
-

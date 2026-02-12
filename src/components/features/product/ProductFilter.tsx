@@ -1,6 +1,6 @@
 /**
- * 상품 필터 컴포넌트
- * 가격대 및 판매 상태 필터 제공 (Desktop/Mobile 모두 지원)
+ * 상품 필터 컴포넌트입니다.
+ * 가격대 및 판매 상태 필터를 데스크톱/모바일에서 제공합니다.
  */
 
 import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
@@ -31,7 +31,7 @@ interface ProductFilterProps {
 }
 
 /**
- * 활성 필터 개수 계산
+ * 활성 필터 개수를 계산합니다.
  */
 export const getActiveFilterCount = (filters: ProductFilterState, showCategory = false): number => {
   return [
@@ -43,7 +43,7 @@ export const getActiveFilterCount = (filters: ProductFilterState, showCategory =
 };
 
 /**
- * Desktop 사이드바 필터
+ * 데스크톱 사이드바 필터입니다.
  */
 export const DesktopProductFilter = ({
   filters,
@@ -117,7 +117,7 @@ interface MobileFilterButtonProps {
 }
 
 /**
- * 모바일 필터 버튼
+ * 모바일 필터 버튼입니다.
  */
 export const MobileFilterButton = ({ activeFilterCount, onClick }: MobileFilterButtonProps) => (
   <button
@@ -145,7 +145,7 @@ interface MobileFilterModalProps {
 }
 
 /**
- * 모바일 필터 모달 (바텀시트)
+ * 모바일 필터 모달입니다.
  */
 export const MobileFilterModal = ({
   isOpen,
@@ -169,7 +169,7 @@ export const MobileFilterModal = ({
         </div>
 
         <div className="p-4 space-y-6">
-          {/* 카테고리 - 옵션 */}
+          {/* 카테고리 */}
           {showCategoryFilter && (
             <div>
               <h3 className="font-semibold mb-3">카테고리</h3>

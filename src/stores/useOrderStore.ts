@@ -1,12 +1,12 @@
 /**
- * 二쇰Ц ?곹깭 愿由?Store (Zustand)
+ * 주문 상태를 관리하는 Store(Zustand)입니다.
  */
 
 import { create } from 'zustand';
 import type { CartItem } from '../types/cart';
 import type { Address } from '../types/address';
 
-// OrderResponse.items ????뺤쓽
+// 주문 생성 응답의 OrderItem 정보 타입입니다.
 export interface OrderItemResponse {
   orderItemUuid: string;
   productId: number;
@@ -18,16 +18,16 @@ export interface OrderItemResponse {
 }
 
 interface OrderState {
-  orderUuid: string | null; // 二쇰Ц 怨좎쑀 ?앸퀎??
-  orderItems: CartItem[]; // 二쇰Ц???곹뭹 紐⑸줉 (UI ?쒖떆??
-  orderResponseItems: OrderItemResponse[] | null; // 二쇰Ц ?앹꽦 ??諛쏆? ?ㅼ젣 OrderItem ?뺣낫 (寃곗젣 ?붿껌??
-  shippingInfo: Address | null; // ?좏깮??諛곗넚吏
-  paymentMethod: string | null; // ?좏깮??寃곗젣 ?섎떒
-  couponUuid: string | null; // ?좏깮??荑좏룿 UUID
+  orderUuid: string | null; // 주문 고유 식별자
+  orderItems: CartItem[]; // 주문 대상 상품 목록(UI 표시용)
+  orderResponseItems: OrderItemResponse[] | null; // 주문 생성 응답의 실제 OrderItem 목록
+  shippingInfo: Address | null; // 선택된 배송지
+  paymentMethod: string | null; // 선택된 결제 수단
+  couponUuid: string | null; // 선택된 쿠폰 UUID
   couponDiscountAmount: number; // 쿠폰 할인 금액
-  depositUseAmount: number; // ?ъ슜???덉튂湲?湲덉븸
-  
-  // Actions
+  depositUseAmount: number; // 예치금 사용 금액
+
+  // 상태 갱신 액션
   setOrderUuid: (uuid: string | null) => void;
   setOrderItems: (items: CartItem[]) => void;
   setOrderResponseItems: (items: OrderItemResponse[] | null) => void;
@@ -36,8 +36,8 @@ interface OrderState {
   setCouponUuid: (uuid: string | null) => void;
   setCouponDiscountAmount: (amount: number) => void;
   setDepositUseAmount: (amount: number) => void;
-  
-  // Computed (helper)
+
+  // 요약 계산 도우미
   getOrderSummary: () => {
     totalProductPrice: number;
     totalShippingFee: number;
@@ -70,15 +70,11 @@ export const useOrderStore = create<OrderState>((set, get) => ({
 
   getOrderSummary: () => {
     const { orderItems, depositUseAmount, couponDiscountAmount } = get();
-    
-    // ?곹뭹 珥?媛寃?
-    const totalProductPrice = orderItems.reduce(
-      (sum, item) => sum + item.price,
-      0
-    );
 
-    // 珥?諛곗넚鍮?(CartItem??shippingFee媛 ?녿뒗 寃쎌슦 0?쇰줈 泥섎━)
-    // CartItem ????낅뜲?댄듃 ??異붽? ?꾩슂 ?꾩옱??Mock ?鍮??쒓굅??
+    // 상품 합계를 계산합니다.
+    const totalProductPrice = orderItems.reduce((sum, item) => sum + item.price, 0);
+
+    // 배송비는 CartItem에 별도 값이 없어 현재 0으로 계산합니다.
     const totalShippingFee = 0;
 
     const couponDiscount = Math.min(couponDiscountAmount, totalProductPrice);
@@ -96,15 +92,15 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     };
   },
 
-  clearOrder: () => set({ 
-    orderUuid: null,
-    orderItems: [],
-    orderResponseItems: null,
-    shippingInfo: null, 
-    paymentMethod: null,
-    couponUuid: null,
-    couponDiscountAmount: 0,
-    depositUseAmount: 0,
-  }),
+  clearOrder: () =>
+    set({
+      orderUuid: null,
+      orderItems: [],
+      orderResponseItems: null,
+      shippingInfo: null,
+      paymentMethod: null,
+      couponUuid: null,
+      couponDiscountAmount: 0,
+      depositUseAmount: 0,
+    }),
 }));
-

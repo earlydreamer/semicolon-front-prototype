@@ -16,38 +16,38 @@ interface CategoryItemProps {
 function CategoryItem({ category, currentCategoryId, depth = 0 }: CategoryItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   const hasChildren = category.children && category.children.length > 0;
-  
-  // Check if this category or any of its descendants is currently selected
+
+  // 현재 선택된 카테고리 또는 하위 카테고리인지 확인합니다.
   const isActive = currentCategoryId === String(category.id);
   const isChildActive = (cat: Category): boolean => {
     if (String(cat.id) === currentCategoryId) return true;
     if (cat.children) {
-      return cat.children.some(child => isChildActive(child));
+      return cat.children.some((child) => isChildActive(child));
     }
     return false;
   };
-  
-  // Auto-expand if a child is active
+
+  // 하위 카테고리가 활성 상태면 자동으로 펼칩니다.
   useEffect(() => {
     if (hasChildren && isChildActive(category)) {
       setIsOpen(true);
     }
-  }, [currentCategoryId, category]);
+  }, [currentCategoryId, category, hasChildren]);
 
   return (
     <div className="w-full">
-      <div 
+      <div
         className={cn(
-          "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
-          isActive 
-            ? "bg-primary-50 text-primary-600 font-semibold" 
-            : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900",
-          depth > 0 && "ml-4"
+          'flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors',
+          isActive
+            ? 'bg-primary-50 text-primary-600 font-semibold'
+            : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900',
+          depth > 0 && 'ml-4'
         )}
       >
-        {/* Expand/Collapse Toggle */}
+        {/* 펼침/접힘 토글 버튼 */}
         {hasChildren ? (
-          <button 
+          <button
             onClick={(e) => {
               e.preventDefault();
               setIsOpen(!isOpen);
@@ -57,27 +57,24 @@ function CategoryItem({ category, currentCategoryId, depth = 0 }: CategoryItemPr
             {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
         ) : (
-          <span className="w-5" /> // Spacer for alignment
+          <span className="w-5" />
         )}
 
-        {/* Link to Category */}
-        <Link 
-          to={`/categories/${category.id}`} 
-          className="flex-1 flex items-center gap-2"
-        >
+        {/* 카테고리 링크 */}
+        <Link to={`/categories/${category.id}`} className="flex-1 flex items-center gap-2">
           {category.name}
         </Link>
       </div>
 
-      {/* Render Children */}
+      {/* 하위 카테고리 렌더링 */}
       {hasChildren && isOpen && (
         <div className="mt-1 border-l border-neutral-100 ml-4 pl-1">
           {category.children!.map((child) => (
-            <CategoryItem 
-              key={child.id} 
-              category={child} 
-              currentCategoryId={currentCategoryId} 
-              depth={depth + 1} 
+            <CategoryItem
+              key={child.id}
+              category={child}
+              currentCategoryId={currentCategoryId}
+              depth={depth + 1}
             />
           ))}
         </div>
@@ -97,7 +94,7 @@ export function CategorySidebar() {
         const data = await productService.getCategories();
         setCategories(transformCategories(data));
       } catch (error) {
-        console.error('Failed to load categories sidebar:', error);
+        console.error('카테고리 사이드바를 불러오지 못했습니다.', error);
       } finally {
         setLoading(false);
       }
@@ -126,19 +123,14 @@ export function CategorySidebar() {
     <aside className="w-full">
       <div className="border border-neutral-200 rounded-lg bg-white overflow-hidden">
         <div className="p-4 border-b border-neutral-100 font-bold bg-neutral-50 text-neutral-800">
-          移댄뀒怨좊━ ?먯깋
+          카테고리 전체
         </div>
         <div className="p-2">
           {categories.map((category) => (
-            <CategoryItem 
-              key={category.id} 
-              category={category} 
-              currentCategoryId={categoryId} 
-            />
+            <CategoryItem key={category.id} category={category} currentCategoryId={categoryId} />
           ))}
         </div>
       </div>
     </aside>
   );
 }
-
