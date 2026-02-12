@@ -29,7 +29,7 @@ export function Header() {
     productService
       .getCategories()
       .then((data) => setCategories(transformCategories(data)))
-      .catch((error) => console.error('Failed to load categories', error));
+      .catch((error) => console.error('카테고리를 불러오지 못했습니다.', error));
   }, []);
 
   const handleLogout = () => {
@@ -45,7 +45,7 @@ export function Header() {
   };
 
   const handleMobileSearch = () => {
-    const query = prompt('검색어를 입력하세요.');
+    const query = prompt('검색어를 입력해 주세요');
     if (query?.trim()) {
       navigate(`/search?q=${encodeURIComponent(query.trim())}`);
     }

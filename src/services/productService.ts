@@ -1,15 +1,15 @@
 import api from '../utils/api';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
-import type { 
-  CategoryResponse, 
-  ProductListResponse, 
-  ProductListItem, 
-  ProductDetailResponse 
+import type {
+  CategoryResponse,
+  ProductListResponse,
+  ProductListItem,
+  ProductDetailResponse,
 } from '../types/product';
 
 export const productService = {
   /**
-   * 카테고리 목록 조회
+   * 카테고리 목록을 조회합니다.
    */
   getCategories: async (): Promise<CategoryResponse[]> => {
     const response = await api.get<CategoryResponse[]>(API_ENDPOINTS.PRODUCTS.CATEGORIES);
@@ -17,17 +17,17 @@ export const productService = {
   },
 
   /**
-   * 추천 상품 목록 조회
+   * 추천 상품 목록을 조회합니다.
    */
   getFeaturedProducts: async (size = 20): Promise<ProductListItem[]> => {
     const response = await api.get<ProductListItem[]>(`${API_ENDPOINTS.PRODUCTS.BASE}/featured`, {
-      params: { size }
+      params: { size },
     });
     return response.data;
   },
 
   /**
-   * 상품 목록 조회 (필터링, 페이징)
+   * 상품 목록을 조회합니다.
    */
   getProducts: async (params: {
     categoryId?: number;
@@ -36,13 +36,13 @@ export const productService = {
     size?: number;
   }): Promise<ProductListResponse> => {
     const response = await api.get<ProductListResponse>(API_ENDPOINTS.PRODUCTS.BASE, {
-      params
+      params,
     });
     return response.data;
   },
 
   /**
-   * 상품 상세 조회
+   * 상품 상세 정보를 조회합니다.
    */
   getProductDetail: async (productUuid: string): Promise<ProductDetailResponse> => {
     const response = await api.get<ProductDetailResponse>(`${API_ENDPOINTS.PRODUCTS.BASE}/${productUuid}`);

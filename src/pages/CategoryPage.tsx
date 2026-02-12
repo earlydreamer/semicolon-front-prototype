@@ -1,6 +1,6 @@
 /**
- * 移댄뀒怨좊━ ?섏씠吏
- * ?꾪꽣 湲곕뒫 ?ы븿 (媛寃⑸?, ?먮ℓ?곹깭)
+ * 카테고리 페이지입니다.
+ * 상품 목록과 필터를 함께 제공합니다.
  */
 
 import { useState, useMemo, useEffect } from 'react';
@@ -9,12 +9,12 @@ import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import Search from 'lucide-react/dist/esm/icons/search';
 import { ProductList } from '@/components/features/product/ProductList';
 import { ProductSortDropdown, type SortOption } from '@/components/features/product/ProductSortDropdown';
-import { 
-  DesktopProductFilter, 
-  MobileFilterButton, 
+import {
+  DesktopProductFilter,
+  MobileFilterButton,
   MobileFilterModal,
   getActiveFilterCount,
-  type ProductFilterState 
+  type ProductFilterState,
 } from '@/components/features/product/ProductFilter';
 import { type SaleStatus, type ProductListItem } from '@/types/product';
 import type { Category } from '@/types/category';
@@ -31,88 +31,89 @@ export default function CategoryPage() {
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // URL ?뚮씪誘명꽣 寃利?(XSS 諛⑹?)
+
+  // URL 파라미터는 sanitize 후 사용합니다.
   const categoryId = sanitizeUrlParam(rawCategoryId);
-  
-  // URL ?뚮씪誘명꽣?먯꽌 ?꾪꽣 議곌굔 ?쎄린
-  const minPrice = parseInt(searchParams.get('minPrice') || '0');
-  const maxPrice = parseInt(searchParams.get('maxPrice') || '0');
+
+  const minPrice = parseInt(searchParams.get('minPrice') || '0', 10);
+  const maxPrice = parseInt(searchParams.get('maxPrice') || '0', 10);
   const status = (searchParams.get('status') || 'all') as SaleStatus | 'all';
   const sortParam = searchParams.get('sort') || 'latest';
-  
-  // SortOption ???留ㅽ븨
-  const sort: SortOption = sortParam === 'price_asc' ? 'price-asc' : 
-                           sortParam === 'price_desc' ? 'price-desc' : 
-                           sortParam as SortOption;
 
-  // ?꾪꽣 ?곹깭
+  // URL 정렬값을 드롭다운 정렬값으로 매핑합니다.
+  const sort: SortOption =
+    sortParam === 'price_asc'
+      ? 'price-asc'
+      : sortParam === 'price_desc'
+        ? 'price-desc'
+        : (sortParam as SortOption);
+
   const filters: ProductFilterState = {
     minPrice,
     maxPrice,
     status,
   };
 
-  // 移댄뀒怨좊━ ?곗씠??濡쒕뱶
+  // 카테고리 목록을 불러옵니다.
   useEffect(() => {
     const loadCategories = async () => {
       try {
         const data = await productService.getCategories();
         setCategories(transformCategories(data));
       } catch (error) {
-        console.error('Failed to load categories:', error);
+        console.error('카테고리를 불러오지 못했습니다.', error);
       } finally {
         setLoading(false);
       }
     };
+
     loadCategories();
   }, []);
 
-  // ?곹뭹 ?곗씠??濡쒕뱶
+  // 카테고리 상품 목록을 불러옵니다.
   useEffect(() => {
     const loadProducts = async () => {
       setLoading(true);
-      setProducts([]); // Clear previous products to avoid confusion
+      setProducts([]);
       try {
         const sortMap: Record<SortOption, string> = {
-          'latest': 'recent',
+          latest: 'recent',
           'price-asc': 'price_asc',
           'price-desc': 'price_desc',
-          'popular': 'popular'
+          popular: 'popular',
         };
 
         const response = await productService.getProducts({
-          categoryId: categoryId && !isNaN(parseInt(categoryId)) ? parseInt(categoryId) : undefined,
+          categoryId: categoryId && !Number.isNaN(parseInt(categoryId, 10)) ? parseInt(categoryId, 10) : undefined,
           sort: sortMap[sort],
           page: 0,
-          size: 20
+          size: 20,
         });
-        // Backend response uses 'items' field
-        const productList = response.items || [];
-        setProducts(productList);
+
+        setProducts(response.items || []);
       } catch (error) {
-        console.error('Failed to load products:', error);
+        console.error('상품을 불러오지 못했습니다.', error);
         setProducts([]);
       } finally {
         setLoading(false);
       }
     };
+
     loadProducts();
   }, [categoryId, sort]);
 
-  // Find current category path
+  // 현재 카테고리 경로를 구합니다.
   const categoryPath = useMemo(() => {
     if (!categoryId || !categories.length) return [];
     return findCategoryPath(categories, categoryId) || [];
   }, [categoryId, categories]);
 
-  const currentCategoryName = categoryPath.length > 0 ? categoryPath[categoryPath.length - 1].name : '?꾩껜 ?곹뭹';
+  const currentCategoryName = categoryPath.length > 0 ? categoryPath[categoryPath.length - 1].name : '전체 상품';
 
-  // Filter Products (?꾨줎?몄뿏?쒖뿉??異붽? ?꾪꽣留?
+  // 화면 표시용 필터링입니다.
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
 
-    // 媛寃??꾪꽣
     if (minPrice > 0) {
       filtered = filtered.filter((p) => p.price >= minPrice);
     }
@@ -120,7 +121,6 @@ export default function CategoryPage() {
       filtered = filtered.filter((p) => p.price <= maxPrice);
     }
 
-    // ?곹깭 ?꾪꽣
     if (status !== 'all') {
       filtered = filtered.filter((p) => p.saleStatus === status);
     }
@@ -128,16 +128,14 @@ export default function CategoryPage() {
     return filtered;
   }, [products, minPrice, maxPrice, status]);
 
-  // ?뺣젹 蹂寃?
   const handleSortChange = (newSort: SortOption) => {
     const params = new URLSearchParams(searchParams);
-    const sortValue = newSort === 'price-asc' ? 'price_asc' : 
-                      newSort === 'price-desc' ? 'price_desc' : newSort;
+    const sortValue =
+      newSort === 'price-asc' ? 'price_asc' : newSort === 'price-desc' ? 'price_desc' : newSort;
     params.set('sort', sortValue);
     setSearchParams(params);
   };
 
-  // ?꾪꽣 蹂寃?
   const updateFilter = (key: keyof ProductFilterState, value: string) => {
     const params = new URLSearchParams(searchParams);
     if (value && value !== 'all' && value !== '0') {
@@ -148,7 +146,6 @@ export default function CategoryPage() {
     setSearchParams(params);
   };
 
-  // ?꾪꽣 珥덇린??
   const clearFilters = () => {
     setSearchParams({});
   };
@@ -157,7 +154,7 @@ export default function CategoryPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumb / Title */}
+      {/* 브레드크럼/제목 */}
       <div className="mb-8">
         <div className="flex items-center gap-2 text-sm text-neutral-500 mb-2">
           <Link to="/" className="hover:text-neutral-900">홈</Link>
@@ -173,30 +170,25 @@ export default function CategoryPage() {
         <h1 className="text-2xl font-bold text-neutral-900">{currentCategoryName}</h1>
       </div>
 
-      {/* Mobile Category Filter (Horizontal Scroll) */}
+      {/* 모바일 카테고리 탭 */}
       <div className="md:hidden -mx-4 mb-6 border-b border-neutral-100 bg-white sticky top-16 z-20">
         <div className="flex gap-4 px-4 py-3 overflow-x-auto no-scrollbar">
           <Link
-            to={categoryPath.length > 1 
-              ? `/categories/${categoryPath[categoryPath.length - 2].id}` 
-              : '/'}
+            to={categoryPath.length > 1 ? `/categories/${categoryPath[categoryPath.length - 2].id}` : '/'}
             className="flex-shrink-0 px-4 py-1.5 rounded-full bg-neutral-100 text-sm font-medium text-neutral-600 hover:bg-neutral-200"
           >
-            ?꾩껜
+            전체
           </Link>
-          {/* Current siblings or children */}
-          {(categoryId ? 
-            (getCategoryChildren(categories, categoryId) || []) : 
-            categories
-          ).map((cat: Category) => (
+
+          {(categoryId ? getCategoryChildren(categories, categoryId) || [] : categories).map((cat: Category) => (
             <Link
               key={cat.id}
               to={`/categories/${cat.id}`}
               className={cn(
-                "flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all",
+                'flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all',
                 cat.id === categoryId
-                  ? "bg-primary-600 text-white shadow-md shadow-primary-200"
-                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                  ? 'bg-primary-600 text-white shadow-md shadow-primary-200'
+                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
               )}
             >
               {cat.name}
@@ -206,54 +198,44 @@ export default function CategoryPage() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar (Category Nav + Filter) */}
+        {/* 사이드바 */}
         <div className="hidden md:block w-64 flex-shrink-0">
           <div className="sticky top-24 space-y-6">
             <CategorySidebar />
-            <DesktopProductFilter 
-              filters={filters}
-              onFilterChange={updateFilter}
-              onClearFilters={clearFilters}
-            />
+            <DesktopProductFilter filters={filters} onFilterChange={updateFilter} onClearFilters={clearFilters} />
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* 메인 영역 */}
         <main className="flex-1">
-          {/* Toolbar */}
+          {/* 툴바 */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-200">
             <div className="flex items-center gap-4">
               {loading ? (
-                <span className="text-sm text-neutral-500">濡쒕뵫 以?..</span>
+                <span className="text-sm text-neutral-500">로딩 중...</span>
               ) : (
                 <span className="text-sm text-neutral-500">
-                  珥?<strong className="text-neutral-900">{filteredProducts.length}</strong>媛?
+                  총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
                 </span>
               )}
-              
-              {/* 紐⑤컮???꾪꽣 踰꾪듉 */}
-              <MobileFilterButton 
-                activeFilterCount={activeFilterCount}
-                onClick={() => setShowMobileFilters(true)}
-              />
+
+              {/* 모바일 필터 버튼 */}
+              <MobileFilterButton activeFilterCount={activeFilterCount} onClick={() => setShowMobileFilters(true)} />
             </div>
-            
+
             <ProductSortDropdown currentSort={sort} onSortChange={handleSortChange} />
           </div>
 
-          {/* Product Grid */}
+          {/* 상품 목록 */}
           {filteredProducts.length > 0 ? (
             <ProductList products={filteredProducts} />
           ) : (
             <div className="py-20 text-center text-neutral-500 bg-neutral-50 rounded-lg">
               <Search className="w-12 h-12 mx-auto mb-4 text-neutral-300" />
-              <p className="mb-2">?대떦 議곌굔??留욌뒗 ?곹뭹???놁뒿?덈떎.</p>
+              <p className="mb-2">해당 조건에 맞는 상품이 없습니다.</p>
               {activeFilterCount > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="text-primary-600 hover:underline text-sm"
-                >
-                  ?꾪꽣 珥덇린??
+                <button onClick={clearFilters} className="text-primary-600 hover:underline text-sm">
+                  필터 초기화
                 </button>
               )}
             </div>
@@ -261,7 +243,7 @@ export default function CategoryPage() {
         </main>
       </div>
 
-      {/* 紐⑤컮???꾪꽣 紐⑤떖 */}
+      {/* 모바일 필터 모달 */}
       <MobileFilterModal
         isOpen={showMobileFilters}
         onClose={() => setShowMobileFilters(false)}
@@ -272,5 +254,3 @@ export default function CategoryPage() {
     </div>
   );
 }
-
-

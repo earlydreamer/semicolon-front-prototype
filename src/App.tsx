@@ -4,7 +4,7 @@ import { DefaultLayout } from '@/components/layout/DefaultLayout';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useCartStore } from '@/stores/useCartStore';
 
-// Lazy load page components
+// 페이지 컴포넌트를 지연 로딩합니다.
 const HomePage = lazy(() => import('./pages/HomePage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
@@ -21,11 +21,10 @@ const ShopPage = lazy(() => import('./pages/ShopPage'));
 const OrderPage = lazy(() => import('./pages/OrderPage'));
 const OrderCompletePage = lazy(() => import('./pages/OrderCompletePage'));
 
-// 토스 결제 페이지 (공식 샘플 스타일)
+// 토스 결제 페이지입니다.
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
 const PaymentSuccessPage = lazy(() => import('./pages/SuccessPage'));
 const PaymentFailPage = lazy(() => import('./pages/FailPage'));
-
 
 const SellerPage = lazy(() => import('./pages/SellerPage'));
 const ProductRegisterPage = lazy(() => import('./pages/ProductRegisterPage'));
@@ -38,7 +37,7 @@ const FAQPage = lazy(() => import('./pages/FAQPage'));
 const PolicyPage = lazy(() => import('./pages/PolicyPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 
-// Admin pages
+// 관리자 페이지입니다.
 const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
 const AdminAuthGuard = lazy(() => import('./components/layout/AdminAuthGuard'));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
@@ -54,7 +53,7 @@ const BannerManagePage = lazy(() => import('./pages/admin/BannerManagePage'));
 import { ToastProvider } from '@/components/common/Toast';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 
-// GitHub Pages 배포 시 base URL 설정
+// GitHub Pages 배포를 위한 base URL입니다.
 const basename = import.meta.env.BASE_URL;
 
 function App() {
@@ -69,7 +68,7 @@ function App() {
     if (isAuthenticated) {
       fetchItems();
     } else {
-      // 로그아웃 시 장바구니 상태 초기화
+      // 로그아웃 시 장바구니 상태를 초기화합니다.
       useCartStore.setState({ items: [] });
     }
   }, [isAuthenticated, fetchItems]);
@@ -86,7 +85,7 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter basename={basename}>
         <ToastProvider>
-          <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+          <Suspense fallback={<div className="flex h-screen items-center justify-center">로딩 중...</div>}>
             <Routes>
               {/* 일반 사용자 페이지 */}
               <Route element={<DefaultLayout />}>
@@ -121,24 +120,23 @@ function App() {
                 <Route path="checkout" element={<CheckoutPage />} />
                 <Route path="payment/success" element={<PaymentSuccessPage />} />
                 <Route path="payment/fail" element={<PaymentFailPage />} />
-                
-                {/* 백엔드 리다이렉트 경로 호환성 (Aliasing) */}
+
+                {/* 백엔드 리다이렉트 경로 호환용 별칭 */}
                 <Route path="payments/success" element={<PaymentSuccessPage />} />
                 <Route path="payments/fail" element={<PaymentFailPage />} />
                 <Route path="payments/toss/success" element={<PaymentSuccessPage />} />
                 <Route path="payments/toss/fail" element={<PaymentFailPage />} />
               </Route>
 
+              {/*
+                관리자 페이지입니다.
 
-              {/* 
-                관리자 페이지
-                
-                [IMPORTANT] 보안 관련 주의사항
-                - 현재: 프론트엔드 Mock 인증만 적용 (AdminAuthGuard)
+                [중요] 보안 관련 주의사항
+                - 현재: 프론트엔드 Mock 인증만 적용되어 있습니다.
                 - 추후 필수 작업:
-                  1. 별도 서브도메인(admin.example.com)으로 분리
-                  2. 백엔드 API 레벨 권한 검사 필수
-                  3. 프론트엔드 가드만으로는 보안 불충분
+                  1. 관리자 도메인 분리
+                  2. 백엔드 권한 검증 연동
+                  3. 프론트 단독 제어에 의존하지 않도록 보강
               */}
               <Route path="admin/login" element={<AdminLoginPage />} />
               <Route path="admin" element={<AdminAuthGuard />}>
@@ -162,4 +160,3 @@ function App() {
 }
 
 export default App;
-
