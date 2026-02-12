@@ -124,3 +124,63 @@
   - `src/components/features/seller/SellerProductList.tsx`
   - `src/components/features/seller/SellerProductCard.tsx`
 - 빌드 검증 통과 (`npm run build`)
+
+## 2026-02-12 추가 반영 (쿠폰/API + mock 가시화)
+
+### 완료
+- 주문 쿠폰 API 전환
+  - `src/components/features/order/CouponSelector.tsx`
+  - mock 쿠폰 제거, `GET /api/v1/coupons/me` 연동
+  - 할인 계산: `discountAmount`(고정금액) + `minimumOrderAmount` 기준
+  - 코드 입력 기능은 UI에서 `준비중입니다.` 안내
+- 주문/결제 정합화
+  - `src/stores/useOrderStore.ts`
+    - `couponDiscountAmount` 상태 추가
+    - `getOrderSummary()`에서 쿠폰 할인 반영
+  - `src/pages/OrderPage.tsx`
+    - 선택 쿠폰 식별자 `uuid` 기준 저장
+    - store의 `couponUuid/couponDiscountAmount` 동기화
+  - `src/pages/CheckoutPage.tsx`는 기존 구조로 `summary.couponDiscount`/`couponUuid` 전달값 반영 유지
+- 관리자 쿠폰 API 전환
+  - `src/services/couponService.ts` 신규
+    - `getMyCoupons`, `getAdminCoupons`, `createAdminCoupon`, `updateAdminCouponDraft`, `activateAdminCoupon`
+  - `src/components/features/admin/AdminCouponList.tsx`
+    - `GET /api/v1/admin/coupons`
+    - `POST /api/v1/admin/coupons`
+    - `PUT /api/v1/admin/coupons/{couponUuid}/draft`
+    - `POST /api/v1/admin/coupons/{couponUuid}/activate`
+    - 미지원 동작(삭제/비활성)은 `준비중입니다.` 처리
+  - `src/components/features/admin/CouponFormPanel.tsx`
+    - 백엔드 DTO 기준으로 폼 필드 정렬
+- 주소 경로 정합화
+  - `src/constants/apiEndpoints.ts`
+  - `/api/v1/users/me/addresses`로 통일
+
+### mock 가시화(배지/안내)
+- 공통 컴포넌트 추가: `src/components/common/MockDataNotice.tsx`
+- 안내 반영:
+  - `src/pages/admin/AdminDashboardPage.tsx`
+  - `src/components/features/admin/AdminProductList.tsx`
+  - `src/components/features/admin/AdminUserList.tsx`
+  - `src/components/features/admin/AdminReportList.tsx`
+  - `src/components/features/admin/AdminSettlementList.tsx`
+  - `src/components/features/admin/CategoryTree.tsx`
+  - `src/pages/admin/BannerManagePage.tsx`
+  - `src/components/features/home/HeroBanner.tsx`
+  - `src/stores/useBannerStore.ts` (`isMockMode: true` 상태 추가)
+
+### 타입/상수
+- `src/types/coupon.ts` 신규
+- `src/types/index.ts` export 추가
+- `src/constants/apiEndpoints.ts`에 `COUPONS`, `ADMIN_COUPONS` 추가
+
+### 남은 mock 리포트
+- 여전히 mock 데이터 소스를 사용하는 화면(의도적 유지 + UI 안내 반영):
+  - `src/pages/admin/AdminDashboardPage.tsx`
+  - `src/components/features/admin/AdminProductList.tsx`
+  - `src/components/features/admin/AdminUserList.tsx`
+  - `src/components/features/admin/AdminReportList.tsx`
+  - `src/components/features/admin/AdminSettlementList.tsx`
+  - `src/components/features/admin/CategoryTree.tsx`
+  - `src/stores/useBannerStore.ts`
+- 이번 단계에서 쿠폰 관련 mock은 제거 완료
