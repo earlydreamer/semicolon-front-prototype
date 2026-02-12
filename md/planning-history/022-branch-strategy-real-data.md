@@ -1,4 +1,4 @@
-﻿# 022-branch-strategy-real-data
+# 022-branch-strategy-real-data
 
 ## 배경
 - `main` 브랜치는 GitHub Pages mock 배포용으로 사용 중이다.

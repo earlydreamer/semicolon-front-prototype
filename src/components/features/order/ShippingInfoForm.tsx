@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { Address } from '@/types/address';
 import { Modal } from '../../common/Modal';
 import { Button } from '../../common/Button';

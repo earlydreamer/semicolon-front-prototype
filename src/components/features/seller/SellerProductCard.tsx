@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Eye from 'lucide-react/dist/esm/icons/eye';
 import Heart from 'lucide-react/dist/esm/icons/heart';
 import MessageCircle from 'lucide-react/dist/esm/icons/message-circle';

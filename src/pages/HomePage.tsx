@@ -13,7 +13,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-neutral-0">
       <HeroBanner />
-      
+
       {isLoading && (
         <div className="flex justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent"></div>
@@ -29,8 +29,7 @@ export default function HomePage() {
       {!isLoading && !error && (
         <ProductList title="오늘의 상품 추천" products={featuredProducts} />
       )}
-      
-      {/* Spacer for better scrolling experience */}
+
       <div className="h-20" />
     </div>
   );

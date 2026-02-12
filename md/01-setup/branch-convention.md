@@ -1,4 +1,4 @@
-﻿# Branch Convention
+# Branch Convention
 
 ## 목적
 - `main` 브랜치를 GitHub Pages 기반 mock 배포용으로 안정적으로 유지한다.

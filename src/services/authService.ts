@@ -5,7 +5,7 @@ import type {
   User, 
   UserRegisterRequest, 
   UserUpdateRequest,
-  PasswordUpdateRequest 
+  PasswordUpdateRequest
 } from '../types/auth';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
 
@@ -24,6 +24,10 @@ export const authService = {
   register: async (request: UserRegisterRequest): Promise<User> => {
     const response = await api.post<User>(API_ENDPOINTS.USERS.REGISTER, request);
     return response.data;
+  },
+
+  sendVerificationEmail: async (email: string): Promise<void> => {
+    await api.post(API_ENDPOINTS.USERS.EMAIL_SEND, { email });
   },
 
   /**
