@@ -67,7 +67,7 @@ const AdminDashboardPage = () => {
       </div>
       {/* 페이지 헤더 */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-neutral-900">대시보드</h1>
+        <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">대시보드</h1>
         <p className="text-neutral-500 mt-1">플랫폼 운영 현황을 확인하세요</p>
       </div>
       
@@ -96,7 +96,7 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* 통계 카드 그리드 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="mb-8 grid grid-cols-1 gap-4 min-[360px]:gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           icon={DollarSign}
           label="총 거래액 (이번 달)"
@@ -134,19 +134,19 @@ const AdminDashboardPage = () => {
       {/* 누적 통계 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
-          <p className="text-2xl font-bold text-neutral-900">{dashboardStats.totalProducts}</p>
+          <p className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">{dashboardStats.totalProducts}</p>
           <p className="text-sm text-neutral-500">전체 등록 상품</p>
         </div>
         <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
-          <p className="text-2xl font-bold text-neutral-900">{dashboardStats.totalOrders}</p>
+          <p className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">{dashboardStats.totalOrders}</p>
           <p className="text-sm text-neutral-500">전체 주문</p>
         </div>
         <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
-          <p className="text-2xl font-bold text-neutral-900">20</p>
+          <p className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">20</p>
           <p className="text-sm text-neutral-500">전체 회원</p>
         </div>
         <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
-          <p className="text-2xl font-bold text-neutral-900">22</p>
+          <p className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">22</p>
           <p className="text-sm text-neutral-500">전체 상점</p>
         </div>
       </div>
@@ -216,3 +216,4 @@ const AdminDashboardPage = () => {
 };
 
 export default AdminDashboardPage;
+
