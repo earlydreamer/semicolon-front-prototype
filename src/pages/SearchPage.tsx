@@ -3,7 +3,7 @@
  * 카테고리 사이드바와 필터를 함께 제공합니다.
  */
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import Search from 'lucide-react/dist/esm/icons/search';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
@@ -18,6 +18,15 @@ import { sanitizeUrlParam } from '@/utils/sanitize';
 import { productService } from '@/services/productService';
 import { transformCategories } from '@/utils/category';
 
+const PAGE_SIZE = 20;
+
+const SORT_TYPE_MAP: Record<SortOption, 'LATEST' | 'LIKES' | 'PRICE_LOW' | 'PRICE_HIGH'> = {
+  latest: 'LATEST',
+  popular: 'LIKES',
+  'price-asc': 'PRICE_LOW',
+  'price-desc': 'PRICE_HIGH',
+};
+
 const SALE_STATUS_OPTIONS: { value: SaleStatus | 'all'; label: string }[] = [
   { value: 'all', label: '전체' },
   { value: 'ON_SALE', label: '판매중' },
@@ -30,7 +39,11 @@ const SearchPage = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
 
   // URL 파라미터는 sanitize 후 사용합니다.
   const query = sanitizeUrlParam(searchParams.get('q'));
@@ -64,36 +77,46 @@ const SearchPage = () => {
     loadCategories();
   }, []);
 
-  // 상품 목록을 불러옵니다.
+  const fetchProductsPage = useCallback(
+    async (targetPage: number, append: boolean) => {
+      const response = await productService.getProducts({
+        keyword: query && !query.startsWith('@') ? query : undefined,
+        categoryId: categoryId ? parseInt(categoryId, 10) : undefined,
+        minPrice: minPrice > 0 ? minPrice : undefined,
+        maxPrice: maxPrice > 0 ? maxPrice : undefined,
+        sortType: SORT_TYPE_MAP[sort],
+        page: targetPage,
+        size: PAGE_SIZE,
+      });
+
+      const nextItems = response.items || [];
+      setProducts((prev) => (append ? [...prev, ...nextItems] : nextItems));
+      setPage(response.page ?? targetPage);
+      setHasNext(response.hasNext ?? false);
+      setTotalCount(response.totalCount ?? nextItems.length);
+    },
+    [query, categoryId, minPrice, maxPrice, sort]
+  );
+
+  // 상품 목록 첫 페이지를 불러옵니다.
   useEffect(() => {
     const loadProducts = async () => {
       setLoading(true);
+      setProducts([]);
       try {
-        const sortMap: Record<SortOption, string> = {
-          latest: 'recent',
-          'price-asc': 'price_asc',
-          'price-desc': 'price_desc',
-          popular: 'popular',
-        };
-
-        const response = await productService.getProducts({
-          categoryId: categoryId ? parseInt(categoryId, 10) : undefined,
-          sort: sortMap[sort],
-          page: 0,
-          size: 100,
-        });
-
-        setProducts(response.items || response.content || []);
+        await fetchProductsPage(0, false);
       } catch (error) {
         console.error('상품을 불러오지 못했습니다.', error);
         setProducts([]);
+        setHasNext(false);
+        setTotalCount(0);
       } finally {
         setLoading(false);
       }
     };
 
     loadProducts();
-  }, [categoryId, sort]);
+  }, [fetchProductsPage]);
 
   // 현재 카테고리 이름을 트리에서 찾습니다.
   const getCategoryName = (catId: string): string => {
@@ -165,7 +188,20 @@ const SearchPage = () => {
     setSearchParams(params);
   };
 
+  const handleLoadMore = async () => {
+    if (!hasNext || isFetchingMore) return;
+    setIsFetchingMore(true);
+    try {
+      await fetchProductsPage(page + 1, true);
+    } catch (error) {
+      console.error('추가 상품을 불러오지 못했습니다.', error);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  };
+
   const activeFilterCount = [categoryId, minPrice > 0, maxPrice > 0, status !== 'all'].filter(Boolean).length;
+  const hasClientOnlyFilter = status !== 'all' || query.startsWith('@');
 
   return (
     <div className="container mx-auto px-3 py-6 min-[360px]:px-4 min-[360px]:py-8">
@@ -254,7 +290,7 @@ const SearchPage = () => {
           <div className="mb-5 flex items-center justify-between border-b border-neutral-200 pb-3 min-[360px]:mb-6 min-[360px]:pb-4">
             <div className="flex items-center gap-3 min-[360px]:gap-4">
               <span className="text-xs text-neutral-500 min-[360px]:text-sm">
-                총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
+                총 <strong className="text-neutral-900">{hasClientOnlyFilter ? filteredProducts.length : totalCount}</strong>개
               </span>
 
               {/* 모바일 필터 버튼 */}
@@ -278,8 +314,24 @@ const SearchPage = () => {
           </div>
 
           {/* 상품 목록 */}
-          {filteredProducts.length > 0 ? (
-            <ProductList products={filteredProducts} embedded />
+          {loading ? (
+            <div className="py-16 text-center text-neutral-500">불러오는 중...</div>
+          ) : filteredProducts.length > 0 ? (
+            <>
+              <ProductList products={filteredProducts} embedded enableInfiniteScroll={false} />
+              {!hasClientOnlyFilter && hasNext && (
+                <div className="mt-6 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={handleLoadMore}
+                    disabled={isFetchingMore}
+                    className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
+                  >
+                    {isFetchingMore ? '불러오는 중...' : '더보기'}
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="py-20 text-center text-neutral-500 bg-neutral-50 rounded-lg">
               <Search className="w-12 h-12 mx-auto mb-4 text-neutral-300" />

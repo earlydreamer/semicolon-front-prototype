@@ -3,7 +3,7 @@
  * 상품 목록과 필터를 함께 제공합니다.
  */
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import Search from 'lucide-react/dist/esm/icons/search';
@@ -13,9 +13,8 @@ import {
   DesktopProductFilter,
   MobileFilterButton,
   MobileFilterModal,
-  getActiveFilterCount,
-  type ProductFilterState,
 } from '@/components/features/product/ProductFilter';
+import { getActiveFilterCount, type ProductFilterState } from '@/components/features/product/productFilterUtils';
 import { type SaleStatus, type ProductListItem } from '@/types/product';
 import type { Category } from '@/types/category';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
@@ -24,6 +23,15 @@ import { cn } from '@/utils/cn';
 import { sanitizeUrlParam } from '@/utils/sanitize';
 import { productService } from '@/services/productService';
 
+const PAGE_SIZE = 20;
+
+const SORT_TYPE_MAP: Record<SortOption, 'LATEST' | 'LIKES' | 'PRICE_LOW' | 'PRICE_HIGH'> = {
+  latest: 'LATEST',
+  popular: 'LIKES',
+  'price-asc': 'PRICE_LOW',
+  'price-desc': 'PRICE_HIGH',
+};
+
 export default function CategoryPage() {
   const { categoryId: rawCategoryId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,6 +39,10 @@ export default function CategoryPage() {
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
 
   // URL 파라미터는 sanitize 후 사용합니다.
   const categoryId = sanitizeUrlParam(rawCategoryId);
@@ -70,37 +82,45 @@ export default function CategoryPage() {
     loadCategories();
   }, []);
 
-  // 카테고리 상품 목록을 불러옵니다.
+  const fetchProductsPage = useCallback(
+    async (targetPage: number, append: boolean) => {
+      const response = await productService.getProducts({
+        categoryId: categoryId && !Number.isNaN(parseInt(categoryId, 10)) ? parseInt(categoryId, 10) : undefined,
+        minPrice: minPrice > 0 ? minPrice : undefined,
+        maxPrice: maxPrice > 0 ? maxPrice : undefined,
+        sortType: SORT_TYPE_MAP[sort],
+        page: targetPage,
+        size: PAGE_SIZE,
+      });
+
+      const nextItems = response.items || [];
+      setProducts((prev) => (append ? [...prev, ...nextItems] : nextItems));
+      setPage(response.page ?? targetPage);
+      setHasNext(response.hasNext ?? false);
+      setTotalCount(response.totalCount ?? nextItems.length);
+    },
+    [categoryId, minPrice, maxPrice, sort]
+  );
+
+  // 카테고리 상품 목록 첫 페이지를 불러옵니다.
   useEffect(() => {
-    const loadProducts = async () => {
+    const loadInitialProducts = async () => {
       setLoading(true);
       setProducts([]);
       try {
-        const sortMap: Record<SortOption, string> = {
-          latest: 'recent',
-          'price-asc': 'price_asc',
-          'price-desc': 'price_desc',
-          popular: 'popular',
-        };
-
-        const response = await productService.getProducts({
-          categoryId: categoryId && !Number.isNaN(parseInt(categoryId, 10)) ? parseInt(categoryId, 10) : undefined,
-          sort: sortMap[sort],
-          page: 0,
-          size: 20,
-        });
-
-        setProducts(response.items || []);
+        await fetchProductsPage(0, false);
       } catch (error) {
         console.error('상품을 불러오지 못했습니다.', error);
         setProducts([]);
+        setHasNext(false);
+        setTotalCount(0);
       } finally {
         setLoading(false);
       }
     };
 
-    loadProducts();
-  }, [categoryId, sort]);
+    loadInitialProducts();
+  }, [fetchProductsPage]);
 
   // 현재 카테고리 경로를 구합니다.
   const categoryPath = useMemo(() => {
@@ -149,6 +169,19 @@ export default function CategoryPage() {
   const clearFilters = () => {
     setSearchParams({});
   };
+
+  const handleLoadMore = async () => {
+    if (!hasNext || isFetchingMore) return;
+    setIsFetchingMore(true);
+    try {
+      await fetchProductsPage(page + 1, true);
+    } catch (error) {
+      console.error('추가 상품을 불러오지 못했습니다.', error);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  };
+  const hasClientOnlyFilter = status !== 'all';
 
   const activeFilterCount = getActiveFilterCount(filters);
 
@@ -215,7 +248,7 @@ export default function CategoryPage() {
                 <span className="text-sm text-neutral-500">로딩 중...</span>
               ) : (
                 <span className="text-xs text-neutral-500 min-[360px]:text-sm">
-                  총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
+                  총 <strong className="text-neutral-900">{hasClientOnlyFilter ? filteredProducts.length : totalCount}</strong>개
                 </span>
               )}
 
@@ -230,7 +263,21 @@ export default function CategoryPage() {
 
           {/* 상품 목록 */}
           {filteredProducts.length > 0 ? (
-            <ProductList products={filteredProducts} embedded />
+            <>
+              <ProductList products={filteredProducts} embedded enableInfiniteScroll={false} />
+              {!hasClientOnlyFilter && hasNext && (
+                <div className="mt-6 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={handleLoadMore}
+                    disabled={isFetchingMore}
+                    className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
+                  >
+                    {isFetchingMore ? '불러오는 중...' : '더보기'}
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="py-20 text-center text-neutral-500 bg-neutral-50 rounded-lg">
               <Search className="w-12 h-12 mx-auto mb-4 text-neutral-300" />

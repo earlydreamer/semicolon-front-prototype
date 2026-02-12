@@ -30,10 +30,13 @@ export const productService = {
    * 상품 목록을 조회합니다.
    */
   getProducts: async (params: {
+    keyword?: string;
     categoryId?: number;
-    sort?: string;
-    page?: number;
-    size?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    sortType?: 'LATEST' | 'LIKES' | 'PRICE_LOW' | 'PRICE_HIGH';
+    page: number;
+    size: number;
   }): Promise<ProductListResponse> => {
     const response = await api.get<ProductListResponse>(API_ENDPOINTS.PRODUCTS.BASE, {
       params,

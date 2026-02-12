@@ -87,15 +87,14 @@ export interface ProductListItem {
 
 export interface ProductListResponse {
   items: ProductListItem[];
-  content?: ProductListItem[]; // 호환성을 위해 유지
-  pageable: {
-    pageNumber: number;
-    pageSize: number;
-  };
-  totalPages: number;
-  totalElements: number;
-  last: boolean;
-  first: boolean;
+  page: number;
+  size: number;
+  totalCount: number;
+  hasNext: boolean;
+  // 구버전 응답 호환 필드
+  content?: ProductListItem[];
+  totalElements?: number;
+  last?: boolean;
 }
 
 export interface ProductDetailResponse {

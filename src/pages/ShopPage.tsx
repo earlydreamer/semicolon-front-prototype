@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 import { sanitizeUrlParam, isValidId } from '../utils/sanitize';
@@ -14,6 +14,7 @@ import { reviewService } from '@/services/reviewService';
 import { followService } from '@/services/followService';
 
 type TabType = 'all' | 'ON_SALE' | 'RESERVED' | 'SOLD_OUT';
+const PAGE_SIZE = 20;
 
 const TABS: { key: TabType; label: string }[] = [
   { key: 'all', label: '전체' },
@@ -27,10 +28,20 @@ const ShopPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [shop, setShop] = useState<{ shopUuid: string; nickname: string; intro?: string } | null>(null);
   const [shopProducts, setShopProducts] = useState<ProductListItem[]>([]);
+  const [statusCounts, setStatusCounts] = useState<Record<TabType, number>>({
+    all: 0,
+    ON_SALE: 0,
+    RESERVED: 0,
+    SOLD_OUT: 0,
+  });
   const [reviews, setReviews] = useState<Review[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(false);
 
   const shopId = sanitizeUrlParam(rawShopId);
 
@@ -44,12 +55,11 @@ const ShopPage = () => {
       setLoading(true);
 
       try {
-        const [shopRes, reviewRes, reviewSummary, followers, productRes] = await Promise.all([
+        const [shopRes, reviewRes, reviewSummary, followers] = await Promise.all([
           shopService.getShop(shopId),
           reviewService.getSellerReviews(shopId, { page: 0, size: 20 }),
           reviewService.getSellerReviewSummary(shopId),
           followService.getSellerFollowers(shopId),
-          shopService.getShopProducts(shopId, { page: 0, size: 100 }),
         ]);
 
         setShop({
@@ -58,7 +68,6 @@ const ShopPage = () => {
           intro: shopRes.intro,
         });
 
-        setShopProducts(productRes.items || []);
         setFollowerCount(followers.length);
         setRating(reviewSummary.avgRating || 0);
 
@@ -84,21 +93,77 @@ const ShopPage = () => {
     loadShopData();
   }, [shopId]);
 
-  const statusCounts = useMemo(() => {
-    const counts = { all: 0, ON_SALE: 0, RESERVED: 0, SOLD_OUT: 0 };
-    for (const p of shopProducts) {
-      counts.all++;
-      if (p.saleStatus === 'ON_SALE') counts.ON_SALE++;
-      else if (p.saleStatus === 'RESERVED') counts.RESERVED++;
-      else if (p.saleStatus === 'SOLD_OUT') counts.SOLD_OUT++;
-    }
-    return counts;
-  }, [shopProducts]);
+  useEffect(() => {
+    const loadCounts = async () => {
+      if (!shopId || !isValidId(shopId)) return;
+      try {
+        const [allRes, onSaleRes, reservedRes, soldOutRes] = await Promise.all([
+          shopService.getShopProducts(shopId, { page: 0, size: 1 }),
+          shopService.getShopProducts(shopId, { saleStatus: 'ON_SALE', page: 0, size: 1 }),
+          shopService.getShopProducts(shopId, { saleStatus: 'RESERVED', page: 0, size: 1 }),
+          shopService.getShopProducts(shopId, { saleStatus: 'SOLD_OUT', page: 0, size: 1 }),
+        ]);
 
-  const filteredProducts = useMemo(() => {
-    if (activeTab === 'all') return shopProducts;
-    return shopProducts.filter((p) => p.saleStatus === activeTab);
-  }, [shopProducts, activeTab]);
+        setStatusCounts({
+          all: allRes.totalCount ?? 0,
+          ON_SALE: onSaleRes.totalCount ?? 0,
+          RESERVED: reservedRes.totalCount ?? 0,
+          SOLD_OUT: soldOutRes.totalCount ?? 0,
+        });
+      } catch (error) {
+        console.error('Failed to load shop product counts:', error);
+      }
+    };
+
+    loadCounts();
+  }, [shopId]);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      if (!shopId || !isValidId(shopId)) return;
+      setProductsLoading(true);
+      setShopProducts([]);
+      try {
+        const response = await shopService.getShopProducts(shopId, {
+          saleStatus: activeTab === 'all' ? undefined : activeTab,
+          page: 0,
+          size: PAGE_SIZE,
+        });
+
+        setShopProducts(response.items || []);
+        setPage(response.page ?? 0);
+        setHasNext(response.hasNext ?? false);
+      } catch (error) {
+        console.error('Failed to load shop products:', error);
+        setShopProducts([]);
+        setHasNext(false);
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [shopId, activeTab]);
+
+  const handleLoadMore = async () => {
+    if (!shopId || !hasNext || isFetchingMore) return;
+    setIsFetchingMore(true);
+    try {
+      const response = await shopService.getShopProducts(shopId, {
+        saleStatus: activeTab === 'all' ? undefined : activeTab,
+        page: page + 1,
+        size: PAGE_SIZE,
+      });
+
+      setShopProducts((prev) => [...prev, ...(response.items || [])]);
+      setPage(response.page ?? page + 1);
+      setHasNext(response.hasNext ?? false);
+    } catch (error) {
+      console.error('Failed to load more shop products:', error);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  };
 
   if (loading) {
     return <div className="min-h-screen bg-neutral-50 flex items-center justify-center">로딩중...</div>;
@@ -165,10 +230,23 @@ const ShopPage = () => {
 
           <div className="p-4">
             <ShopProductList
-              products={filteredProducts}
+              products={shopProducts}
               shopName={shop.nickname}
               statusFilter={activeTab === 'all' ? 'ON_SALE' : activeTab}
             />
+            {productsLoading && <div className="py-6 text-center text-sm text-neutral-500">불러오는 중...</div>}
+            {hasNext && !productsLoading && (
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleLoadMore}
+                  disabled={isFetchingMore}
+                  className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
+                >
+                  {isFetchingMore ? '불러오는 중...' : '더보기'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
