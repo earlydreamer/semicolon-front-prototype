@@ -2,11 +2,13 @@
  * 이용약관 / 개인정보 처리방침 페이지
  */
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 
 const PolicyPage = () => {
-  const [activeTab, setActiveTab] = useState<'terms' | 'privacy'>('terms');
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'privacy' ? 'privacy' : 'terms';
+  const [activeTab, setActiveTab] = useState<'terms' | 'privacy'>(initialTab);
 
   return (
     <div className="min-h-screen bg-white py-5 pb-20 min-[360px]:py-6">
