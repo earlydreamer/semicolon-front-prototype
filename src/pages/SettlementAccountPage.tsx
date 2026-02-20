@@ -21,10 +21,12 @@ const SettlementAccountPage = () => {
       <header className="sticky top-0 z-10 border-b border-neutral-200 bg-white">
         <div className="mx-auto flex h-14 max-w-2xl items-center gap-2 px-3 min-[360px]:gap-3 min-[360px]:px-4">
           <button 
+            type="button"
             onClick={() => navigate(-1)}
             className="p-1 -ml-1 hover:bg-neutral-100 rounded-full transition-colors"
+            aria-label="이전 페이지로 이동"
           >
-            <ArrowLeft className="w-6 h-6 text-neutral-900" />
+            <ArrowLeft className="w-6 h-6 text-neutral-900" aria-hidden="true" />
           </button>
           <h1 className="text-lg font-bold text-neutral-900">정산 계좌 관리</h1>
         </div>
@@ -51,6 +53,7 @@ const SettlementAccountPage = () => {
           </div>
 
           <button
+            type="button"
             onClick={() => navigate('/mypage')}
             className="w-full h-14 bg-neutral-900 text-white font-bold rounded-2xl hover:bg-neutral-800 transition-[background-color,transform,box-shadow] shadow-lg active:scale-[0.98]"
           >

@@ -40,10 +40,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed bottom-20 left-1/2 z-[100] flex w-full max-w-sm -translate-x-1/2 flex-col gap-2 px-4 md:bottom-8 md:left-auto md:right-8 md:translate-x-0">
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        className="fixed bottom-20 left-1/2 z-[100] flex w-full max-w-sm -translate-x-1/2 flex-col gap-2 px-4 md:bottom-8 md:left-auto md:right-8 md:translate-x-0"
+      >
         {toasts.map((toast) => (
           <div
             key={toast.id}
+            role="status"
             className={`flex animate-in slide-in-from-bottom-5 items-center gap-3 rounded-lg px-4 py-3 shadow-lg transition-[transform,opacity] ${
               toast.type === 'success' ? 'bg-green-600 text-white' :
               toast.type === 'error' ? 'bg-red-600 text-white' :
@@ -57,10 +62,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <p className="flex-1 text-sm font-medium">{toast.message}</p>
             
             <button 
+              type="button"
               onClick={() => removeToast(toast.id)}
-              className="text-white/80 hover:text-white"
+              aria-label="토스트 닫기"
+              className="text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
         ))}

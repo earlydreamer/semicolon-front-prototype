@@ -292,20 +292,24 @@ export function HeroBanner() {
       {/* 모바일 좌우 이동 버튼 */}
       <div className="absolute left-0 right-0 top-1/2 z-20 flex -translate-y-1/2 justify-between px-1.5 pointer-events-none min-[360px]:px-2 md:hidden">
         <button
+          type="button"
           onClick={handlePrev}
+          aria-label="이전 배너"
           className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
             isDark ? 'bg-white/20 text-white active:bg-white/40' : 'bg-black/10 text-neutral-700 active:bg-black/20'
           }`}
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-5 h-5" aria-hidden="true" />
         </button>
         <button
+          type="button"
           onClick={handleNext}
+          aria-label="다음 배너"
           className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
             isDark ? 'bg-white/20 text-white active:bg-white/40' : 'bg-black/10 text-neutral-700 active:bg-black/20'
           }`}
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
 
@@ -315,21 +319,23 @@ export function HeroBanner() {
           variant="ghost"
           size="icon"
           onClick={handlePrev}
+          aria-label="이전 배너"
           className={`pointer-events-auto w-12 h-12 rounded-full backdrop-blur-md transition-colors ${
             isDark ? 'bg-white/10 hover:bg-white/25 text-white' : 'bg-white/20 hover:bg-white/40 text-neutral-800'
           }`}
         >
-          <ChevronLeft className="w-8 h-8" />
+          <ChevronLeft className="w-8 h-8" aria-hidden="true" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
           onClick={handleNext}
+          aria-label="다음 배너"
           className={`pointer-events-auto w-12 h-12 rounded-full backdrop-blur-md transition-colors ${
             isDark ? 'bg-white/10 hover:bg-white/25 text-white' : 'bg-white/20 hover:bg-white/40 text-neutral-800'
           }`}
         >
-          <ChevronRight className="w-8 h-8" />
+          <ChevronRight className="w-8 h-8" aria-hidden="true" />
         </Button>
       </div>
 
@@ -338,6 +344,7 @@ export function HeroBanner() {
         {banners.map((_: unknown, index: number) => (
           <button
             key={index}
+            type="button"
             onClick={() => setCurrentIndex(index)}
             className={`h-1.5 min-[360px]:h-2 rounded-full transition-[width,background-color] duration-300 ${
               index === currentIndex
