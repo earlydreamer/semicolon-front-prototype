@@ -50,7 +50,7 @@ export const ProductActionBar = ({
       <div className="hidden md:flex gap-3 mt-8 pt-6 border-t border-gray-200">
         <button 
           onClick={onLike}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-lg bg-gray-100 py-3 font-semibold text-gray-900 transition-all active:scale-95 hover:bg-neutral-200 ${isLiked ? 'text-red-500' : ''}`}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg bg-gray-100 py-3 font-semibold text-gray-900 transition-[background-color,color,transform] active:scale-95 hover:bg-neutral-200 ${isLiked ? 'text-red-500' : ''}`}
         >
           <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
           찜 {displayLikeCount}
@@ -58,7 +58,7 @@ export const ProductActionBar = ({
         <button 
           onClick={onAddToCart}
           disabled={isDisabled}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold transition-all active:scale-95 ${
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold transition-[background-color,color,transform] active:scale-95 ${
             isDisabled
             ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' 
             : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
@@ -70,7 +70,7 @@ export const ProductActionBar = ({
         <button 
           onClick={onPurchase}
           disabled={isDisabled}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white transition-all active:scale-95 ${
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white transition-[background-color,color,transform] active:scale-95 ${
             isDisabled
             ? 'bg-neutral-300 cursor-not-allowed'
             : 'bg-primary-500 hover:bg-primary-600'

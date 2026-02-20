@@ -86,7 +86,7 @@ const DepositUseForm = ({
                   value={inputValue}
                   onChange={handleInputChange}
                   placeholder="0"
-                  className="w-full pl-4 pr-10 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-right font-semibold"
+                  className="w-full pl-4 pr-10 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-[border-color,box-shadow] text-right font-semibold"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 font-medium">원</span>
               </div>

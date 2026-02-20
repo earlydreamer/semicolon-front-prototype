@@ -126,6 +126,8 @@ export function Header() {
               <img
                 src={logo}
                 alt="세미콜론"
+                width={144}
+                height={48}
                 className="h-8 min-[320px]:h-10 md:h-12 w-auto transition-transform hover:scale-105"
               />
             </Link>
@@ -149,7 +151,7 @@ export function Header() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="상품 또는 상점을 검색하세요"
-                className="h-10 w-full px-4 pr-10 bg-neutral-100 border-none rounded-lg focus:bg-white focus:ring-1 focus:ring-primary-500 transition-all text-sm"
+                className="h-10 w-full px-4 pr-10 bg-neutral-100 border-none rounded-lg focus:bg-white focus:ring-1 focus:ring-primary-500 transition-[background-color,box-shadow] text-sm"
               />
               <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
                 <Search className="h-4 w-4 text-neutral-400 hover:text-primary-500" />
@@ -226,7 +228,7 @@ export function Header() {
         </div>
 
         <div
-          className={`absolute top-full left-0 w-full transition-all duration-300 ${isCategoryOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+          className={`absolute top-full left-0 w-full transition-opacity duration-300 motion-reduce:transition-none ${isCategoryOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
           onMouseEnter={() => setIsCategoryOpen(true)}
           onMouseLeave={() => setIsCategoryOpen(false)}
         >

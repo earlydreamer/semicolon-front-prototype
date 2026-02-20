@@ -82,7 +82,7 @@ export const PasswordChangeModal = ({ isOpen, onClose }: PasswordChangeModalProp
             value={formData.currentPassword}
             onChange={handleChange}
             placeholder="현재 비밀번호를 입력하세요"
-            className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
+            className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-[border-color,box-shadow]"
           />
         </div>
 
@@ -94,7 +94,7 @@ export const PasswordChangeModal = ({ isOpen, onClose }: PasswordChangeModalProp
             value={formData.newPassword}
             onChange={handleChange}
             placeholder="8자 이상의 영문, 숫자 조합"
-            className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
+            className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-[border-color,box-shadow]"
           />
         </div>
 
@@ -106,7 +106,7 @@ export const PasswordChangeModal = ({ isOpen, onClose }: PasswordChangeModalProp
             value={formData.confirmPassword}
             onChange={handleChange}
             placeholder="새 비밀번호를 한번 더 입력하세요"
-            className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
+            className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-[border-color,box-shadow]"
           />
         </div>
 

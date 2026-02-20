@@ -55,6 +55,8 @@ export function ProductCard({ product }: ProductCardProps) {
           <img
             src={image || '/images/placeholder.png'}
             alt={title}
+            width={400}
+            height={400}
             className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-110 ${
               isUnavailable ? 'brightness-75' : ''
             }`}
@@ -65,7 +67,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={handleLikeClick}
             className={`absolute top-2 right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center
-              transition-all duration-200 backdrop-blur-sm
+              transition-[background-color,color,box-shadow] duration-200 backdrop-blur-sm
               ${liked 
                 ? 'bg-red-500 text-white shadow-lg' 
                 : 'bg-white/80 text-neutral-400 hover:text-red-500 hover:bg-white shadow-md'

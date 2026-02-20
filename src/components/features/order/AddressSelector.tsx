@@ -74,7 +74,7 @@ const AddressSelector = ({ selectedAddress, onSelect }: AddressSelectorProps) =>
               <div
                 key={address.id}
                 onClick={() => onSelect(address)}
-                className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer hover:border-primary-200
+                className={`relative p-4 rounded-xl border-2 transition-[border-color,background-color] cursor-pointer hover:border-primary-200
                   ${
                     selectedAddress?.id === address.id
                       ? 'border-primary-500 bg-primary-50/10'
