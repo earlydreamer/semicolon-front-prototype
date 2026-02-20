@@ -99,6 +99,8 @@ const ProductImageUploader = ({
             <img
               src={image}
               alt={`상품 이미지 ${index + 1}`}
+              width={320}
+              height={320}
               className="w-full h-full object-cover"
             />
             

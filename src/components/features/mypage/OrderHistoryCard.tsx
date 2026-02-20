@@ -84,6 +84,8 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
             <img
               src={image || '/images/placeholder.png'}
               alt={title}
+              width={80}
+              height={80}
               className="w-full h-full object-cover"
             />
           </Link>

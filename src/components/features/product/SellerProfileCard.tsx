@@ -29,6 +29,8 @@ export const SellerProfileCard = ({ seller }: SellerProfileCardProps) => {
             <img 
               src={seller.avatar || `https://ui-avatars.com/api/?name=${seller.nickname}&background=random`} 
               alt={seller.nickname} 
+              width={48}
+              height={48}
               className="h-full w-full object-cover" 
             />
           </div>

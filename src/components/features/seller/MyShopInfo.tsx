@@ -85,6 +85,8 @@ const MyShopInfo = () => {
                 <img
                   src={editForm.avatar || 'https://ui-avatars.com/api/?name=Shop&background=random'}
                   alt="상점 아바타"
+                  width={80}
+                  height={80}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -93,6 +95,7 @@ const MyShopInfo = () => {
                 onClick={handleAvatarClick}
                 className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary-500 text-white
                   flex items-center justify-center shadow-lg hover:bg-primary-600 transition-colors"
+                aria-label="상점 프로필 이미지 변경"
               >
                 <Camera className="w-4 h-4" />
               </button>
@@ -139,6 +142,8 @@ const MyShopInfo = () => {
             <img
               src={shopInfo.avatar || 'https://ui-avatars.com/api/?name=Shop&background=random'}
               alt="상점 아바타"
+              width={80}
+              height={80}
               className="w-full h-full object-cover"
             />
           </div>

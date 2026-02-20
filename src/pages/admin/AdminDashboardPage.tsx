@@ -163,6 +163,8 @@ const AdminDashboardPage = () => {
                   <img 
                     src={order.product.image} 
                     alt={order.product.title}
+                    width={40}
+                    height={40}
                     className="w-10 h-10 rounded-lg object-cover"
                   />
                   <div>
@@ -191,6 +193,8 @@ const AdminDashboardPage = () => {
                     <img 
                       src={user.avatar} 
                       alt={user.nickname}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
@@ -216,4 +220,3 @@ const AdminDashboardPage = () => {
 };
 
 export default AdminDashboardPage;
-

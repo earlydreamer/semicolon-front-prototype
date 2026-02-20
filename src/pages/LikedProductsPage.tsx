@@ -113,6 +113,8 @@ const LikedProductsPage = () => {
                   <img
                     src={product.thumbnailUrl || '/images/placeholder.png'}
                     alt={product.title}
+                    width={96}
+                    height={96}
                     className="w-full h-full object-cover"
                   />
                 </Link>
