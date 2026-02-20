@@ -49,10 +49,13 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
                 <button
                   type="button"
                   onClick={() => handleToggleRoot(rootId)}
+                  aria-expanded={isExpanded}
+                  aria-controls={`mobile-category-root-${rootId}`}
                   className="flex min-h-12 w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-neutral-900 hover:bg-neutral-50 active:bg-neutral-100"
                 >
                   <span className="truncate pr-3">{root.name}</span>
                   <ChevronDown
+                    aria-hidden="true"
                     className={cn('h-4 w-4 shrink-0 text-neutral-500 transition-transform', isExpanded && 'rotate-180')}
                   />
                 </button>
@@ -63,12 +66,12 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
                   className="flex min-h-12 w-full items-center justify-between px-4 py-3 text-sm font-semibold text-neutral-900 hover:bg-neutral-50 active:bg-neutral-100"
                 >
                   <span className="truncate pr-3">{root.name}</span>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400" />
+                  <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400" aria-hidden="true" />
                 </Link>
               )}
 
               {isExpanded && hasChildren && (
-                <div className="bg-neutral-50/60 px-3 pb-3 pt-1">
+                <div id={`mobile-category-root-${rootId}`} className="bg-neutral-50/60 px-3 pb-3 pt-1">
                   {root.children!.map((child) => {
                     const childId = String(child.id);
                     const hasGrandChildren = (child.children?.length ?? 0) > 0;
@@ -80,10 +83,13 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
                           <button
                             type="button"
                             onClick={() => handleToggleChild(childId)}
+                            aria-expanded={isChildExpanded}
+                            aria-controls={`mobile-category-child-${childId}`}
                             className="flex min-h-11 w-full items-center justify-between rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-neutral-800 hover:bg-neutral-50 active:bg-neutral-100"
                           >
                             <span className="truncate pr-3">{child.name}</span>
                             <ChevronDown
+                              aria-hidden="true"
                               className={cn(
                                 'h-4 w-4 shrink-0 text-neutral-400 transition-transform',
                                 isChildExpanded && 'rotate-180'
@@ -97,12 +103,12 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
                             className="flex min-h-11 items-center justify-between rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-sm font-medium text-neutral-800 hover:bg-neutral-50 active:bg-neutral-100"
                           >
                             <span className="truncate pr-3">{child.name}</span>
-                            <ChevronRight className="h-4 w-4 shrink-0 text-neutral-300" />
+                            <ChevronRight className="h-4 w-4 shrink-0 text-neutral-300" aria-hidden="true" />
                           </Link>
                         )}
 
                         {hasGrandChildren && isChildExpanded && (
-                          <div className="ml-3 mt-1.5 space-y-1 border-l border-neutral-200 pl-3">
+                          <div id={`mobile-category-child-${childId}`} className="ml-3 mt-1.5 space-y-1 border-l border-neutral-200 pl-3">
                             {child.children!.map((sub) => (
                               <Link
                                 key={sub.id}
@@ -145,6 +151,7 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
         {categories.map((category) => (
           <button
             key={category.id}
+            type="button"
             className={cn(
               'flex w-full items-center justify-between px-6 py-3 text-left text-sm font-medium transition-colors hover:bg-white hover:text-primary-600',
               activeCategory?.id === category.id && 'bg-white text-primary-600'
@@ -152,7 +159,7 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
             onMouseEnter={() => setActiveCategory(category)}
           >
             {category.name}
-            <ChevronRight className="h-4 w-4 text-neutral-400" />
+            <ChevronRight className="h-4 w-4 text-neutral-400" aria-hidden="true" />
           </button>
         ))}
       </div>

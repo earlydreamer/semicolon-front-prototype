@@ -76,7 +76,7 @@ export default function SocialLoginCallbackPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-50/50">
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-4" role="status" aria-live="polite">
         <div className="relative w-16 h-16 mx-auto">
           <div className="absolute inset-0 border-4 border-primary-100 rounded-full" />
           <div className="absolute inset-0 border-4 border-primary-600 rounded-full border-t-transparent animate-spin" />
@@ -86,9 +86,7 @@ export default function SocialLoginCallbackPage() {
             {provider ? <span className="capitalize">{provider} </span> : ""}
             로그인 중
           </h2>
-          <p className="text-neutral-500 font-medium">
-            잠시만 기다려 주세요...
-          </p>
+          <p className="text-neutral-500 font-medium">잠시만 기다려 주세요…</p>
         </div>
       </div>
     </div>

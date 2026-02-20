@@ -1,4 +1,4 @@
-﻿import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Card } from "@/components/common/Card";
 import { LoginForm } from "@/components/features/auth/LoginForm";
 import { SocialLoginButtons } from "@/components/features/auth/SocialLoginButtons";
@@ -18,7 +18,7 @@ export default function LoginPage() {
             반갑습니다! 서비스를 이용하기 위해 로그인해 주세요.
           </p>
           {error ? (
-            <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-100">
+            <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-100" role="alert" aria-live="polite">
               <p className="text-sm text-red-600 font-medium">
                 {error === "social_login_failed"
                   ? "소셜 로그인에 실패했습니다. 다시 시도해 주세요."

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +33,7 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
+    setFocus,
     formState: { errors },
   } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -82,19 +83,32 @@ export function LoginForm() {
     }
   };
 
+  const onInvalid = (formErrors: FieldErrors<LoginSchema>) => {
+    if (formErrors.email) {
+      setFocus('email');
+      return;
+    }
+    if (formErrors.password) {
+      setFocus('password');
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4" noValidate>
       <Input
         label="이메일"
         type="email"
-        placeholder="example@email.com"
+        placeholder="name@example.com…"
+        autoComplete="email"
+        spellCheck={false}
         error={errors.email?.message}
         {...register('email')}
       />
       <Input
         label="비밀번호"
         type="password"
-        placeholder="비밀번호를 입력해 주세요"
+        placeholder="비밀번호를 입력해 주세요…"
+        autoComplete="current-password"
         error={errors.password?.message}
         {...register('password')}
       />

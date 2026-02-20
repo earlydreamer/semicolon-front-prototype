@@ -102,8 +102,8 @@ function App() {
         <ToastProvider>
           <Suspense
             fallback={
-              <div className="flex h-screen items-center justify-center">
-                로딩 중...
+              <div className="flex h-screen items-center justify-center" role="status" aria-live="polite">
+                로딩 중…
               </div>
             }
           >

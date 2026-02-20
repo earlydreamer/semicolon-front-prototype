@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
@@ -60,6 +60,7 @@ export function SignupForm() {
     getValues,
     watch,
     setValue,
+    setFocus,
     formState: { errors },
   } = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),
@@ -161,12 +162,24 @@ export function SignupForm() {
     closeAgreementModal();
   };
 
+  const onInvalid = (formErrors: FieldErrors<SignupSchema>) => {
+    if (formErrors.email) return setFocus('email');
+    if (formErrors.nickname) return setFocus('nickname');
+    if (formErrors.password) return setFocus('password');
+    if (formErrors.confirmPassword) return setFocus('confirmPassword');
+    if (formErrors.termsAccepted || formErrors.privacyAccepted) return setFocus('termsAccepted');
+  };
+
+  const agreementErrorMessage = errors.termsAccepted?.message || errors.privacyAccepted?.message;
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4" noValidate>
       <Input
         label="이메일"
         type="email"
-        placeholder="example@email.com"
+        placeholder="name@example.com…"
+        autoComplete="email"
+        spellCheck={false}
         error={errors.email?.message}
         {...register('email')}
       />
@@ -184,26 +197,38 @@ export function SignupForm() {
 
       <Input
         label="닉네임"
-        placeholder="닉네임을 입력해 주세요"
+        placeholder="표시할 닉네임을 입력해 주세요…"
+        autoComplete="nickname"
+        spellCheck={false}
         error={errors.nickname?.message}
         {...register('nickname')}
       />
       <Input
         label="비밀번호"
         type="password"
-        placeholder="영문, 숫자, 특수문자 포함 8자 이상"
+        placeholder="영문, 숫자, 특수문자를 포함해 입력해 주세요…"
+        autoComplete="new-password"
         error={errors.password?.message}
         {...register('password')}
       />
       <Input
         label="비밀번호 확인"
         type="password"
-        placeholder="비밀번호를 다시 입력해 주세요"
+        placeholder="비밀번호를 다시 입력해 주세요…"
+        autoComplete="new-password"
         error={errors.confirmPassword?.message}
         {...register('confirmPassword')}
       />
 
-      <div className="space-y-2 rounded-md border border-neutral-200 p-3">
+      <div
+        className="space-y-2 rounded-md border border-neutral-200 p-3"
+        role="group"
+        aria-labelledby="signup-agreements-title"
+        aria-describedby={agreementErrorMessage ? 'signup-agreements-error' : undefined}
+      >
+        <p id="signup-agreements-title" className="sr-only">
+          약관 동의
+        </p>
         <label className="flex cursor-pointer items-start gap-2 border-b border-neutral-100 pb-2 text-sm font-semibold text-neutral-800">
           <input
             type="checkbox"
@@ -214,54 +239,59 @@ export function SignupForm() {
           <span>전체 동의</span>
         </label>
 
-        <label className="flex cursor-pointer items-start gap-2 text-sm text-neutral-700">
+        <div className="flex items-start gap-2 text-sm text-neutral-700">
           <input
+            id="terms-accepted"
             type="checkbox"
             className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
             {...register('termsAccepted')}
           />
-          <span>
-            (필수) 이용약관 동의{' '}
-            <button
-              type="button"
-              onClick={() => openAgreementModal('terms')}
-              className="underline hover:text-primary-600"
-            >
-              보기
-            </button>
-          </span>
-        </label>
+          <label htmlFor="terms-accepted" className="flex-1 cursor-pointer">
+            (필수) 이용약관 동의
+          </label>
+          <button
+            type="button"
+            onClick={() => openAgreementModal('terms')}
+            className="shrink-0 underline hover:text-primary-600"
+          >
+            보기
+          </button>
+        </div>
 
-        <label className="flex cursor-pointer items-start gap-2 text-sm text-neutral-700">
+        <div className="flex items-start gap-2 text-sm text-neutral-700">
           <input
+            id="privacy-accepted"
             type="checkbox"
             className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
             {...register('privacyAccepted')}
           />
-          <span>
-            (필수) 개인정보 처리방침 동의{' '}
-            <button
-              type="button"
-              onClick={() => openAgreementModal('privacy')}
-              className="underline hover:text-primary-600"
-            >
-              보기
-            </button>
-          </span>
-        </label>
+          <label htmlFor="privacy-accepted" className="flex-1 cursor-pointer">
+            (필수) 개인정보 처리방침 동의
+          </label>
+          <button
+            type="button"
+            onClick={() => openAgreementModal('privacy')}
+            className="shrink-0 underline hover:text-primary-600"
+          >
+            보기
+          </button>
+        </div>
 
-        <label className="flex cursor-pointer items-start gap-2 text-sm text-neutral-700">
+        <div className="flex items-start gap-2 text-sm text-neutral-700">
           <input
+            id="marketing-accepted"
             type="checkbox"
             className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
             {...register('marketingAccepted')}
           />
-          <span>(선택) 마케팅 정보 수신 동의</span>
-        </label>
+          <label htmlFor="marketing-accepted" className="cursor-pointer">
+            (선택) 마케팅 정보 수신 동의
+          </label>
+        </div>
 
-        {(errors.termsAccepted?.message || errors.privacyAccepted?.message) && (
-          <p className="text-sm text-error-600">
-            {errors.termsAccepted?.message || errors.privacyAccepted?.message}
+        {agreementErrorMessage && (
+          <p id="signup-agreements-error" role="alert" className="text-sm text-error-600">
+            {agreementErrorMessage}
           </p>
         )}
       </div>
