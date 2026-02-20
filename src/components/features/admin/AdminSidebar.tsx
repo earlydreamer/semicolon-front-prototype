@@ -2,7 +2,7 @@
  * 관리자 사이드바 네비게이션
  */
 
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard';
 import Package from 'lucide-react/dist/esm/icons/package';
 import Users from 'lucide-react/dist/esm/icons/users';
@@ -26,7 +26,6 @@ const navItems = [
 
 
 interface AdminSidebarProps {
-  isOpen?: boolean;
   onClose?: () => void;
 }
 
@@ -40,12 +39,13 @@ const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
           <span className="text-sm font-normal text-neutral-400 ml-2">Admin</span>
         </h1>
         {onClose && (
-          <button 
+          <button
+            type="button"
             onClick={onClose}
             className="lg:hidden text-neutral-400 hover:text-white p-1"
-            aria-label="Close Sidebar"
+            aria-label="사이드바 닫기"
           >
-            <LogOut className="w-5 h-5 rotate-180" />
+            <LogOut className="w-5 h-5 rotate-180" aria-hidden="true" />
           </button>
         )}
       </div>
@@ -67,7 +67,7 @@ const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
                 }
                 onClick={onClose}
               >
-                <item.icon className="w-5 h-5" />
+                <item.icon className="w-5 h-5" aria-hidden="true" />
                 <span className="font-medium">{item.label}</span>
               </NavLink>
             </li>
@@ -77,13 +77,14 @@ const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
 
       {/* 하단 */}
       <div className="p-4 border-t border-neutral-800">
-        <button
-          onClick={() => window.location.href = '/'}
+        <Link
+          to="/"
+          onClick={onClose}
           className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors"
         >
-          <LogOut className="w-5 h-5" />
+          <LogOut className="w-5 h-5" aria-hidden="true" />
           <span className="font-medium">사이트로 돌아가기</span>
-        </button>
+        </Link>
       </div>
     </aside>
   );

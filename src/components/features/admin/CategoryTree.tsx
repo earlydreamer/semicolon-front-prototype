@@ -40,18 +40,23 @@ const CategoryItem = ({ category, depth, onEdit, onDelete, onAddChild }: Categor
       >
         {/* 확장/축소 버튼 */}
         <button
+          type="button"
           onClick={() => setIsExpanded(!isExpanded)}
           className={`p-1 rounded hover:bg-neutral-200 ${!hasChildren ? 'invisible' : ''}`}
+          disabled={!hasChildren}
+          tabIndex={hasChildren ? 0 : -1}
+          aria-label={`${category.name} ${isExpanded ? '축소' : '확장'}`}
+          aria-expanded={hasChildren ? isExpanded : undefined}
         >
           {isExpanded ? (
-            <ChevronDown className="w-4 h-4 text-neutral-500" />
+            <ChevronDown className="w-4 h-4 text-neutral-500" aria-hidden="true" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-neutral-500" />
+            <ChevronRight className="w-4 h-4 text-neutral-500" aria-hidden="true" />
           )}
         </button>
 
         {/* 카테고리 아이콘 */}
-        <FolderTree className="w-4 h-4 text-primary-500" />
+        <FolderTree className="w-4 h-4 text-primary-500" aria-hidden="true" />
 
         {/* 카테고리 이름 */}
         <span className="flex-1 text-sm font-medium text-neutral-900">
@@ -61,25 +66,31 @@ const CategoryItem = ({ category, depth, onEdit, onDelete, onAddChild }: Categor
         {/* 액션 버튼 */}
         <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
           <button
+            type="button"
             onClick={() => onAddChild(category.id)}
             className="p-1.5 hover:bg-primary-100 rounded text-primary-600"
             title="하위 카테고리 추가"
+            aria-label={`${category.name} 하위 카테고리 추가`}
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4" aria-hidden="true" />
           </button>
           <button
+            type="button"
             onClick={() => onEdit(category)}
             className="p-1.5 hover:bg-neutral-200 rounded text-neutral-600"
             title="수정"
+            aria-label={`${category.name} 카테고리 수정`}
           >
-            <Edit2 className="w-4 h-4" />
+            <Edit2 className="w-4 h-4" aria-hidden="true" />
           </button>
           <button
+            type="button"
             onClick={() => onDelete(category.id)}
             className="p-1.5 hover:bg-red-100 rounded text-red-600"
             title="삭제"
+            aria-label={`${category.name} 카테고리 삭제`}
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -229,6 +240,7 @@ const CategoryTree = () => {
         <div className="flex justify-between items-center">
           <h3 className="font-semibold text-neutral-900">카테고리 목록</h3>
           <button
+            type="button"
             onClick={() => {
               setIsAdding(true);
               setParentId(null);
@@ -236,7 +248,7 @@ const CategoryTree = () => {
             }}
             className="flex items-center gap-2 px-3 py-2 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4" aria-hidden="true" />
             카테고리 추가
           </button>
         </div>
@@ -246,7 +258,11 @@ const CategoryTree = () => {
       {(editingCategory || isAdding) && (
         <div className="p-4 bg-neutral-50 border-b border-neutral-200">
           <div className="flex items-center gap-3">
+            <label htmlFor="admin-category-name" className="sr-only">
+              카테고리 이름
+            </label>
             <input
+              id="admin-category-name"
               type="text"
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
@@ -256,12 +272,14 @@ const CategoryTree = () => {
               autoFocus
             />
             <button
+              type="button"
               onClick={handleSave}
               className="px-4 py-2 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600"
             >
               저장
             </button>
             <button
+              type="button"
               onClick={handleCancel}
               className="px-4 py-2 border border-neutral-300 rounded-lg text-sm font-medium hover:bg-neutral-100"
             >

@@ -54,7 +54,7 @@ const AdminLoginPage = () => {
         {/* 헤더 */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-500/20 rounded-full mb-4">
-            <ShieldCheck className="w-8 h-8 text-primary-400" />
+            <ShieldCheck className="w-8 h-8 text-primary-400" aria-hidden="true" />
           </div>
           <h1 className="text-2xl font-bold text-white">관리자 로그인</h1>
           <p className="text-neutral-400 mt-2">덕쿠 관리자 페이지</p>
@@ -63,7 +63,7 @@ const AdminLoginPage = () => {
         {/* 보안 경고 */}
         <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
           <div className="flex gap-3">
-            <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" aria-hidden="true" />
             <div className="text-sm text-yellow-200">
               <p className="font-medium mb-1">⚠️ 개발 환경 (Mock)</p>
               <p className="text-yellow-300/70">
@@ -74,13 +74,15 @@ const AdminLoginPage = () => {
         </div>
 
         {/* 로그인 폼 */}
-        <form onSubmit={handleSubmit} className="bg-neutral-800 rounded-xl p-6 shadow-xl">
+        <form onSubmit={handleSubmit} noValidate className="bg-neutral-800 rounded-xl p-6 shadow-xl">
           <div className="space-y-4">
             <Input
               label="관리자 ID"
               value={adminId}
               onChange={(e) => setAdminId(e.target.value)}
-              placeholder="관리자 ID를 입력하세요"
+              placeholder="관리자 ID를 입력하세요…"
+              autoComplete="username"
+              spellCheck={false}
               className="bg-neutral-700 border-neutral-600 text-white placeholder:text-neutral-400"
             />
             <Input
@@ -88,13 +90,14 @@ const AdminLoginPage = () => {
               label="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="비밀번호를 입력하세요"
+              placeholder="비밀번호를 입력하세요…"
+              autoComplete="current-password"
               className="bg-neutral-700 border-neutral-600 text-white placeholder:text-neutral-400"
             />
           </div>
 
           {error && (
-            <p className="mt-4 text-sm text-red-400">{error}</p>
+            <p className="mt-4 text-sm text-red-400" role="alert" aria-live="polite">{error}</p>
           )}
 
           <Button

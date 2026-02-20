@@ -239,7 +239,7 @@ const BannerManagePage = () => {
             onClick={handleReset}
             disabled={!hasChanges}
           >
-            <RotateCcw className="w-4 h-4 mr-2" />
+            <RotateCcw className="w-4 h-4 mr-2" aria-hidden="true" />
             초기화
           </Button>
           <Button 
@@ -247,7 +247,7 @@ const BannerManagePage = () => {
             disabled={!hasChanges}
             className={hasChanges ? 'bg-primary-600 hover:bg-primary-700' : ''}
           >
-            <Save className="w-4 h-4 mr-2" />
+            <Save className="w-4 h-4 mr-2" aria-hidden="true" />
             저장
           </Button>
           <Button 
@@ -255,7 +255,7 @@ const BannerManagePage = () => {
             disabled={isMaxReached}
             title={isMaxReached ? `배너는 최대 ${MAX_BANNERS}개까지 등록할 수 있습니다.` : ''}
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
             배너 추가
           </Button>
         </div>
@@ -268,7 +268,7 @@ const BannerManagePage = () => {
       {/* 변경사항 알림 */}
       {hasChanges && (
         <div className="mb-4 flex items-center gap-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800">
-          <AlertCircle className="w-5 h-5" />
+          <AlertCircle className="w-5 h-5" aria-hidden="true" />
           <span className="text-sm font-medium">변경사항이 있습니다. 저장 버튼을 눌러 반영하세요.</span>
         </div>
       )}
@@ -276,7 +276,7 @@ const BannerManagePage = () => {
       {/* 최대 배너 경고 */}
       {isMaxReached && (
         <div className="mb-4 flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          <AlertCircle className="w-5 h-5" />
+          <AlertCircle className="w-5 h-5" aria-hidden="true" />
           <span className="text-sm font-medium">최대 {MAX_BANNERS}개의 배너가 등록되어 있습니다. 새 배너를 추가하려면 기존 배너를 삭제하세요.</span>
         </div>
       )}
@@ -309,7 +309,7 @@ const BannerManagePage = () => {
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <GripVertical className="w-4 h-4 text-neutral-400" />
+                    <GripVertical className="w-4 h-4 text-neutral-400" aria-hidden="true" />
                     <span className="text-sm font-medium text-neutral-900 w-6 text-center">{index + 1}</span>
                   </div>
                 </td>
@@ -345,9 +345,13 @@ const BannerManagePage = () => {
                 </td>
                 <td className="px-4 py-3">
                   <button 
+                    type="button"
                     onClick={() => handleToggleActive(banner.id)}
                     className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
                     style={{ backgroundColor: banner.isActive ? '#10b981' : '#d1d5db' }}
+                    role="switch"
+                    aria-checked={banner.isActive}
+                    aria-label={`${banner.title} 배너 활성화 상태 전환`}
                   >
                     <span 
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
@@ -399,7 +403,7 @@ const BannerManagePage = () => {
       >
         <div className="flex flex-col items-center text-center py-2">
           <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
-            <AlertCircle className="w-6 h-6 text-red-500" />
+            <AlertCircle className="w-6 h-6 text-red-500" aria-hidden="true" />
           </div>
           <p className="text-neutral-700 font-medium mb-6 leading-relaxed">
             {alertMessage}

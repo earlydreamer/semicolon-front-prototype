@@ -2,7 +2,7 @@
  * 관리자 상품 목록 컴포넌트
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Search from 'lucide-react/dist/esm/icons/search';
 import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
 import Eye from 'lucide-react/dist/esm/icons/eye';
@@ -28,6 +28,30 @@ const AdminProductList = () => {
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const { showToast } = useToast();
+
+  useEffect(() => {
+    if (!openMenuId) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('[data-admin-product-menu]')) {
+        setOpenMenuId(null);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [openMenuId]);
 
   // 필터링된 상품 목록
   const filteredProducts = products.filter((product) => {
@@ -62,19 +86,30 @@ const AdminProductList = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           {/* 검색 */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+            <label htmlFor="admin-product-search" className="sr-only">
+              상품명 검색
+            </label>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" aria-hidden="true" />
             <input
-              type="text"
-              placeholder="상품명 검색..."
+              id="admin-product-search"
+              name="q"
+              type="search"
+              placeholder="상품명 검색…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
               className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg text-sm
                 focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
           {/* 필터 */}
+          <label htmlFor="admin-product-status-filter" className="sr-only">
+            상태 필터
+          </label>
           <select
+            id="admin-product-status-filter"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
             className="px-4 py-2 border border-neutral-300 rounded-lg text-sm
@@ -113,7 +148,7 @@ const AdminProductList = () => {
                       height={48}
                       className="w-12 h-12 rounded-lg object-cover"
                     />
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-sm font-medium text-neutral-900 line-clamp-1">
                         {product.title}
                       </p>
@@ -140,41 +175,59 @@ const AdminProductList = () => {
                   </p>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <div className="relative inline-block">
+                  <div className="relative inline-block" data-admin-product-menu>
                     <button
+                      type="button"
                       onClick={() => setOpenMenuId(openMenuId === product.id ? null : product.id)}
                       className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                      aria-label={`${product.title} 관리 메뉴 열기`}
+                      aria-haspopup="menu"
+                      aria-expanded={openMenuId === product.id}
+                      aria-controls={`admin-product-menu-${product.id}`}
                     >
-                      <MoreVertical className="w-4 h-4 text-neutral-500" />
+                      <MoreVertical className="w-4 h-4 text-neutral-500" aria-hidden="true" />
                     </button>
 
                     {openMenuId === product.id && (
-                      <div className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-neutral-200 z-10">
-                        <button
-                          onClick={() => window.open(`/products/${product.id}`, '_blank')}
+                      <div
+                        id={`admin-product-menu-${product.id}`}
+                        role="menu"
+                        aria-label={`${product.title} 관리 메뉴`}
+                        className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-neutral-200 z-10"
+                      >
+                        <a
+                          href={`/products/${product.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          role="menuitem"
+                          onClick={() => setOpenMenuId(null)}
                           className="flex items-center gap-2 w-full px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-4 h-4" aria-hidden="true" />
                           상품 보기
-                        </button>
+                        </a>
                         <button
+                          type="button"
+                          role="menuitem"
                           onClick={() => {
                             handleSuspend(product.id);
                             showToast('준비중입니다.', 'info');
                           }}
                           className="flex items-center gap-2 w-full px-4 py-2 text-sm text-yellow-600 hover:bg-neutral-50"
                         >
-                          <Pause className="w-4 h-4" />
+                          <Pause className="w-4 h-4" aria-hidden="true" />
                           판매 정지
                         </button>
                         <button
+                          type="button"
+                          role="menuitem"
                           onClick={() => {
                             handleDelete(product.id);
                             showToast('준비중입니다.', 'info');
                           }}
                           className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-neutral-50"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" aria-hidden="true" />
                           삭제
                         </button>
                       </div>
