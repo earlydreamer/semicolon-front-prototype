@@ -1,220 +1,209 @@
-/**
- * 관리자 대시보드 페이지
- * 
- * Mock 데이터에서 실제 통계를 계산하여 표시합니다.
- * 
- * 집계 기준:
- * - 매일 00:00 KST 기준으로 집계
- * - 변화율: 이번 달 vs 이전 달 동일 기간 비교
- */
-
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
-import Users from 'lucide-react/dist/esm/icons/users';
-import Package from 'lucide-react/dist/esm/icons/package';
 import ShoppingCart from 'lucide-react/dist/esm/icons/shopping-cart';
-import Clock from 'lucide-react/dist/esm/icons/clock';
-import Calendar from 'lucide-react/dist/esm/icons/calendar';
+import Ticket from 'lucide-react/dist/esm/icons/ticket';
+import CircleOff from 'lucide-react/dist/esm/icons/circle-off';
 import Info from 'lucide-react/dist/esm/icons/info';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+import UserRound from 'lucide-react/dist/esm/icons/user-round';
+import { Button } from '@/components/common/Button';
 import StatsCard from '@/components/features/admin/StatsCard';
-import { MockDataNotice } from '@/components/common/MockDataNotice';
-import { MOCK_ORDER_HISTORY, MOCK_USERS_DATA } from '@/mocks/users';
-import { getDashboardStats, STATS_AGGREGATION_INFO } from '@/mocks/stats';
+import { adminService } from '@/services/adminService';
+import { couponService } from '@/services/couponService';
+import type { AdminSettlementStatisticsResponse } from '@/types/admin';
+import type { OrderListResponse } from '@/types/order';
+
+interface DashboardData {
+  orders: OrderListResponse[];
+  totalOrders: number;
+  settlementStats: AdminSettlementStatisticsResponse;
+  couponCount: number;
+  loadedAt: string;
+}
+
+const BACKEND_MISSING_ITEMS = [
+  '관리자 회원 목록/검색 API',
+  '신고 목록/처리 API',
+  '배너 CRUD 및 순서 저장 API',
+  '카테고리 관리자 CRUD API',
+  '상품 정지/삭제 관리자 API',
+];
+
+const formatCurrency = (value: number) => `${new Intl.NumberFormat('ko-KR').format(value)}원`;
+const parseDate = (value: string) => {
+  const normalized = value.includes(' ') ? value.replace(' ', 'T') : value;
+  const parsed = new Date(normalized);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+const formatDateTime = (value: string) => parseDate(value)?.toLocaleString('ko-KR') ?? '-';
 
 const AdminDashboardPage = () => {
-  // Mock 데이터에서 통계 및 변화율 가져오기
-  const dashboardStats = useMemo(() => getDashboardStats(), []);
-  
-  // 최근 주문 5개 (최신순)
-  const recentOrders = useMemo(() => {
-    return [...MOCK_ORDER_HISTORY]
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 5);
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const loadDashboard = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage('');
+    try {
+      const [ordersPage, settlementStats, coupons] = await Promise.all([
+        adminService.getAdminOrders({ page: 0, size: 20 }),
+        adminService.getAdminSettlementStatistics(),
+        couponService.getAdminCoupons(),
+      ]);
+
+      setData({
+        orders: ordersPage.content,
+        totalOrders: ordersPage.totalElements,
+        settlementStats,
+        couponCount: coupons.length,
+        loadedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Failed to load admin dashboard:', error);
+      setErrorMessage('대시보드 데이터를 불러오지 못했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
-  
-  // 최근 가입자 5명 (최신순)
-  const recentUsers = useMemo(() => {
-    return [...MOCK_USERS_DATA]
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 5);
-  }, []);
-  
-  // 시간 포맷 함수
-  const formatTimeAgo = (dateString: string) => {
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
-    if (diffMins < 60) return `${diffMins}분 전`;
-    if (diffHours < 24) return `${diffHours}시간 전`;
-    if (diffDays < 30) return `${diffDays}일 전`;
-    return `${Math.floor(diffDays / 30)}개월 전`;
-  };
-  
-  // 집계 시점 포맷
-  const formatAggregationTime = (isoString: string) => {
-    const date = new Date(isoString);
-    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')} 00:00`;
-  };
-  
+
+  useEffect(() => {
+    void loadDashboard();
+  }, [loadDashboard]);
+
+  const recentOrders = useMemo(() => data?.orders.slice(0, 5) ?? [], [data?.orders]);
+
   return (
     <div>
       <div className="mb-6">
-        <MockDataNotice />
-      </div>
-      {/* 페이지 헤더 */}
-      <div className="mb-6">
         <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">대시보드</h1>
-        <p className="text-neutral-500 mt-1">플랫폼 운영 현황을 확인하세요</p>
+        <p className="text-neutral-500 mt-1">실데이터 기반 관리자 지표를 확인합니다.</p>
       </div>
-      
-      {/* 집계 정보 배너 */}
+
       <div className="mb-6 p-4 bg-neutral-50 border border-neutral-200 rounded-lg">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
           <div className="flex items-center gap-2 text-neutral-600">
             <Clock className="w-4 h-4" />
-            <span className="font-medium">마지막 집계:</span>
-            <span>{formatAggregationTime(STATS_AGGREGATION_INFO.lastAggregatedAt)}</span>
-          </div>
-          <div className="flex items-center gap-2 text-neutral-600">
-            <Calendar className="w-4 h-4" />
-            <span className="font-medium">집계 주기:</span>
-            <span>{STATS_AGGREGATION_INFO.aggregationCycle}</span>
+            <span className="font-medium">마지막 로드:</span>
+            <span>{data ? new Date(data.loadedAt).toLocaleString('ko-KR') : '-'}</span>
           </div>
           <div className="flex items-center gap-2 text-neutral-600">
             <Info className="w-4 h-4" />
-            <span className="font-medium">집계 기간:</span>
-            <span>{STATS_AGGREGATION_INFO.aggregationPeriod}</span>
+            <span className="font-medium">통계 기준:</span>
+            <span>정산/주문/쿠폰 API 실시간 조회</span>
           </div>
         </div>
-        <p className="mt-2 text-xs text-neutral-500">
-          * 변화율은 이번 달과 이전 달({STATS_AGGREGATION_INFO.comparisonPeriod}) 동일 기간을 비교한 값입니다.
-        </p>
       </div>
 
-      {/* 통계 카드 그리드 */}
-      <div className="mb-8 grid grid-cols-1 gap-4 min-[360px]:gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          icon={DollarSign}
-          label="총 거래액 (이번 달)"
-          value={`${(dashboardStats.totalRevenue / 10000).toLocaleString()}만원`}
-          change={dashboardStats.revenueChange}
-          iconColor="text-green-600"
-          iconBgColor="bg-green-100"
-        />
-        <StatsCard
-          icon={Users}
-          label="신규 가입자 (이번 달)"
-          value={dashboardStats.newUsers.toLocaleString()}
-          change={dashboardStats.usersChange}
-          iconColor="text-blue-600"
-          iconBgColor="bg-blue-100"
-        />
-        <StatsCard
-          icon={Package}
-          label="신규 상품 (이번 달)"
-          value="8"
-          change={dashboardStats.productsChange}
-          iconColor="text-purple-600"
-          iconBgColor="bg-purple-100"
-        />
-        <StatsCard
-          icon={ShoppingCart}
-          label="신규 주문 (이번 달)"
-          value="18"
-          change={dashboardStats.ordersChange}
-          iconColor="text-orange-600"
-          iconBgColor="bg-orange-100"
-        />
-      </div>
-      
-      {/* 누적 통계 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
-          <p className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">{dashboardStats.totalProducts}</p>
-          <p className="text-sm text-neutral-500">전체 등록 상품</p>
+      {isLoading ? (
+        <div className="rounded-xl border border-neutral-200 bg-white p-10 text-center text-neutral-500" role="status" aria-live="polite">
+          대시보드를 불러오는 중입니다…
         </div>
-        <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
-          <p className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">{dashboardStats.totalOrders}</p>
-          <p className="text-sm text-neutral-500">전체 주문</p>
+      ) : errorMessage ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center space-y-3">
+          <p className="text-sm text-red-700">{errorMessage}</p>
+          <Button variant="outline" onClick={() => void loadDashboard()}>
+            다시 시도
+          </Button>
         </div>
-        <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
-          <p className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">20</p>
-          <p className="text-sm text-neutral-500">전체 회원</p>
-        </div>
-        <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
-          <p className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">22</p>
-          <p className="text-sm text-neutral-500">전체 상점</p>
-        </div>
-      </div>
+      ) : data ? (
+        <>
+          <div className="mb-8 grid grid-cols-1 gap-4 min-[360px]:gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <StatsCard
+              icon={DollarSign}
+              label="누적 정산금액"
+              value={formatCurrency(data.settlementStats.totalSettlementAmount)}
+              iconColor="text-green-600"
+              iconBgColor="bg-green-100"
+            />
+            <StatsCard
+              icon={ShoppingCart}
+              label="전체 주문 수"
+              value={`${new Intl.NumberFormat('ko-KR').format(data.totalOrders)}건`}
+              iconColor="text-blue-600"
+              iconBgColor="bg-blue-100"
+            />
+            <StatsCard
+              icon={Ticket}
+              label="관리 쿠폰 수"
+              value={`${new Intl.NumberFormat('ko-KR').format(data.couponCount)}개`}
+              iconColor="text-orange-600"
+              iconBgColor="bg-orange-100"
+            />
+            <StatsCard
+              icon={CircleOff}
+              label="정산 실패 건수"
+              value={`${new Intl.NumberFormat('ko-KR').format(data.settlementStats.failedCount)}건`}
+              iconColor="text-red-600"
+              iconBgColor="bg-red-100"
+            />
+          </div>
 
-      {/* 최근 활동 섹션 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 최근 주문 */}
-        <div className="bg-white rounded-xl border border-neutral-200 p-6">
-          <h2 className="text-lg font-semibold text-neutral-900 mb-4">최근 주문</h2>
-          <div className="space-y-4">
-            {recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
-                <div className="flex items-center gap-3">
-                  <img 
-                    src={order.product.image} 
-                    alt={order.product.title}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-lg object-cover"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-neutral-900 truncate max-w-[150px]">
-                      {order.product.title}
-                    </p>
-                    <p className="text-xs text-neutral-500">{formatTimeAgo(order.createdAt)}</p>
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-xl border border-neutral-200 p-6">
+              <h2 className="text-lg font-semibold text-neutral-900 mb-4">최근 주문</h2>
+              {recentOrders.length > 0 ? (
+                <div className="space-y-4">
+                  {recentOrders.map((order) => {
+                    const firstItem = order.items[0];
+                    return (
+                      <div key={order.orderUuid} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {firstItem?.imageUrl ? (
+                            <img
+                              src={firstItem.imageUrl}
+                              alt={firstItem.productName}
+                              width={40}
+                              height={40}
+                              className="w-10 h-10 rounded-lg object-cover bg-neutral-100"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-lg bg-neutral-100" aria-hidden="true" />
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-neutral-900 truncate">
+                              {firstItem?.productName ?? '주문 상품'}
+                            </p>
+                            <p className="text-xs text-neutral-500">
+                              {formatDateTime(order.orderDate)}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-sm font-medium text-neutral-900">
+                          {formatCurrency(order.totalAmount)}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-                <span className="text-sm font-medium text-neutral-900">
-                  {(order.totalPrice + order.shippingFee).toLocaleString()}원
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+              ) : (
+                <p className="text-sm text-neutral-500">최근 주문 데이터가 없습니다.</p>
+              )}
+            </div>
 
-        {/* 최근 가입자 */}
-        <div className="bg-white rounded-xl border border-neutral-200 p-6">
-          <h2 className="text-lg font-semibold text-neutral-900 mb-4">최근 가입자</h2>
-          <div className="space-y-4">
-            {recentUsers.map((user) => (
-              <div key={user.id} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
-                <div className="flex items-center gap-3">
-                  {user.avatar ? (
-                    <img 
-                      src={user.avatar} 
-                      alt={user.nickname}
-                      width={40}
-                      height={40}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-primary-600">
-                        {user.nickname.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-medium text-neutral-900">{user.nickname}</p>
-                    <p className="text-xs text-neutral-500">{user.email}</p>
-                  </div>
+            <div className="bg-white rounded-xl border border-neutral-200 p-6">
+              <h2 className="text-lg font-semibold text-neutral-900 mb-4">백엔드 미구현 항목</h2>
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 mb-4">
+                <div className="flex items-start gap-2 text-amber-800">
+                  <AlertCircle className="w-4 h-4 mt-0.5" aria-hidden="true" />
+                  <p className="text-sm">
+                    아래 항목은 관리자 실데이터 전환을 위해 백엔드 API 구현이 추가로 필요합니다.
+                  </p>
                 </div>
-                <span className="text-xs text-neutral-500">{formatTimeAgo(user.createdAt)}</span>
               </div>
-            ))}
+              <ul className="space-y-2">
+                {BACKEND_MISSING_ITEMS.map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-sm text-neutral-700">
+                    <UserRound className="w-4 h-4 text-neutral-400" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      ) : null}
     </div>
   );
 };

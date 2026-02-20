@@ -11,7 +11,6 @@ interface AuthState {
   isInitialized: boolean;
 
   login: (request: LoginRequest) => Promise<void>;
-  adminLogin: (id: string, pw: string) => boolean;
   register: (request: UserRegisterRequest) => Promise<void>;
   logout: () => void;
   initialize: () => Promise<void>;
@@ -49,14 +48,6 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      adminLogin: (id: string, pw: string) => {
-        if (id === "admin" && pw === "admin123") {
-          set({ isAdminAuthenticated: true });
-          return true;
-        }
-        return false;
-      },
-
       register: async (request: UserRegisterRequest) => {
         await authService.register(request);
       },
@@ -71,9 +62,12 @@ export const useAuthStore = create<AuthState>()(
       },
 
       initialize: async () => {
-        const { accessToken, isAdminAuthenticated } = get();
+        const { accessToken } = get();
         if (!accessToken) {
-          set({ isInitialized: true });
+          set({
+            isAdminAuthenticated: false,
+            isInitialized: true,
+          });
           return;
         }
 
@@ -82,7 +76,7 @@ export const useAuthStore = create<AuthState>()(
           set({
             user: { ...user, id: user.userUuid },
             isAuthenticated: true,
-            isAdminAuthenticated: user.role === "ADMIN" || isAdminAuthenticated,
+            isAdminAuthenticated: user.role === "ADMIN",
             isInitialized: true,
           });
         } catch {
@@ -133,7 +127,6 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         accessToken: state.accessToken,
         isAuthenticated: state.isAuthenticated,
-        isAdminAuthenticated: state.isAdminAuthenticated,
         user: state.user,
       }),
     },

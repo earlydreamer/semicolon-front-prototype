@@ -55,4 +55,18 @@ export const API_ENDPOINTS = {
   ADMIN_COUPONS: {
     BASE: `${API_BASE_URL}/admin/coupons`,
   },
+  ADMIN_ORDERS: {
+    BASE: `${API_BASE_URL}/orders/admin`,
+  },
+  ADMIN_PRODUCTS: {
+    BASE: `${API_BASE_URL}/products`,
+    USER_BY_PRODUCT: (productUuid: string) => `${API_BASE_URL}/admin/products/${productUuid}/user`,
+  },
+  ADMIN_USERS: {
+    BASE: `${API_BASE_URL}/admin/users`,
+  },
+  ADMIN_SETTLEMENTS: {
+    BASE: `${API_BASE_URL}/admin/settlements`,
+    LEGACY_BASE: '/admin/settlements',
+  },
 } as const;

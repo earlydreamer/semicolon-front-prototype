@@ -189,16 +189,7 @@ function App() {
                 />
               </Route>
 
-              {/*
-                관리자 페이지입니다.
-
-                [중요] 보안 관련 주의사항
-                - 현재: 프론트엔드 Mock 인증만 적용되어 있습니다.
-                - 추후 필수 작업:
-                  1. 관리자 도메인 분리
-                  2. 백엔드 권한 검증 연동
-                  3. 프론트 단독 제어에 의존하지 않도록 보강
-              */}
+              {/* 관리자 페이지 */}
               <Route path="admin/login" element={<AdminLoginPage />} />
               <Route path="admin" element={<AdminAuthGuard />}>
                 <Route element={<AdminLayout />}>
