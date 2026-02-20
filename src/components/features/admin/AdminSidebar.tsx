@@ -59,7 +59,7 @@ const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
                 to={item.href}
                 end={item.href === '/admin'}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-[background-color,color,box-shadow] ${
                     isActive
                       ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20'
                       : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'

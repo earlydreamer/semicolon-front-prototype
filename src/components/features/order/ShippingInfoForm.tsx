@@ -104,7 +104,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
               value={formData.recipient}
               onChange={handleChange}
               placeholder="이름을 입력해 주세요"
-              className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-[border-color,box-shadow]"
             />
           </div>
 
@@ -117,7 +117,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
               value={formData.phone}
               onChange={handleChange}
               placeholder="숫자만 입력해 주세요"
-              className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-[border-color,box-shadow]"
             />
           </div>
 
@@ -157,7 +157,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
               value={formData.detailAddress}
               onChange={handleChange}
               placeholder="상세 주소를 입력해 주세요"
-              className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-[border-color,box-shadow]"
             />
           </div>
         </div>

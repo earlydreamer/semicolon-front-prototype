@@ -15,7 +15,7 @@ export function SocialLoginButtons() {
     <div className="flex flex-col gap-3">
       <Button
         type="button"
-        className="group w-full h-12 flex items-center justify-center gap-3 font-semibold transition-all duration-300 ease-out hover:bg-neutral-800 hover:text-white hover:border-transparent active:scale-[0.98] bg-white text-neutral-700 border border-neutral-200 will-change-transform"
+        className="group w-full h-12 flex items-center justify-center gap-3 font-semibold transition-[background-color,color,border-color,transform] duration-300 ease-out hover:bg-neutral-800 hover:text-white hover:border-transparent active:scale-[0.98] bg-white text-neutral-700 border border-neutral-200 will-change-transform"
         onClick={(e) => {
           e.preventDefault();
           handleSocialLogin("google");

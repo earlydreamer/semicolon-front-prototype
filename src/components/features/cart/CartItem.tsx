@@ -30,7 +30,7 @@ const CartItem = ({
 
   return (
     <div
-      className={`flex gap-3 rounded-xl border bg-white p-3 transition-all min-[360px]:gap-4 min-[360px]:p-4
+      className={`flex gap-3 rounded-xl border bg-white p-3 transition-[border-color,background-color,opacity] min-[360px]:gap-4 min-[360px]:p-4
         ${item.selected ? 'border-primary-300 bg-primary-50/30' : 'border-neutral-200'}
         ${isSoldOut ? 'opacity-60' : ''}`}
     >
@@ -56,6 +56,8 @@ const CartItem = ({
         <img
           src={item.thumbnailUrl || ''}
           alt={item.title}
+          width={96}
+          height={96}
           className="w-full h-full object-cover hover:scale-105 transition-transform"
         />
       </Link>

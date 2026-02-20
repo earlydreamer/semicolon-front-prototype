@@ -46,12 +46,14 @@ const ShopProductList = ({ products, shopName, statusFilter = 'ON_SALE' }: ShopP
         <Link
           key={product.productUuid}
           to={`/products/${product.productUuid}`}
-          className="group bg-white rounded-xl border border-neutral-200 overflow-hidden hover:border-primary-300 hover:shadow-md transition-all"
+          className="group bg-white rounded-xl border border-neutral-200 overflow-hidden hover:border-primary-300 hover:shadow-md transition-[box-shadow,border-color]"
         >
           <div className="aspect-square overflow-hidden bg-neutral-100 relative">
             <img
               src={product.thumbnailUrl || '/images/placeholder.png'}
               alt={product.title}
+              width={400}
+              height={400}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <span className={`absolute top-2 left-2 px-2 py-1 text-xs font-medium rounded-md ${STATUS_BADGE[product.saleStatus || 'ON_SALE'].className}`}>

@@ -20,15 +20,22 @@ export function HeroBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   // 스와이프 최소 이동 거리입니다.
   const minSwipeDistance = 50;
 
   const handleNext = useCallback(() => {
+    if (banners.length <= 1) {
+      return;
+    }
     setCurrentIndex((prev) => (prev + 1) % banners.length);
   }, [banners.length]);
 
   const handlePrev = useCallback(() => {
+    if (banners.length <= 1) {
+      return;
+    }
     setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
   }, [banners.length]);
 
@@ -56,9 +63,29 @@ export function HeroBanner() {
   };
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
+
+    updatePreference();
+    mediaQuery.addEventListener('change', updatePreference);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updatePreference);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion || banners.length <= 1) {
+      return;
+    }
+
     const timer = setInterval(handleNext, BANNER_CONFIG.INTERVAL);
     return () => clearInterval(timer);
-  }, [handleNext]);
+  }, [handleNext, prefersReducedMotion, banners.length]);
 
   const currentBanner = banners[currentIndex] || banners[0];
   const isDark = currentBanner?.imageAlign === 'full';
@@ -75,10 +102,10 @@ export function HeroBanner() {
       </div>
 
       <div
-        className="flex transition-transform ease-out"
+        className="flex transition-transform ease-out motion-reduce:transition-none"
         style={{
           transform: `translateX(-${currentIndex * 100}%)`,
-          transitionDuration: `${BANNER_CONFIG.TRANSITION_SPEED}ms`,
+          transitionDuration: prefersReducedMotion ? '0ms' : `${BANNER_CONFIG.TRANSITION_SPEED}ms`,
         }}
       >
         {banners.map((banner) => {
@@ -92,7 +119,15 @@ export function HeroBanner() {
               <div className="absolute inset-0 z-0">
                 {banner.imageAlign === 'full' ? (
                   <>
-                    {banner.image && <img src={banner.image} alt="" className="w-full h-full object-cover" />}
+                    {banner.image && (
+                      <img
+                        src={banner.image}
+                        alt=""
+                        width={1920}
+                        height={1080}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/70 via-black/40 to-black/20" />
                   </>
                 ) : (
@@ -109,6 +144,8 @@ export function HeroBanner() {
                         <img
                           src={banner.image}
                           alt=""
+                          width={960}
+                          height={1080}
                           className={`w-full h-full ${banner.imageFit === 'contain' ? 'object-contain' : 'object-cover'}`}
                         />
                       </div>
@@ -141,6 +178,8 @@ export function HeroBanner() {
                       <img
                         src={banner.image}
                         alt="배너 이미지"
+                        width={720}
+                        height={480}
                         className={`w-full drop-shadow-xl ${
                           banner.imageFit === 'cover' ? 'h-full object-cover' : 'h-auto object-contain'
                         }`}
@@ -254,7 +293,7 @@ export function HeroBanner() {
       <div className="absolute left-0 right-0 top-1/2 z-20 flex -translate-y-1/2 justify-between px-1.5 pointer-events-none min-[360px]:px-2 md:hidden">
         <button
           onClick={handlePrev}
-          className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+          className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
             isDark ? 'bg-white/20 text-white active:bg-white/40' : 'bg-black/10 text-neutral-700 active:bg-black/20'
           }`}
         >
@@ -262,7 +301,7 @@ export function HeroBanner() {
         </button>
         <button
           onClick={handleNext}
-          className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+          className={`pointer-events-auto w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
             isDark ? 'bg-white/20 text-white active:bg-white/40' : 'bg-black/10 text-neutral-700 active:bg-black/20'
           }`}
         >
@@ -276,7 +315,7 @@ export function HeroBanner() {
           variant="ghost"
           size="icon"
           onClick={handlePrev}
-          className={`pointer-events-auto w-12 h-12 rounded-full backdrop-blur-md transition-all ${
+          className={`pointer-events-auto w-12 h-12 rounded-full backdrop-blur-md transition-colors ${
             isDark ? 'bg-white/10 hover:bg-white/25 text-white' : 'bg-white/20 hover:bg-white/40 text-neutral-800'
           }`}
         >
@@ -286,7 +325,7 @@ export function HeroBanner() {
           variant="ghost"
           size="icon"
           onClick={handleNext}
-          className={`pointer-events-auto w-12 h-12 rounded-full backdrop-blur-md transition-all ${
+          className={`pointer-events-auto w-12 h-12 rounded-full backdrop-blur-md transition-colors ${
             isDark ? 'bg-white/10 hover:bg-white/25 text-white' : 'bg-white/20 hover:bg-white/40 text-neutral-800'
           }`}
         >
@@ -300,7 +339,7 @@ export function HeroBanner() {
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`h-1.5 min-[360px]:h-2 rounded-full transition-all duration-300 ${
+            className={`h-1.5 min-[360px]:h-2 rounded-full transition-[width,background-color] duration-300 ${
               index === currentIndex
                 ? isDark
                   ? 'w-6 min-[360px]:w-8 bg-white'

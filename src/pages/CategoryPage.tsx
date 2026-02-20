@@ -218,7 +218,7 @@ export default function CategoryPage() {
               key={cat.id}
               to={`/categories/${cat.id}`}
               className={cn(
-                'flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all',
+                'flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-[background-color,color,box-shadow]',
                 cat.id === categoryId
                   ? 'bg-primary-600 text-white shadow-md shadow-primary-200'
                   : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'

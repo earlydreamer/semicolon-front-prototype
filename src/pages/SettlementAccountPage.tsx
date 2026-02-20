@@ -52,7 +52,7 @@ const SettlementAccountPage = () => {
 
           <button
             onClick={() => navigate('/mypage')}
-            className="w-full h-14 bg-neutral-900 text-white font-bold rounded-2xl hover:bg-neutral-800 transition-all shadow-lg active:scale-[0.98]"
+            className="w-full h-14 bg-neutral-900 text-white font-bold rounded-2xl hover:bg-neutral-800 transition-[background-color,transform,box-shadow] shadow-lg active:scale-[0.98]"
           >
             마이페이지로 돌아가기
           </button>

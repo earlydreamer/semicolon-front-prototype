@@ -55,7 +55,7 @@ export function FollowingShops({ userId }: FollowingShopsProps) {
           key={shop.sellerUuid}
           to={`/shop/${shop.sellerUuid}`}
           className="flex items-center gap-4 p-4 bg-white rounded-xl border border-neutral-100 
-                     hover:border-primary-200 hover:shadow-sm transition-all group"
+                     hover:border-primary-200 hover:shadow-sm transition-[box-shadow,border-color] group"
         >
           <div className="w-12 h-12 rounded-full overflow-hidden bg-neutral-100 flex-shrink-0 flex items-center justify-center">
             <Store className="w-5 h-5 text-neutral-400" />

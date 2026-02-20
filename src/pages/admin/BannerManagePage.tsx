@@ -303,7 +303,7 @@ const BannerManagePage = () => {
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDrop={() => handleDrop(index)}
                 onDragEnd={handleDragEnd}
-                className={`border-b border-neutral-100 transition-all cursor-grab active:cursor-grabbing
+                className={`border-b border-neutral-100 transition-[background-color,border-color,opacity] cursor-grab active:cursor-grabbing
                   ${draggedIndex === index ? 'opacity-50 bg-primary-50' : 'hover:bg-neutral-50'}
                   ${dragOverIndex === index ? 'border-t-2 border-t-primary-500' : ''}`}
               >
@@ -317,6 +317,8 @@ const BannerManagePage = () => {
                   <img 
                     src={banner.image} 
                     alt={banner.title}
+                    width={80}
+                    height={48}
                     className="w-20 h-12 object-cover rounded"
                     draggable={false}
                   />
@@ -415,4 +417,3 @@ const BannerManagePage = () => {
 };
 
 export default BannerManagePage;
-

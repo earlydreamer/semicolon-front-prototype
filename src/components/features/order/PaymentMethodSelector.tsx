@@ -30,7 +30,7 @@ const PaymentMethodSelector = ({ selectedMethod, onSelect }: PaymentMethodSelect
           <button
             key={method.id}
             onClick={() => onSelect(method.id)}
-            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2
+            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-colors gap-2
               ${
                 selectedMethod === method.id
                   ? 'border-primary-500 bg-primary-50 text-primary-700'
