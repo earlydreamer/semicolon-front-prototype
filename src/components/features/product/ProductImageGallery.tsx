@@ -22,6 +22,8 @@ export const ProductImageGallery = ({ images, mainImage, title }: ProductImageGa
         <img
           src={displayImages[activeImageIndex] || mainImage}
           alt={title}
+          width={800}
+          height={800}
           className="h-full w-full object-cover object-center"
         />
       </div>
@@ -35,7 +37,7 @@ export const ProductImageGallery = ({ images, mainImage, title }: ProductImageGa
                 activeImageIndex === idx ? 'border-primary-500' : 'border-transparent'
               }`}
             >
-              <img src={img} alt={`View ${idx + 1}`} className="h-full w-full object-cover" />
+              <img src={img} alt={`View ${idx + 1}`} width={64} height={64} className="h-full w-full object-cover" />
             </button>
           ))}
         </div>

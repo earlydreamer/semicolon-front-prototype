@@ -21,7 +21,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
       <div className="flex items-start gap-4 mb-6">
         <div className="w-16 h-16 rounded-full overflow-hidden bg-neutral-200 flex-shrink-0">
           {user.avatar ? (
-            <img src={user.avatar} alt={user.nickname} className="w-full h-full object-cover" />
+            <img src={user.avatar} alt={user.nickname} width={64} height={64} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-xl font-bold text-neutral-400">
               {user.nickname.charAt(0)}

@@ -27,6 +27,8 @@ const OrderItemList = ({ items }: OrderItemListProps) => {
               <img
                 src={item.thumbnailUrl || ''}
                 alt={item.title}
+                width={80}
+                height={80}
                 className="w-full h-full object-cover"
               />
             </div>

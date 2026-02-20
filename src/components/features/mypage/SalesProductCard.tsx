@@ -35,6 +35,8 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
         <img
           src={product.image}
           alt={product.title}
+          width={80}
+          height={80}
           className="w-full h-full object-cover"
         />
       </Link>
@@ -72,6 +74,7 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
       <button
         className="p-2 text-neutral-400 hover:text-neutral-600 self-center"
         title="더보기"
+        aria-label="상품 더보기"
       >
         <MoreVertical className="w-5 h-5" />
       </button>

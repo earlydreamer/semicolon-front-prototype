@@ -52,7 +52,7 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
   return (
     <div className="flex gap-3 p-3 bg-white rounded-xl border border-neutral-200 hover:shadow-md transition-shadow">
       <Link to={`/products/${product.id}`} className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-neutral-100">
-        <img src={product.image || '/images/placeholder.png'} alt={product.title} className="w-full h-full object-cover" />
+        <img src={product.image || '/images/placeholder.png'} alt={product.title} width={80} height={80} className="w-full h-full object-cover" />
       </Link>
 
       <div className="flex-1 min-w-0">

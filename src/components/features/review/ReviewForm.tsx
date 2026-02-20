@@ -83,7 +83,7 @@ export const ReviewForm = ({ orderId, productTitle, onSubmit, onCancel }: Review
         <div className="flex gap-2">
           {images.map((img, idx) => (
             <div key={idx} className="relative w-20 h-20 border border-neutral-200 rounded-lg overflow-hidden">
-              <img src={img} alt={`review-${idx}`} className="w-full h-full object-cover" />
+              <img src={img} alt={`review-${idx}`} width={80} height={80} className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => removeImage(idx)}

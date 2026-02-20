@@ -64,7 +64,7 @@ const ProfilePage = () => {
           <div className="relative">
             <div className="w-24 h-24 rounded-full overflow-hidden bg-neutral-200">
               {avatar ? (
-                <img src={avatar} alt="프로필" className="w-full h-full object-cover" />
+                <img src={avatar} alt="프로필" width={96} height={96} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-neutral-400">
                   {nickname.charAt(0)}
