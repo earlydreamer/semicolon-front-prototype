@@ -151,14 +151,15 @@ export function AdminCouponList() {
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">쿠폰 목록</h2>
         <Button onClick={() => setShowForm(true)} disabled={isSubmitting}>
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="w-4 h-4 mr-1" aria-hidden="true" />
           쿠폰 추가
         </Button>
       </div>
 
       <div className="flex items-center gap-2">
-        <label className="text-sm text-neutral-600">상태 필터</label>
+        <label htmlFor="admin-coupon-status-filter" className="text-sm text-neutral-600">상태 필터</label>
         <select
+          id="admin-coupon-status-filter"
           className="px-3 py-2 border border-neutral-300 rounded-lg text-sm"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as CouponStatus | 'all')}
@@ -183,7 +184,7 @@ export function AdminCouponList() {
 
       <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-neutral-500">쿠폰 목록을 불러오는 중입니다.</div>
+          <div className="p-8 text-center text-neutral-500" role="status" aria-live="polite">쿠폰 목록을 불러오는 중입니다…</div>
         ) : filteredCoupons.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px]">
@@ -210,13 +211,13 @@ export function AdminCouponList() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <Gift className="w-4 h-4 text-primary-500" />
+                        <Gift className="w-4 h-4 text-primary-500" aria-hidden="true" />
                         <span className="font-medium text-neutral-900">{coupon.couponName}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1 text-neutral-700">
-                        <DollarSign className="w-4 h-4" />
+                        <DollarSign className="w-4 h-4" aria-hidden="true" />
                         <span>{formatCurrency(coupon.discountAmount)}</span>
                       </div>
                     </td>
@@ -228,27 +229,33 @@ export function AdminCouponList() {
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
                         <button
+                          type="button"
                           onClick={() => handleEdit(coupon)}
                           disabled={coupon.status !== 'DRAFT'}
                           className="p-1.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded disabled:opacity-40"
                           title={coupon.status === 'DRAFT' ? '수정' : '초안 상태에서만 수정 가능'}
+                          aria-label={`${coupon.couponName} 수정`}
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-4 h-4" aria-hidden="true" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleActivate(coupon.uuid)}
                           disabled={coupon.status !== 'DRAFT'}
                           className="p-1.5 text-green-500 hover:text-green-700 hover:bg-green-50 rounded disabled:opacity-40"
                           title={coupon.status === 'DRAFT' ? '활성화' : '초안 상태에서만 활성화 가능'}
+                          aria-label={`${coupon.couponName} 활성화`}
                         >
-                          <Play className="w-4 h-4" />
+                          <Play className="w-4 h-4" aria-hidden="true" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => showToast('준비중입니다.', 'info')}
                           className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
                           title="삭제 (준비중)"
+                          aria-label={`${coupon.couponName} 삭제`}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" aria-hidden="true" />
                         </button>
                       </div>
                     </td>

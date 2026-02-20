@@ -80,8 +80,9 @@ export function AdminReportList() {
 
       <div className="flex flex-wrap gap-4 p-4 bg-white rounded-lg border border-neutral-200">
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">상태</label>
+          <label htmlFor="admin-report-status-filter" className="block text-sm font-medium text-neutral-700 mb-1">상태</label>
           <select
+            id="admin-report-status-filter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as ReportStatus | 'all')}
             className="px-3 py-2 border border-neutral-300 rounded-lg text-sm"
@@ -93,8 +94,9 @@ export function AdminReportList() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">유형</label>
+          <label htmlFor="admin-report-type-filter" className="block text-sm font-medium text-neutral-700 mb-1">유형</label>
           <select
+            id="admin-report-type-filter"
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value as ReportType | 'all')}
             className="px-3 py-2 border border-neutral-300 rounded-lg text-sm"
@@ -139,15 +141,21 @@ export function AdminReportList() {
                       <td className="px-4 py-3 text-sm text-neutral-500">{formatDate(report.createdAt)}</td>
                       <td className="px-4 py-3 text-right">
                         <button
+                          type="button"
                           onClick={() => setExpandedId(expandedId === report.id ? null : report.id)}
                           className="p-1 text-neutral-400 hover:text-neutral-600"
+                          aria-label={`${report.targetName} 신고 상세 ${expandedId === report.id ? '닫기' : '열기'}`}
+                          aria-expanded={expandedId === report.id}
+                          aria-controls={`admin-report-detail-${report.id}`}
                         >
-                          {expandedId === report.id ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                          {expandedId === report.id
+                            ? <ChevronUp className="w-5 h-5" aria-hidden="true" />
+                            : <ChevronDown className="w-5 h-5" aria-hidden="true" />}
                         </button>
                       </td>
                     </tr>
                     {expandedId === report.id && (
-                      <tr key={`${report.id}-detail`} className="bg-neutral-50">
+                      <tr id={`admin-report-detail-${report.id}`} key={`${report.id}-detail`} className="bg-neutral-50">
                         <td colSpan={7} className="px-4 py-4">
                           <p className="text-sm text-neutral-700 mb-3">{report.description}</p>
                           <div className="flex gap-2">

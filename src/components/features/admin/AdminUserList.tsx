@@ -2,7 +2,7 @@
  * 관리자 회원 목록 컴포넌트
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Search from 'lucide-react/dist/esm/icons/search';
 import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
 import User from 'lucide-react/dist/esm/icons/user';
@@ -41,6 +41,30 @@ const AdminUserList = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const { showToast } = useToast();
 
+  useEffect(() => {
+    if (!openMenuId) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('[data-admin-user-menu]')) {
+        setOpenMenuId(null);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [openMenuId]);
+
   // 필터링된 회원 목록
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -70,19 +94,30 @@ const AdminUserList = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           {/* 검색 */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+            <label htmlFor="admin-user-search" className="sr-only">
+              닉네임 또는 이메일 검색
+            </label>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" aria-hidden="true" />
             <input
-              type="text"
-              placeholder="닉네임 또는 이메일 검색..."
+              id="admin-user-search"
+              name="q"
+              type="search"
+              placeholder="닉네임 또는 이메일 검색…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
               className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg text-sm
                 focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
           {/* 필터 */}
+          <label htmlFor="admin-user-status-filter" className="sr-only">
+            회원 상태 필터
+          </label>
           <select
+            id="admin-user-status-filter"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as 'all' | UserStatus)}
             className="px-4 py-2 border border-neutral-300 rounded-lg text-sm
@@ -139,24 +174,40 @@ const AdminUserList = () => {
                   </p>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <div className="relative inline-block">
+                  <div className="relative inline-block" data-admin-user-menu>
                     <button
+                      type="button"
                       onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}
                       className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                      aria-label={`${user.nickname} 관리 메뉴 열기`}
+                      aria-haspopup="menu"
+                      aria-expanded={openMenuId === user.id}
+                      aria-controls={`admin-user-menu-${user.id}`}
                     >
-                      <MoreVertical className="w-4 h-4 text-neutral-500" />
+                      <MoreVertical className="w-4 h-4 text-neutral-500" aria-hidden="true" />
                     </button>
 
                     {openMenuId === user.id && (
-                      <div className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-neutral-200 z-10">
-                        <button
-                          onClick={() => window.open(`/shop/${user.id}`, '_blank')}
+                      <div
+                        id={`admin-user-menu-${user.id}`}
+                        role="menu"
+                        aria-label={`${user.nickname} 관리 메뉴`}
+                        className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-neutral-200 z-10"
+                      >
+                        <a
+                          href={`/shop/${user.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          role="menuitem"
+                          onClick={() => setOpenMenuId(null)}
                           className="flex items-center gap-2 w-full px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
                         >
-                          <User className="w-4 h-4" />
+                          <User className="w-4 h-4" aria-hidden="true" />
                           프로필 보기
-                        </button>
+                        </a>
                         <button
+                          type="button"
+                          role="menuitem"
                           onClick={() => {
                             handleToggleStatus(user.id);
                             showToast('준비중입니다.', 'info');
@@ -167,12 +218,12 @@ const AdminUserList = () => {
                         >
                           {user.status === 'active' ? (
                             <>
-                              <Ban className="w-4 h-4" />
+                              <Ban className="w-4 h-4" aria-hidden="true" />
                               정지하기
                             </>
                           ) : (
                             <>
-                              <CheckCircle className="w-4 h-4" />
+                              <CheckCircle className="w-4 h-4" aria-hidden="true" />
                               정지 해제
                             </>
                           )}

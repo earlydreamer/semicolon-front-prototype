@@ -43,15 +43,16 @@ export const BannerFormModal = ({
           label="제목"
           value={formData.title}
           onChange={(e) => updateForm({ title: e.target.value })}
-          placeholder="배너 제목을 입력하세요"
+          placeholder="배너 제목을 입력하세요…"
         />
         
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">설명</label>
+          <label htmlFor="banner-description" className="block text-sm font-medium text-neutral-700 mb-1">설명</label>
           <textarea
+            id="banner-description"
             value={formData.description}
             onChange={(e) => updateForm({ description: e.target.value })}
-            placeholder="배너 설명을 입력하세요 (줄바꿈: \n)"
+            placeholder="배너 설명을 입력하세요… (줄바꿈: \\n)"
             className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             rows={3}
           />
@@ -61,13 +62,14 @@ export const BannerFormModal = ({
           label="이미지 URL"
           value={formData.image || ''}
           onChange={(e) => updateForm({ image: e.target.value })}
-          placeholder="https://..."
+          placeholder="https://example.com/banner.jpg…"
         />
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">레이아웃</label>
+            <label htmlFor="banner-image-align" className="block text-sm font-medium text-neutral-700 mb-1">레이아웃</label>
             <select
+              id="banner-image-align"
               value={formData.imageAlign}
               onChange={(e) => updateForm({ imageAlign: e.target.value as BannerImageAlign })}
               className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -78,8 +80,9 @@ export const BannerFormModal = ({
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">이미지 채우기</label>
+            <label htmlFor="banner-image-fit" className="block text-sm font-medium text-neutral-700 mb-1">이미지 채우기</label>
             <select
+              id="banner-image-fit"
               value={formData.imageFit}
               onChange={(e) => updateForm({ imageFit: e.target.value as BannerImageFit })}
               className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -91,8 +94,9 @@ export const BannerFormModal = ({
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">텍스트/버튼 위치</label>
+          <label htmlFor="banner-text-position" className="block text-sm font-medium text-neutral-700 mb-1">텍스트/버튼 위치</label>
           <select
+            id="banner-text-position"
             value={formData.textPosition}
             onChange={(e) => updateForm({ textPosition: e.target.value as BannerTextPosition })}
             className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -104,8 +108,9 @@ export const BannerFormModal = ({
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">배경색</label>
+          <label htmlFor="banner-bg-color" className="block text-sm font-medium text-neutral-700 mb-1">배경색</label>
           <select
+            id="banner-bg-color"
             value={formData.bgColor}
             onChange={(e) => updateForm({ bgColor: e.target.value })}
             className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -127,6 +132,9 @@ export const BannerFormModal = ({
             onClick={() => updateForm({ ctaEnabled: !formData.ctaEnabled })}
             className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
             style={{ backgroundColor: formData.ctaEnabled ? '#10b981' : '#d1d5db' }}
+            role="switch"
+            aria-checked={formData.ctaEnabled}
+            aria-label="배너 CTA 버튼 표시 여부"
           >
             <span 
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${
@@ -142,14 +150,14 @@ export const BannerFormModal = ({
               label="버튼 텍스트"
               value={formData.ctaText || ''}
               onChange={(e) => updateForm({ ctaText: e.target.value })}
-              placeholder="거래 시작하기"
+              placeholder="거래 시작하기…"
             />
             
             <Input
               label="버튼 링크"
               value={formData.ctaLink || ''}
               onChange={(e) => updateForm({ ctaLink: e.target.value })}
-              placeholder="/seller/products/new"
+              placeholder="/seller/products/new…"
             />
           </div>
         )}

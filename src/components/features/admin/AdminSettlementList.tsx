@@ -93,8 +93,9 @@ export function AdminSettlementList() {
 
       <div className="flex flex-wrap gap-4 p-4 bg-white rounded-lg border border-neutral-200">
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">정산 상태</label>
+          <label htmlFor="admin-settlement-status-filter" className="block text-sm font-medium text-neutral-700 mb-1">정산 상태</label>
           <select
+            id="admin-settlement-status-filter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as SettlementStatus | 'all')}
             className="px-3 py-2 border border-neutral-300 rounded-lg text-sm"
@@ -148,15 +149,21 @@ export function AdminSettlementList() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <button
+                          type="button"
                           onClick={() => setExpandedId(expandedId === settlement.id ? null : settlement.id)}
                           className="p-1 text-neutral-400 hover:text-neutral-600"
+                          aria-label={`${settlement.productTitle} 정산 상세 ${expandedId === settlement.id ? '닫기' : '열기'}`}
+                          aria-expanded={expandedId === settlement.id}
+                          aria-controls={`admin-settlement-detail-${settlement.id}`}
                         >
-                          {expandedId === settlement.id ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                          {expandedId === settlement.id
+                            ? <ChevronUp className="w-5 h-5" aria-hidden="true" />
+                            : <ChevronDown className="w-5 h-5" aria-hidden="true" />}
                         </button>
                       </td>
                     </tr>
                     {expandedId === settlement.id && (
-                      <tr className="bg-neutral-50">
+                      <tr id={`admin-settlement-detail-${settlement.id}`} className="bg-neutral-50">
                         <td colSpan={7} className="px-4 py-4">
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
