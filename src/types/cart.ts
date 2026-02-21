@@ -8,6 +8,7 @@
 export interface CartItem {
   cartId: number;           // 장바구니 PK (삭제 시 사용)
   productUuid: string;      // 상품 UUID (상세 페이지 이동용)
+  sellerUuid: string;       // 판매자 UUID (주문 생성 시 사용)
   title: string;            // 상품 제목
   price: number;            // 현재 상품 가격
   saleStatus: 'ON_SALE' | 'RESERVED' | 'SOLD_OUT'; // 판매 상태

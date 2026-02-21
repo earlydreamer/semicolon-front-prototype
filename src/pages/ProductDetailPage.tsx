@@ -154,6 +154,7 @@ export default function ProductDetailPage() {
     const orderItem: CartItem = {
       cartId: Date.now(),
       productUuid: product.id,
+      sellerUuid: product.seller.userUuid,
       title: product.title,
       price: product.price,
       saleStatus: product.saleStatus,

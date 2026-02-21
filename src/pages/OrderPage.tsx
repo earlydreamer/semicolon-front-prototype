@@ -88,7 +88,7 @@ const OrderPage = () => {
         contactNumber: shippingInfo.phone,
         items: orderItems.map(item => ({
           productUuid: item.productUuid,
-          sellerUuid: '00000000-0000-0000-0000-000000000000', // FIXME: 백엔드 CartDto에 sellerUuid 부재로 임시 처리
+          sellerUuid: item.sellerUuid,
           productName: item.title,
           productPrice: item.price,
           imageUrl: item.thumbnailUrl || ''
