@@ -63,3 +63,8 @@
 - [x] 관리자 쿠폰 API 전환 (생성/수정/활성화)
 - [x] 미지원 mock 화면 가시화(`MockDataNotice` + `준비중입니다.`)
 - [x] 주소 경로 `addresses`로 정정
+
+## 2026-02-21 진행 체크
+- [x] `OrderPage.tsx` 임시 `sellerUuid` 제거 및 Cart 실데이터 연동
+- [x] `CheckoutPage.tsx` `paymentCoupon`을 실제 분배값으로 반영
+- [x] Cart 타입(`CartItem`)에 `sellerUuid` 필드 반영

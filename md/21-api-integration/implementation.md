@@ -39,7 +39,7 @@
 - **팔로우(Follow)**: 백엔드 엔드포인트 부재로 Mock 유지.
 
 ## 6. 알려진 이슈 및 개선 필요 사항
-- **CartDto sellerUuid 부재**: 주문 생성 시 `sellerUuid`가 필수(`@NotNull`)이나, `CartDto` 응답에 해당 필드가 없어 현재 임시 UUID값으로 처리 중임. 백엔드 DTO 수정 필요.
+- **CartDto sellerUuid 연동 완료**: 백엔드 `CartDto`에 `sellerUuid`를 추가했고, `OrderPage.tsx`의 임시 UUID 처리를 제거해 실데이터로 주문 생성.
 - **배송비 정보**: 백엔드 `CartDto`에 `shippingFee`가 포함되지 않아 장바구니 요약에서 배송비가 0으로 고정됨.
 
 ---
@@ -108,8 +108,8 @@
   - 프론트 상점명 표시는 현재 UUID 기반 임시 처리
 - 댓글/리뷰 응답에 표시용 사용자 프로필 데이터 부재
   - buyer/seller 닉네임, 아바타가 없어 프론트는 UUID 축약 표시
-- Order 생성 시 `sellerUuid` 보강 이슈는 여전히 존재
-  - Cart 응답 기반으로 sellerUuid 확보가 어려운 케이스가 남아 있음
+- Order 생성 시 `sellerUuid` 보강 이슈 해소
+  - Cart 응답에 sellerUuid가 포함되어 주문 생성 payload를 실데이터로 구성
 
 ## 2026-02-11 추가 반영 (2차)
 - 주소 경로 기준을 `adresses`로 통일
@@ -140,7 +140,7 @@
   - `src/pages/OrderPage.tsx`
     - 선택 쿠폰 식별자 `uuid` 기준 저장
     - store의 `couponUuid/couponDiscountAmount` 동기화
-  - `src/pages/CheckoutPage.tsx`는 기존 구조로 `summary.couponDiscount`/`couponUuid` 전달값 반영 유지
+  - `src/pages/CheckoutPage.tsx`는 `summary.couponDiscount` 기준으로 `paymentCoupon`을 아이템별 분배해 전달
 - 관리자 쿠폰 API 전환
   - `src/services/couponService.ts` 신규
     - `getMyCoupons`, `getAdminCoupons`, `createAdminCoupon`, `updateAdminCouponDraft`, `activateAdminCoupon`
