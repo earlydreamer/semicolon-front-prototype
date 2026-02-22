@@ -23,6 +23,9 @@ export const API_ENDPOINTS = {
     DEFAULT: `${API_BASE_URL}/carts`,
     ME: `${API_BASE_URL}/carts/me`,
   },
+  RETURNS: {
+    BASE: `${API_BASE_URL}/returns`,
+  },
   ORDERS: {
     DEFAULT: `${API_BASE_URL}/orders`,
     ME: `${API_BASE_URL}/orders/me`,
@@ -56,7 +59,7 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE_URL}/admin/coupons`,
   },
   ADMIN_ORDERS: {
-    BASE: `${API_BASE_URL}/orders/admin`,
+    BASE: `${API_BASE_URL}/admin/orders`,
   },
   ADMIN_PRODUCTS: {
     BASE: `${API_BASE_URL}/products`,

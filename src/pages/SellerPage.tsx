@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore';
 import SellerDashboard from '@/components/features/seller/SellerDashboard';
 import SellerProductList from '@/components/features/seller/SellerProductList';
+import { SellerReturnManagement } from '@/components/features/seller/SellerReturnManagement';
 
 const SellerPage = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const SellerPage = () => {
 
       {/* 메인 콘텐츠 */}
       <div className="space-y-6">
+        <SellerReturnManagement />
         <SellerDashboard />
         <SellerProductList />
       </div>
