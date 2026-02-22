@@ -230,7 +230,7 @@ export function Header() {
             </Link>
 
             <div
-              className="hidden md:block relative"
+              className="hidden md:flex items-center h-full relative"
               onMouseEnter={() => setIsCategoryOpen(true)}
               onMouseLeave={() => setIsCategoryOpen(false)}
               onFocus={() => setIsCategoryOpen(true)}
@@ -241,7 +241,7 @@ export function Header() {
                 aria-haspopup="menu"
                 aria-expanded={isCategoryOpen}
                 aria-controls="desktop-category-nav"
-                className="flex items-center gap-2 text-sm font-medium text-neutral-900 hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded-md px-1 py-0.5"
+                className="flex items-center gap-2 text-sm font-medium text-neutral-900 hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 rounded-md px-2 py-1.5"
                 onClick={() => setIsCategoryOpen((prev) => !prev)}
               >
                 <Menu className="h-5 w-5" aria-hidden="true" />

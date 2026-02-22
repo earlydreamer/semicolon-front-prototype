@@ -18,7 +18,7 @@ export const ReturnRequestModal = ({ isOpen, onClose, order, onSuccess }: Return
   const [isLoading, setIsLoading] = useState(false);
   // orderItemUuid 기준으로 반품 대상 선택 (백엔드 ReturnRequestCreateDto.orderItemUuids)
   const [selectedItems, setSelectedItems] = useState<string[]>(
-    order.items.map(item => item.orderItemUuid).filter(Boolean) as string[]
+    (order.items || []).map(item => item.orderItemUuid).filter(Boolean) as string[]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,7 +61,7 @@ export const ReturnRequestModal = ({ isOpen, onClose, order, onSuccess }: Return
         <div>
           <label className="block text-sm font-medium text-neutral-700 mb-2">반품할 상품</label>
           <div className="space-y-2 max-h-40 overflow-y-auto">
-            {order.items.map(item => (
+            {(order.items || []).map(item => (
               <label key={item.orderItemUuid} className="flex items-center gap-3 p-2 bg-neutral-50 rounded-lg cursor-pointer">
                 <input
                   type="checkbox"
