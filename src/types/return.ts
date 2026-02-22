@@ -20,26 +20,52 @@ export interface ReturnRejectDto {
   reason: string;
 }
 
-// 반품 진행 상태 (백엔드 ReturnStatus 참고)
+// 반품 진행 상태 — 백엔드 ReturnStatus enum과 동일하게 유지
 export type ReturnStatus =
-  | 'REQUESTED'       // 반품 신청됨
-  | 'SELLER_APPROVED' // 판매자 1차 승인됨 (발송 대기)
-  | 'SELLER_REJECTED' // 판매자 1차 거절됨
-  | 'SHIPPED'         // 구매자가 운송장 등록함 (반품 발송됨)
-  | 'FINAL_APPROVED'  // 판매자 최종 승인됨 (환불 진행/완료)
-  | 'FINAL_REJECTED'; // 판매자 최종 거절됨
+  | 'RETURN_REQUESTED'                // 반품 신청됨
+  | 'RETURN_SELLER_APPROVED'          // 판매자 1차 승인됨 (발송 대기)
+  | 'RETURN_SHIPPED'                  // 구매자 운송장 등록 (반품 발송됨)
+  | 'RETURN_APPROVED'                 // 판매자 최종 승인 (환불 진행)
+  | 'RETURN_COMPLETED'                // 반품 완료
+  | 'RETURN_REJECTED_BEFORE_SHIPMENT' // 배송 전 거절
+  | 'RETURN_REJECTED_AFTER_SHIPMENT'  // 배송 후 거절
+  | 'RETURN_REJECTED';                // 반품 거절
 
-// 반품 응답 DTO
+// 반품 응답 DTO (구매자/공통)
 export interface ReturnResponse {
   returnRequestUuid: string;
   orderUuid: string;
-  userUuid: string;
   status: ReturnStatus;
   reason: string;
-  rejectReason?: string;
+  rejectionReason?: string;
+  carrierName?: string;
+  carrierCode?: string;
+  trackingNumber?: string;
+  createdAt: string;
+  returnItems: ReturnItemResponse[];
+}
+
+export interface ReturnItemResponse {
+  returnItemUuid: string;
+  orderItemUuid: string;
   refundAmount: number;
+}
+
+// 판매자용 반품 목록 응답 DTO
+export interface SellerReturnResponse {
+  returnRequestUuid: string;
+  orderUuid: string;
+  status: ReturnStatus;
+  reason: string;
+  rejectionReason?: string;
   carrierName?: string;
   trackingNumber?: string;
   createdAt: string;
-  updatedAt: string;
+  returnItems: SellerReturnItemSummary[];
+}
+
+export interface SellerReturnItemSummary {
+  orderItemUuid: string;
+  productName: string;
+  refundAmount: number;
 }

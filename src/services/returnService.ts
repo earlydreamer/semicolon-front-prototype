@@ -5,6 +5,7 @@ import type {
   ReturnTrackingRegisterDto,
   ReturnRejectDto,
   ReturnResponse,
+  SellerReturnResponse,
 } from '../types/return';
 
 /**
@@ -62,6 +63,15 @@ export const returnService = {
    */
   rejectFinalReturn: async (returnRequestUuid: string, data: ReturnRejectDto): Promise<ReturnResponse> => {
     const response = await api.post<ReturnResponse>(`${API_ENDPOINTS.RETURNS.BASE}/${returnRequestUuid}/final-reject`, data);
+    return response.data;
+  },
+
+  /**
+   * [판매자] 본인 상품에 접수된 반품 요청 목록 조회
+   * GET /api/v1/returns/me/sales
+   */
+  getSellerReturns: async (): Promise<SellerReturnResponse[]> => {
+    const response = await api.get<SellerReturnResponse[]>(`${API_ENDPOINTS.RETURNS.BASE}/me/sales`);
     return response.data;
   }
 };
