@@ -65,7 +65,7 @@ export const orderService = {
    * 판매자 본인 판매 주문아이템 목록 조회
    */
   getSellerOrderItems: async (): Promise<SellerOrderItemResponse[]> => {
-    const response = await api.get<SellerOrderItemResponse[]>(`${API_ENDPOINTS.ORDERS.DEFAULT}/seller/items`);
+    const response = await api.get<SellerOrderItemResponse[]>(`${API_ENDPOINTS.ORDERS.DEFAULT}/me/sales`);
     return response.data;
   }
 };

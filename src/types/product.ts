@@ -98,7 +98,9 @@ export interface ProductListResponse {
 }
 
 export interface ProductDetailResponse {
+  productId: number;    // 상품 PK (주문/결제 스냅샷용)
   productUuid: string;
+  sellerUuid: string;
   title: string;
   description: string;
   price: number;

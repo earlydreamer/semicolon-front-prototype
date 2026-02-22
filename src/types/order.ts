@@ -1,5 +1,6 @@
 export interface OrderItemCreateRequest {
   productUuid: string;
+  productId: number;
   sellerUuid: string;
   productName: string;
   productPrice: number;
@@ -25,7 +26,7 @@ export interface DeliveryInfoRequest {
   trackingNumber: string;
 }
 
-export type OrderItemStatus = 
+export type OrderItemStatus =
   | 'PAYMENT_COMPLETED'
   | 'PREPARING_SHIPMENT'
   | 'SHIPPED'
@@ -39,7 +40,7 @@ export type OrderItemStatus =
   | 'REFUND_IN_PROGRESS'
   | 'REFUND_COMPLETED';
 
-export type OrderStatus = 
+export type OrderStatus =
   | 'PENDING'
   | 'PAID'
   | 'PAYMENT_FAILED'
@@ -47,10 +48,10 @@ export type OrderStatus =
   | 'PARTIAL_REFUNDED';
 
 export interface OrderItemResponse {
-  orderItemUuid: string; // 주문 아이템 UUID
-  productId: number; // 상품 ID (Product PK)
+  orderItemUuid: string;
+  productId: number;
   productUuid: string;
-  sellerUuid: string; // 판매자 UUID
+  sellerUuid: string;
   productName: string;
   productPrice: number;
   imageUrl: string;
@@ -78,12 +79,31 @@ export interface OrderListResponse {
   status: OrderStatus;
   totalAmount: number;
   items: {
+    orderItemUuid: string;
     productUuid: string;
     productName: string;
     productPrice: number;
     imageUrl: string;
     itemStatus: OrderItemStatus;
+    carrierName?: string;
+    trackingNumber?: string;
   }[];
+}
+
+export interface SellerOrderItemResponse {
+  orderItemUuid: string;
+  orderUuid: string;
+  productName: string;
+  productPrice: number;
+  imageUrl: string;
+  itemStatus: OrderItemStatus;
+  carrierName?: string;
+  carrierCode?: string;
+  trackingNumber?: string;
+  buyerAddress: string;
+  recipient: string;
+  contactNumber: string;
+  orderedAt: string;
 }
 
 export interface PageResponse<T> {

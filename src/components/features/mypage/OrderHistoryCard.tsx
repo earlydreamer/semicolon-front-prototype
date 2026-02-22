@@ -27,6 +27,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showReturnRequestModal, setShowReturnRequestModal] = useState(false);
   const [showReturnTrackingModal, setShowReturnTrackingModal] = useState(false);
+  const [returnRequestUuid, setReturnRequestUuid] = useState<string | null>(null);
 
   // API ?곗씠???щ? ?뺤씤 諛??듯빀 留ㅽ븨
   const isApiData = 'orderUuid' in order;
@@ -213,15 +214,22 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
         <ReturnRequestModal
           isOpen={showReturnRequestModal}
           onClose={() => setShowReturnRequestModal(false)}
-          order={order as OrderListResponse}`r`n        />
+          order={order as OrderListResponse}
+          onSuccess={(uuid) => {
+            setReturnRequestUuid(uuid);
+            setShowReturnRequestModal(false);
+            setShowReturnTrackingModal(true);
+            onUpdate?.();
+          }}
+        />
       )}
 
-      {/* 諛섑뭹 ?댁넚???깅줉 紐⑤떖 */}
-      {isApiData && (
+      {/* 반품 운송장 등록 모달 (반품 신청 성공 후 returnRequestUuid 전달) */}
+      {isApiData && returnRequestUuid && (
         <ReturnTrackingModal
           isOpen={showReturnTrackingModal}
           onClose={() => setShowReturnTrackingModal(false)}
-          returnRequestUuid="mock-return-uuid"
+          returnRequestUuid={returnRequestUuid}
         />
       )}
     </>
