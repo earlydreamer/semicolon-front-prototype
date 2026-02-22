@@ -110,6 +110,7 @@ export default function ProductDetailPage() {
 
     return {
       id: apiProduct.productUuid,
+      productId: apiProduct.productId, // 상품 PK (주문/결제 스냅샷용)
       title: apiProduct.title,
       price: apiProduct.price,
       description: apiProduct.description,
@@ -121,7 +122,7 @@ export default function ProductDetailPage() {
       viewCount: apiProduct.viewCount || 0,
       createdAt: new Date().toISOString(),
       seller: {
-        userUuid: apiProduct.seller?.shopUuid || '',
+        userUuid: apiProduct.sellerUuid || apiProduct.seller?.shopUuid || '',
         nickname: apiProduct.seller?.nickname || '알 수 없음',
       },
       comments,
@@ -149,14 +150,19 @@ export default function ProductDetailPage() {
 
   const handlePurchase = () => {
     if (!product) return;
+    if (!product.seller.userUuid) {
+      showToast('판매자 정보가 없어 주문을 진행할 수 없습니다.', 'error');
+      return;
+    }
 
     clearOrder();
     const orderItem: CartItem = {
-      cartId: Date.now(),
+      cartId: -1, // 바로구매는 장바구니 PK 없음
+      productId: product.productId,
       productUuid: product.id,
       sellerUuid: product.seller.userUuid,
       title: product.title,
-      price: product.price,
+      price: product.price ?? 0,
       saleStatus: product.saleStatus,
       thumbnailUrl: product.images?.[0] || '',
       createdAt: new Date().toISOString(),

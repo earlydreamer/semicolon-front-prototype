@@ -14,18 +14,39 @@ const OrderHistoryPage = () => {
   const { isAuthenticated } = useAuthStore();
   const [orders, setOrders] = useState<OrderListResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  const fetchOrders = () => {
+    const timeoutId = setTimeout(() => {
+      setIsError(true);
+      setIsLoading(false);
+    }, 10000);
+
+    orderService.getMyOrders()
+      .then(res => setOrders(res.content))
+      .catch(() => setIsError(true))
+      .finally(() => {
+        clearTimeout(timeoutId);
+        setIsLoading(false);
+      });
+  };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      orderService.getMyOrders()
-        .then(res => setOrders(res.content))
-        .finally(() => setIsLoading(false));
-    }
+    if (isAuthenticated) fetchOrders();
   }, [isAuthenticated]);
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col h-screen items-center justify-center gap-4">
+        <p className="text-neutral-500">주문 내역을 불러오는데 실패했습니다 (서버 응답 지연).</p>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600">다시 시도</button>
+      </div>
+    );
   }
 
   if (isLoading) {
@@ -64,7 +85,7 @@ const OrderHistoryPage = () => {
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
-              <OrderHistoryCard key={order.orderUuid} order={order} />
+              <OrderHistoryCard key={order.orderUuid} order={order} onUpdate={fetchOrders} />
             ))}
           </div>
         )}

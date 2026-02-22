@@ -58,11 +58,10 @@ export default function SuccessPage() {
 
                 if (response.success) {
                     setResponseData(response.data);
-                    showToast('결제가 성공적으로 완료되었습니다.', 'success');
+                    showToast('결제가 완료되었습니다. 잠시 후 홈으로 이동합니다.', 'success');
                     fetchItems(); // 장바구니 새로고침 (백엔드에서 비워진 상태 반영)
-                    // [TIP] 실제 서비스에서는 바로 이동하거나, 결과 영수증을 보여준 뒤 이동
-                    // 여기서는 결과 확인을 위해 잠시 머무름 (1.5초 뒤 이동 시뮬레이션 가능)
-                    // clearOrder(); // 주문 정보 정리
+                    clearOrder(); // 주문 정보 정리
+                    setTimeout(() => navigate('/'), 3000); // 3초 후 홈으로 자동 이동
                 } else {
                     throw new Error(response.message || '승인 실패');
                 }

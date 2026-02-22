@@ -1,13 +1,14 @@
 import api from '../utils/api';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
-import type { 
-  OrderCreateRequest, 
-  OrderResponse, 
-  OrderListResponse, 
+import type {
+  OrderCreateRequest,
+  OrderResponse,
+  OrderListResponse,
   PageResponse,
   UpdateShippingInfoRequest,
   DeliveryInfoRequest,
-  OrderItemStatus
+  OrderItemStatus,
+  SellerOrderItemResponse
 } from '../types/order';
 
 export const orderService = {
@@ -58,5 +59,13 @@ export const orderService = {
     await api.put(`${API_ENDPOINTS.ORDERS.DEFAULT}/items/${orderItemUuid}/status`, null, {
       params: { status }
     });
+  },
+
+  /**
+   * 판매자 본인 판매 주문아이템 목록 조회
+   */
+  getSellerOrderItems: async (): Promise<SellerOrderItemResponse[]> => {
+    const response = await api.get<SellerOrderItemResponse[]>(`${API_ENDPOINTS.ORDERS.DEFAULT}/seller/items`);
+    return response.data;
   }
 };

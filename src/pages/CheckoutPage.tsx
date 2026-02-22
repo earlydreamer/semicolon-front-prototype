@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { loadTossPayments, type TossPaymentsWidgets } from '@tosspayments/tosspayments-sdk';
+import type { AxiosError } from 'axios';
 import { useOrderStore } from '../stores/useOrderStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { paymentService } from '../services/paymentService';
@@ -206,8 +207,23 @@ export default function CheckoutPage() {
             });
         } catch (error: unknown) {
             console.error('Payment request failed:', error);
-            showToast('결제 요청 중 오류가 발생했습니다.', 'error');
-            navigate('/payment/fail?message=PREPARE_FAILED');
+            const apiError = error as AxiosError<{ code?: string; message?: string; details?: string }> & { code?: string };
+
+            // 토스 결제창을 사용자가 직접 닫거나 취소한 경우 — 현재 페이지에 머무름
+            const tossCode = apiError.code || apiError.response?.data?.code || '';
+            if (tossCode === 'PAYMENT_CANCELED' || tossCode === 'USER_CANCEL') {
+                showToast('결제를 취소했습니다.', 'info');
+                return;
+            }
+
+            const code = apiError.response?.data?.code || 'PREPARE_FAILED';
+            const message = apiError.response?.data?.details
+                || apiError.response?.data?.message
+                || apiError.message
+                || '결제 요청 중 오류가 발생했습니다.';
+
+            showToast(message, 'error');
+            navigate(`/payment/fail?code=${encodeURIComponent(code)}&message=${encodeURIComponent(message)}`);
         }
     }
 
@@ -228,3 +244,4 @@ export default function CheckoutPage() {
         </div>
     );
 }
+
