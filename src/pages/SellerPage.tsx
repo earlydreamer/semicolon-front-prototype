@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import SellerDashboard from '@/components/features/seller/SellerDashboard';
 import SellerProductList from '@/components/features/seller/SellerProductList';
 import { SellerReturnManagement } from '@/components/features/seller/SellerReturnManagement';
+import SellerOrderList from '@/components/features/seller/SellerOrderList';
 
 const SellerPage = () => {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ const SellerPage = () => {
       <div className="space-y-6">
         <SellerReturnManagement />
         <SellerDashboard />
+        <SellerOrderList />
         <SellerProductList />
       </div>
     </div>
