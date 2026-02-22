@@ -84,6 +84,9 @@ export const ORDER_ITEM_STATUS_LABELS: Record<string, { text: string; className:
   REFUND_REQUESTED: { text: '환불 요청', className: 'bg-orange-100 text-orange-700' },
   REFUND_IN_PROGRESS: { text: '환불 진행 중', className: 'bg-orange-100 text-orange-700' },
   REFUND_COMPLETED: { text: '환불 완료', className: 'bg-orange-100 text-orange-700' },
+  IN_TRANSIT: { text: '이동 중', className: 'bg-purple-100 text-purple-700' },
+  OUT_FOR_DELIVERY: { text: '배송 출발', className: 'bg-purple-100 text-purple-700' },
+  SETTLEMENT_COMPLETED: { text: '정산 완료', className: 'bg-neutral-100 text-neutral-700' },
 };
 
 export const CONFIRM_MESSAGES = {
