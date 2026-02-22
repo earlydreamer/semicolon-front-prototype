@@ -9,16 +9,16 @@ interface ReturnRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
   order: OrderListResponse;
-  onSuccess?: () => void;
+  onSuccess?: (returnRequestUuid: string) => void;
 }
 
 export const ReturnRequestModal = ({ isOpen, onClose, order, onSuccess }: ReturnRequestModalProps) => {
   const { showToast } = useToast();
   const [reason, setReason] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  // 단일/동시 선택 UI 없이, 현재는 모든 아이템을 반품 신청하는 것으로 간주
+  // orderItemUuid 기준으로 반품 대상 선택 (백엔드 ReturnRequestCreateDto.orderItemUuids)
   const [selectedItems, setSelectedItems] = useState<string[]>(
-    order.items.map(item => item.productUuid)
+    order.items.map(item => item.orderItemUuid).filter(Boolean) as string[]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,12 +34,12 @@ export const ReturnRequestModal = ({ isOpen, onClose, order, onSuccess }: Return
 
     try {
       setIsLoading(true);
-      await returnService.requestReturn(order.orderUuid, {
+      const result = await returnService.requestReturn(order.orderUuid, {
         reason,
         orderItemUuids: selectedItems,
       });
-      showToast('반품 신청이 완료되었습니다', 'success');
-      onSuccess?.();
+      showToast('반품 신청이 완료되었습니다. 반품 송장을 등록해주세요.', 'success');
+      onSuccess?.(result.returnRequestUuid);
       onClose();
     } catch (error) {
       console.error('반품 신청 실패:', error);
@@ -62,11 +62,11 @@ export const ReturnRequestModal = ({ isOpen, onClose, order, onSuccess }: Return
           <label className="block text-sm font-medium text-neutral-700 mb-2">반품할 상품</label>
           <div className="space-y-2 max-h-40 overflow-y-auto">
             {order.items.map(item => (
-              <label key={item.productUuid} className="flex items-center gap-3 p-2 bg-neutral-50 rounded-lg cursor-pointer">
+              <label key={item.orderItemUuid} className="flex items-center gap-3 p-2 bg-neutral-50 rounded-lg cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={selectedItems.includes(item.productUuid)}
-                  onChange={() => toggleItem(item.productUuid)}
+                  checked={selectedItems.includes(item.orderItemUuid)}
+                  onChange={() => toggleItem(item.orderItemUuid)}
                   className="rounded border-neutral-300 text-primary-500 focus:ring-primary-500"
                 />
                 <img src={item.imageUrl || '/images/placeholder.png'} alt={item.productName} className="w-10 h-10 object-cover rounded" />
