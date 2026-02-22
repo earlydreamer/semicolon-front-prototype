@@ -15,6 +15,7 @@ import { Modal } from '../../common/Modal';
 import { ReviewForm } from '../review/ReviewForm';
 import { ReturnRequestModal } from './ReturnRequestModal';
 import { ReturnTrackingModal } from './ReturnTrackingModal';
+import { orderService } from '@/services/orderService';
 
 interface OrderHistoryCardProps {
   order: OrderHistory | OrderListResponse;
@@ -65,16 +66,31 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
   // 운송장 등록 가능 여부 (UI 데모용 Mock 조건: REFUND_REQUESTED 이면 노출)
   const canRegisterTracking = itemStatus === 'REFUND_REQUESTED' || itemStatus === 'REFUND_IN_PROGRESS';
 
-  const handleConfirm = () => {
-    setShowReviewModal(true);
+  const orderItemUuid = isApiData ? (order as OrderListResponse).items[0]?.orderItemUuid : undefined;
+
+  const handleConfirm = async () => {
+    if (!orderItemUuid) return;
+    try {
+      await orderService.updateOrderItemStatus(orderItemUuid, 'CONFIRMED');
+      showToast('구매가 확정되었습니다. 리뷰를 작성해주세요.', 'success');
+      setShowReviewModal(true);
+    } catch {
+      showToast('구매 확정에 실패했습니다.', 'error');
+    }
   };
 
   const handleReviewSubmit = () => {
     setShowReviewModal(false);
   };
 
-  const handleCancel = () => {
-    showToast('주문 취소 기능은 준비 중입니다', 'info');
+  const handleCancel = async () => {
+    if (!orderItemUuid) return;
+    try {
+      await orderService.updateOrderItemStatus(orderItemUuid, 'CANCELED');
+      showToast('주문이 취소되었습니다.', 'success');
+    } catch {
+      showToast('주문 취소에 실패했습니다.', 'error');
+    }
   };
 
   return (
