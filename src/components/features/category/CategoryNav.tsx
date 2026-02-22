@@ -141,7 +141,7 @@ export function CategoryNav({ categories, className, onClose, variant = 'desktop
   return (
     <div
       className={cn(
-        'absolute top-full left-0 z-50 flex h-[400px] w-full border-t border-neutral-200 bg-white shadow-xl',
+        'flex h-[400px] w-full border-t border-neutral-200 bg-white shadow-xl',
         className
       )}
       onMouseLeave={() => onClose?.()}
