@@ -8,7 +8,7 @@ export interface PaymentAmounts {
 
 export interface PaymentRequestItem {
   orderItemUuid: string;
-  productId: number; // 백엔드 DTO가 Integer productId를 받음 (UUID가 아님에 주의)
+  productUuid: string;
   productName: string;
   price: number;
   sellerUuid: string;
