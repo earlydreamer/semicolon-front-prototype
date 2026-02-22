@@ -55,11 +55,19 @@ export const API_ENDPOINTS = {
     ME: `${API_BASE_URL}/coupons/me`,
     ISSUABLE: `${API_BASE_URL}/coupons/issuable`,
   },
+  INTERNAL_USERS: {
+    UUID: `${API_BASE_URL}/internal/users/uuid`,
+  },
+  INTERNAL_DEPOSITS: {
+    CHARGE: (userUuid: string) => `${API_BASE_URL}/internal/deposits/${userUuid}/charge`,
+  },
   ADMIN_COUPONS: {
     BASE: `${API_BASE_URL}/admin/coupons`,
+    ISSUE_TO_USER: (couponUuid: string) => `${API_BASE_URL}/admin/coupons/${couponUuid}/issue`,
   },
   ADMIN_ORDERS: {
     BASE: `${API_BASE_URL}/admin/orders`,
+    UPDATE_STATUS: (orderUuid: string) => `${API_BASE_URL}/admin/orders/${orderUuid}/status`,
   },
   ADMIN_PRODUCTS: {
     BASE: `${API_BASE_URL}/products`,

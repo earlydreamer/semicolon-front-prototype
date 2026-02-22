@@ -61,6 +61,9 @@ const CategoryManagePage = lazy(
 );
 const ReportManagePage = lazy(() => import("./pages/admin/ReportManagePage"));
 const CouponManagePage = lazy(() => import("./pages/admin/CouponManagePage"));
+const AdminTestToolsPage = lazy(
+  () => import("./pages/admin/AdminTestToolsPage"),
+);
 const SettlementManagePage = lazy(
   () => import("./pages/admin/SettlementManagePage"),
 );
@@ -200,6 +203,7 @@ function App() {
                   <Route path="users" element={<UserManagePage />} />
                   <Route path="reports" element={<ReportManagePage />} />
                   <Route path="coupons" element={<CouponManagePage />} />
+                  <Route path="test-tools" element={<AdminTestToolsPage />} />
                   <Route
                     path="settlements"
                     element={<SettlementManagePage />}
