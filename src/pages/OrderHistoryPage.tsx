@@ -16,21 +16,23 @@ const OrderHistoryPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      const timeoutId = setTimeout(() => {
-        setIsError(true);
-        setIsLoading(false);
-      }, 10000); // 10초 타임아웃
+  const fetchOrders = () => {
+    const timeoutId = setTimeout(() => {
+      setIsError(true);
+      setIsLoading(false);
+    }, 10000);
 
-      orderService.getMyOrders()
-        .then(res => setOrders(res.content))
-        .catch(() => setIsError(true))
-        .finally(() => {
-          clearTimeout(timeoutId);
-          setIsLoading(false);
-        });
-    }
+    orderService.getMyOrders()
+      .then(res => setOrders(res.content))
+      .catch(() => setIsError(true))
+      .finally(() => {
+        clearTimeout(timeoutId);
+        setIsLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) fetchOrders();
   }, [isAuthenticated]);
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
@@ -83,7 +85,7 @@ const OrderHistoryPage = () => {
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
-              <OrderHistoryCard key={order.orderUuid} order={order} />
+              <OrderHistoryCard key={order.orderUuid} order={order} onUpdate={fetchOrders} />
             ))}
           </div>
         )}
