@@ -1,6 +1,5 @@
 export interface OrderItemCreateRequest {
   productUuid: string;
-  productId: number;
   sellerUuid: string;
   productName: string;
   productPrice: number;
@@ -38,7 +37,10 @@ export type OrderItemStatus =
   | 'CANCELED'
   | 'REFUND_REQUESTED'
   | 'REFUND_IN_PROGRESS'
-  | 'REFUND_COMPLETED';
+  | 'REFUND_COMPLETED'
+  | 'IN_TRANSIT'
+  | 'OUT_FOR_DELIVERY'
+  | 'SETTLEMENT_COMPLETED';
 
 export type OrderStatus =
   | 'PENDING'
@@ -49,7 +51,6 @@ export type OrderStatus =
 
 export interface OrderItemResponse {
   orderItemUuid: string;
-  productId: number;
   productUuid: string;
   sellerUuid: string;
   productName: string;

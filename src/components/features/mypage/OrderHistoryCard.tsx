@@ -38,7 +38,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
 
   // 첫 번째 아이템 정보를 대표로 사용 (API의 경우)
   const firstItem = isApiData ? (order as OrderListResponse).items?.[0] : undefined;
-  const productId = isApiData ? firstItem?.productUuid : (order as OrderHistory).productId;
+  const productUuid = isApiData ? firstItem?.productUuid : (order as OrderHistory).productUuid;
   const title = isApiData ? firstItem?.productName : (order as OrderHistory).product?.title;
   const image = isApiData ? firstItem?.imageUrl : (order as OrderHistory).product?.image;
   const sellerNickname = isApiData ? '판매자' : (order as OrderHistory).product?.seller?.nickname;
@@ -124,7 +124,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
         {/* 상품 정보 */}
         <div className="flex gap-4">
           <Link
-            to={`/products/${productId}`}
+            to={`/products/${productUuid}`}
             className="w-20 h-20 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0"
           >
             <img
@@ -143,7 +143,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
               </span>
             )}
             <Link
-              to={`/products/${productId}`}
+              to={`/products/${productUuid}`}
               className="block text-sm font-medium text-neutral-900 hover:text-primary-600 line-clamp-2"
             >
               {title}

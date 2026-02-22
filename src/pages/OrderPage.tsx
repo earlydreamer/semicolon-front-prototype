@@ -104,7 +104,6 @@ const OrderPage = () => {
         contactNumber: shippingInfo.phone,
         items: orderItems.map(item => ({
           productUuid: item.productUuid,
-          productId: item.productId,
           sellerUuid: item.sellerUuid,
           productName: item.title,
           productPrice: item.price,
