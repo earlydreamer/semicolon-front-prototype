@@ -13,6 +13,8 @@ import { useToast } from '@/components/common/Toast';
 import { useState } from 'react';
 import { Modal } from '../../common/Modal';
 import { ReviewForm } from '../review/ReviewForm';
+import { ReturnRequestModal } from './ReturnRequestModal';
+import { ReturnTrackingModal } from './ReturnTrackingModal';
 
 interface OrderHistoryCardProps {
   order: OrderHistory | OrderListResponse;
@@ -21,6 +23,8 @@ interface OrderHistoryCardProps {
 const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
   const { showToast } = useToast();
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showReturnRequestModal, setShowReturnRequestModal] = useState(false);
+  const [showReturnTrackingModal, setShowReturnTrackingModal] = useState(false);
 
   // API 데이터 여부 확인 및 통합 매핑
   const isApiData = 'orderUuid' in order;
@@ -42,11 +46,24 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
 
   // 개별 아이템 상태 확인 (API 데이터인 경우)
   const itemStatus = isApiData ? (order as OrderListResponse).items[0]?.itemStatus : undefined;
+
+  // 배송 정보 (API / 로컬 공통)
+  const carrierName = isApiData
+    ? (order as OrderListResponse).items[0]?.carrierName
+    : (order as OrderHistory).deliveryCompany;
+  const trackingNumber = isApiData
+    ? (order as OrderListResponse).items[0]?.trackingNumber
+    : (order as OrderHistory).trackingNumber;
+  const showDelivery = !!trackingNumber && ['SHIPPED', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING', 'SHIPPING'].includes(itemStatus ?? status);
   
   // 구매 확정 가능 여부 - 아이템 상태 기준
   const canConfirm = itemStatus === 'DELIVERED' || itemStatus === 'CONFIRM_PENDING';
   // 취소 가능 여부 - 주문 상태 기준
   const canCancel = status === 'PENDING' || status === 'PAID';
+  // 반품 신청 가능 여부
+  const canReturn = itemStatus === 'DELIVERED';
+  // 운송장 등록 가능 여부 (UI 데모용 Mock 조건: REFUND_REQUESTED 이면 노출)
+  const canRegisterTracking = itemStatus === 'REFUND_REQUESTED' || itemStatus === 'REFUND_IN_PROGRESS';
 
   const handleConfirm = () => {
     setShowReviewModal(true);
@@ -110,19 +127,19 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
             </p>
             
             {/* 운송장 정보 (배송중/배송완료/구매확정 시 노출) */}
-            {(!isApiData && (order as OrderHistory).trackingNumber && (['SHIPPING', 'DELIVERED', 'CONFIRMED'].includes(status))) && (
+            {showDelivery && (
               <div className="mt-3 p-3 bg-neutral-50 rounded-lg border border-neutral-100 flex items-center justify-between">
                 <div>
                   <p className="text-[10px] text-neutral-400 font-medium leading-none mb-1">배송정보</p>
                   <p className="text-xs font-semibold text-neutral-700">
-                    {(order as OrderHistory).deliveryCompany} {(order as OrderHistory).trackingNumber}
+                    {carrierName} {trackingNumber}
                   </p>
                 </div>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
+                <Button
+                  size="sm"
+                  variant="outline"
                   className="h-8 text-[11px] px-3 border-neutral-300 text-neutral-600 hover:bg-white"
-                  onClick={() => window.open(`https://search.naver.com/search.naver?query=${(order as OrderHistory).deliveryCompany}+${(order as OrderHistory).trackingNumber}`, '_blank')}
+                  onClick={() => window.open(`https://search.naver.com/search.naver?query=${encodeURIComponent(carrierName ?? '')}+${encodeURIComponent(trackingNumber ?? '')}`, '_blank')}
                 >
                   배송 조회
                 </Button>
@@ -132,16 +149,26 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
         </div>
 
         {/* 액션 버튼 */}
-        {(canConfirm || canCancel) && (
-          <div className="flex gap-2 mt-4 pt-3 border-t border-neutral-100">
+        {(canConfirm || canCancel || canReturn || canRegisterTracking) && (
+          <div className="flex gap-2 mt-4 pt-3 border-t border-neutral-100 flex-wrap">
             {canConfirm && (
-              <Button size="sm" onClick={handleConfirm} className="flex-1">
+              <Button size="sm" onClick={handleConfirm} className="flex-1 min-w-[120px]">
                 구매 확정 및 리뷰 작성
               </Button>
             )}
             {canCancel && (
-              <Button size="sm" variant="outline" onClick={handleCancel} className="flex-1">
+              <Button size="sm" variant="outline" onClick={handleCancel} className="flex-1 min-w-[80px]">
                 주문 취소
+              </Button>
+            )}
+            {canReturn && (
+              <Button size="sm" variant="outline" onClick={() => setShowReturnRequestModal(true)} className="flex-1 min-w-[80px]">
+                반품 신청
+              </Button>
+            )}
+            {canRegisterTracking && (
+              <Button size="sm" variant="outline" onClick={() => setShowReturnTrackingModal(true)} className="flex-1 min-w-[100px]">
+                운송장 등록
               </Button>
             )}
           </div>
@@ -161,6 +188,24 @@ const OrderHistoryCard = ({ order }: OrderHistoryCardProps) => {
           onCancel={() => setShowReviewModal(false)}
         />
       </Modal>
+
+      {/* 반품 신청 모달 */}
+      {isApiData && (
+        <ReturnRequestModal
+          isOpen={showReturnRequestModal}
+          onClose={() => setShowReturnRequestModal(false)}
+          order={order as OrderListResponse}
+        />
+      )}
+
+      {/* 반품 운송장 등록 모달 */}
+      {isApiData && (
+        <ReturnTrackingModal
+          isOpen={showReturnTrackingModal}
+          onClose={() => setShowReturnTrackingModal(false)}
+          returnRequestUuid="mock-return-uuid"
+        />
+      )}
     </>
   );
 };
