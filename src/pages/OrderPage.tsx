@@ -43,6 +43,22 @@ const OrderPage = () => {
     setCouponDiscountAmount(0);
   }, [setCouponUuid, setCouponDiscountAmount]);
 
+  // 로그인 유저 배송지 초기값 바인딩
+  useEffect(() => {
+    if (user && !shippingInfo) {
+      setShippingInfo({
+        id: '-1',
+        name: '기본 배송지',
+        isDefault: true,
+        recipient: user.nickname || '',
+        phone: '', // 임시 빈값
+        zipCode: '',
+        address: '',
+        detailAddress: ''
+      });
+    }
+  }, [user, shippingInfo, setShippingInfo]);
+
   // 주문할 상품이 없으면 홈으로 리다이렉트
   useEffect(() => {
     if (orderItems.length === 0) {
@@ -88,6 +104,7 @@ const OrderPage = () => {
         contactNumber: shippingInfo.phone,
         items: orderItems.map(item => ({
           productUuid: item.productUuid,
+          productId: item.productId,
           sellerUuid: item.sellerUuid,
           productName: item.title,
           productPrice: item.price,
