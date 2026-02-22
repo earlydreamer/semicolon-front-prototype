@@ -5,7 +5,7 @@
 import { Link } from 'react-router-dom';
 import type { OrderHistory } from '@/types/user';
 import type { OrderListResponse } from '@/types/order';
-import { ORDER_STATUS_LABELS } from '@/constants/labels';
+import { ORDER_STATUS_LABELS, ORDER_ITEM_STATUS_LABELS } from '@/constants/labels';
 import { formatTimeAgo } from '@/utils/date';
 import { formatPrice } from '@/utils/formatPrice';
 import { Button } from '@/components/common/Button';
@@ -30,34 +30,43 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   const [returnRequestUuid, setReturnRequestUuid] = useState<string | null>(null);
 
   // API 데이터 여부 확인 및 통합 매핑
-  const isApiData = 'orderUuid' in order;
+  const isApiData = 'orderUuid' in order || 'items' in order;
   const id = isApiData ? (order as OrderListResponse).orderUuid : (order as OrderHistory).id;
   const createdAt = isApiData ? (order as OrderListResponse).orderDate : (order as OrderHistory).createdAt;
   const status = isApiData ? (order as OrderListResponse).status : (order as OrderHistory).status;
   const totalAmount = isApiData ? (order as OrderListResponse).totalAmount : (order as OrderHistory).totalPrice;
 
   // 첫 번째 아이템 정보를 대표로 사용 (API의 경우)
-  const productId = isApiData
-    ? (order as OrderListResponse).items[0]?.productUuid
-    : (order as OrderHistory).productId;
-
-  const title = isApiData ? (order as OrderListResponse).items[0]?.productName : (order as OrderHistory).product.title;
-  const image = isApiData ? (order as OrderListResponse).items[0]?.imageUrl : (order as OrderHistory).product.image;
-  const sellerNickname = isApiData ? '판매자' : (order as OrderHistory).product.seller.nickname;
+  const firstItem = isApiData ? (order as OrderListResponse).items?.[0] : undefined;
+  const productId = isApiData ? firstItem?.productUuid : (order as OrderHistory).productId;
+  const title = isApiData ? firstItem?.productName : (order as OrderHistory).product?.title;
+  const image = isApiData ? firstItem?.imageUrl : (order as OrderHistory).product?.image;
+  const sellerNickname = isApiData ? '판매자' : (order as OrderHistory).product?.seller?.nickname;
 
   const statusInfo = ORDER_STATUS_LABELS[status] || { text: status, className: 'bg-neutral-100 text-neutral-600' };
 
   // 개별 아이템 상태 확인 (API 데이터인 경우)
-  const itemStatus = isApiData ? (order as OrderListResponse).items[0]?.itemStatus : undefined;
+  const itemStatus = isApiData ? firstItem?.itemStatus : undefined;
+  
+  // 상황에 따라 가장 적절한 Status Info 객체를 도출
+  let itemStatusInfo;
+  if (isApiData && itemStatus) {
+    itemStatusInfo = ORDER_ITEM_STATUS_LABELS[itemStatus] ?? { text: itemStatus, className: 'bg-neutral-100 text-neutral-700' };
+  } else {
+    // API 데이터가 아니거나 (Mock) itemStatus가 배열에 없다면 큰 범주인 OrderStatusLabel을 사용 (fallback)
+    itemStatusInfo = ORDER_STATUS_LABELS[status] ?? { text: status, className: 'bg-neutral-100 text-neutral-600' };
+  }
 
   // 배송 정보 (API / 로컬 공통)
-  const carrierName = isApiData
-    ? (order as OrderListResponse).items[0]?.carrierName
-    : (order as OrderHistory).deliveryCompany;
-  const trackingNumber = isApiData
-    ? (order as OrderListResponse).items[0]?.trackingNumber
-    : (order as OrderHistory).trackingNumber;
-  const showDelivery = !!trackingNumber && ['SHIPPED', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING', 'SHIPPING'].includes(itemStatus ?? status);
+  const carrierName = isApiData ? firstItem?.carrierName : (order as OrderHistory).deliveryCompany;
+  const trackingNumber = isApiData ? firstItem?.trackingNumber : (order as OrderHistory).trackingNumber;
+  
+  // 운송장 보여주는 기준 (api status 기준 또는 mock status 기준 모두 포함)
+  const deliveryStatusMatch = itemStatus 
+       ? ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING', 'SHIPPING'].includes(itemStatus)
+       : ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING', 'SHIPPING'].includes(status as string);
+       
+  const showDelivery = !!trackingNumber && deliveryStatusMatch;
 
   // 구매 확정 가능 여부 - 아이템 상태 기준
   const canConfirm = itemStatus === 'DELIVERED' || itemStatus === 'CONFIRM_PENDING';
@@ -89,7 +98,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   const handleCancel = async () => {
     if (!orderItemUuid) return;
     try {
-      await orderService.updateOrderItemStatus(orderItemUuid, 'CANCELED');
+      await orderService.updateOrderItemStatus(orderItemUuid, 'CANCEL_REQUESTED');
       showToast('주문이 취소되었습니다.', 'success');
       onUpdate?.();
     } catch {
@@ -128,6 +137,11 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
           </Link>
 
           <div className="flex-1 min-w-0">
+            {itemStatusInfo && (
+              <span className={`inline-block mb-1 px-2 py-0.5 text-[10px] font-medium rounded ${itemStatusInfo.className}`}>
+                {itemStatusInfo.text}
+              </span>
+            )}
             <Link
               to={`/products/${productId}`}
               className="block text-sm font-medium text-neutral-900 hover:text-primary-600 line-clamp-2"
@@ -202,30 +216,28 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
         title="리뷰 작성"
       >
         <ReviewForm
-          orderId={id}
-          productTitle={title}
+          orderId={id as string}
+          productTitle={title || '상품'}
           onSubmit={handleReviewSubmit}
           onCancel={() => setShowReviewModal(false)}
         />
       </Modal>
 
       {/* 반품 신청 모달 */}
-      {isApiData && (
-        <ReturnRequestModal
-          isOpen={showReturnRequestModal}
-          onClose={() => setShowReturnRequestModal(false)}
-          order={order as OrderListResponse}
-          onSuccess={(uuid) => {
-            setReturnRequestUuid(uuid);
-            setShowReturnRequestModal(false);
-            setShowReturnTrackingModal(true);
-            onUpdate?.();
-          }}
-        />
-      )}
+      <ReturnRequestModal
+        isOpen={showReturnRequestModal}
+        onClose={() => setShowReturnRequestModal(false)}
+        order={order as OrderListResponse}
+        onSuccess={(uuid) => {
+          setReturnRequestUuid(uuid);
+          setShowReturnRequestModal(false);
+          setShowReturnTrackingModal(true);
+          onUpdate?.();
+        }}
+      />
 
       {/* 반품 운송장 등록 모달 (반품 신청 성공 후 returnRequestUuid 전달) */}
-      {isApiData && returnRequestUuid && (
+      {returnRequestUuid && (
         <ReturnTrackingModal
           isOpen={showReturnTrackingModal}
           onClose={() => setShowReturnTrackingModal(false)}
