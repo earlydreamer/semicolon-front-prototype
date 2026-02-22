@@ -36,26 +36,33 @@ const ProductEditPage = () => {
     }
   }, [product, productId, navigate, showToast]);
 
-  const handleSubmit = (data: ProductFormValues) => {
+  const handleSubmit = async (data: ProductFormValues) => {
     if (!productId) return;
 
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
 
-    updateProduct(productId, {
-      title: data.title,
-      categoryId: data.categoryId,
-      price: data.price,
-      shippingFee: data.shippingFee,
-      conditionStatus: data.conditionStatus,
-      purchaseDate: data.purchaseDate,
-      usePeriod: data.usePeriod,
-      detailedCondition: data.detailedCondition,
-      description: data.description,
-      images: data.images,
-    });
+      await updateProduct(productId, {
+        title: data.title,
+        categoryId: data.categoryId,
+        price: data.price,
+        shippingFee: data.shippingFee,
+        conditionStatus: data.conditionStatus,
+        purchaseDate: data.purchaseDate,
+        usePeriod: data.usePeriod,
+        detailedCondition: data.detailedCondition,
+        description: data.description,
+        images: data.images,
+      });
 
-    showToast('상품이 수정되었습니다', 'success');
-    navigate('/seller');
+      showToast('상품이 수정되었습니다', 'success');
+      navigate('/seller');
+    } catch (error) {
+      console.error('Failed to update product:', error);
+      showToast('상품 수정에 실패했습니다', 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isAuthenticated || !product) {

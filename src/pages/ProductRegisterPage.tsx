@@ -2,7 +2,7 @@
  * 상품 등록 페이지
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
 import { Link } from 'react-router-dom';
@@ -16,6 +16,7 @@ const ProductRegisterPage = () => {
   const { isAuthenticated } = useAuthStore();
   const { addProduct } = useSellerStore();
   const { showToast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -23,22 +24,30 @@ const ProductRegisterPage = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSubmit = (data: ProductFormValues) => {
-    addProduct({
-      title: data.title,
-      categoryId: data.categoryId,
-      price: data.price,
-      shippingFee: data.shippingFee,
-      conditionStatus: data.conditionStatus,
-      purchaseDate: data.purchaseDate,
-      usePeriod: data.usePeriod,
-      detailedCondition: data.detailedCondition,
-      description: data.description,
-      images: data.images,
-    });
+  const handleSubmit = async (data: ProductFormValues) => {
+    try {
+      setIsLoading(true);
+      await addProduct({
+        title: data.title,
+        categoryId: data.categoryId,
+        price: data.price,
+        shippingFee: data.shippingFee,
+        conditionStatus: data.conditionStatus,
+        purchaseDate: data.purchaseDate,
+        usePeriod: data.usePeriod,
+        detailedCondition: data.detailedCondition,
+        description: data.description,
+        images: data.images,
+      });
 
-    showToast('상품이 등록되었습니다', 'success');
-    navigate('/seller');
+      showToast('상품이 등록되었습니다', 'success');
+      navigate('/seller');
+    } catch (error) {
+      console.error('Failed to add product:', error);
+      showToast('상품 등록에 실패했습니다', 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isAuthenticated) {
@@ -61,7 +70,7 @@ const ProductRegisterPage = () => {
       </div>
 
       {/* 폼 */}
-      <ProductForm onSubmit={handleSubmit} submitLabel="등록하기" />
+      <ProductForm onSubmit={handleSubmit} submitLabel="등록하기" isLoading={isLoading} />
     </div>
   );
 };
