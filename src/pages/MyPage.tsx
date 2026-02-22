@@ -35,7 +35,7 @@ const MyPage = () => {
   useEffect(() => {
     if (user?.id) {
       if (mySalesProducts.length === 0) {
-        initSellerProducts(user.id);
+        initSellerProducts();
       }
       fetchUserLikes(user.id);
       initFollowing(user.id);
