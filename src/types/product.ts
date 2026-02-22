@@ -26,7 +26,7 @@ export interface ProductSeller {
 /** 상품 댓글 */
 export interface ProductComment {
   id: number;
-  productId: string;
+  productUuid: string;
   parentId: number | null;
   userId: string;
   user: { nickname: string; avatar?: string };
@@ -98,7 +98,6 @@ export interface ProductListResponse {
 }
 
 export interface ProductDetailResponse {
-  productId: number;    // 상품 PK (주문/결제 스냅샷용)
   productUuid: string;
   sellerUuid: string;
   title: string;

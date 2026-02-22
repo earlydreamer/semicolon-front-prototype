@@ -18,7 +18,7 @@ const clientKey = 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm';
 
 type CouponDistributionItem = {
     orderItemUuid: string;
-    productId: number;
+    productUuid: string;
     productPrice: number;
 };
 
@@ -33,9 +33,8 @@ function buildPaymentCouponMap(items: CouponDistributionItem[], couponTotal: num
     }
 
     const sortedItems = [...items].sort((a, b) => {
-        if (a.productId !== b.productId) {
-            return a.productId - b.productId;
-        }
+        const uuidCmp = a.productUuid.localeCompare(b.productUuid);
+        if (uuidCmp !== 0) return uuidCmp;
         return a.orderItemUuid.localeCompare(b.orderItemUuid);
     });
 
@@ -157,7 +156,7 @@ export default function CheckoutPage() {
             const paymentCouponByOrderItem = buildPaymentCouponMap(
                 orderResponseItems.map(item => ({
                     orderItemUuid: item.orderItemUuid,
-                    productId: item.productId,
+                    productUuid: item.productUuid,
                     productPrice: item.productPrice,
                 })),
                 summary.couponDiscount
@@ -176,7 +175,7 @@ export default function CheckoutPage() {
                 orderName,
                 items: orderResponseItems.map(item => ({
                     orderItemUuid: item.orderItemUuid,
-                    productId: item.productId,
+                    productUuid: item.productUuid,
                     productName: item.productName,
                     price: item.productPrice,
                     sellerUuid: item.sellerUuid,

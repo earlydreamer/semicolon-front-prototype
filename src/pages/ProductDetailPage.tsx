@@ -110,7 +110,6 @@ export default function ProductDetailPage() {
 
     return {
       id: apiProduct.productUuid,
-      productId: apiProduct.productId, // 상품 PK (주문/결제 스냅샷용)
       title: apiProduct.title,
       price: apiProduct.price,
       description: apiProduct.description,
@@ -158,7 +157,6 @@ export default function ProductDetailPage() {
     clearOrder();
     const orderItem: CartItem = {
       cartId: -1, // 바로구매는 장바구니 PK 없음
-      productId: product.productId,
       productUuid: product.id,
       sellerUuid: product.seller.userUuid,
       title: product.title,

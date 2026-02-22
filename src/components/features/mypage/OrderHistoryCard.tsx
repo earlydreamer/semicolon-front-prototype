@@ -1,11 +1,11 @@
-﻿/**
- * 二쇰Ц ?댁뿭 移대뱶 而댄룷?뚰듃
+/**
+ * 주문 내역 카드 컴포넌트
  */
 
 import { Link } from 'react-router-dom';
 import type { OrderHistory } from '@/types/user';
 import type { OrderListResponse } from '@/types/order';
-import { ORDER_STATUS_LABELS } from '@/constants/labels';
+import { ORDER_STATUS_LABELS, ORDER_ITEM_STATUS_LABELS } from '@/constants/labels';
 import { formatTimeAgo } from '@/utils/date';
 import { formatPrice } from '@/utils/formatPrice';
 import { Button } from '@/components/common/Button';
@@ -29,43 +29,52 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   const [showReturnTrackingModal, setShowReturnTrackingModal] = useState(false);
   const [returnRequestUuid, setReturnRequestUuid] = useState<string | null>(null);
 
-  // API ?곗씠???щ? ?뺤씤 諛??듯빀 留ㅽ븨
-  const isApiData = 'orderUuid' in order;
+  // API 데이터 여부 확인 및 통합 매핑
+  const isApiData = 'orderUuid' in order || 'items' in order;
   const id = isApiData ? (order as OrderListResponse).orderUuid : (order as OrderHistory).id;
   const createdAt = isApiData ? (order as OrderListResponse).orderDate : (order as OrderHistory).createdAt;
   const status = isApiData ? (order as OrderListResponse).status : (order as OrderHistory).status;
   const totalAmount = isApiData ? (order as OrderListResponse).totalAmount : (order as OrderHistory).totalPrice;
-  
-  // 泥?踰덉㎏ ?꾩씠???뺣낫瑜???쒕줈 ?ъ슜 (API??寃쎌슦)
-  const productId = isApiData 
-    ? (order as OrderListResponse).items[0]?.productUuid 
-    : (order as OrderHistory).productId;
 
-  const title = isApiData ? (order as OrderListResponse).items[0]?.productName : (order as OrderHistory).product.title;
-  const image = isApiData ? (order as OrderListResponse).items[0]?.imageUrl : (order as OrderHistory).product.image;
-  const sellerNickname = isApiData ? '?먮ℓ?? : (order as OrderHistory).product.seller.nickname;
+  // 첫 번째 아이템 정보를 대표로 사용 (API의 경우)
+  const firstItem = isApiData ? (order as OrderListResponse).items?.[0] : undefined;
+  const productUuid = isApiData ? firstItem?.productUuid : (order as OrderHistory).productUuid;
+  const title = isApiData ? firstItem?.productName : (order as OrderHistory).product?.title;
+  const image = isApiData ? firstItem?.imageUrl : (order as OrderHistory).product?.image;
+  const sellerNickname = isApiData ? '판매자' : (order as OrderHistory).product?.seller?.nickname;
 
   const statusInfo = ORDER_STATUS_LABELS[status] || { text: status, className: 'bg-neutral-100 text-neutral-600' };
 
-  // 媛쒕퀎 ?꾩씠???곹깭 ?뺤씤 (API ?곗씠?곗씤 寃쎌슦)
-  const itemStatus = isApiData ? (order as OrderListResponse).items[0]?.itemStatus : undefined;
-
-  // 諛곗넚 ?뺣낫 (API / 濡쒖뺄 怨듯넻)
-  const carrierName = isApiData
-    ? (order as OrderListResponse).items[0]?.carrierName
-    : (order as OrderHistory).deliveryCompany;
-  const trackingNumber = isApiData
-    ? (order as OrderListResponse).items[0]?.trackingNumber
-    : (order as OrderHistory).trackingNumber;
-  const showDelivery = !!trackingNumber && ['SHIPPED', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING', 'SHIPPING'].includes(itemStatus ?? status);
+  // 개별 아이템 상태 확인 (API 데이터인 경우)
+  const itemStatus = isApiData ? firstItem?.itemStatus : undefined;
   
-  // 援щℓ ?뺤젙 媛???щ? - ?꾩씠???곹깭 湲곗?
+  // 상황에 따라 가장 적절한 Status Info 객체를 도출
+  let itemStatusInfo;
+  if (isApiData && itemStatus) {
+    itemStatusInfo = ORDER_ITEM_STATUS_LABELS[itemStatus] ?? { text: itemStatus, className: 'bg-neutral-100 text-neutral-700' };
+  } else {
+    // API 데이터가 아니거나 (Mock) itemStatus가 배열에 없다면 큰 범주인 OrderStatusLabel을 사용 (fallback)
+    itemStatusInfo = ORDER_STATUS_LABELS[status] ?? { text: status, className: 'bg-neutral-100 text-neutral-600' };
+  }
+
+  // 배송 정보 (API / 로컬 공통)
+  const carrierName = isApiData ? firstItem?.carrierName : (order as OrderHistory).deliveryCompany;
+  const trackingNumber = isApiData ? firstItem?.trackingNumber : (order as OrderHistory).trackingNumber;
+  
+  // 운송장 보여주는 기준 (api status 기준 또는 mock status 기준 모두 포함)
+  const deliveryStatusMatch = itemStatus 
+       ? ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING', 'SHIPPING'].includes(itemStatus)
+       : ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING', 'SHIPPING'].includes(status as string);
+       
+  const showDelivery = !!trackingNumber && deliveryStatusMatch;
+
+  // 구매 확정 가능 여부 - 아이템 상태 기준
   const canConfirm = itemStatus === 'DELIVERED' || itemStatus === 'CONFIRM_PENDING';
-  // 痍⑥냼 媛???щ? - 二쇰Ц ?곹깭 湲곗?
+  // 취소 가능 여부 - 주문 상태 기준
   const canCancel = status === 'PENDING' || status === 'PAID';
-  // 諛섑뭹 ?좎껌 媛???щ?
+  // 반품 신청 가능 여부
   const canReturn = itemStatus === 'DELIVERED';
-  // ?댁넚???깅줉 媛???щ? (UI ?곕え??Mock 議곌굔: REFUND_REQUESTED ?대㈃ ?몄텧)
+  // 운송장 등록 가능 여부
   const canRegisterTracking = itemStatus === 'REFUND_REQUESTED' || itemStatus === 'REFUND_IN_PROGRESS';
 
   const orderItemUuid = isApiData ? (order as OrderListResponse).items[0]?.orderItemUuid : undefined;
@@ -74,11 +83,11 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
     if (!orderItemUuid) return;
     try {
       await orderService.updateOrderItemStatus(orderItemUuid, 'CONFIRMED');
-      showToast('援щℓ媛 ?뺤젙?섏뿀?듬땲?? 由щ럭瑜??묒꽦?댁＜?몄슂.', 'success');
+      showToast('구매가 확정되었습니다. 리뷰를 작성해주세요.', 'success');
       setShowReviewModal(true);
       onUpdate?.();
     } catch {
-      showToast('援щℓ ?뺤젙???ㅽ뙣?덉뒿?덈떎.', 'error');
+      showToast('구매 확정에 실패했습니다.', 'error');
     }
   };
 
@@ -89,22 +98,22 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   const handleCancel = async () => {
     if (!orderItemUuid) return;
     try {
-      await orderService.updateOrderItemStatus(orderItemUuid, 'CANCELED');
-      showToast('二쇰Ц??痍⑥냼?섏뿀?듬땲??', 'success');
+      await orderService.updateOrderItemStatus(orderItemUuid, 'CANCEL_REQUESTED');
+      showToast('주문이 취소되었습니다.', 'success');
       onUpdate?.();
     } catch {
-      showToast('二쇰Ц 痍⑥냼???ㅽ뙣?덉뒿?덈떎.', 'error');
+      showToast('주문 취소에 실패했습니다.', 'error');
     }
   };
 
   return (
     <>
       <div className="bg-white rounded-xl border border-neutral-200 p-4">
-        {/* ?곷떒: 二쇰Ц ?뺣낫 */}
+        {/* 상단: 주문 정보 */}
         <div className="flex items-center justify-between mb-3 pb-3 border-b border-neutral-100">
           <div className="text-xs text-neutral-500">
-            <span>二쇰Ц踰덊샇 {id}</span>
-            <span className="mx-2">??/span>
+            <span>주문번호 {id}</span>
+            <span className="mx-2">•</span>
             <span>{formatTimeAgo(createdAt)}</span>
           </div>
           <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${statusInfo.className}`}>
@@ -112,10 +121,10 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
           </span>
         </div>
 
-        {/* ?곹뭹 ?뺣낫 */}
+        {/* 상품 정보 */}
         <div className="flex gap-4">
           <Link
-            to={`/products/${productId}`}
+            to={`/products/${productUuid}`}
             className="w-20 h-20 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0"
           >
             <img
@@ -128,29 +137,34 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
           </Link>
 
           <div className="flex-1 min-w-0">
+            {itemStatusInfo && (
+              <span className={`inline-block mb-1 px-2 py-0.5 text-[10px] font-medium rounded ${itemStatusInfo.className}`}>
+                {itemStatusInfo.text}
+              </span>
+            )}
             <Link
-              to={`/products/${productId}`}
+              to={`/products/${productUuid}`}
               className="block text-sm font-medium text-neutral-900 hover:text-primary-600 line-clamp-2"
             >
               {title}
             </Link>
             <p className="text-xs text-neutral-500 mt-1">
-              ?먮ℓ?? {sellerNickname}
+              판매자: {sellerNickname}
             </p>
             <p className="text-base font-bold text-neutral-900 mt-2">
               {formatPrice(totalAmount)}
               {!isApiData && (order as OrderHistory).shippingFee > 0 && (
                 <span className="text-xs font-normal text-neutral-500 ml-1">
-                  (諛곗넚鍮??ы븿)
+                  (배송비 포함)
                 </span>
               )}
             </p>
-            
-            {/* ?댁넚???뺣낫 (諛곗넚以?諛곗넚?꾨즺/援щℓ?뺤젙 ???몄텧) */}
+
+            {/* 운송장 정보 (배송중/배송완료/구매확정 시 노출) */}
             {showDelivery && (
               <div className="mt-3 p-3 bg-neutral-50 rounded-lg border border-neutral-100 flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] text-neutral-400 font-medium leading-none mb-1">諛곗넚?뺣낫</p>
+                  <p className="text-[10px] text-neutral-400 font-medium leading-none mb-1">배송정보</p>
                   <p className="text-xs font-semibold text-neutral-700">
                     {carrierName} {trackingNumber}
                   </p>
@@ -161,71 +175,69 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
                   className="h-8 text-[11px] px-3 border-neutral-300 text-neutral-600 hover:bg-white"
                   onClick={() => window.open(`https://search.naver.com/search.naver?query=${encodeURIComponent(carrierName ?? '')}+${encodeURIComponent(trackingNumber ?? '')}`, '_blank')}
                 >
-                  諛곗넚 議고쉶
+                  배송 조회
                 </Button>
               </div>
             )}
           </div>
         </div>
 
-        {/* ?≪뀡 踰꾪듉 */}
+        {/* 액션 버튼 */}
         {(canConfirm || canCancel || canReturn || canRegisterTracking) && (
           <div className="flex gap-2 mt-4 pt-3 border-t border-neutral-100 flex-wrap">
             {canConfirm && (
               <Button size="sm" onClick={handleConfirm} className="flex-1 min-w-[120px]">
-                援щℓ ?뺤젙 諛?由щ럭 ?묒꽦
+                구매 확정 및 리뷰 작성
               </Button>
             )}
             {canCancel && (
               <Button size="sm" variant="outline" onClick={handleCancel} className="flex-1 min-w-[80px]">
-                二쇰Ц 痍⑥냼
+                주문 취소
               </Button>
             )}
             {canReturn && (
               <Button size="sm" variant="outline" onClick={() => setShowReturnRequestModal(true)} className="flex-1 min-w-[80px]">
-                諛섑뭹 ?좎껌
+                반품 신청
               </Button>
             )}
             {canRegisterTracking && (
               <Button size="sm" variant="outline" onClick={() => setShowReturnTrackingModal(true)} className="flex-1 min-w-[100px]">
-                ?댁넚???깅줉
+                운송장 등록
               </Button>
             )}
           </div>
         )}
       </div>
 
-      {/* 由щ럭 ?묒꽦 紐⑤떖 */}
+      {/* 리뷰 작성 모달 */}
       <Modal
         isOpen={showReviewModal}
         onClose={() => setShowReviewModal(false)}
-        title="由щ럭 ?묒꽦"
+        title="리뷰 작성"
       >
         <ReviewForm
-          orderId={id}
-          productTitle={title}
+          orderId={id as string}
+          productTitle={title || '상품'}
           onSubmit={handleReviewSubmit}
           onCancel={() => setShowReviewModal(false)}
         />
       </Modal>
 
-      {/* 諛섑뭹 ?좎껌 紐⑤떖 */}
-      {isApiData && (
-        <ReturnRequestModal
-          isOpen={showReturnRequestModal}
-          onClose={() => setShowReturnRequestModal(false)}
-          order={order as OrderListResponse}
-          onSuccess={(uuid) => {
-            setReturnRequestUuid(uuid);
-            setShowReturnRequestModal(false);
-            setShowReturnTrackingModal(true);
-            onUpdate?.();
-          }}
-        />
-      )}
+      {/* 반품 신청 모달 */}
+      <ReturnRequestModal
+        isOpen={showReturnRequestModal}
+        onClose={() => setShowReturnRequestModal(false)}
+        order={order as OrderListResponse}
+        onSuccess={(uuid) => {
+          setReturnRequestUuid(uuid);
+          setShowReturnRequestModal(false);
+          setShowReturnTrackingModal(true);
+          onUpdate?.();
+        }}
+      />
 
       {/* 반품 운송장 등록 모달 (반품 신청 성공 후 returnRequestUuid 전달) */}
-      {isApiData && returnRequestUuid && (
+      {returnRequestUuid && (
         <ReturnTrackingModal
           isOpen={showReturnTrackingModal}
           onClose={() => setShowReturnTrackingModal(false)}
@@ -237,4 +249,3 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
 };
 
 export default OrderHistoryCard;
-

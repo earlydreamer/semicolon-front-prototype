@@ -47,7 +47,7 @@ export interface OrderHistory {
   id: string;
   buyerId: string;
   sellerId: string;
-  productId: string;
+  productUuid: string;
   product: Product;
   status: OrderStatus;
   createdAt: string;
@@ -183,103 +183,103 @@ export const SELLER_TO_SHOP: Record<string, string> = {
 // ----------------------------------------------------------------------
 export const MOCK_ORDER_HISTORY: OrderHistory[] = [
   // u1 세미콜론 (구매 5개)
-  { id: 'o1', buyerId: 'u1', sellerId: 's2', productId: 'p1', product: getProduct('p1'), status: 'CONFIRMED', createdAt: d(30), totalPrice: 1550000, shippingFee: 0, hasReview: true, trackingNumber: '1234567890', deliveryCompany: '대한통운' },
-  { id: 'o2', buyerId: 'u1', sellerId: 's3', productId: 'p10', product: getProduct('p10'), status: 'DELIVERED', createdAt: d(15), totalPrice: 320000, shippingFee: 0, hasReview: false, trackingNumber: '9283746152', deliveryCompany: '우체국택배' },
-  { id: 'o3', buyerId: 'u1', sellerId: 's4', productId: 'p22', product: getProduct('p22'), status: 'SHIPPING', createdAt: d(3), totalPrice: 95000, shippingFee: 3000, trackingNumber: '5566778899', deliveryCompany: '로젠택배' },
-  { id: 'o4', buyerId: 'u1', sellerId: 's6', productId: 'p37', product: getProduct('p37'), status: 'PAID', createdAt: d(1), totalPrice: 35000, shippingFee: 2000 },
-  { id: 'o5', buyerId: 'u1', sellerId: 's5', productId: 'p32', product: getProduct('p32'), status: 'CANCELLED', createdAt: d(20), totalPrice: 150000, shippingFee: 3000 },
+  { id: 'o1', buyerId: 'u1', sellerId: 's2', productUuid: 'p1', product: getProduct('p1'), status: 'CONFIRMED', createdAt: d(30), totalPrice: 1550000, shippingFee: 0, hasReview: true, trackingNumber: '1234567890', deliveryCompany: '대한통운' },
+  { id: 'o2', buyerId: 'u1', sellerId: 's3', productUuid: 'p10', product: getProduct('p10'), status: 'DELIVERED', createdAt: d(15), totalPrice: 320000, shippingFee: 0, hasReview: false, trackingNumber: '9283746152', deliveryCompany: '우체국택배' },
+  { id: 'o3', buyerId: 'u1', sellerId: 's4', productUuid: 'p22', product: getProduct('p22'), status: 'SHIPPING', createdAt: d(3), totalPrice: 95000, shippingFee: 3000, trackingNumber: '5566778899', deliveryCompany: '로젠택배' },
+  { id: 'o4', buyerId: 'u1', sellerId: 's6', productUuid: 'p37', product: getProduct('p37'), status: 'PAID', createdAt: d(1), totalPrice: 35000, shippingFee: 2000 },
+  { id: 'o5', buyerId: 'u1', sellerId: 's5', productUuid: 'p32', product: getProduct('p32'), status: 'CANCELLED', createdAt: d(20), totalPrice: 150000, shippingFee: 3000 },
 
   // u7 찰칵찰칵 (구매 6개)
-  { id: 'o6', buyerId: 'u7', sellerId: 's2', productId: 'p3', product: getProduct('p3'), status: 'CONFIRMED', createdAt: d(45), totalPrice: 1100000, shippingFee: 0, hasReview: true },
-  { id: 'o7', buyerId: 'u7', sellerId: 's4', productId: 'p19', product: getProduct('p19'), status: 'CONFIRMED', createdAt: d(35), totalPrice: 1800000, shippingFee: 0, hasReview: true },
-  { id: 'o8', buyerId: 'u7', sellerId: 's6', productId: 'p38', product: getProduct('p38'), status: 'DELIVERED', createdAt: d(10), totalPrice: 28000, shippingFee: 2000 },
-  { id: 'o9', buyerId: 'u7', sellerId: 's3', productId: 'p12', product: getProduct('p12'), status: 'SHIPPING', createdAt: d(2), totalPrice: 420000, shippingFee: 4000 },
-  { id: 'o10', buyerId: 'u7', sellerId: 's5', productId: 'p28', product: getProduct('p28'), status: 'REFUNDED', createdAt: d(25), totalPrice: 450000, shippingFee: 0 },
-  { id: 'o11', buyerId: 'u7', sellerId: 's20', productId: 'p60', product: getProduct('p60'), status: 'PENDING', createdAt: d(0), totalPrice: 520000, shippingFee: 0 },
+  { id: 'o6', buyerId: 'u7', sellerId: 's2', productUuid: 'p3', product: getProduct('p3'), status: 'CONFIRMED', createdAt: d(45), totalPrice: 1100000, shippingFee: 0, hasReview: true },
+  { id: 'o7', buyerId: 'u7', sellerId: 's4', productUuid: 'p19', product: getProduct('p19'), status: 'CONFIRMED', createdAt: d(35), totalPrice: 1800000, shippingFee: 0, hasReview: true },
+  { id: 'o8', buyerId: 'u7', sellerId: 's6', productUuid: 'p38', product: getProduct('p38'), status: 'DELIVERED', createdAt: d(10), totalPrice: 28000, shippingFee: 2000 },
+  { id: 'o9', buyerId: 'u7', sellerId: 's3', productUuid: 'p12', product: getProduct('p12'), status: 'SHIPPING', createdAt: d(2), totalPrice: 420000, shippingFee: 4000 },
+  { id: 'o10', buyerId: 'u7', sellerId: 's5', productUuid: 'p28', product: getProduct('p28'), status: 'REFUNDED', createdAt: d(25), totalPrice: 450000, shippingFee: 0 },
+  { id: 'o11', buyerId: 'u7', sellerId: 's20', productUuid: 'p60', product: getProduct('p60'), status: 'PENDING', createdAt: d(0), totalPrice: 520000, shippingFee: 0 },
 
   // u8 라이더 (구매 3개)
-  { id: 'o12', buyerId: 'u8', sellerId: 's5', productId: 'p29', product: getProduct('p29'), status: 'CONFIRMED', createdAt: d(40), totalPrice: 520000, shippingFee: 0, hasReview: true },
-  { id: 'o13', buyerId: 'u8', sellerId: 's3', productId: 'p13', product: getProduct('p13'), status: 'DELIVERED', createdAt: d(12), totalPrice: 890000, shippingFee: 0 },
-  { id: 'o14', buyerId: 'u8', sellerId: 's4', productId: 'p24', product: getProduct('p24'), status: 'SHIPPING', createdAt: d(4), totalPrice: 320000, shippingFee: 0 },
+  { id: 'o12', buyerId: 'u8', sellerId: 's5', productUuid: 'p29', product: getProduct('p29'), status: 'CONFIRMED', createdAt: d(40), totalPrice: 520000, shippingFee: 0, hasReview: true },
+  { id: 'o13', buyerId: 'u8', sellerId: 's3', productUuid: 'p13', product: getProduct('p13'), status: 'DELIVERED', createdAt: d(12), totalPrice: 890000, shippingFee: 0 },
+  { id: 'o14', buyerId: 'u8', sellerId: 's4', productUuid: 'p24', product: getProduct('p24'), status: 'SHIPPING', createdAt: d(4), totalPrice: 320000, shippingFee: 0 },
 
   // u9 책벌레 (구매 4개)
-  { id: 'o15', buyerId: 'u9', sellerId: 's4', productId: 'p20', product: getProduct('p20'), status: 'CONFIRMED', createdAt: d(50), totalPrice: 2200000, shippingFee: 0, hasReview: true },
-  { id: 'o16', buyerId: 'u9', sellerId: 's6', productId: 'p42', product: getProduct('p42'), status: 'CONFIRMED', createdAt: d(30), totalPrice: 120000, shippingFee: 3000, hasReview: true },
-  { id: 'o17', buyerId: 'u9', sellerId: 's2', productId: 'p5', product: getProduct('p5'), status: 'SHIPPING', createdAt: d(5), totalPrice: 2800000, shippingFee: 0 },
-  { id: 'o18', buyerId: 'u9', sellerId: 's3', productId: 'p16', product: getProduct('p16'), status: 'PAID', createdAt: d(1), totalPrice: 180000, shippingFee: 3000 },
+  { id: 'o15', buyerId: 'u9', sellerId: 's4', productUuid: 'p20', product: getProduct('p20'), status: 'CONFIRMED', createdAt: d(50), totalPrice: 2200000, shippingFee: 0, hasReview: true },
+  { id: 'o16', buyerId: 'u9', sellerId: 's6', productUuid: 'p42', product: getProduct('p42'), status: 'CONFIRMED', createdAt: d(30), totalPrice: 120000, shippingFee: 3000, hasReview: true },
+  { id: 'o17', buyerId: 'u9', sellerId: 's2', productUuid: 'p5', product: getProduct('p5'), status: 'SHIPPING', createdAt: d(5), totalPrice: 2800000, shippingFee: 0 },
+  { id: 'o18', buyerId: 'u9', sellerId: 's3', productUuid: 'p16', product: getProduct('p16'), status: 'PAID', createdAt: d(1), totalPrice: 180000, shippingFee: 3000 },
 
   // u10 겜돌이 (구매 7개)
-  { id: 'o19', buyerId: 'u10', sellerId: 's2', productId: 'p2', product: getProduct('p2'), status: 'CONFIRMED', createdAt: d(60), totalPrice: 1350000, shippingFee: 3000, hasReview: true },
-  { id: 'o20', buyerId: 'u10', sellerId: 's2', productId: 'p4', product: getProduct('p4'), status: 'CONFIRMED', createdAt: d(45), totalPrice: 980000, shippingFee: 4000, hasReview: true },
-  { id: 'o21', buyerId: 'u10', sellerId: 's3', productId: 'p11', product: getProduct('p11'), status: 'DELIVERED', createdAt: d(20), totalPrice: 480000, shippingFee: 0 },
-  { id: 'o22', buyerId: 'u10', sellerId: 's6', productId: 'p40', product: getProduct('p40'), status: 'CONFIRMED', createdAt: d(15), totalPrice: 85000, shippingFee: 1500, hasReview: true },
-  { id: 'o23', buyerId: 'u10', sellerId: 's4', productId: 'p21', product: getProduct('p21'), status: 'SHIPPING', createdAt: d(3), totalPrice: 85000, shippingFee: 3000 },
-  { id: 'o24', buyerId: 'u10', sellerId: 's5', productId: 'p31', product: getProduct('p31'), status: 'PAID', createdAt: d(1), totalPrice: 280000, shippingFee: 4000 },
-  { id: 'o25', buyerId: 'u10', sellerId: 's7', productId: 'p46', product: getProduct('p46'), status: 'CANCELLED', createdAt: d(10), totalPrice: 2200000, shippingFee: 0 },
+  { id: 'o19', buyerId: 'u10', sellerId: 's2', productUuid: 'p2', product: getProduct('p2'), status: 'CONFIRMED', createdAt: d(60), totalPrice: 1350000, shippingFee: 3000, hasReview: true },
+  { id: 'o20', buyerId: 'u10', sellerId: 's2', productUuid: 'p4', product: getProduct('p4'), status: 'CONFIRMED', createdAt: d(45), totalPrice: 980000, shippingFee: 4000, hasReview: true },
+  { id: 'o21', buyerId: 'u10', sellerId: 's3', productUuid: 'p11', product: getProduct('p11'), status: 'DELIVERED', createdAt: d(20), totalPrice: 480000, shippingFee: 0 },
+  { id: 'o22', buyerId: 'u10', sellerId: 's6', productUuid: 'p40', product: getProduct('p40'), status: 'CONFIRMED', createdAt: d(15), totalPrice: 85000, shippingFee: 1500, hasReview: true },
+  { id: 'o23', buyerId: 'u10', sellerId: 's4', productUuid: 'p21', product: getProduct('p21'), status: 'SHIPPING', createdAt: d(3), totalPrice: 85000, shippingFee: 3000 },
+  { id: 'o24', buyerId: 'u10', sellerId: 's5', productUuid: 'p31', product: getProduct('p31'), status: 'PAID', createdAt: d(1), totalPrice: 280000, shippingFee: 4000 },
+  { id: 'o25', buyerId: 'u10', sellerId: 's7', productUuid: 'p46', product: getProduct('p46'), status: 'CANCELLED', createdAt: d(10), totalPrice: 2200000, shippingFee: 0 },
 
   // u11 강태공 (구매 2개)
-  { id: 'o26', buyerId: 'u11', sellerId: 's4', productId: 'p25', product: getProduct('p25'), status: 'CONFIRMED', createdAt: d(30), totalPrice: 380000, shippingFee: 4000, hasReview: true },
-  { id: 'o27', buyerId: 'u11', sellerId: 's12', productId: 'p52', product: getProduct('p52'), status: 'DELIVERED', createdAt: d(8), totalPrice: 280000, shippingFee: 0 },
+  { id: 'o26', buyerId: 'u11', sellerId: 's4', productUuid: 'p25', product: getProduct('p25'), status: 'CONFIRMED', createdAt: d(30), totalPrice: 380000, shippingFee: 4000, hasReview: true },
+  { id: 'o27', buyerId: 'u11', sellerId: 's12', productUuid: 'p52', product: getProduct('p52'), status: 'DELIVERED', createdAt: d(8), totalPrice: 280000, shippingFee: 0 },
 
   // u12 요리왕 (구매 5개)
-  { id: 'o28', buyerId: 'u12', sellerId: 's4', productId: 'p26', product: getProduct('p26'), status: 'CONFIRMED', createdAt: d(25), totalPrice: 65000, shippingFee: 3000, hasReview: true },
-  { id: 'o29', buyerId: 'u12', sellerId: 's6', productId: 'p39', product: getProduct('p39'), status: 'CONFIRMED', createdAt: d(18), totalPrice: 45000, shippingFee: 1500, hasReview: true },
-  { id: 'o30', buyerId: 'u12', sellerId: 's3', productId: 'p15', product: getProduct('p15'), status: 'SHIPPING', createdAt: d(4), totalPrice: 550000, shippingFee: 5000 },
-  { id: 'o31', buyerId: 'u12', sellerId: 's17', productId: 'p57', product: getProduct('p57'), status: 'PAID', createdAt: d(1), totalPrice: 450000, shippingFee: 0 },
-  { id: 'o32', buyerId: 'u12', sellerId: 's2', productId: 'p6', product: getProduct('p6'), status: 'REFUNDED', createdAt: d(35), totalPrice: 1150000, shippingFee: 0 },
+  { id: 'o28', buyerId: 'u12', sellerId: 's4', productUuid: 'p26', product: getProduct('p26'), status: 'CONFIRMED', createdAt: d(25), totalPrice: 65000, shippingFee: 3000, hasReview: true },
+  { id: 'o29', buyerId: 'u12', sellerId: 's6', productUuid: 'p39', product: getProduct('p39'), status: 'CONFIRMED', createdAt: d(18), totalPrice: 45000, shippingFee: 1500, hasReview: true },
+  { id: 'o30', buyerId: 'u12', sellerId: 's3', productUuid: 'p15', product: getProduct('p15'), status: 'SHIPPING', createdAt: d(4), totalPrice: 550000, shippingFee: 5000 },
+  { id: 'o31', buyerId: 'u12', sellerId: 's17', productUuid: 'p57', product: getProduct('p57'), status: 'PAID', createdAt: d(1), totalPrice: 450000, shippingFee: 0 },
+  { id: 'o32', buyerId: 'u12', sellerId: 's2', productUuid: 'p6', product: getProduct('p6'), status: 'REFUNDED', createdAt: d(35), totalPrice: 1150000, shippingFee: 0 },
 
   // u13 블럭쌓기 (구매 4개)
-  { id: 'o33', buyerId: 'u13', sellerId: 's2', productId: 'p7', product: getProduct('p7'), status: 'CONFIRMED', createdAt: d(40), totalPrice: 1650000, shippingFee: 5000, hasReview: true },
-  { id: 'o34', buyerId: 'u13', sellerId: 's5', productId: 'p33', product: getProduct('p33'), status: 'CONFIRMED', createdAt: d(28), totalPrice: 650000, shippingFee: 0, hasReview: true },
-  { id: 'o35', buyerId: 'u13', sellerId: 's6', productId: 'p43', product: getProduct('p43'), status: 'DELIVERED', createdAt: d(10), totalPrice: 95000, shippingFee: 3000 },
-  { id: 'o36', buyerId: 'u13', sellerId: 's19', productId: 'p59', product: getProduct('p59'), status: 'SHIPPING', createdAt: d(2), totalPrice: 4500000, shippingFee: 0 },
+  { id: 'o33', buyerId: 'u13', sellerId: 's2', productUuid: 'p7', product: getProduct('p7'), status: 'CONFIRMED', createdAt: d(40), totalPrice: 1650000, shippingFee: 5000, hasReview: true },
+  { id: 'o34', buyerId: 'u13', sellerId: 's5', productUuid: 'p33', product: getProduct('p33'), status: 'CONFIRMED', createdAt: d(28), totalPrice: 650000, shippingFee: 0, hasReview: true },
+  { id: 'o35', buyerId: 'u13', sellerId: 's6', productUuid: 'p43', product: getProduct('p43'), status: 'DELIVERED', createdAt: d(10), totalPrice: 95000, shippingFee: 3000 },
+  { id: 'o36', buyerId: 'u13', sellerId: 's19', productUuid: 'p59', product: getProduct('p59'), status: 'SHIPPING', createdAt: d(2), totalPrice: 4500000, shippingFee: 0 },
 
   // u14 슈즈홀릭 (구매 3개)
-  { id: 'o37', buyerId: 'u14', sellerId: 's5', productId: 'p30', product: getProduct('p30'), status: 'CONFIRMED', createdAt: d(55), totalPrice: 780000, shippingFee: 0, hasReview: true },
-  { id: 'o38', buyerId: 'u14', sellerId: 's3', productId: 'p14', product: getProduct('p14'), status: 'DELIVERED', createdAt: d(15), totalPrice: 1450000, shippingFee: 0 },
-  { id: 'o39', buyerId: 'u14', sellerId: 's18', productId: 'p58', product: getProduct('p58'), status: 'PAID', createdAt: d(1), totalPrice: 650000, shippingFee: 0 },
+  { id: 'o37', buyerId: 'u14', sellerId: 's5', productUuid: 'p30', product: getProduct('p30'), status: 'CONFIRMED', createdAt: d(55), totalPrice: 780000, shippingFee: 0, hasReview: true },
+  { id: 'o38', buyerId: 'u14', sellerId: 's3', productUuid: 'p14', product: getProduct('p14'), status: 'DELIVERED', createdAt: d(15), totalPrice: 1450000, shippingFee: 0 },
+  { id: 'o39', buyerId: 'u14', sellerId: 's18', productUuid: 'p58', product: getProduct('p58'), status: 'PAID', createdAt: d(1), totalPrice: 650000, shippingFee: 0 },
 
   // u15 가방조아 (구매 8개)
-  { id: 'o40', buyerId: 'u15', sellerId: 's2', productId: 'p8', product: getProduct('p8'), status: 'CONFIRMED', createdAt: d(50), totalPrice: 850000, shippingFee: 0, hasReview: true },
-  { id: 'o41', buyerId: 'u15', sellerId: 's4', productId: 'p23', product: getProduct('p23'), status: 'CONFIRMED', createdAt: d(38), totalPrice: 280000, shippingFee: 5000, hasReview: true },
-  { id: 'o42', buyerId: 'u15', sellerId: 's6', productId: 'p41', product: getProduct('p41'), status: 'CONFIRMED', createdAt: d(22), totalPrice: 180000, shippingFee: 0, hasReview: true },
-  { id: 'o43', buyerId: 'u15', sellerId: 's5', productId: 'p34', product: getProduct('p34'), status: 'DELIVERED', createdAt: d(12), totalPrice: 180000, shippingFee: 5000 },
-  { id: 'o44', buyerId: 'u15', sellerId: 's3', productId: 'p17', product: getProduct('p17'), status: 'SHIPPING', createdAt: d(4), totalPrice: 420000, shippingFee: 0 },
-  { id: 'o45', buyerId: 'u15', sellerId: 's7', productId: 'p47', product: getProduct('p47'), status: 'PAID', createdAt: d(1), totalPrice: 1850000, shippingFee: 0 },
-  { id: 'o46', buyerId: 'u15', sellerId: 's8', productId: 'p48', product: getProduct('p48'), status: 'CANCELLED', createdAt: d(30), totalPrice: 850000, shippingFee: 0 },
-  { id: 'o47', buyerId: 'u15', sellerId: 's10', productId: 'p50', product: getProduct('p50'), status: 'REFUNDED', createdAt: d(18), totalPrice: 780000, shippingFee: 3000 },
+  { id: 'o40', buyerId: 'u15', sellerId: 's2', productUuid: 'p8', product: getProduct('p8'), status: 'CONFIRMED', createdAt: d(50), totalPrice: 850000, shippingFee: 0, hasReview: true },
+  { id: 'o41', buyerId: 'u15', sellerId: 's4', productUuid: 'p23', product: getProduct('p23'), status: 'CONFIRMED', createdAt: d(38), totalPrice: 280000, shippingFee: 5000, hasReview: true },
+  { id: 'o42', buyerId: 'u15', sellerId: 's6', productUuid: 'p41', product: getProduct('p41'), status: 'CONFIRMED', createdAt: d(22), totalPrice: 180000, shippingFee: 0, hasReview: true },
+  { id: 'o43', buyerId: 'u15', sellerId: 's5', productUuid: 'p34', product: getProduct('p34'), status: 'DELIVERED', createdAt: d(12), totalPrice: 180000, shippingFee: 5000 },
+  { id: 'o44', buyerId: 'u15', sellerId: 's3', productUuid: 'p17', product: getProduct('p17'), status: 'SHIPPING', createdAt: d(4), totalPrice: 420000, shippingFee: 0 },
+  { id: 'o45', buyerId: 'u15', sellerId: 's7', productUuid: 'p47', product: getProduct('p47'), status: 'PAID', createdAt: d(1), totalPrice: 1850000, shippingFee: 0 },
+  { id: 'o46', buyerId: 'u15', sellerId: 's8', productUuid: 'p48', product: getProduct('p48'), status: 'CANCELLED', createdAt: d(30), totalPrice: 850000, shippingFee: 0 },
+  { id: 'o47', buyerId: 'u15', sellerId: 's10', productUuid: 'p50', product: getProduct('p50'), status: 'REFUNDED', createdAt: d(18), totalPrice: 780000, shippingFee: 3000 },
 
   // u16 식집사 (구매 4개)
-  { id: 'o48', buyerId: 'u16', sellerId: 's3', productId: 'p10', product: getProduct('p10'), status: 'CONFIRMED', createdAt: d(42), totalPrice: 320000, shippingFee: 0, hasReview: true },
-  { id: 'o49', buyerId: 'u16', sellerId: 's5', productId: 'p35', product: getProduct('p35'), status: 'DELIVERED', createdAt: d(14), totalPrice: 85000, shippingFee: 3000 },
-  { id: 'o50', buyerId: 'u16', sellerId: 's6', productId: 'p44', product: getProduct('p44'), status: 'SHIPPING', createdAt: d(3), totalPrice: 65000, shippingFee: 2500 },
-  { id: 'o51', buyerId: 'u16', sellerId: 's4', productId: 'p27', product: getProduct('p27'), status: 'PENDING', createdAt: d(0), totalPrice: 120000, shippingFee: 3000 },
+  { id: 'o48', buyerId: 'u16', sellerId: 's3', productUuid: 'p10', product: getProduct('p10'), status: 'CONFIRMED', createdAt: d(42), totalPrice: 320000, shippingFee: 0, hasReview: true },
+  { id: 'o49', buyerId: 'u16', sellerId: 's5', productUuid: 'p35', product: getProduct('p35'), status: 'DELIVERED', createdAt: d(14), totalPrice: 85000, shippingFee: 3000 },
+  { id: 'o50', buyerId: 'u16', sellerId: 's6', productUuid: 'p44', product: getProduct('p44'), status: 'SHIPPING', createdAt: d(3), totalPrice: 65000, shippingFee: 2500 },
+  { id: 'o51', buyerId: 'u16', sellerId: 's4', productUuid: 'p27', product: getProduct('p27'), status: 'PENDING', createdAt: d(0), totalPrice: 120000, shippingFee: 3000 },
 
   // u17 차마시는날 (구매 3개)
-  { id: 'o52', buyerId: 'u17', sellerId: 's4', productId: 'p24', product: getProduct('p24'), status: 'CONFIRMED', createdAt: d(48), totalPrice: 320000, shippingFee: 0, hasReview: true },
-  { id: 'o53', buyerId: 'u17', sellerId: 's6', productId: 'p42', product: getProduct('p42'), status: 'DELIVERED', createdAt: d(20), totalPrice: 120000, shippingFee: 3000 },
-  { id: 'o54', buyerId: 'u17', sellerId: 's13', productId: 'p53', product: getProduct('p53'), status: 'PAID', createdAt: d(2), totalPrice: 850000, shippingFee: 0 },
+  { id: 'o52', buyerId: 'u17', sellerId: 's4', productUuid: 'p24', product: getProduct('p24'), status: 'CONFIRMED', createdAt: d(48), totalPrice: 320000, shippingFee: 0, hasReview: true },
+  { id: 'o53', buyerId: 'u17', sellerId: 's6', productUuid: 'p42', product: getProduct('p42'), status: 'DELIVERED', createdAt: d(20), totalPrice: 120000, shippingFee: 3000 },
+  { id: 'o54', buyerId: 'u17', sellerId: 's13', productUuid: 'p53', product: getProduct('p53'), status: 'PAID', createdAt: d(2), totalPrice: 850000, shippingFee: 0 },
 
   // u18 득근득근 (구매 5개)
-  { id: 'o55', buyerId: 'u18', sellerId: 's2', productId: 'p5', product: getProduct('p5'), status: 'CONFIRMED', createdAt: d(55), totalPrice: 2800000, shippingFee: 0, hasReview: true },
-  { id: 'o56', buyerId: 'u18', sellerId: 's4', productId: 'p19', product: getProduct('p19'), status: 'CONFIRMED', createdAt: d(40), totalPrice: 1800000, shippingFee: 0, hasReview: true },
-  { id: 'o57', buyerId: 'u18', sellerId: 's5', productId: 'p28', product: getProduct('p28'), status: 'DELIVERED', createdAt: d(18), totalPrice: 450000, shippingFee: 0 },
-  { id: 'o58', buyerId: 'u18', sellerId: 's6', productId: 'p37', product: getProduct('p37'), status: 'SHIPPING', createdAt: d(4), totalPrice: 35000, shippingFee: 2000 },
-  { id: 'o59', buyerId: 'u18', sellerId: 's20', productId: 'p61', product: getProduct('p61'), status: 'PENDING', createdAt: d(0), totalPrice: 380000, shippingFee: 3000 },
+  { id: 'o55', buyerId: 'u18', sellerId: 's2', productUuid: 'p5', product: getProduct('p5'), status: 'CONFIRMED', createdAt: d(55), totalPrice: 2800000, shippingFee: 0, hasReview: true },
+  { id: 'o56', buyerId: 'u18', sellerId: 's4', productUuid: 'p19', product: getProduct('p19'), status: 'CONFIRMED', createdAt: d(40), totalPrice: 1800000, shippingFee: 0, hasReview: true },
+  { id: 'o57', buyerId: 'u18', sellerId: 's5', productUuid: 'p28', product: getProduct('p28'), status: 'DELIVERED', createdAt: d(18), totalPrice: 450000, shippingFee: 0 },
+  { id: 'o58', buyerId: 'u18', sellerId: 's6', productUuid: 'p37', product: getProduct('p37'), status: 'SHIPPING', createdAt: d(4), totalPrice: 35000, shippingFee: 2000 },
+  { id: 'o59', buyerId: 'u18', sellerId: 's20', productUuid: 'p61', product: getProduct('p61'), status: 'PENDING', createdAt: d(0), totalPrice: 380000, shippingFee: 3000 },
 
   // u19 그림쟁이 (구매 4개)
-  { id: 'o60', buyerId: 'u19', sellerId: 's3', productId: 'p13', product: getProduct('p13'), status: 'CONFIRMED', createdAt: d(38), totalPrice: 890000, shippingFee: 0, hasReview: true },
-  { id: 'o61', buyerId: 'u19', sellerId: 's5', productId: 'p33', product: getProduct('p33'), status: 'DELIVERED', createdAt: d(22), totalPrice: 650000, shippingFee: 0 },
-  { id: 'o62', buyerId: 'u19', sellerId: 's4', productId: 'p22', product: getProduct('p22'), status: 'SHIPPING', createdAt: d(5), totalPrice: 95000, shippingFee: 3000 },
-  { id: 'o63', buyerId: 'u19', sellerId: 's2', productId: 'p1', product: getProduct('p1'), status: 'CANCELLED', createdAt: d(12), totalPrice: 1550000, shippingFee: 0 },
+  { id: 'o60', buyerId: 'u19', sellerId: 's3', productUuid: 'p13', product: getProduct('p13'), status: 'CONFIRMED', createdAt: d(38), totalPrice: 890000, shippingFee: 0, hasReview: true },
+  { id: 'o61', buyerId: 'u19', sellerId: 's5', productUuid: 'p33', product: getProduct('p33'), status: 'DELIVERED', createdAt: d(22), totalPrice: 650000, shippingFee: 0 },
+  { id: 'o62', buyerId: 'u19', sellerId: 's4', productUuid: 'p22', product: getProduct('p22'), status: 'SHIPPING', createdAt: d(5), totalPrice: 95000, shippingFee: 3000 },
+  { id: 'o63', buyerId: 'u19', sellerId: 's2', productUuid: 'p1', product: getProduct('p1'), status: 'CANCELLED', createdAt: d(12), totalPrice: 1550000, shippingFee: 0 },
 
   // u20 레트로매니아 (구매 6개)
-  { id: 'o64', buyerId: 'u20', sellerId: 's2', productId: 'p3', product: getProduct('p3'), status: 'CONFIRMED', createdAt: d(52), totalPrice: 1100000, shippingFee: 0, hasReview: true },
-  { id: 'o65', buyerId: 'u20', sellerId: 's3', productId: 'p11', product: getProduct('p11'), status: 'CONFIRMED', createdAt: d(35), totalPrice: 480000, shippingFee: 0, hasReview: true },
-  { id: 'o66', buyerId: 'u20', sellerId: 's6', productId: 'p40', product: getProduct('p40'), status: 'DELIVERED', createdAt: d(16), totalPrice: 85000, shippingFee: 1500 },
-  { id: 'o67', buyerId: 'u20', sellerId: 's4', productId: 'p20', product: getProduct('p20'), status: 'SHIPPING', createdAt: d(4), totalPrice: 2200000, shippingFee: 0 },
-  { id: 'o68', buyerId: 'u20', sellerId: 's5', productId: 'p29', product: getProduct('p29'), status: 'PAID', createdAt: d(1), totalPrice: 520000, shippingFee: 0 },
-  { id: 'o69', buyerId: 'u20', sellerId: 's7', productId: 'p46', product: getProduct('p46'), status: 'REFUNDED', createdAt: d(28), totalPrice: 2200000, shippingFee: 0 },
+  { id: 'o64', buyerId: 'u20', sellerId: 's2', productUuid: 'p3', product: getProduct('p3'), status: 'CONFIRMED', createdAt: d(52), totalPrice: 1100000, shippingFee: 0, hasReview: true },
+  { id: 'o65', buyerId: 'u20', sellerId: 's3', productUuid: 'p11', product: getProduct('p11'), status: 'CONFIRMED', createdAt: d(35), totalPrice: 480000, shippingFee: 0, hasReview: true },
+  { id: 'o66', buyerId: 'u20', sellerId: 's6', productUuid: 'p40', product: getProduct('p40'), status: 'DELIVERED', createdAt: d(16), totalPrice: 85000, shippingFee: 1500 },
+  { id: 'o67', buyerId: 'u20', sellerId: 's4', productUuid: 'p20', product: getProduct('p20'), status: 'SHIPPING', createdAt: d(4), totalPrice: 2200000, shippingFee: 0 },
+  { id: 'o68', buyerId: 'u20', sellerId: 's5', productUuid: 'p29', product: getProduct('p29'), status: 'PAID', createdAt: d(1), totalPrice: 520000, shippingFee: 0 },
+  { id: 'o69', buyerId: 'u20', sellerId: 's7', productUuid: 'p46', product: getProduct('p46'), status: 'REFUNDED', createdAt: d(28), totalPrice: 2200000, shippingFee: 0 },
 ];
 
 /**

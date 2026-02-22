@@ -34,7 +34,7 @@ export interface OrderHistory {
   id: string;
   buyerId: string;
   sellerId: string;
-  productId: string;
+  productUuid: string;
   product: Product;
   status: OrderStatus;
   createdAt: string;

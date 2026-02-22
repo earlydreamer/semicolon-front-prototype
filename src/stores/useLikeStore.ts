@@ -8,8 +8,8 @@ interface LikeState {
   userLikes: Record<string, string[]>;
   
   // Actions
-  toggleLike: (userId: string, productId: string) => Promise<void>;
-  isLiked: (userId: string, productId: string) => boolean;
+  toggleLike: (userId: string, productUuid: string) => Promise<void>;
+  isLiked: (userId: string, productUuid: string) => boolean;
   fetchUserLikes: (userId: string) => Promise<void>;
   
   // Computed
@@ -34,23 +34,23 @@ export const useLikeStore = create<LikeState>()(
         }
       },
 
-      toggleLike: async (userId: string, productId: string) => {
+      toggleLike: async (userId: string, productUuid: string) => {
         const currentLikes = get().userLikes[userId] || [];
-        const isCurrentlyLiked = currentLikes.includes(productId);
+        const isCurrentlyLiked = currentLikes.includes(productUuid);
         
         try {
           if (isCurrentlyLiked) {
-            await userService.unlikeProduct(productId);
+            await userService.unlikeProduct(productUuid);
           } else {
-            await userService.likeProduct(productId);
+            await userService.likeProduct(productUuid);
           }
 
           // Update local state after successful API call
           let newLikes: string[];
           if (isCurrentlyLiked) {
-            newLikes = currentLikes.filter((id) => id !== productId);
+            newLikes = currentLikes.filter((id) => id !== productUuid);
           } else {
-            newLikes = [...currentLikes, productId];
+            newLikes = [...currentLikes, productUuid];
           }
 
           set((state) => ({
@@ -62,8 +62,8 @@ export const useLikeStore = create<LikeState>()(
         }
       },
       
-      isLiked: (userId: string, productId: string) => {
-        return (get().userLikes[userId] || []).includes(productId);
+      isLiked: (userId: string, productUuid: string) => {
+        return (get().userLikes[userId] || []).includes(productUuid);
       },
       
       getLikedCount: (userId: string) => {

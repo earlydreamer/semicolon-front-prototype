@@ -9,7 +9,6 @@ import type { Address } from '../types/address';
 // 주문 생성 응답의 OrderItem 정보 타입입니다.
 export interface OrderItemResponse {
   orderItemUuid: string;
-  productId: number;
   productUuid: string;
   sellerUuid: string;
   productName: string;
