@@ -1,7 +1,3 @@
-/**
- * 관리자 사이드바 네비게이션
- */
-
 import { Link, NavLink } from 'react-router-dom';
 import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard';
 import Package from 'lucide-react/dist/esm/icons/package';
@@ -10,6 +6,7 @@ import FolderTree from 'lucide-react/dist/esm/icons/folder-tree';
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import Ticket from 'lucide-react/dist/esm/icons/ticket';
 import Wallet from 'lucide-react/dist/esm/icons/wallet';
+import FlaskConical from 'lucide-react/dist/esm/icons/flask-conical';
 import LogOut from 'lucide-react/dist/esm/icons/log-out';
 import Image from 'lucide-react/dist/esm/icons/image';
 
@@ -20,10 +17,10 @@ const navItems = [
   { icon: Users, label: '회원 관리', href: '/admin/users' },
   { icon: AlertTriangle, label: '신고 관리', href: '/admin/reports' },
   { icon: Ticket, label: '쿠폰 관리', href: '/admin/coupons' },
+  { icon: FlaskConical, label: '테스트 도구', href: '/admin/test-tools' },
   { icon: Wallet, label: '정산 관리', href: '/admin/settlements' },
   { icon: FolderTree, label: '카테고리 관리', href: '/admin/categories' },
 ];
-
 
 interface AdminSidebarProps {
   onClose?: () => void;
@@ -32,10 +29,9 @@ interface AdminSidebarProps {
 const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
   return (
     <aside className="w-64 bg-neutral-900 text-white h-full flex flex-col">
-      {/* 로고 및 닫기 버튼 (모바일) */}
       <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
         <h1 className="text-xl font-bold">
-          <span className="text-primary-400">덕쿠</span>
+          <span className="text-primary-400">세미콜론</span>
           <span className="text-sm font-normal text-neutral-400 ml-2">Admin</span>
         </h1>
         {onClose && (
@@ -50,7 +46,6 @@ const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
         )}
       </div>
 
-      {/* 네비게이션 */}
       <nav className="flex-1 p-4">
         <ul className="space-y-1">
           {navItems.map((item) => (
@@ -75,7 +70,6 @@ const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
         </ul>
       </nav>
 
-      {/* 하단 */}
       <div className="p-4 border-t border-neutral-800">
         <Link
           to="/"
