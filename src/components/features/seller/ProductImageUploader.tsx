@@ -32,15 +32,13 @@ const ProductImageUploader = ({
     const remainingSlots = maxImages - images.length;
     const filesToProcess = Array.from(files).slice(0, remainingSlots);
 
-    filesToProcess.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        if (result) {
-          onChange([...images, result]);
-        }
-      };
-      reader.readAsDataURL(file);
+    filesToProcess.forEach((_, index) => {
+      // S3 미지원 대응: 임시 플레이스홀더 URL 생성 (DB 부하 방지)
+      // picsum.photos를 사용하여 랜덤 이미지를 제공하며, 캐시 방지를 위해 랜덤 쿼리 추가
+      const placeholderUrl = `https://picsum.photos/seed/${Date.now() + index}/800/800`;
+      
+      // 실제 파일을 읽는 대신 URL 바로 전달
+      onChange([...images, placeholderUrl]);
     });
 
     // 인풋 초기화 (같은 파일 재선택 가능하도록)
