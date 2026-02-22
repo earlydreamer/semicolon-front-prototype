@@ -17,7 +17,7 @@ import {
 
 const signupSchema = z
   .object({
-    email: z.string().email('올바른 이메일 형식을 입력해 주세요.'),
+    email: z.string().regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, '올바른 이메일 형식을 입력해 주세요.'),
     password: z
       .string()
       .min(8, '비밀번호는 최소 8자 이상이어야 합니다.')

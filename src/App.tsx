@@ -45,6 +45,7 @@ const NoticePage = lazy(() => import("./pages/NoticePage"));
 const FAQPage = lazy(() => import("./pages/FAQPage"));
 const PolicyPage = lazy(() => import("./pages/PolicyPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 // 관리자 페이지입니다.
 const AdminLayout = lazy(() => import("./components/layout/AdminLayout"));
@@ -205,6 +206,11 @@ function App() {
                   />
                   <Route path="categories" element={<CategoryManagePage />} />
                 </Route>
+              </Route>
+
+              {/* 404 Not Found (모든 매칭되지 않는 경로) */}
+              <Route path="*" element={<DefaultLayout />}>
+                <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>
           </Suspense>
