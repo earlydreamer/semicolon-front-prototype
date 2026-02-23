@@ -3,6 +3,8 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { authService } from "../services/authService";
 import type { LoginRequest, User, UserRegisterRequest } from "../types/auth";
 
+const normalizeAccessToken = (token: string) => token.replace(/^Bearer\s+/i, "").trim();
+
 const authStorage = {
   getItem: (name: string) => {
     return localStorage.getItem(name) ?? sessionStorage.getItem(name);
@@ -32,6 +34,7 @@ const authStorage = {
 interface AuthState {
   user: User | null;
   accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isAdminAuthenticated: boolean;
   isInitialized: boolean;
@@ -51,6 +54,7 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       accessToken: null,
+      refreshToken: null,
       isAuthenticated: false,
       isAdminAuthenticated: false,
       isInitialized: false,
@@ -58,17 +62,23 @@ export const useAuthStore = create<AuthState>()(
 
       login: async (request: LoginRequest, rememberMe = true) => {
         try {
-          const { accessToken } = await authService.login(request);
-          set({ accessToken, isAuthenticated: true, rememberMe });
-
+          const { accessToken, refreshToken } = await authService.login(request);
+          set({ 
+            accessToken: normalizeAccessToken(accessToken), 
+            refreshToken: refreshToken || null,
+            rememberMe 
+          });
+          
           const user = await authService.getMe();
           set({
             user: { ...user, id: user.userUuid },
+            isAuthenticated: true,
             isAdminAuthenticated: user.role === "ADMIN",
           });
         } catch (error) {
           set({
             accessToken: null,
+            refreshToken: null,
             isAuthenticated: false,
             isAdminAuthenticated: false,
             user: null,
@@ -80,17 +90,23 @@ export const useAuthStore = create<AuthState>()(
 
       loginAdmin: async (request: LoginRequest, rememberMe = true) => {
         try {
-          const { accessToken } = await authService.loginAdmin(request);
-          set({ accessToken, isAuthenticated: true, rememberMe });
+          const { accessToken, refreshToken } = await authService.loginAdmin(request);
+          set({ 
+            accessToken: normalizeAccessToken(accessToken), 
+            refreshToken: refreshToken || null,
+            rememberMe 
+          });
 
           const user = await authService.getMe();
           set({
             user: { ...user, id: user.userUuid },
+            isAuthenticated: true,
             isAdminAuthenticated: user.role === "ADMIN",
           });
         } catch (error) {
           set({
             accessToken: null,
+            refreshToken: null,
             isAuthenticated: false,
             isAdminAuthenticated: false,
             user: null,
@@ -108,6 +124,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           user: null,
           accessToken: null,
+          refreshToken: null,
           isAuthenticated: false,
           isAdminAuthenticated: false,
           rememberMe: false,
@@ -118,6 +135,10 @@ export const useAuthStore = create<AuthState>()(
         const { accessToken } = get();
         if (!accessToken) {
           set({
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+            isAuthenticated: false,
             isAdminAuthenticated: false,
             isInitialized: true,
           });
@@ -136,6 +157,7 @@ export const useAuthStore = create<AuthState>()(
           set({
             user: null,
             accessToken: null,
+            refreshToken: null,
             isAuthenticated: false,
             isAdminAuthenticated: false,
             isInitialized: true,
@@ -156,17 +178,23 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      socialLogin: async (accessToken: string, _refreshToken?: string | null) => {
+      socialLogin: async (accessToken: string, refreshToken?: string | null) => {
         try {
-          set({ accessToken, isAuthenticated: true, rememberMe: true });
+          set({ 
+            accessToken: normalizeAccessToken(accessToken), 
+            refreshToken: refreshToken || null,
+            rememberMe: true 
+          });
           const user = await authService.getMe();
           set({
             user: { ...user, id: user.userUuid },
+            isAuthenticated: true,
             isAdminAuthenticated: user.role === "ADMIN",
           });
         } catch (error) {
           set({
             accessToken: null,
+            refreshToken: null,
             isAuthenticated: false,
             isAdminAuthenticated: false,
             user: null,
@@ -181,7 +209,9 @@ export const useAuthStore = create<AuthState>()(
       storage: createJSONStorage(() => authStorage),
       partialize: (state) => ({
         accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
+        isAdminAuthenticated: state.isAdminAuthenticated,
         user: state.user,
         rememberMe: state.rememberMe,
       }),

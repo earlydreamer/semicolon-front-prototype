@@ -18,7 +18,8 @@ api.interceptors.request.use((config) => {
   const { accessToken } = useAuthStore.getState();
   
   if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+    const token = accessToken.trim();
+    config.headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
   }
   
   return config;
@@ -31,6 +32,8 @@ api.interceptors.response.use(
     // 401 Unauthorized 에러 시 세션 종료
     if (error.response?.status === 401) {
       const { logout } = useAuthStore.getState();
+      
+      console.warn(`[API 401 Unauthorized] URL: ${error.config?.url || 'unknown'}`);
       
       // 무한 루프 방지: 현재 경로가 로그인이 아닐 때만 로그아웃 처리 및 리다이렉트 고려
       logout();

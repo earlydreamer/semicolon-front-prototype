@@ -73,7 +73,7 @@ import ErrorBoundary from "@/components/common/ErrorBoundary";
 const basename = import.meta.env.BASE_URL;
 
 function App() {
-  const { initialize, isInitialized, isAuthenticated } = useAuthStore();
+  const { initialize, isInitialized, isAuthenticated, accessToken } = useAuthStore();
   const { fetchItems } = useCartStore();
 
   useEffect(() => {
@@ -81,13 +81,17 @@ function App() {
   }, [initialize]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isInitialized) {
+      return;
+    }
+
+    if (isAuthenticated && accessToken) {
       fetchItems();
     } else {
       // 로그아웃 시 장바구니 상태를 초기화합니다.
       useCartStore.setState({ items: [] });
     }
-  }, [isAuthenticated, fetchItems]);
+  }, [isInitialized, isAuthenticated, accessToken, fetchItems]);
 
   if (!isInitialized) {
     return (
