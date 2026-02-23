@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 상점 통계 컴포넌트
  */
 
@@ -12,9 +12,12 @@ interface ShopStatsProps {
   activeListingCount: number;
   followerCount: number;
   rating: number;
+  reviewCount: number;
 }
 
-const ShopStats = ({ salesCount, activeListingCount, followerCount, rating }: ShopStatsProps) => {
+const ShopStats = ({ salesCount, activeListingCount, followerCount, rating, reviewCount }: ShopStatsProps) => {
+  const hasReviews = reviewCount > 0;
+
   const stats = [
     {
       label: '누적 판매',
@@ -39,7 +42,7 @@ const ShopStats = ({ salesCount, activeListingCount, followerCount, rating }: Sh
     },
     {
       label: '평점',
-      value: rating.toFixed(1),
+      value: hasReviews ? rating.toFixed(1) : '정보 없음',
       icon: Star,
       color: 'text-amber-500',
       bgColor: 'bg-amber-50',

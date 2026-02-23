@@ -37,6 +37,7 @@ const ShopPage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [rating, setRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [productsLoading, setProductsLoading] = useState(false);
@@ -69,6 +70,7 @@ const ShopPage = () => {
 
         setFollowerCount(followers.length);
         setRating(shopRes.averageRating || 0);
+        setReviewCount(shopRes.reviewCount || 0);
 
         const mappedReviews: Review[] = (reviewRes.items || []).map((item) => ({
           id: item.reviewUuid,
@@ -200,6 +202,7 @@ const ShopPage = () => {
           activeListingCount={statusCounts.ON_SALE}
           followerCount={followerCount}
           rating={rating}
+          reviewCount={reviewCount}
         />
 
         <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
