@@ -64,9 +64,6 @@ const CouponManagePage = lazy(() => import("./pages/admin/CouponManagePage"));
 const AdminTestToolsPage = lazy(
   () => import("./pages/admin/AdminTestToolsPage"),
 );
-const SettlementManagePage = lazy(
-  () => import("./pages/admin/SettlementManagePage"),
-);
 const BannerManagePage = lazy(() => import("./pages/admin/BannerManagePage"));
 
 import { ToastProvider } from "@/components/common/Toast";
@@ -204,10 +201,6 @@ function App() {
                   <Route path="reports" element={<ReportManagePage />} />
                   <Route path="coupons" element={<CouponManagePage />} />
                   <Route path="test-tools" element={<AdminTestToolsPage />} />
-                  <Route
-                    path="settlements"
-                    element={<SettlementManagePage />}
-                  />
                   <Route path="categories" element={<CategoryManagePage />} />
                 </Route>
               </Route>

@@ -1,209 +1,137 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
-import ShoppingCart from 'lucide-react/dist/esm/icons/shopping-cart';
-import Ticket from 'lucide-react/dist/esm/icons/ticket';
-import CircleOff from 'lucide-react/dist/esm/icons/circle-off';
-import Info from 'lucide-react/dist/esm/icons/info';
-import Clock from 'lucide-react/dist/esm/icons/clock';
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
-import UserRound from 'lucide-react/dist/esm/icons/user-round';
-import { Button } from '@/components/common/Button';
-import StatsCard from '@/components/features/admin/StatsCard';
-import { adminService } from '@/services/adminService';
-import { couponService } from '@/services/couponService';
-import type { AdminSettlementStatisticsResponse } from '@/types/admin';
-import type { OrderListResponse } from '@/types/order';
+import type { ComponentType } from 'react';
+import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import ArrowUpRight from 'lucide-react/dist/esm/icons/arrow-up-right';
+import Activity from 'lucide-react/dist/esm/icons/activity';
+import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
+import Clock3 from 'lucide-react/dist/esm/icons/clock-3';
+import { ADMIN_NAV_ITEMS } from '@/constants/adminNavigation';
 
-interface DashboardData {
-  orders: OrderListResponse[];
-  totalOrders: number;
-  settlementStats: AdminSettlementStatisticsResponse;
-  couponCount: number;
-  loadedAt: string;
-}
+type StatusCard = {
+  title: string;
+  value: string;
+  description: string;
+  icon: ComponentType<{ className?: string }>;
+  isTime?: boolean;
+};
 
-const BACKEND_MISSING_ITEMS = [
-  '관리자 회원 목록/검색 API',
-  '신고 목록/처리 API',
-  '배너 CRUD 및 순서 저장 API',
-  '카테고리 관리자 CRUD API',
-  '상품 정지/삭제 관리자 API',
+const statusCards: StatusCard[] = [
+  {
+    title: '관리자 허브',
+    value: `${ADMIN_NAV_ITEMS.length}개 메뉴`,
+    description: '자주 쓰는 운영 메뉴 바로가기',
+    icon: Activity,
+  },
+  {
+    title: '접근 권한',
+    value: 'ADMIN',
+    description: '관리자 전용 페이지 접근 중',
+    icon: ShieldCheck,
+  },
+  {
+    title: '현재 시간',
+    value: '',
+    description: '대시보드 진입 시각 기준',
+    icon: Clock3,
+    isTime: true,
+  },
 ];
 
-const formatCurrency = (value: number) => `${new Intl.NumberFormat('ko-KR').format(value)}원`;
-const parseDate = (value: string) => {
-  const normalized = value.includes(' ') ? value.replace(' ', 'T') : value;
-  const parsed = new Date(normalized);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-};
-const formatDateTime = (value: string) => parseDate(value)?.toLocaleString('ko-KR') ?? '-';
+const formatNow = (date: Date) =>
+  new Intl.DateTimeFormat('ko-KR', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
 
 const AdminDashboardPage = () => {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const loadDashboard = useCallback(async () => {
-    setIsLoading(true);
-    setErrorMessage('');
-    try {
-      const [ordersPage, settlementStats, coupons] = await Promise.all([
-        adminService.getAdminOrders({ page: 0, size: 20 }),
-        adminService.getAdminSettlementStatistics(),
-        couponService.getAdminCoupons(),
-      ]);
-
-      setData({
-        orders: ordersPage.content,
-        totalOrders: ordersPage.totalElements,
-        settlementStats,
-        couponCount: coupons.length,
-        loadedAt: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error('Failed to load admin dashboard:', error);
-      setErrorMessage('대시보드 데이터를 불러오지 못했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadDashboard();
-  }, [loadDashboard]);
-
-  const recentOrders = useMemo(() => data?.orders.slice(0, 5) ?? [], [data?.orders]);
+  const now = useMemo(() => new Date(), []);
+  const quickLinks = useMemo(
+    () => ADMIN_NAV_ITEMS.filter((item) => item.key !== 'dashboard'),
+    []
+  );
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">대시보드</h1>
-        <p className="text-neutral-500 mt-1">실데이터 기반 관리자 지표를 확인합니다.</p>
-      </div>
-
-      <div className="mb-6 p-4 bg-neutral-50 border border-neutral-200 rounded-lg">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-          <div className="flex items-center gap-2 text-neutral-600">
-            <Clock className="w-4 h-4" />
-            <span className="font-medium">마지막 로드:</span>
-            <span>{data ? new Date(data.loadedAt).toLocaleString('ko-KR') : '-'}</span>
-          </div>
-          <div className="flex items-center gap-2 text-neutral-600">
-            <Info className="w-4 h-4" />
-            <span className="font-medium">통계 기준:</span>
-            <span>정산/주문/쿠폰 API 실시간 조회</span>
-          </div>
+    <div className="space-y-6">
+      <section className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-6 lg:p-8">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-60"
+          style={{
+            background:
+              'radial-gradient(circle at 10% 20%, rgba(59,130,246,0.14) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(16,185,129,0.12) 0%, transparent 35%)',
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative">
+          <p className="inline-flex items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
+            Admin Landing
+          </p>
+          <h1 className="mt-3 text-2xl font-bold tracking-tight text-neutral-900 lg:text-3xl">운영 대시보드</h1>
+          <p className="mt-2 max-w-2xl text-sm text-neutral-600 lg:text-base">
+            관리자 핵심 메뉴와 운영 도구를 한 곳에서 이동할 수 있는 허브입니다. 현재 운영 흐름에 맞춰 메뉴를 빠르게 선택하세요.
+          </p>
         </div>
-      </div>
+      </section>
 
-      {isLoading ? (
-        <div className="rounded-xl border border-neutral-200 bg-white p-10 text-center text-neutral-500" role="status" aria-live="polite">
-          대시보드를 불러오는 중입니다…
-        </div>
-      ) : errorMessage ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center space-y-3">
-          <p className="text-sm text-red-700">{errorMessage}</p>
-          <Button variant="outline" onClick={() => void loadDashboard()}>
-            다시 시도
-          </Button>
-        </div>
-      ) : data ? (
-        <>
-          <div className="mb-8 grid grid-cols-1 gap-4 min-[360px]:gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <StatsCard
-              icon={DollarSign}
-              label="누적 정산금액"
-              value={formatCurrency(data.settlementStats.totalSettlementAmount)}
-              iconColor="text-green-600"
-              iconBgColor="bg-green-100"
-            />
-            <StatsCard
-              icon={ShoppingCart}
-              label="전체 주문 수"
-              value={`${new Intl.NumberFormat('ko-KR').format(data.totalOrders)}건`}
-              iconColor="text-blue-600"
-              iconBgColor="bg-blue-100"
-            />
-            <StatsCard
-              icon={Ticket}
-              label="관리 쿠폰 수"
-              value={`${new Intl.NumberFormat('ko-KR').format(data.couponCount)}개`}
-              iconColor="text-orange-600"
-              iconBgColor="bg-orange-100"
-            />
-            <StatsCard
-              icon={CircleOff}
-              label="정산 실패 건수"
-              value={`${new Intl.NumberFormat('ko-KR').format(data.settlementStats.failedCount)}건`}
-              iconColor="text-red-600"
-              iconBgColor="bg-red-100"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl border border-neutral-200 p-6">
-              <h2 className="text-lg font-semibold text-neutral-900 mb-4">최근 주문</h2>
-              {recentOrders.length > 0 ? (
-                <div className="space-y-4">
-                  {recentOrders.map((order) => {
-                    const firstItem = order.items[0];
-                    return (
-                      <div key={order.orderUuid} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
-                        <div className="flex items-center gap-3 min-w-0">
-                          {firstItem?.imageUrl ? (
-                            <img
-                              src={firstItem.imageUrl}
-                              alt={firstItem.productName}
-                              width={40}
-                              height={40}
-                              className="w-10 h-10 rounded-lg object-cover bg-neutral-100"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-lg bg-neutral-100" aria-hidden="true" />
-                          )}
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-neutral-900 truncate">
-                              {firstItem?.productName ?? '주문 상품'}
-                            </p>
-                            <p className="text-xs text-neutral-500">
-                              {formatDateTime(order.orderDate)}
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-sm font-medium text-neutral-900">
-                          {formatCurrency(order.totalAmount)}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-sm text-neutral-500">최근 주문 데이터가 없습니다.</p>
-              )}
-            </div>
-
-            <div className="bg-white rounded-xl border border-neutral-200 p-6">
-              <h2 className="text-lg font-semibold text-neutral-900 mb-4">백엔드 미구현 항목</h2>
-              <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 mb-4">
-                <div className="flex items-start gap-2 text-amber-800">
-                  <AlertCircle className="w-4 h-4 mt-0.5" aria-hidden="true" />
-                  <p className="text-sm">
-                    아래 항목은 관리자 실데이터 전환을 위해 백엔드 API 구현이 추가로 필요합니다.
-                  </p>
-                </div>
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {statusCards.map((card) => (
+          <article key={card.title} className="rounded-xl border border-neutral-200 bg-white p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{card.title}</p>
+                <p className="mt-2 text-lg font-semibold text-neutral-900">
+                  {card.isTime ? formatNow(now) : card.value}
+                </p>
+                <p className="mt-1 text-sm text-neutral-600">{card.description}</p>
               </div>
-              <ul className="space-y-2">
-                {BACKEND_MISSING_ITEMS.map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-sm text-neutral-700">
-                    <UserRound className="w-4 h-4 text-neutral-400" aria-hidden="true" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <div className="rounded-lg bg-neutral-100 p-2">
+                <card.icon className="h-4 w-4 text-neutral-700" />
+              </div>
             </div>
-          </div>
-        </>
-      ) : null}
+          </article>
+        ))}
+      </section>
+
+      <section>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-neutral-900">빠른 이동</h2>
+          <span className="text-xs text-neutral-500">총 {quickLinks.length}개</span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {quickLinks.map((item) => {
+            const content = (
+              <>
+                <div className="flex items-start justify-between">
+                  <div className="rounded-lg bg-white/70 p-2 backdrop-blur-sm">
+                    <item.icon className="h-5 w-5 text-neutral-800" />
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-neutral-500" />
+                </div>
+                <h3 className="mt-4 text-base font-semibold text-neutral-900">{item.label}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-neutral-700">{item.description}</p>
+              </>
+            );
+
+            const className = `group rounded-xl border bg-gradient-to-br p-5 transition hover:-translate-y-0.5 hover:shadow-lg ${item.accent}`;
+
+            if (item.external) {
+              return (
+                <a key={item.key} href={item.href} target="_blank" rel="noreferrer" className={className}>
+                  {content}
+                </a>
+              );
+            }
+
+            return (
+              <Link key={item.key} to={item.href} className={className}>
+                {content}
+              </Link>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 };
