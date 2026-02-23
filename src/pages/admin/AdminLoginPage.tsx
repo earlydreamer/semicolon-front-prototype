@@ -17,7 +17,7 @@ const AdminLoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
-  const { login, logout } = useAuthStore();
+  const { loginAdmin, logout } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +25,7 @@ const AdminLoginPage = () => {
     setIsLoading(true);
 
     try {
-      await login({ email, password }, autoLogin);
+      await loginAdmin({ email, password }, autoLogin);
       const { isAdminAuthenticated } = useAuthStore.getState();
 
       if (!isAdminAuthenticated) {

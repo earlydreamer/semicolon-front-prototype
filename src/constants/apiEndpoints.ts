@@ -7,6 +7,7 @@ export const API_BASE_URL = "/api/v1";
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: `${API_BASE_URL}/auth/login`,
+    ADMIN_LOGIN: `${API_BASE_URL}/admin/auth/login`,
   },
   USERS: {
     REGISTER: `${API_BASE_URL}/users/register`,

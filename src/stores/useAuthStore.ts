@@ -38,6 +38,7 @@ interface AuthState {
   rememberMe: boolean;
 
   login: (request: LoginRequest, rememberMe?: boolean) => Promise<void>;
+  loginAdmin: (request: LoginRequest, rememberMe?: boolean) => Promise<void>;
   register: (request: UserRegisterRequest) => Promise<void>;
   logout: () => void;
   initialize: () => Promise<void>;
@@ -58,6 +59,28 @@ export const useAuthStore = create<AuthState>()(
       login: async (request: LoginRequest, rememberMe = true) => {
         try {
           const { accessToken } = await authService.login(request);
+          set({ accessToken, isAuthenticated: true, rememberMe });
+
+          const user = await authService.getMe();
+          set({
+            user: { ...user, id: user.userUuid },
+            isAdminAuthenticated: user.role === "ADMIN",
+          });
+        } catch (error) {
+          set({
+            accessToken: null,
+            isAuthenticated: false,
+            isAdminAuthenticated: false,
+            user: null,
+            rememberMe: false,
+          });
+          throw error;
+        }
+      },
+
+      loginAdmin: async (request: LoginRequest, rememberMe = true) => {
+        try {
+          const { accessToken } = await authService.loginAdmin(request);
           set({ accessToken, isAuthenticated: true, rememberMe });
 
           const user = await authService.getMe();

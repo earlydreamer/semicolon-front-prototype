@@ -20,6 +20,14 @@ export const authService = {
   },
 
   /**
+   * 관리자 로그인
+   */
+  loginAdmin: async (request: LoginRequest): Promise<TokenResponse> => {
+    const response = await api.post<TokenResponse>(API_ENDPOINTS.AUTH.ADMIN_LOGIN, request);
+    return response.data;
+  },
+
+  /**
    * 회원가입
    */
   register: async (request: UserRegisterRequest): Promise<User> => {
