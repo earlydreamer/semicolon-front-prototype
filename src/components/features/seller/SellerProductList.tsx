@@ -5,6 +5,9 @@ import type { SaleStatus } from '@/types/product';
 import { useSellerStore } from '@/stores/useSellerStore';
 import SellerProductCard from './SellerProductCard';
 import { Button } from '@/components/common/Button';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
+import { useEffect } from 'react';
 
 type TabType = 'all' | SaleStatus;
 
@@ -16,11 +19,22 @@ const TABS: { key: TabType; label: string }[] = [
 ];
 
 const SellerProductList = () => {
-  const { getProductsByStatus, getStats } = useSellerStore();
+  const { 
+    products, 
+    isLoading, 
+    hasNext, 
+    initSellerProducts, 
+    loadMoreProducts,
+    getStats 
+  } = useSellerStore();
+  
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const stats = getStats();
 
-  const filteredProducts = getProductsByStatus(activeTab);
+  useEffect(() => {
+    const status = activeTab === 'all' ? undefined : activeTab;
+    initSellerProducts(status);
+  }, [activeTab, initSellerProducts]);
 
   const counts = {
     all: stats.total,
@@ -60,7 +74,7 @@ const SellerProductList = () => {
       </div>
 
       <div className="p-4">
-        {filteredProducts.length === 0 ? (
+        {products.length === 0 && !isLoading ? (
           <div className="py-12 text-center">
             <p className="text-neutral-500 mb-4">등록된 상품이 없습니다</p>
             <Link to="/seller/products/new">
@@ -71,10 +85,38 @@ const SellerProductList = () => {
             </Link>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredProducts.map((product) => (
-              <SellerProductCard key={product.id} product={product} />
-            ))}
+          <div className="space-y-4">
+            <div className="space-y-3">
+              {products.map((product) => (
+                <SellerProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {hasNext && (
+              <div className="pt-4 flex justify-center border-t border-neutral-100">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={loadMoreProducts}
+                  disabled={isLoading}
+                  className="text-neutral-500 hover:text-neutral-900"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 mr-2" />
+                  )}
+                  더 보기
+                </Button>
+              </div>
+            )}
+            
+            {isLoading && products.length === 0 && (
+              <div className="py-12 flex flex-col items-center justify-center text-neutral-400">
+                <Loader2 className="w-8 h-8 animate-spin mb-4" />
+                <p className="text-sm">상품 목록을 불러오는 중...</p>
+              </div>
+            )}
           </div>
         )}
       </div>

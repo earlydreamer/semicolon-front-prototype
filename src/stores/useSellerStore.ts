@@ -42,13 +42,18 @@ export interface SellerProduct {
 
 interface SellerState {
   products: SellerProduct[];
+  isLoading: boolean;
 
   addProduct: (data: ProductFormData) => Promise<SellerProduct>;
   updateProduct: (id: string, data: Partial<ProductFormData>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   updateSaleStatus: (id: string, status: SaleStatus) => Promise<void>;
   updateTrackingInfo: (id: string, info: { number: string; company: string }) => Promise<void>;
-  initSellerProducts: () => Promise<void>;
+  initSellerProducts: (status?: SaleStatus) => Promise<void>;
+  loadMoreProducts: () => Promise<void>;
+  hasNext: boolean;
+  currentPage: number;
+  activeStatus: SaleStatus | 'all';
 
   getProductById: (id: string) => SellerProduct | undefined;
   getProductsByStatus: (status: SaleStatus | 'all') => SellerProduct[];
@@ -62,8 +67,31 @@ interface SellerState {
   };
 }
 
+const mapToSellerProduct = (item: any): SellerProduct => ({
+  id: item.productUuid,
+  categoryId: '',
+  sellerId: 'me',
+  title: item.title,
+  description: '',
+  price: item.price,
+  shippingFee: 0,
+  conditionStatus: 'NO_WEAR',
+  saleStatus: item.saleStatus || 'ON_SALE',
+  viewCount: item.viewCount || 0,
+  likeCount: item.likeCount || 0,
+  commentCount: item.commentCount || 0,
+  createdAt: item.createdAt || new Date().toISOString(),
+  image: item.thumbnailUrl || '',
+  images: item.thumbnailUrl ? [item.thumbnailUrl] : [],
+  isSafe: true,
+});
+
 export const useSellerStore = create<SellerState>((set, get) => ({
   products: [],
+  isLoading: false,
+  hasNext: false,
+  currentPage: 0,
+  activeStatus: 'all',
 
   addProduct: async (data: ProductFormData) => {
     const response = await shopService.createProduct({
@@ -184,32 +212,56 @@ export const useSellerStore = create<SellerState>((set, get) => ({
     }));
   },
 
-  initSellerProducts: async () => {
+  initSellerProducts: async (status?: SaleStatus) => {
     try {
-      const response = await shopService.getMyShopProducts({ page: 0, size: 100 });
-      const mapped: SellerProduct[] = (response.items || []).map((item) => ({
-        id: item.productUuid,
-        categoryId: '',
-        sellerId: 'me',
-        title: item.title,
-        description: '',
-        price: item.price,
-        shippingFee: 0,
-        conditionStatus: 'NO_WEAR',
-        saleStatus: item.saleStatus || 'ON_SALE',
-        viewCount: item.viewCount || 0,
-        likeCount: item.likeCount || 0,
-        commentCount: item.commentCount || 0,
-        createdAt: item.createdAt || new Date().toISOString(),
-        image: item.thumbnailUrl || '',
-        images: item.thumbnailUrl ? [item.thumbnailUrl] : [],
-        isSafe: true,
-      }));
+      const activeStatus = status || 'all';
+      set({ isLoading: true, activeStatus, currentPage: 0 });
+      
+      const response = await shopService.getMyShopProducts({ 
+        page: 0, 
+        size: 50,
+        saleStatus: status 
+      });
 
-      set({ products: mapped });
+      const mapped = (response.items || []).map(mapToSellerProduct);
+
+      set({ 
+        products: mapped,
+        hasNext: response.hasNext,
+        currentPage: 0
+      });
     } catch (error) {
       console.error('Failed to initialize seller products:', error);
-      set({ products: [] });
+      set({ products: [], hasNext: false });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  loadMoreProducts: async () => {
+    const { currentPage, hasNext, isLoading, activeStatus } = get();
+    if (!hasNext || isLoading) return;
+
+    try {
+      set({ isLoading: true });
+      const nextPage = currentPage + 1;
+      const response = await shopService.getMyShopProducts({
+        page: nextPage,
+        size: 50,
+        saleStatus: activeStatus === 'all' ? undefined : activeStatus as SaleStatus
+      });
+
+      const mapped = (response.items || []).map(mapToSellerProduct);
+
+      set((state) => ({
+        products: [...state.products, ...mapped],
+        currentPage: nextPage,
+        hasNext: response.hasNext
+      }));
+    } catch (error) {
+      console.error('Failed to load more products:', error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 

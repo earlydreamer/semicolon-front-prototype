@@ -5,6 +5,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useSellerStore } from '@/stores/useSellerStore';
 import SellerDashboard from '@/components/features/seller/SellerDashboard';
 import SellerProductList from '@/components/features/seller/SellerProductList';
 import { SellerReturnManagement } from '@/components/features/seller/SellerReturnManagement';
@@ -13,12 +14,15 @@ import SellerOrderList from '@/components/features/seller/SellerOrderList';
 const SellerPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
+  const { initSellerProducts } = useSellerStore();
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login', { replace: true });
+    } else {
+      // initSellerProducts()는 이제 SellerProductList 내부에서 탭 상태에 따라 호출됨
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, initSellerProducts]);
 
   if (!isAuthenticated) {
     return null;
