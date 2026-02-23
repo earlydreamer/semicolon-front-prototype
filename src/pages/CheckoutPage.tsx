@@ -13,8 +13,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { paymentService } from '../services/paymentService';
 import { useToast } from '../components/common/Toast';
 
-// Test client key for Toss widget
-const clientKey = 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm';
+const tossClientKey = import.meta.env.VITE_TOSS_CLIENT_KEY;
 
 type CouponDistributionItem = {
     orderItemUuid: string;
@@ -102,7 +101,11 @@ export default function CheckoutPage() {
 
         async function fetchPaymentWidgets() {
             try {
-                const tossPayments = await loadTossPayments(clientKey);
+                if (!tossClientKey) {
+                    throw new Error('VITE_TOSS_CLIENT_KEY is not configured.');
+                }
+
+                const tossPayments = await loadTossPayments(tossClientKey);
                 const widgetsInstance = tossPayments.widgets({ customerKey });
                 setWidgets(widgetsInstance);
             } catch (error) {
