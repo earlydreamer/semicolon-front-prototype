@@ -1,6 +1,5 @@
 ﻿import { Link, NavLink } from 'react-router-dom';
-import LogOut from 'lucide-react/dist/esm/icons/log-out';
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
+import { LogOut, ExternalLink } from 'lucide-react';
 import { ADMIN_NAV_ITEMS } from '@/constants/adminNavigation';
 
 interface AdminSidebarProps {
@@ -82,3 +81,4 @@ const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
 };
 
 export default AdminSidebar;
+

@@ -1,10 +1,7 @@
 ﻿import type { ComponentType } from 'react';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import ArrowUpRight from 'lucide-react/dist/esm/icons/arrow-up-right';
-import Activity from 'lucide-react/dist/esm/icons/activity';
-import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
-import Clock3 from 'lucide-react/dist/esm/icons/clock-3';
+import { ArrowUpRight, Activity, ShieldCheck, Clock3 } from 'lucide-react';
 import { ADMIN_NAV_ITEMS } from '@/constants/adminNavigation';
 
 type StatusCard = {
@@ -137,3 +134,4 @@ const AdminDashboardPage = () => {
 };
 
 export default AdminDashboardPage;
+

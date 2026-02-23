@@ -1,12 +1,14 @@
 ﻿import type { ComponentType } from 'react';
-import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard';
-import Image from 'lucide-react/dist/esm/icons/image';
-import Package from 'lucide-react/dist/esm/icons/package';
-import Users from 'lucide-react/dist/esm/icons/users';
-import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
-import Ticket from 'lucide-react/dist/esm/icons/ticket';
-import FolderTree from 'lucide-react/dist/esm/icons/folder-tree';
-import ChartNoAxesCombined from 'lucide-react/dist/esm/icons/chart-no-axes-combined';
+import {
+  LayoutDashboard,
+  Image,
+  Package,
+  Users,
+  AlertTriangle,
+  Ticket,
+  FolderTree,
+  ChartNoAxesCombined,
+} from 'lucide-react';
 
 export type AdminNavItem = {
   key: string;
