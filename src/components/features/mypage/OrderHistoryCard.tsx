@@ -33,7 +33,9 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   const isApiData = 'orderUuid' in order || 'items' in order;
   const id = isApiData ? (order as OrderListResponse).orderUuid : (order as OrderHistory).id;
   const createdAt = isApiData ? (order as OrderListResponse).orderDate : (order as OrderHistory).createdAt;
-  const status = isApiData ? (order as OrderListResponse).status : (order as OrderHistory).status;
+  const status = (isApiData
+    ? (order as OrderListResponse).status
+    : (order as OrderHistory).status) ?? 'PENDING';
   const totalAmount = isApiData ? (order as OrderListResponse).totalAmount : (order as OrderHistory).totalPrice;
 
   // 첫 번째 아이템 정보를 대표로 사용 (API의 경우)
