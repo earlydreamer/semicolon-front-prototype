@@ -3,14 +3,41 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { authService } from "../services/authService";
 import type { LoginRequest, User, UserRegisterRequest } from "../types/auth";
 
+const authStorage = {
+  getItem: (name: string) => {
+    return localStorage.getItem(name) ?? sessionStorage.getItem(name);
+  },
+  setItem: (name: string, value: string) => {
+    try {
+      const parsed = JSON.parse(value) as { state?: { rememberMe?: boolean } };
+      const rememberMe = Boolean(parsed?.state?.rememberMe);
+      if (rememberMe) {
+        localStorage.setItem(name, value);
+        sessionStorage.removeItem(name);
+        return;
+      }
+    } catch {
+      // ignore parse errors and fallback to session storage
+    }
+
+    sessionStorage.setItem(name, value);
+    localStorage.removeItem(name);
+  },
+  removeItem: (name: string) => {
+    localStorage.removeItem(name);
+    sessionStorage.removeItem(name);
+  },
+};
+
 interface AuthState {
   user: User | null;
   accessToken: string | null;
   isAuthenticated: boolean;
   isAdminAuthenticated: boolean;
   isInitialized: boolean;
+  rememberMe: boolean;
 
-  login: (request: LoginRequest) => Promise<void>;
+  login: (request: LoginRequest, rememberMe?: boolean) => Promise<void>;
   register: (request: UserRegisterRequest) => Promise<void>;
   logout: () => void;
   initialize: () => Promise<void>;
@@ -26,11 +53,12 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isAdminAuthenticated: false,
       isInitialized: false,
+      rememberMe: false,
 
-      login: async (request: LoginRequest) => {
+      login: async (request: LoginRequest, rememberMe = true) => {
         try {
           const { accessToken } = await authService.login(request);
-          set({ accessToken, isAuthenticated: true });
+          set({ accessToken, isAuthenticated: true, rememberMe });
 
           const user = await authService.getMe();
           set({
@@ -43,6 +71,7 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isAdminAuthenticated: false,
             user: null,
+            rememberMe: false,
           });
           throw error;
         }
@@ -58,6 +87,7 @@ export const useAuthStore = create<AuthState>()(
           accessToken: null,
           isAuthenticated: false,
           isAdminAuthenticated: false,
+          rememberMe: false,
         });
       },
 
@@ -86,6 +116,7 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isAdminAuthenticated: false,
             isInitialized: true,
+            rememberMe: false,
           });
         }
       },
@@ -98,13 +129,13 @@ export const useAuthStore = create<AuthState>()(
             isAdminAuthenticated: user.role === "ADMIN",
           });
         } catch (error) {
-          console.error("Refresh user failed:", error);
+          console.error("사용자 정보 새로고침 실패:", error);
         }
       },
 
       socialLogin: async (accessToken: string, _refreshToken?: string | null) => {
         try {
-          set({ accessToken, isAuthenticated: true });
+          set({ accessToken, isAuthenticated: true, rememberMe: true });
           const user = await authService.getMe();
           set({
             user: { ...user, id: user.userUuid },
@@ -116,6 +147,7 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isAdminAuthenticated: false,
             user: null,
+            rememberMe: false,
           });
           throw error;
         }
@@ -123,11 +155,12 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => authStorage),
       partialize: (state) => ({
         accessToken: state.accessToken,
         isAuthenticated: state.isAuthenticated,
         user: state.user,
+        rememberMe: state.rememberMe,
       }),
     },
   ),

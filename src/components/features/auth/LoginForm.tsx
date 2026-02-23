@@ -57,7 +57,7 @@ export function LoginForm() {
   const onSubmit = async (data: LoginSchema) => {
     setIsLoading(true);
     try {
-      await login({ email: data.email, password: data.password });
+      await login({ email: data.email, password: data.password }, Boolean(data.autoLogin));
 
       const { user } = useAuthStore.getState();
       if (user) {
