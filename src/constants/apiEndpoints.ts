@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
     PASSWORD: `${API_BASE_URL}/users/password`,
     ADDRESSES: `${API_BASE_URL}/users/me/addresses`,
     EMAIL_SEND: `${API_BASE_URL}/users/email/send`,
+    EMAIL_VERIFY_RESULT: `${API_BASE_URL}/users/email/verify/result`,
   },
   PAYMENTS: {
     PREPARE: `${API_BASE_URL}/payments/request`,
