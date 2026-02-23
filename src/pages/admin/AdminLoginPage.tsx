@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 관리자 로그인 페이지
  */
 
@@ -12,6 +12,7 @@ import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
 const AdminLoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [autoLogin, setAutoLogin] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
@@ -24,7 +25,7 @@ const AdminLoginPage = () => {
     setIsLoading(true);
 
     try {
-      await login({ email, password });
+      await login({ email, password }, autoLogin);
       const { isAdminAuthenticated } = useAuthStore.getState();
 
       if (!isAdminAuthenticated) {
@@ -35,7 +36,7 @@ const AdminLoginPage = () => {
 
       navigate('/admin');
     } catch (loginError) {
-      console.error('Admin login failed:', loginError);
+      console.error('관리자 로그인 실패:', loginError);
       setError('로그인 정보가 올바르지 않습니다.');
     } finally {
       setIsLoading(false);
@@ -76,6 +77,15 @@ const AdminLoginPage = () => {
               autoComplete="current-password"
               className="bg-neutral-700 border-neutral-600 text-white placeholder:text-neutral-400"
             />
+            <label className="flex items-center gap-2 text-sm text-neutral-300">
+              <input
+                type="checkbox"
+                checked={autoLogin}
+                onChange={(e) => setAutoLogin(e.target.checked)}
+                className="h-4 w-4 rounded border-neutral-500 bg-neutral-700 text-primary-500 focus:ring-primary-500"
+              />
+              자동 로그인
+            </label>
           </div>
 
           {error && (
@@ -105,3 +115,4 @@ const AdminLoginPage = () => {
 };
 
 export default AdminLoginPage;
+
