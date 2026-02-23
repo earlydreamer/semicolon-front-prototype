@@ -22,7 +22,16 @@ export const authService = {
    * 회원가입
    */
   register: async (request: UserRegisterRequest): Promise<User> => {
-    const response = await api.post<User>(API_ENDPOINTS.USERS.REGISTER, request);
+    const idempotencyKey = crypto.randomUUID();
+    const response = await api.post<User>(
+      API_ENDPOINTS.USERS.REGISTER,
+      request,
+      {
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+        },
+      },
+    );
     return response.data;
   },
 

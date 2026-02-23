@@ -87,9 +87,49 @@ export function SignupForm() {
   }, [email]);
 
   const handleSendVerificationEmail = async () => {
-    const isValidEmail = await trigger('email');
-    if (!isValidEmail) {
-      showToast('이메일 형식을 먼저 확인해 주세요.', 'error');
+    const values = getValues();
+    if (!values.email?.trim()) {
+      setFocus('email');
+      showToast('이메일을 입력해 주세요.', 'error');
+      return;
+    }
+    if (!values.nickname?.trim()) {
+      setFocus('nickname');
+      showToast('닉네임을 입력해 주세요.', 'error');
+      return;
+    }
+    if (!values.password) {
+      setFocus('password');
+      showToast('비밀번호를 입력해 주세요.', 'error');
+      return;
+    }
+    if (!values.confirmPassword) {
+      setFocus('confirmPassword');
+      showToast('비밀번호 확인을 입력해 주세요.', 'error');
+      return;
+    }
+    if (!values.termsAccepted) {
+      setFocus('termsAccepted');
+      showToast('이용약관에 동의해 주세요.', 'error');
+      return;
+    }
+    if (!values.privacyAccepted) {
+      setFocus('privacyAccepted');
+      showToast('개인정보 처리방침에 동의해 주세요.', 'error');
+      return;
+    }
+
+    const verificationRequiredFields: Array<keyof SignupSchema> = [
+      'email',
+      'nickname',
+      'password',
+      'confirmPassword',
+      'termsAccepted',
+      'privacyAccepted',
+    ];
+    const isReadyForVerification = await trigger(verificationRequiredFields, { shouldFocus: true });
+    if (!isReadyForVerification) {
+      showToast('입력값을 다시 확인해 주세요.', 'error');
       return;
     }
 
