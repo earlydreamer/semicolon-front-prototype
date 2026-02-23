@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+﻿import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DefaultLayout } from '@/components/layout/DefaultLayout';
 
@@ -37,13 +37,12 @@ const UserManagePage = lazy(() => import('./pages/admin/UserManagePage'));
 const CategoryManagePage = lazy(() => import('./pages/admin/CategoryManagePage'));
 const ReportManagePage = lazy(() => import('./pages/admin/ReportManagePage'));
 const CouponManagePage = lazy(() => import('./pages/admin/CouponManagePage'));
-const SettlementManagePage = lazy(() => import('./pages/admin/SettlementManagePage'));
 const BannerManagePage = lazy(() => import('./pages/admin/BannerManagePage'));
 
 import { ToastProvider } from '@/components/common/Toast';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 
-// GitHub Pages 배포 시 base URL 설정
+// GitHub Pages base URL
 const basename = import.meta.env.BASE_URL;
 
 function App() {
@@ -53,7 +52,6 @@ function App() {
         <ToastProvider>
           <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
             <Routes>
-              {/* 일반 사용자 페이지 */}
               <Route element={<DefaultLayout />}>
                 <Route index element={<HomePage />} />
                 <Route path="categories/:categoryId" element={<CategoryPage />} />
@@ -81,16 +79,6 @@ function App() {
                 <Route path="categories" element={<Navigate to="/" replace />} />
               </Route>
 
-              {/* 
-                관리자 페이지
-                
-                [IMPORTANT] 보안 관련 주의사항
-                - 현재: 프론트엔드 Mock 인증만 적용 (AdminAuthGuard)
-                - 추후 필수 작업:
-                  1. 별도 서브도메인(admin.example.com)으로 분리
-                  2. 백엔드 API 레벨 권한 검사 필수
-                  3. 프론트엔드 가드만으로는 보안 불충분
-              */}
               <Route path="admin/login" element={<AdminLoginPage />} />
               <Route path="admin" element={<AdminAuthGuard />}>
                 <Route element={<AdminLayout />}>
@@ -100,7 +88,6 @@ function App() {
                   <Route path="users" element={<UserManagePage />} />
                   <Route path="reports" element={<ReportManagePage />} />
                   <Route path="coupons" element={<CouponManagePage />} />
-                  <Route path="settlements" element={<SettlementManagePage />} />
                   <Route path="categories" element={<CategoryManagePage />} />
                 </Route>
               </Route>
@@ -113,4 +100,3 @@ function App() {
 }
 
 export default App;
-
