@@ -11,6 +11,7 @@ interface Seller {
   nickname: string;
   avatar?: string;
   rating: number;
+  reviewCount: number;
   activeListingCount: number;
   salesCount: number;
   intro?: string;
@@ -49,7 +50,7 @@ export const SellerProfileCard = ({ seller }: SellerProfileCardProps) => {
               <Star className="h-4 w-4 fill-current" />
               {seller.rating.toFixed(1)} / 5.0
             </div>
-            <div className="text-xs text-gray-400">판매자 신뢰지수</div>
+            <div className="text-xs text-gray-400">리뷰 {seller.reviewCount}개</div>
           </div>
         </div>
       </div>

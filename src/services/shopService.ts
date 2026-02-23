@@ -27,9 +27,12 @@ export interface ProductUpdateRequest {
 
 export interface ShopResponse {
   shopUuid: string;
+  nickname: string;
   intro: string;
   salesCount: number;
   activeListingCount: number;
+  averageRating: number;
+  reviewCount: number;
 }
 
 export interface ShopProductListResponse {

@@ -55,21 +55,20 @@ const ShopPage = () => {
       setLoading(true);
 
       try {
-        const [shopRes, reviewRes, reviewSummary, followers] = await Promise.all([
+        const [shopRes, reviewRes, followers] = await Promise.all([
           shopService.getShop(shopId),
           reviewService.getSellerReviews(shopId, { page: 0, size: 20 }),
-          reviewService.getSellerReviewSummary(shopId),
           followService.getSellerFollowers(shopId),
         ]);
 
         setShop({
           shopUuid: shopRes.shopUuid,
-          nickname: `${shopRes.shopUuid.slice(0, 8)} 상점`,
+          nickname: shopRes.nickname,
           intro: shopRes.intro,
         });
 
         setFollowerCount(followers.length);
-        setRating(reviewSummary.avgRating || 0);
+        setRating(shopRes.averageRating || 0);
 
         const mappedReviews: Review[] = (reviewRes.items || []).map((item) => ({
           id: item.reviewUuid,

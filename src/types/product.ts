@@ -116,8 +116,10 @@ export interface ProductDetailResponse {
     depth: number;
   };
   seller?: {
-    shopUuid: string;
+    sellerUuid: string;
     nickname: string;
+    averageRating: number;
+    reviewCount: number;
   };
 }
 
@@ -127,4 +129,6 @@ export interface ShopResponse {
   intro: string;
   salesCount: number;
   activeListingCount: number;
+  averageRating: number;
+  reviewCount: number;
 }

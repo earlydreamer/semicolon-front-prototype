@@ -107,6 +107,7 @@ export default function ProductDetailPage() {
 
   const product = useMemo(() => {
     if (!apiProduct) return null;
+    if (!apiProduct.seller) return null;
 
     return {
       id: apiProduct.productUuid,
@@ -121,8 +122,10 @@ export default function ProductDetailPage() {
       viewCount: apiProduct.viewCount || 0,
       createdAt: new Date().toISOString(),
       seller: {
-        userUuid: apiProduct.sellerUuid || apiProduct.seller?.shopUuid || '',
-        nickname: apiProduct.seller?.nickname || '알 수 없음',
+        userUuid: apiProduct.seller.sellerUuid,
+        nickname: apiProduct.seller.nickname,
+        rating: apiProduct.seller.averageRating || 0,
+        reviewCount: apiProduct.seller.reviewCount || 0,
       },
       comments,
     };
@@ -221,7 +224,8 @@ export default function ProductDetailPage() {
               seller={{
                 id: product.seller.userUuid,
                 nickname: product.seller.nickname,
-                rating: 0,
+                rating: product.seller.rating,
+                reviewCount: product.seller.reviewCount,
                 salesCount: 0,
                 activeListingCount: 0,
               }}
