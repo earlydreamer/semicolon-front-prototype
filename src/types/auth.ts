@@ -35,3 +35,8 @@ export interface PasswordUpdateRequest {
   currentPassword: string;
   newPassword: string;
 }
+
+export interface EmailVerificationResult {
+  verified: boolean;
+  email: string;
+}

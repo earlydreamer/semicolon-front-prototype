@@ -5,7 +5,8 @@ import type {
   User, 
   UserRegisterRequest, 
   UserUpdateRequest,
-  PasswordUpdateRequest
+  PasswordUpdateRequest,
+  EmailVerificationResult,
 } from '../types/auth';
 import { API_ENDPOINTS } from '../constants/apiEndpoints';
 
@@ -37,6 +38,14 @@ export const authService = {
 
   sendVerificationEmail: async (email: string): Promise<void> => {
     await api.post(API_ENDPOINTS.USERS.EMAIL_SEND, { email });
+  },
+
+  verifyEmailResult: async (resultToken: string): Promise<EmailVerificationResult> => {
+    const response = await api.post<EmailVerificationResult>(
+      API_ENDPOINTS.USERS.EMAIL_VERIFY_RESULT,
+      { resultToken },
+    );
+    return response.data;
   },
 
   /**
