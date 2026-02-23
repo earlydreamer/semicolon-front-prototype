@@ -1,5 +1,6 @@
 import api from "../utils/api";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
+import type { SaleStatus } from "../types/product";
 import type {
   User,
   UserUpdateRequest,
@@ -71,6 +72,7 @@ export interface LikedProductItem {
   title: string;
   price: number;
   thumbnailUrl: string | null;
+  saleStatus?: SaleStatus;
 }
 
 export interface LikedProductListResponse {
