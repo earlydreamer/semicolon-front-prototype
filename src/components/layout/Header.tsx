@@ -18,6 +18,7 @@ import { transformCategories } from '@/utils/category';
 
 export function Header() {
   const headerRef = useRef<HTMLElement>(null);
+  const categoryCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
@@ -71,6 +72,14 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [isCategoryOpen]);
 
+  useEffect(() => {
+    return () => {
+      if (categoryCloseTimerRef.current) {
+        clearTimeout(categoryCloseTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleLogout = () => {
     logout();
     setIsMenuOpen(false);
@@ -88,6 +97,25 @@ export function Header() {
 
   const openMobileSearch = () => setIsMobileSearchOpen(true);
   const closeMobileSearch = () => setIsMobileSearchOpen(false);
+
+  // Keep category menu open while pointer moves between trigger and dropdown.
+  const openCategoryMenu = () => {
+    if (categoryCloseTimerRef.current) {
+      clearTimeout(categoryCloseTimerRef.current);
+      categoryCloseTimerRef.current = null;
+    }
+    setIsCategoryOpen(true);
+  };
+
+  const closeCategoryMenuWithDelay = () => {
+    if (categoryCloseTimerRef.current) {
+      clearTimeout(categoryCloseTimerRef.current);
+    }
+    categoryCloseTimerRef.current = setTimeout(() => {
+      setIsCategoryOpen(false);
+      categoryCloseTimerRef.current = null;
+    }, 180);
+  };
 
   const handleCategoryBlur = (event: FocusEvent<HTMLDivElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
@@ -231,9 +259,9 @@ export function Header() {
 
             <div
               className="hidden md:flex items-center h-full relative"
-              onMouseEnter={() => setIsCategoryOpen(true)}
-              onMouseLeave={() => setIsCategoryOpen(false)}
-              onFocus={() => setIsCategoryOpen(true)}
+              onMouseEnter={openCategoryMenu}
+              onMouseLeave={closeCategoryMenuWithDelay}
+              onFocus={openCategoryMenu}
               onBlur={handleCategoryBlur}
             >
               <button
@@ -361,8 +389,8 @@ export function Header() {
         <div
           id="desktop-category-nav"
           className={`absolute top-full left-0 w-full transition-opacity duration-300 motion-reduce:transition-none ${isCategoryOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-          onMouseEnter={() => setIsCategoryOpen(true)}
-          onMouseLeave={() => setIsCategoryOpen(false)}
+          onMouseEnter={openCategoryMenu}
+          onMouseLeave={closeCategoryMenuWithDelay}
         >
           <CategoryNav categories={categories} onClose={() => setIsCategoryOpen(false)} />
         </div>
