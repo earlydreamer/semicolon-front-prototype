@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useOrderStore } from '../stores/useOrderStore';
+import { useUserStore } from '../stores/useUserStore';
 import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 
 import OrderItemList from '../components/features/order/OrderItemList';
@@ -21,6 +22,8 @@ const OrderPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const { showToast } = useToast();
+  const balance = useUserStore((state) => state.balance);
+  const fetchBalance = useUserStore((state) => state.fetchBalance);
   
   const { 
     orderItems, 
@@ -66,6 +69,11 @@ const OrderPage = () => {
       navigate('/', { replace: true });
     }
   }, [orderItems, navigate, showToast]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchBalance();
+  }, [isAuthenticated, fetchBalance]);
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   if (!isAuthenticated) {
@@ -169,7 +177,7 @@ const OrderPage = () => {
 
             {/* 예치금 사용 */}
             <DepositUseForm
-              balance={user?.deposit || 0}
+              balance={balance?.balance || 0}
               useAmount={depositUseAmount}
               onUseAmountChange={setDepositUseAmount}
               maxUseAmount={finalPriceWithCoupon}

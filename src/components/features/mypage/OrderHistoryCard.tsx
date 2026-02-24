@@ -2,7 +2,7 @@
  * 주문 내역 카드 컴포넌트
  */
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { OrderHistory } from '@/types/user';
 import type { OrderListResponse } from '@/types/order';
 import { ORDER_STATUS_LABELS, ORDER_ITEM_STATUS_LABELS } from '@/constants/labels';
@@ -16,6 +16,7 @@ import { ReviewForm } from '../review/ReviewForm';
 import { ReturnRequestModal } from './ReturnRequestModal';
 import { ReturnTrackingModal } from './ReturnTrackingModal';
 import { orderService } from '@/services/orderService';
+import { useOrderStore } from '@/stores/useOrderStore';
 
 interface OrderHistoryCardProps {
   order: OrderHistory | OrderListResponse;
@@ -23,11 +24,14 @@ interface OrderHistoryCardProps {
 }
 
 const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
+  const navigate = useNavigate();
   const { showToast } = useToast();
+  const { setOrderUuid, setOrderItems, setOrderResponseItems, setCouponUuid, setCouponDiscountAmount, setDepositUseAmount } = useOrderStore();
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showReturnRequestModal, setShowReturnRequestModal] = useState(false);
   const [showReturnTrackingModal, setShowReturnTrackingModal] = useState(false);
   const [returnRequestUuid, setReturnRequestUuid] = useState<string | null>(null);
+  const [isResumeLoading, setIsResumeLoading] = useState(false);
 
   // API 데이터 여부 확인 및 통합 매핑
   const isApiData = 'orderUuid' in order || 'items' in order;
@@ -78,6 +82,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   const canReturn = itemStatus === 'DELIVERED';
   // 운송장 등록 가능 여부
   const canRegisterTracking = itemStatus === 'REFUND_REQUESTED' || itemStatus === 'REFUND_IN_PROGRESS';
+  const canResumePayment = status === 'PENDING';
 
   const orderItemUuid = isApiData ? (order as OrderListResponse).items[0]?.orderItemUuid : undefined;
 
@@ -105,6 +110,59 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
       onUpdate?.();
     } catch {
       showToast('주문 취소에 실패했습니다.', 'error');
+    }
+  };
+
+  // PENDING 주문을 다시 조회해 결제 스토어를 복원하고 결제 페이지로 이동한다.
+  const handleResumePayment = async () => {
+    if (!id || typeof id !== 'string') return;
+
+    try {
+      setIsResumeLoading(true);
+      const orderDetail = await orderService.getOrder(id);
+
+      if (orderDetail.orderStatus !== 'PENDING') {
+        showToast('이미 처리된 주문입니다. 상태를 새로고침합니다.', 'info');
+        onUpdate?.();
+        return;
+      }
+
+      if (!orderDetail.items || orderDetail.items.length === 0) {
+        showToast('주문 상품 정보를 찾을 수 없습니다.', 'error');
+        return;
+      }
+
+      const restoredOrderItems = orderDetail.items.map((item, index) => ({
+        cartId: -(index + 1),
+        productUuid: item.productUuid,
+        sellerUuid: item.sellerUuid,
+        title: item.productName,
+        price: item.productPrice,
+        saleStatus: 'ON_SALE' as const,
+        thumbnailUrl: item.imageUrl ?? null,
+        createdAt: orderDetail.orderedAt,
+        selected: true,
+      }));
+
+      setOrderUuid(orderDetail.orderUuid);
+      setOrderItems(restoredOrderItems);
+      setOrderResponseItems(orderDetail.items.map((item) => ({
+        orderItemUuid: item.orderItemUuid,
+        productUuid: item.productUuid,
+        sellerUuid: item.sellerUuid,
+        productName: item.productName,
+        productPrice: item.productPrice,
+        imageUrl: item.imageUrl,
+      })));
+      setCouponUuid(null);
+      setCouponDiscountAmount(0);
+      setDepositUseAmount(0);
+
+      navigate('/checkout');
+    } catch {
+      showToast('결제 페이지 진입에 실패했습니다.', 'error');
+    } finally {
+      setIsResumeLoading(false);
     }
   };
 
@@ -185,8 +243,13 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
         </div>
 
         {/* 액션 버튼 */}
-        {(canConfirm || canCancel || canReturn || canRegisterTracking) && (
+        {(canConfirm || canCancel || canReturn || canRegisterTracking || canResumePayment) && (
           <div className="flex gap-2 mt-4 pt-3 border-t border-neutral-100 flex-wrap">
+            {canResumePayment && (
+              <Button size="sm" onClick={handleResumePayment} disabled={isResumeLoading} className="flex-1 min-w-[120px]">
+                {isResumeLoading ? '이동 중...' : '결제 계속하기'}
+              </Button>
+            )}
             {canConfirm && (
               <Button size="sm" onClick={handleConfirm} className="flex-1 min-w-[120px]">
                 구매 확정 및 리뷰 작성
