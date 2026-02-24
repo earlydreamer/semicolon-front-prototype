@@ -34,9 +34,7 @@ const MyPage = () => {
 
   useEffect(() => {
     if (user?.id) {
-      if (mySalesProducts.length === 0) {
-        initSellerProducts();
-      }
+      initSellerProducts();
       fetchUserLikes(user.id);
       initFollowing(user.id);
       fetchBalance();
@@ -46,7 +44,7 @@ const MyPage = () => {
         setPurchaseCount(res.totalElements);
       }).catch(console.error);
     }
-  }, [user?.id, initSellerProducts, fetchUserLikes, initFollowing, mySalesProducts.length, fetchBalance]);
+  }, [user?.id, initSellerProducts, fetchUserLikes, initFollowing, fetchBalance]);
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   if (!isAuthenticated || !user) {

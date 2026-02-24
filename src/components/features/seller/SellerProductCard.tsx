@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import Eye from 'lucide-react/dist/esm/icons/eye';
 import Heart from 'lucide-react/dist/esm/icons/heart';
 import MessageCircle from 'lucide-react/dist/esm/icons/message-circle';
@@ -42,7 +42,7 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
   const handleDelete = () => {
     if (confirm('정말 삭제하시겠습니까?')) {
       deleteProduct(product.id);
-      showToast('상품을 삭제했습니다', 'error');
+      showToast('상품이 삭제되었습니다', 'error');
     }
     setShowMenu(false);
   };
@@ -61,34 +61,42 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
             <h4 className="font-medium text-neutral-900 truncate hover:text-primary-600">{product.title}</h4>
           </Link>
 
-          <div className="relative">
-            <button onClick={() => setShowMenu((v) => !v)} className="p-1 rounded-lg hover:bg-neutral-100 text-neutral-500">
-              <MoreVertical className="w-4 h-4" />
-            </button>
+          <div className="flex items-center gap-1">
+            <Link
+              to={`/seller/products/${product.id}/edit`}
+              className="px-2 py-1 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-md hover:bg-neutral-100"
+            >
+              수정
+            </Link>
+            <div className="relative">
+              <button onClick={() => setShowMenu((v) => !v)} className="p-1 rounded-lg hover:bg-neutral-100 text-neutral-500">
+                <MoreVertical className="w-4 h-4" />
+              </button>
 
-            {showMenu && (
-              <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-10">
-                {product.saleStatus !== 'ON_SALE' && (
-                  <button onClick={() => handleStatusChange('ON_SALE')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
-                    판매중으로 변경
+              {showMenu && (
+                <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-10">
+                  {product.saleStatus !== 'ON_SALE' && (
+                    <button onClick={() => handleStatusChange('ON_SALE')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
+                      판매중으로 변경
+                    </button>
+                  )}
+                  {product.saleStatus !== 'RESERVED' && (
+                    <button onClick={() => handleStatusChange('RESERVED')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
+                      예약중으로 변경
+                    </button>
+                  )}
+                  {product.saleStatus !== 'SOLD_OUT' && (
+                    <button onClick={() => handleStatusChange('SOLD_OUT')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
+                      판매완료로 변경
+                    </button>
+                  )}
+                  <hr className="my-1" />
+                  <button onClick={handleDelete} className="w-full text-left px-3 py-2 text-sm text-error-600 hover:bg-neutral-100">
+                    삭제
                   </button>
-                )}
-                {product.saleStatus !== 'RESERVED' && (
-                  <button onClick={() => handleStatusChange('RESERVED')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
-                    예약중으로 변경
-                  </button>
-                )}
-                {product.saleStatus !== 'SOLD_OUT' && (
-                  <button onClick={() => handleStatusChange('SOLD_OUT')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
-                    판매완료로 변경
-                  </button>
-                )}
-                <hr className="my-1" />
-                <button onClick={handleDelete} className="w-full text-left px-3 py-2 text-sm text-error-600 hover:bg-neutral-100">
-                  삭제
-                </button>
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
