@@ -13,6 +13,7 @@ interface ProductActionBarProps {
   // 상품 정보
   saleStatus: SaleStatus;
   likeCount: number;
+  isOwnPendingReservation?: boolean;
   // 상태
   isLiked: boolean;
   // 핸들러
@@ -24,23 +25,24 @@ interface ProductActionBarProps {
 export const ProductActionBar = ({
   saleStatus,
   likeCount,
+  isOwnPendingReservation = false,
   isLiked,
   onLike,
   onAddToCart,
   onPurchase,
 }: ProductActionBarProps) => {
-  const isDisabled = saleStatus === 'SOLD_OUT' || saleStatus === 'RESERVED';
+  const isDisabled = saleStatus === 'SOLD_OUT' || (saleStatus === 'RESERVED' && !isOwnPendingReservation);
   const displayLikeCount = likeCount + (isLiked ? 1 : 0);
 
   const getPurchaseButtonText = () => {
     if (saleStatus === 'SOLD_OUT') return '품절된 상품';
-    if (saleStatus === 'RESERVED') return '예약중';
+    if (saleStatus === 'RESERVED') return isOwnPendingReservation ? '결제 계속하기' : '예약중';
     return '구매하기';
   };
 
   const getMobilePurchaseText = () => {
     if (saleStatus === 'SOLD_OUT') return '품절';
-    if (saleStatus === 'RESERVED') return '예약중';
+    if (saleStatus === 'RESERVED') return isOwnPendingReservation ? '결제 계속' : '예약중';
     return '구매하기';
   };
 

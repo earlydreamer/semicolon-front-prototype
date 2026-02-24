@@ -10,22 +10,24 @@ import { useLikeStore } from '@/stores/useLikeStore';
 import { useOrderStore } from '@/stores/useOrderStore';
 import { useProductStore } from '@/stores/useProductStore';
 import { productService } from '@/services/productService';
+import { orderService } from '@/services/orderService';
 import { commentService } from '@/services/commentService';
 import type { CartItem } from '@/types/cart';
 
 export const useProductDetail = (rawProductId: string | undefined) => {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const addToCart = useCartStore((state) => state.addItem);
   const { isLiked: checkIsLiked, toggleLike } = useLikeStore();
-  const { clearOrder, setOrderItems } = useOrderStore();
+  const { clearOrder, setOrderUuid, setOrderItems, setOrderResponseItems, setCouponUuid, setCouponDiscountAmount, setDepositUseAmount } = useOrderStore();
   const { currentProduct: apiProduct, isLoading, error, fetchProductDetail } = useProductStore();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [comments, setComments] = useState<Array<any>>([]);
+  const [pendingOrderUuidForProduct, setPendingOrderUuidForProduct] = useState<string | null>(null);
 
   const productId = useMemo(() => sanitizeUrlParam(rawProductId), [rawProductId]);
 
@@ -111,6 +113,28 @@ export const useProductDetail = (rawProductId: string | undefined) => {
     [productId, user, checkIsLiked]
   );
 
+  useEffect(() => {
+    const findMyPendingOrder = async () => {
+      if (!isAuthenticated || !product?.id) {
+        setPendingOrderUuidForProduct(null);
+        return;
+      }
+
+      try {
+        const res = await orderService.getMyOrders(0, 100);
+        const pendingOrder = res.content.find((order) =>
+          order.status === 'PENDING' &&
+          order.items?.some((item) => item.productUuid === product.id)
+        );
+        setPendingOrderUuidForProduct(pendingOrder?.orderUuid ?? null);
+      } catch {
+        setPendingOrderUuidForProduct(null);
+      }
+    };
+
+    findMyPendingOrder();
+  }, [isAuthenticated, product?.id]);
+
   const handleLike = useCallback(async () => {
     if (!productId || !user) {
       showToast('로그인이 필요합니다.', 'error');
@@ -134,21 +158,72 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       return;
     }
 
-    clearOrder();
-    const orderItem: CartItem = {
-      cartId: -1,
-      productUuid: product.id,
-      sellerUuid: product.seller.userUuid,
-      title: product.title,
-      price: product.price ?? 0,
-      saleStatus: product.saleStatus,
-      thumbnailUrl: product.images?.[0] || '',
-      createdAt: new Date().toISOString(),
-      selected: true,
+    const moveToOrderWithSingleItem = () => {
+      clearOrder();
+      const orderItem: CartItem = {
+        cartId: -1,
+        productUuid: product.id,
+        sellerUuid: product.seller.userUuid,
+        title: product.title,
+        price: product.price ?? 0,
+        saleStatus: product.saleStatus,
+        thumbnailUrl: product.images?.[0] || '',
+        createdAt: new Date().toISOString(),
+        selected: true,
+      };
+      setOrderItems([orderItem]);
+      navigate('/order');
     };
-    setOrderItems([orderItem]);
-    navigate('/order');
-  }, [product, clearOrder, setOrderItems, navigate, showToast]);
+
+    if (product.saleStatus !== 'RESERVED') {
+      moveToOrderWithSingleItem();
+      return;
+    }
+
+    if (!pendingOrderUuidForProduct) {
+      showToast('예약중인 상품입니다.', 'error');
+      return;
+    }
+
+    (async () => {
+      try {
+        const orderDetail = await orderService.getOrder(pendingOrderUuidForProduct);
+        if (orderDetail.orderStatus !== 'PENDING') {
+          showToast('이미 처리된 주문입니다.', 'info');
+          return;
+        }
+
+        const restoredOrderItems = orderDetail.items.map((item, index) => ({
+          cartId: -(index + 1),
+          productUuid: item.productUuid,
+          sellerUuid: item.sellerUuid,
+          title: item.productName,
+          price: item.productPrice,
+          saleStatus: 'ON_SALE' as const,
+          thumbnailUrl: item.imageUrl ?? null,
+          createdAt: orderDetail.orderedAt,
+          selected: true,
+        }));
+
+        setOrderUuid(orderDetail.orderUuid);
+        setOrderItems(restoredOrderItems);
+        setOrderResponseItems(orderDetail.items.map((item) => ({
+          orderItemUuid: item.orderItemUuid,
+          productUuid: item.productUuid,
+          sellerUuid: item.sellerUuid,
+          productName: item.productName,
+          productPrice: item.productPrice,
+          imageUrl: item.imageUrl,
+        })));
+        setCouponUuid(null);
+        setCouponDiscountAmount(0);
+        setDepositUseAmount(0);
+        navigate('/checkout');
+      } catch {
+        showToast('결제 페이지로 이동하지 못했습니다.', 'error');
+      }
+    })();
+  }, [product, pendingOrderUuidForProduct, clearOrder, setOrderUuid, setOrderItems, setOrderResponseItems, setCouponUuid, setCouponDiscountAmount, setDepositUseAmount, navigate, showToast]);
 
   return {
     product,
@@ -163,5 +238,6 @@ export const useProductDetail = (rawProductId: string | undefined) => {
     handleLike,
     handleAddToCart,
     handlePurchase,
+    isOwnPendingReservation: product?.saleStatus === 'RESERVED' && !!pendingOrderUuidForProduct,
   };
 };
