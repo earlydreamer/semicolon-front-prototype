@@ -1,11 +1,10 @@
-/**
- * 판매 상품 카드 컴포넌트 (마이페이지용)
+﻿/**
+ * 판매 상품 카드 컴포넌트 (마이페이지)
  */
 
 import { Link } from 'react-router-dom';
 import Eye from 'lucide-react/dist/esm/icons/eye';
 import Heart from 'lucide-react/dist/esm/icons/heart';
-import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
 import type { SaleStatus } from '@/types/product';
 import { formatTimeAgo } from '@/utils/date';
 import { formatPrice } from '@/utils/formatPrice';
@@ -27,7 +26,6 @@ interface SalesProductCardProps {
 const SalesProductCard = ({ product }: SalesProductCardProps) => {
   return (
     <div className="flex gap-4 p-3 rounded-xl hover:bg-neutral-50 transition-colors">
-      {/* 상품 이미지 */}
       <Link
         to={`/products/${product.id}`}
         className="w-20 h-20 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0"
@@ -41,7 +39,6 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
         />
       </Link>
 
-      {/* 상품 정보 */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${SALE_STATUS_COLORS[product.saleStatus as SaleStatus] || SALE_STATUS_COLORS.ON_SALE}`}>
@@ -54,9 +51,7 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
         >
           {product.title}
         </Link>
-        <p className="text-base font-bold text-neutral-900 mt-1">
-          {formatPrice(product.price)}
-        </p>
+        <p className="text-base font-bold text-neutral-900 mt-1">{formatPrice(product.price)}</p>
         <div className="flex items-center gap-3 mt-1 text-xs text-neutral-500">
           <span className="flex items-center gap-1">
             <Eye className="w-3.5 h-3.5" />
@@ -70,14 +65,12 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
         </div>
       </div>
 
-      {/* 더보기 버튼 */}
-      <button
-        className="p-2 text-neutral-400 hover:text-neutral-600 self-center"
-        title="더보기"
-        aria-label="상품 더보기"
+      <Link
+        to={`/seller/products/${product.id}/edit`}
+        className="self-center px-2 py-1 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-md hover:bg-neutral-100"
       >
-        <MoreVertical className="w-5 h-5" />
-      </button>
+        수정
+      </Link>
     </div>
   );
 };
