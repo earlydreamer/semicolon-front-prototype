@@ -3,13 +3,18 @@
  */
 
 /** 상품 상태 */
-export type ConditionStatus = 'SEALED' | 'NO_WEAR' | 'MINOR_WEAR' | 'VISIBLE_WEAR' | 'DAMAGED';
+export type ConditionStatus =
+  | "SEALED"
+  | "NO_WEAR"
+  | "MINOR_WEAR"
+  | "VISIBLE_WEAR"
+  | "DAMAGED";
 
 /** 판매 상태 */
-export type SaleStatus = 'ON_SALE' | 'RESERVED' | 'SOLD_OUT';
+export type SaleStatus = "ON_SALE" | "RESERVED" | "SOLD_OUT";
 
 /** 가시성 상태 */
-export type VisibilityStatus = 'VISIBLE' | 'HIDDEN' | 'BLOCKED';
+export type VisibilityStatus = "VISIBLE" | "HIDDEN" | "BLOCKED";
 
 /** 판매자 정보 */
 export interface ProductSeller {
@@ -105,8 +110,8 @@ export interface ProductDetailResponse {
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
-  saleStatus: 'ON_SALE' | 'RESERVED' | 'SOLD_OUT';
-  visibilityStatus: 'VISIBLE' | 'HIDDEN' | 'BLOCKED';
+  saleStatus: "ON_SALE" | "RESERVED" | "SOLD_OUT";
+  visibilityStatus: "VISIBLE" | "HIDDEN" | "BLOCKED";
   likeCount: number;
   viewCount: number;
   imageUrls: string[];
@@ -131,4 +136,8 @@ export interface ShopResponse {
   activeListingCount: number;
   averageRating: number;
   reviewCount: number;
+}
+
+export interface PresignedUrlResponse {
+  url: string;
 }

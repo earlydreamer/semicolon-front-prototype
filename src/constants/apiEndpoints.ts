@@ -36,6 +36,7 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE_URL}/products`,
     CATEGORIES: `${API_BASE_URL}/categories`,
     ME_LIKES: `${API_BASE_URL}/products/likes/me`,
+    IMAGE_PRESIGNED_URL: `${API_BASE_URL}/products/images/presigned-url`,
   },
   SHOPS: {
     BASE: `${API_BASE_URL}/shops`,
@@ -61,25 +62,29 @@ export const API_ENDPOINTS = {
     UUID: `${API_BASE_URL}/internal/users/uuid`,
   },
   INTERNAL_DEPOSITS: {
-    CHARGE: (userUuid: string) => `${API_BASE_URL}/internal/deposits/${userUuid}/charge`,
+    CHARGE: (userUuid: string) =>
+      `${API_BASE_URL}/internal/deposits/${userUuid}/charge`,
   },
   ADMIN_COUPONS: {
     BASE: `${API_BASE_URL}/admin/coupons`,
-    ISSUE_TO_USER: (couponUuid: string) => `${API_BASE_URL}/admin/coupons/${couponUuid}/issue`,
+    ISSUE_TO_USER: (couponUuid: string) =>
+      `${API_BASE_URL}/admin/coupons/${couponUuid}/issue`,
   },
   ADMIN_ORDERS: {
     BASE: `${API_BASE_URL}/admin/orders`,
-    UPDATE_STATUS: (orderUuid: string) => `${API_BASE_URL}/admin/orders/${orderUuid}/status`,
+    UPDATE_STATUS: (orderUuid: string) =>
+      `${API_BASE_URL}/admin/orders/${orderUuid}/status`,
   },
   ADMIN_PRODUCTS: {
     BASE: `${API_BASE_URL}/products`,
-    USER_BY_PRODUCT: (productUuid: string) => `${API_BASE_URL}/admin/products/${productUuid}/user`,
+    USER_BY_PRODUCT: (productUuid: string) =>
+      `${API_BASE_URL}/admin/products/${productUuid}/user`,
   },
   ADMIN_USERS: {
     BASE: `${API_BASE_URL}/admin/users`,
   },
   ADMIN_SETTLEMENTS: {
     BASE: `${API_BASE_URL}/admin/settlements`,
-    LEGACY_BASE: '/admin/settlements',
+    LEGACY_BASE: "/admin/settlements",
   },
 } as const;
