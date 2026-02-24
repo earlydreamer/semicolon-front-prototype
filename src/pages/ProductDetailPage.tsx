@@ -27,6 +27,7 @@ export default function ProductDetailPage() {
     handleLike,
     handleAddToCart,
     handlePurchase,
+    isOwnPendingReservation,
   } = useProductDetail(rawProductId);
 
   if (isLoading) {
@@ -96,6 +97,7 @@ export default function ProductDetailPage() {
             <ProductActionBar
               saleStatus={product.saleStatus}
               likeCount={product.likeCount}
+              isOwnPendingReservation={isOwnPendingReservation}
               isLiked={isLiked}
               onLike={handleLike}
               onAddToCart={handleAddToCart}
