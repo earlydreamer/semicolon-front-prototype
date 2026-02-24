@@ -25,14 +25,14 @@ const CartItem = ({
   onRemove,
   onToggleSelect,
 }: CartItemProps) => {
-  const isSoldOut = item.saleStatus === 'SOLD_OUT';
+  const isUnavailable = item.saleStatus !== 'ON_SALE';
   const statusInfo = SALE_STATUS_LABELS[item.saleStatus as SaleStatus] || SALE_STATUS_LABELS.ON_SALE;
 
   return (
     <div
       className={`flex gap-3 rounded-xl border bg-white p-3 transition-[border-color,background-color,opacity] min-[360px]:gap-4 min-[360px]:p-4
         ${item.selected ? 'border-primary-300 bg-primary-50/30' : 'border-neutral-200'}
-        ${isSoldOut ? 'opacity-60' : ''}`}
+        ${isUnavailable ? 'opacity-60' : ''}`}
     >
       {/* 체크박스 */}
       <div className="flex items-start pt-1">
@@ -40,7 +40,7 @@ const CartItem = ({
           type="checkbox"
           checked={item.selected}
           onChange={() => onToggleSelect(item.productUuid)}
-          disabled={isSoldOut}
+          disabled={isUnavailable}
           className="w-5 h-5 rounded border-neutral-300 text-primary-500
                      focus:ring-primary-500 focus:ring-offset-0
                      disabled:opacity-50 cursor-pointer"

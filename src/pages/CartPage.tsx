@@ -30,7 +30,9 @@ const CartPage = () => {
   }, [fetchItems]);
 
   const summary = getCartSummary();
-  const allSelected = items.length > 0 && items.every((item) => item.selected);
+  const selectableItems = items.filter((item) => item.saleStatus === 'ON_SALE');
+  const selectedSelectableCount = selectableItems.filter((item) => item.selected).length;
+  const allSelected = selectableItems.length > 0 && selectedSelectableCount === selectableItems.length;
   const hasSelectedItems = items.some((item) => item.selected);
 
   // 선택 삭제 핸들러
@@ -52,6 +54,11 @@ const CartPage = () => {
       return;
     }
     const selectedItems = getSelectedItems();
+    const hasUnavailable = selectedItems.some((item) => item.saleStatus !== 'ON_SALE');
+    if (hasUnavailable) {
+      showToast('예약중 또는 판매완료 상품은 주문할 수 없습니다.', 'error');
+      return;
+    }
     
     // OrderItem 형식에 맞게 변환 (CartItem과 OrderItem 구조 확인 필요)
     // 현재 OrderItem은 Product 객체를 포함해야 함. 
@@ -86,6 +93,8 @@ const CartPage = () => {
               onToggleSelect={toggleSelect}
               onSelectAll={selectAll}
               allSelected={allSelected}
+              selectedSelectableCount={selectedSelectableCount}
+              selectableCount={selectableItems.length}
             />
 
             {/* 선택 삭제 버튼 */}

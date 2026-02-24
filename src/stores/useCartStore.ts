@@ -97,7 +97,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   toggleSelect: (productUuid: string) => {
     set((state) => ({
       items: state.items.map((item) =>
-        item.productUuid === productUuid
+        item.productUuid === productUuid && item.saleStatus === 'ON_SALE'
           ? { ...item, selected: !item.selected }
           : item
       ),
@@ -109,7 +109,10 @@ export const useCartStore = create<CartState>((set, get) => ({
    */
   selectAll: (selected: boolean) => {
     set((state) => ({
-      items: state.items.map((item) => ({ ...item, selected })),
+      items: state.items.map((item) => ({
+        ...item,
+        selected: selected ? item.saleStatus === 'ON_SALE' : false,
+      })),
     }));
   },
   
