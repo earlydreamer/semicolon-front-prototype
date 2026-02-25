@@ -37,17 +37,26 @@ export const AddressList = ({
         const response = await addressService.getMyAddresses(page, 10);
         console.log("[DEBUG] getMyAddresses response:", response);
 
-        // ?곗씠??異붿텧 濡쒖쭅 媛쒖꽑: PageResponse 援ъ“ ?먮뒗 諛곗뿴 援ъ“ ???
-        const rawItems = response?.content ?? [];
-        const newItems: Address[] = rawItems.map((item) => {
+        // 데이터 추출 로직 개선: PageResponse 구조 또는 배열 구조 대응
+        let rawItems: unknown[] = [];
+        if (Array.isArray(response)) {
+          rawItems = response;
+        } else if (response && Array.isArray(response.content)) {
+          rawItems = response.content;
+        }
+
+        const newItems: Address[] = rawItems.map((rawItem) => {
+          const item = rawItem as Record<string, unknown>;
           return {
-            id: item.id,
-            name: item.name || (item.isDefault ? "湲곕낯 諛곗넚吏" : "諛곗넚吏"),
-            recipient: item.recipient || "",
-            phone: item.phone || "",
-            address: item.address || "",
-            detailAddress: item.detailAddress || "",
-            zonecode: item.zonecode || "",
+            id: item.id as number,
+            name:
+              (item.name as string) ||
+              (item.isDefault ? "기본 배송지" : "배송지"),
+            recipient: (item.recipient as string) || "",
+            phone: (item.phone as string) || "",
+            address: (item.address as string) || "",
+            detailAddress: (item.detailAddress as string) || "",
+            zonecode: (item.zonecode as string) || "",
             isDefault: Boolean(item.isDefault),
           };
         });
@@ -63,7 +72,7 @@ export const AddressList = ({
         setCurrentPage(response?.number ?? 0);
       } catch (_error) {
         console.error("[DEBUG] fetchAddresses error:", _error);
-        showToast("二쇱냼濡앹쓣 遺덈윭?ㅻ뒗 ???ㅽ뙣?덉뒿?덈떎.", "error");
+        showToast("주소록을 불러오는 데 실패했습니다.", "error");
       } finally {
         setIsLoading(false);
       }
@@ -112,10 +121,10 @@ export const AddressList = ({
     if (deleteTargetId === null) return;
     try {
       await addressService.deleteAddress(deleteTargetId);
-      showToast("??젣?섏뿀?듬땲??", "success");
-      await fetchAddresses(0); // Wrapped in async call
+      showToast("삭제되었습니다.", "success");
+      await fetchAddresses(0);
     } catch {
-      showToast("??젣???ㅽ뙣?덉뒿?덈떎.", "error");
+      showToast("삭제에 실패했습니다.", "error");
     } finally {
       setDeleteTargetId(null);
     }
@@ -124,10 +133,10 @@ export const AddressList = ({
   const handleSetDefault = async (id: number) => {
     try {
       await addressService.setDefaultAddress(id);
-      showToast("湲곕낯 諛곗넚吏濡??ㅼ젙?섏뿀?듬땲??", "success");
-      await fetchAddresses(0); // Wrapped in async call
+      showToast("기본 배송지로 설정되었습니다.", "success");
+      await fetchAddresses(0);
     } catch {
-      showToast("?ㅼ젙???ㅽ뙣?덉뒿?덈떎.", "error");
+      showToast("설정에 실패했습니다.", "error");
     }
   };
 
@@ -135,14 +144,14 @@ export const AddressList = ({
     try {
       if (editingAddress) {
         await addressService.updateAddress(editingAddress.id, data);
-        showToast("?섏젙?섏뿀?듬땲??", "success");
+        showToast("수정되었습니다.", "success");
       } else {
         await addressService.addAddress(data);
-        showToast("??λ릺?덉뒿?덈떎.", "success");
+        showToast("저장되었습니다.", "success");
       }
-      await fetchAddresses(0); // Wrapped in async call
+      await fetchAddresses(0);
     } catch {
-      showToast("??μ뿉 ?ㅽ뙣?덉뒿?덈떎.", "error");
+      showToast("저장에 실패했습니다.", "error");
     }
   };
 
@@ -150,14 +159,14 @@ export const AddressList = ({
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <p className="text-sm text-neutral-500">
-          ?깅줉??諛곗넚吏 {(addresses || []).length}媛?
+          등록된 배송지 {(addresses || []).length}개
         </p>
         <button
           onClick={handleAddClick}
           className="flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-bold text-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
-          <span>諛곗넚吏 異붽?</span>
+          <span>배송지 추가</span>
         </button>
       </div>
 
@@ -185,12 +194,12 @@ export const AddressList = ({
 
       {(addresses || []).length === 0 && !isLoading && (
         <div className="text-center py-20 bg-neutral-50 rounded-2xl border border-dashed border-neutral-200">
-          <p className="text-neutral-500 mb-4">?깅줉??二쇱냼媛 ?놁뒿?덈떎.</p>
+          <p className="text-neutral-500 mb-4">등록된 주소가 없습니다.</p>
           <button
             onClick={handleAddClick}
             className="text-primary-600 font-bold hover:underline"
           >
-            泥?諛곗넚吏 異붽??섍린
+            첫 배송지 추가하기
           </button>
         </div>
       )}
@@ -200,19 +209,19 @@ export const AddressList = ({
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleFormSubmit}
         initialData={editingAddress}
-        title={editingAddress ? "諛곗넚吏 ?섏젙" : "諛곗넚吏 異붽?"}
+        title={editingAddress ? "배송지 수정" : "배송지 추가"}
       />
 
-      {/* ??젣 ?뺤씤 紐⑤떖 */}
+      {/* 삭제 확인 모달 */}
       <Modal
         isOpen={deleteTargetId !== null}
         onClose={() => setDeleteTargetId(null)}
-        title="諛곗넚吏 ??젣"
+        title="배송지 삭제"
         size="sm"
       >
         <div className="space-y-6">
           <p className="text-neutral-600 text-sm">
-            ??諛곗넚吏瑜???젣?섏떆寃좎뒿?덇퉴?
+            이 배송지를 삭제하시겠습니까?
           </p>
           <div className="flex gap-3">
             <Button
@@ -220,14 +229,14 @@ export const AddressList = ({
               className="flex-1"
               onClick={() => setDeleteTargetId(null)}
             >
-              痍⑥냼
+              취소
             </Button>
             <Button
               variant="danger"
               className="flex-1"
               onClick={handleDeleteConfirm}
             >
-              ??젣
+              삭제
             </Button>
           </div>
         </div>
@@ -235,4 +244,3 @@ export const AddressList = ({
     </div>
   );
 };
-
