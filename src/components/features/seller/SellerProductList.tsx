@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Plus from 'lucide-react/dist/esm/icons/plus';
 import type { SaleStatus } from '@/types/product';
@@ -7,7 +7,6 @@ import SellerProductCard from './SellerProductCard';
 import { Button } from '@/components/common/Button';
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
-import { useEffect } from 'react';
 
 type TabType = 'all' | SaleStatus;
 
@@ -19,15 +18,15 @@ const TABS: { key: TabType; label: string }[] = [
 ];
 
 const SellerProductList = () => {
-  const { 
-    products, 
-    isLoading, 
-    hasNext, 
-    initSellerProducts, 
+  const {
+    products,
+    isLoading,
+    hasNext,
+    initSellerProducts,
     loadMoreProducts,
-    getStats 
+    getStats,
   } = useSellerStore();
-  
+
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const stats = getStats();
 
@@ -106,11 +105,11 @@ const SellerProductList = () => {
                   ) : (
                     <ChevronDown className="w-4 h-4 mr-2" />
                   )}
-                  더 보기
+                  더보기
                 </Button>
               </div>
             )}
-            
+
             {isLoading && products.length === 0 && (
               <div className="py-12 flex flex-col items-center justify-center text-neutral-400">
                 <Loader2 className="w-8 h-8 animate-spin mb-4" />

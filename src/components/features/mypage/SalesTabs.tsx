@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import type { SaleStatus } from '@/types/product';
 import SalesProductCard from './SalesProductCard';
 
