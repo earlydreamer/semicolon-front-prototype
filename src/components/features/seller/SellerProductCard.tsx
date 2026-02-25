@@ -32,14 +32,23 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
   const { updateSaleStatus, deleteProduct } = useSellerStore();
   const { showToast } = useToast();
   const [showMenu, setShowMenu] = useState(false);
+  const hasProductId = Boolean(product.id && product.id !== 'undefined' && product.id !== 'null');
 
   const handleStatusChange = (status: SaleStatus) => {
+    if (!hasProductId) {
+      showToast('상품 등록 완료 후 수정할 수 있습니다', 'error');
+      return;
+    }
     updateSaleStatus(product.id, status);
     showToast(`상태가 '${STATUS_LABELS[status].text}'로 변경되었습니다`);
     setShowMenu(false);
   };
 
   const handleDelete = () => {
+    if (!hasProductId) {
+      showToast('상품 등록 완료 후 삭제할 수 있습니다', 'error');
+      return;
+    }
     if (confirm('정말 삭제하시겠습니까?')) {
       deleteProduct(product.id);
       showToast('상품이 삭제되었습니다', 'error');
@@ -51,23 +60,33 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
 
   return (
     <div className="flex gap-3 p-3 bg-white rounded-xl border border-neutral-200 hover:shadow-md transition-shadow">
-      <Link to={`/products/${product.id}`} className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-neutral-100">
+      <Link to={hasProductId ? `/products/${product.id}` : '/seller'} className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-neutral-100">
         <img src={product.image || '/images/placeholder.png'} alt={product.title} width={80} height={80} className="w-full h-full object-cover" />
       </Link>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <Link to={`/products/${product.id}`} className="flex-1 min-w-0">
+          <Link to={hasProductId ? `/products/${product.id}` : '/seller'} className="flex-1 min-w-0">
             <h4 className="font-medium text-neutral-900 truncate hover:text-primary-600">{product.title}</h4>
           </Link>
 
           <div className="flex items-center gap-1">
-            <Link
-              to={`/seller/products/${product.id}/edit`}
-              className="px-2 py-1 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-md hover:bg-neutral-100"
-            >
-              수정
-            </Link>
+            {hasProductId ? (
+              <Link
+                to={`/seller/products/${product.id}/edit`}
+                className="px-2 py-1 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-md hover:bg-neutral-100"
+              >
+                수정
+              </Link>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="px-2 py-1 text-xs font-medium text-neutral-400 border border-neutral-200 rounded-md cursor-not-allowed"
+              >
+                수정
+              </button>
+            )}
             <div className="relative">
               <button onClick={() => setShowMenu((v) => !v)} className="p-1 rounded-lg hover:bg-neutral-100 text-neutral-500">
                 <MoreVertical className="w-4 h-4" />

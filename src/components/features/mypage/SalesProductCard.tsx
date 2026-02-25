@@ -24,10 +24,12 @@ interface SalesProductCardProps {
 }
 
 const SalesProductCard = ({ product }: SalesProductCardProps) => {
+  const hasProductId = Boolean(product.id && product.id !== 'undefined' && product.id !== 'null');
+
   return (
     <div className="flex gap-4 p-3 rounded-xl hover:bg-neutral-50 transition-colors">
       <Link
-        to={`/products/${product.id}`}
+        to={hasProductId ? `/products/${product.id}` : '/mypage'}
         className="w-20 h-20 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0"
       >
         <img
@@ -46,7 +48,7 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
           </span>
         </div>
         <Link
-          to={`/products/${product.id}`}
+          to={hasProductId ? `/products/${product.id}` : '/mypage'}
           className="block text-sm font-medium text-neutral-900 hover:text-primary-600 line-clamp-1"
         >
           {product.title}
@@ -65,12 +67,22 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
         </div>
       </div>
 
-      <Link
-        to={`/seller/products/${product.id}/edit`}
-        className="self-center px-2 py-1 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-md hover:bg-neutral-100"
-      >
-        수정
-      </Link>
+      {hasProductId ? (
+        <Link
+          to={`/seller/products/${product.id}/edit`}
+          className="self-center px-2 py-1 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-md hover:bg-neutral-100"
+        >
+          수정
+        </Link>
+      ) : (
+        <button
+          type="button"
+          disabled
+          className="self-center px-2 py-1 text-xs font-medium text-neutral-400 border border-neutral-200 rounded-md cursor-not-allowed"
+        >
+          수정
+        </button>
+      )}
     </div>
   );
 };
