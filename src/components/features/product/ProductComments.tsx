@@ -1,22 +1,8 @@
 import User from 'lucide-react/dist/esm/icons/user';
-
-interface Reply {
-  id: string;
-  authorUuid: string;
-  authorRole: 'SELLER' | 'BUYER';
-  content: string;
-}
-
-interface Comment {
-  id: string;
-  authorUuid: string;
-  authorRole: 'SELLER' | 'BUYER';
-  content: string;
-  replies?: Reply[];
-}
+import type { ProductComment } from '@/types/comment';
 
 interface ProductCommentsProps {
-  comments?: Comment[];
+  comments?: ProductComment[];
   sellerUserId: string;
 }
 

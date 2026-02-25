@@ -13,21 +13,8 @@ import { productService } from "@/services/productService";
 import { orderService } from "@/services/orderService";
 import { commentService } from "@/services/commentService";
 import type { CartItem } from "@/types/cart";
-
-interface Reply {
-  id: string;
-  authorUuid: string;
-  authorRole: string;
-  content: string;
-}
-
-interface Comment {
-  id: string;
-  authorUuid: string;
-  authorRole: string;
-  content: string;
-  replies: Reply[];
-}
+import type { CommentThreadResponse } from "@/services/commentService";
+import type { ProductComment } from "@/types/comment";
 
 export const useProductDetail = (rawProductId: string | undefined) => {
   const navigate = useNavigate();
@@ -54,7 +41,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<ProductComment[]>([]);
   const [pendingOrderUuidForProduct, setPendingOrderUuidForProduct] = useState<
     string | null
   >(null);
@@ -93,33 +80,17 @@ export const useProductDetail = (rawProductId: string | undefined) => {
 
         // 댓글 데이터 가공
         setComments(
-          (commentData.items || []).map(
-            (thread: {
-              parent: {
-                commentUuid: string;
-                authorUuid: string;
-                authorRole: string;
-                content: string;
-              };
-              replies: Reply[];
-            }) => ({
+          (commentData.items || []).map((thread: CommentThreadResponse) => ({
               id: thread.parent.commentUuid,
               authorUuid: thread.parent.authorUuid,
               authorRole: thread.parent.authorRole,
               content: thread.parent.content,
-              replies: (thread.replies || []).map(
-                (reply: {
-                  commentUuid: string;
-                  authorUuid: string;
-                  authorRole: string;
-                  content: string;
-                }) => ({
-                  id: reply.commentUuid,
-                  authorUuid: reply.authorUuid,
-                  authorRole: reply.authorRole,
-                  content: reply.content,
-                }),
-              ),
+              replies: (thread.replies || []).map((reply) => ({
+                id: reply.commentUuid,
+                authorUuid: reply.authorUuid,
+                authorRole: reply.authorRole,
+                content: reply.content,
+              })),
             }),
           ),
         );

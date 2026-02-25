@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+﻿import { useState, useEffect, useCallback, useRef } from "react";
 import { addressService } from "../../../services/addressService";
 import { AddressItem } from "./AddressItem";
 import { AddressFormModal } from "./AddressFormModal";
@@ -37,29 +37,18 @@ export const AddressList = ({
         const response = await addressService.getMyAddresses(page, 10);
         console.log("[DEBUG] getMyAddresses response:", response);
 
-        // 데이터 추출 로직 개선: PageResponse 구조 또는 배열 구조 대응
-        let rawItems: Record<string, unknown>[] = [];
-        if (Array.isArray(response)) {
-          rawItems = response as Record<string, unknown>[];
-        } else if (response && Array.isArray(response.content)) {
-          rawItems = response.content as Record<string, unknown>[];
-        }
-
-        const newItems: Address[] = rawItems.map((rawItem) => {
-          const item = rawItem as Record<string, unknown>;
+        // ?곗씠??異붿텧 濡쒖쭅 媛쒖꽑: PageResponse 援ъ“ ?먮뒗 諛곗뿴 援ъ“ ???
+        const rawItems = response?.content ?? [];
+        const newItems: Address[] = rawItems.map((item) => {
           return {
-            id: item.id as number,
-            name:
-              (item.name as string) ||
-              ((item.isDefault as boolean) || (item.default as boolean)
-                ? "기본 배송지"
-                : "배송지"),
-            recipient: (item.recipient as string) || "",
-            phone: (item.phone as string) || "",
-            address: (item.address as string) || "",
-            detailAddress: (item.detailAddress as string) || "",
-            zonecode: (item.zonecode as string) || "",
-            isDefault: Boolean(item.isDefault || item.default),
+            id: item.id,
+            name: item.name || (item.isDefault ? "湲곕낯 諛곗넚吏" : "諛곗넚吏"),
+            recipient: item.recipient || "",
+            phone: item.phone || "",
+            address: item.address || "",
+            detailAddress: item.detailAddress || "",
+            zonecode: item.zonecode || "",
+            isDefault: Boolean(item.isDefault),
           };
         });
 
@@ -70,13 +59,11 @@ export const AddressList = ({
         } else {
           setAddresses(newItems);
         }
-        setIsLastPage(
-          response?.last ?? (Array.isArray(response) ? true : true),
-        );
-        setCurrentPage(response?.number ?? (Array.isArray(response) ? 0 : 0));
+        setIsLastPage(response?.last ?? true);
+        setCurrentPage(response?.number ?? 0);
       } catch (_error) {
         console.error("[DEBUG] fetchAddresses error:", _error);
-        showToast("주소록을 불러오는 데 실패했습니다.", "error");
+        showToast("二쇱냼濡앹쓣 遺덈윭?ㅻ뒗 ???ㅽ뙣?덉뒿?덈떎.", "error");
       } finally {
         setIsLoading(false);
       }
@@ -125,10 +112,10 @@ export const AddressList = ({
     if (deleteTargetId === null) return;
     try {
       await addressService.deleteAddress(deleteTargetId);
-      showToast("삭제되었습니다.", "success");
+      showToast("??젣?섏뿀?듬땲??", "success");
       await fetchAddresses(0); // Wrapped in async call
     } catch {
-      showToast("삭제에 실패했습니다.", "error");
+      showToast("??젣???ㅽ뙣?덉뒿?덈떎.", "error");
     } finally {
       setDeleteTargetId(null);
     }
@@ -137,10 +124,10 @@ export const AddressList = ({
   const handleSetDefault = async (id: number) => {
     try {
       await addressService.setDefaultAddress(id);
-      showToast("기본 배송지로 설정되었습니다.", "success");
+      showToast("湲곕낯 諛곗넚吏濡??ㅼ젙?섏뿀?듬땲??", "success");
       await fetchAddresses(0); // Wrapped in async call
     } catch {
-      showToast("설정에 실패했습니다.", "error");
+      showToast("?ㅼ젙???ㅽ뙣?덉뒿?덈떎.", "error");
     }
   };
 
@@ -148,14 +135,14 @@ export const AddressList = ({
     try {
       if (editingAddress) {
         await addressService.updateAddress(editingAddress.id, data);
-        showToast("수정되었습니다.", "success");
+        showToast("?섏젙?섏뿀?듬땲??", "success");
       } else {
         await addressService.addAddress(data);
-        showToast("저장되었습니다.", "success");
+        showToast("??λ릺?덉뒿?덈떎.", "success");
       }
       await fetchAddresses(0); // Wrapped in async call
     } catch {
-      showToast("저장에 실패했습니다.", "error");
+      showToast("??μ뿉 ?ㅽ뙣?덉뒿?덈떎.", "error");
     }
   };
 
@@ -163,14 +150,14 @@ export const AddressList = ({
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <p className="text-sm text-neutral-500">
-          등록된 배송지 {(addresses || []).length}개
+          ?깅줉??諛곗넚吏 {(addresses || []).length}媛?
         </p>
         <button
           onClick={handleAddClick}
           className="flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-bold text-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
-          <span>배송지 추가</span>
+          <span>諛곗넚吏 異붽?</span>
         </button>
       </div>
 
@@ -198,12 +185,12 @@ export const AddressList = ({
 
       {(addresses || []).length === 0 && !isLoading && (
         <div className="text-center py-20 bg-neutral-50 rounded-2xl border border-dashed border-neutral-200">
-          <p className="text-neutral-500 mb-4">등록된 주소가 없습니다.</p>
+          <p className="text-neutral-500 mb-4">?깅줉??二쇱냼媛 ?놁뒿?덈떎.</p>
           <button
             onClick={handleAddClick}
             className="text-primary-600 font-bold hover:underline"
           >
-            첫 배송지 추가하기
+            泥?諛곗넚吏 異붽??섍린
           </button>
         </div>
       )}
@@ -213,19 +200,19 @@ export const AddressList = ({
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleFormSubmit}
         initialData={editingAddress}
-        title={editingAddress ? "배송지 수정" : "배송지 추가"}
+        title={editingAddress ? "諛곗넚吏 ?섏젙" : "諛곗넚吏 異붽?"}
       />
 
-      {/* 삭제 확인 모달 */}
+      {/* ??젣 ?뺤씤 紐⑤떖 */}
       <Modal
         isOpen={deleteTargetId !== null}
         onClose={() => setDeleteTargetId(null)}
-        title="배송지 삭제"
+        title="諛곗넚吏 ??젣"
         size="sm"
       >
         <div className="space-y-6">
           <p className="text-neutral-600 text-sm">
-            이 배송지를 삭제하시겠습니까?
+            ??諛곗넚吏瑜???젣?섏떆寃좎뒿?덇퉴?
           </p>
           <div className="flex gap-3">
             <Button
@@ -233,14 +220,14 @@ export const AddressList = ({
               className="flex-1"
               onClick={() => setDeleteTargetId(null)}
             >
-              취소
+              痍⑥냼
             </Button>
             <Button
               variant="danger"
               className="flex-1"
               onClick={handleDeleteConfirm}
             >
-              삭제
+              ??젣
             </Button>
           </div>
         </div>
@@ -248,3 +235,4 @@ export const AddressList = ({
     </div>
   );
 };
+
