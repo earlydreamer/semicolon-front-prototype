@@ -14,6 +14,7 @@ interface SellerProductCardProps {
     title: string;
     price: number;
     image: string;
+    tags?: string[];
     saleStatus: SaleStatus;
     viewCount: number;
     likeCount: number;
@@ -29,11 +30,16 @@ const STATUS_LABELS: Record<SaleStatus, { text: string; className: string }> = {
 };
 
 const SellerProductCard = ({ product }: SellerProductCardProps) => {
+  const MAX_VISIBLE_TAGS = 2;
   const { updateSaleStatus, deleteProduct } = useSellerStore();
   const { showToast } = useToast();
   const [showMenu, setShowMenu] = useState(false);
   const [isActionPending, setIsActionPending] = useState(false);
+  const [isTagExpanded, setIsTagExpanded] = useState(false);
   const hasProductId = Boolean(product.id && product.id !== 'undefined' && product.id !== 'null');
+  const tags = product.tags ?? [];
+  const visibleTags = isTagExpanded ? tags : tags.slice(0, MAX_VISIBLE_TAGS);
+  const hiddenTagCount = Math.max(tags.length - MAX_VISIBLE_TAGS, 0);
 
   const handleStatusChange = async (status: SaleStatus) => {
     if (!hasProductId) {
@@ -165,6 +171,29 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
           </span>
           <span className="text-sm font-bold text-neutral-900">{product.price.toLocaleString()}원</span>
         </div>
+
+        {visibleTags.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            {visibleTags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex max-w-[110px] truncate rounded-md border border-neutral-200 bg-white px-1.5 py-0.5 text-[10px] leading-4 text-neutral-500"
+                title={`#${tag}`}
+              >
+                #{tag}
+              </span>
+            ))}
+            {hiddenTagCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsTagExpanded((prev) => !prev)}
+                className="text-[10px] leading-4 text-neutral-500 hover:text-neutral-700"
+              >
+                {isTagExpanded ? '접기' : `+${hiddenTagCount}개 더보기`}
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="mt-2 flex items-center gap-3 text-xs text-neutral-500">
           <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{product.viewCount}</span>

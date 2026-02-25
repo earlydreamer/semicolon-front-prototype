@@ -10,6 +10,7 @@ interface SalesTabsProps {
     title: string;
     price: number;
     image: string;
+    tags?: string[];
     saleStatus: SaleStatus;
     viewCount: number;
     likeCount: number;

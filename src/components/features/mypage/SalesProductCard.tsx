@@ -3,6 +3,7 @@
  */
 
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import Eye from 'lucide-react/dist/esm/icons/eye';
 import Heart from 'lucide-react/dist/esm/icons/heart';
 import type { SaleStatus } from '@/types/product';
@@ -16,6 +17,7 @@ interface SalesProductCardProps {
     title: string;
     price: number;
     image: string;
+    tags?: string[];
     saleStatus: SaleStatus;
     viewCount: number;
     likeCount: number;
@@ -24,7 +26,12 @@ interface SalesProductCardProps {
 }
 
 const SalesProductCard = ({ product }: SalesProductCardProps) => {
+  const MAX_VISIBLE_TAGS = 2;
   const hasProductId = Boolean(product.id && product.id !== 'undefined' && product.id !== 'null');
+  const [isTagExpanded, setIsTagExpanded] = useState(false);
+  const tags = product.tags ?? [];
+  const visibleTags = isTagExpanded ? tags : tags.slice(0, MAX_VISIBLE_TAGS);
+  const hiddenTagCount = Math.max(tags.length - MAX_VISIBLE_TAGS, 0);
 
   return (
     <div className="flex gap-4 p-3 rounded-xl hover:bg-neutral-50 transition-colors">
@@ -65,6 +72,28 @@ const SalesProductCard = ({ product }: SalesProductCardProps) => {
           </span>
           <span>{formatTimeAgo(product.createdAt)}</span>
         </div>
+        {visibleTags.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            {visibleTags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex max-w-[110px] truncate rounded-md border border-neutral-200 bg-white px-1.5 py-0.5 text-[10px] leading-4 text-neutral-500"
+                title={`#${tag}`}
+              >
+                #{tag}
+              </span>
+            ))}
+            {hiddenTagCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsTagExpanded((prev) => !prev)}
+                className="text-[10px] leading-4 text-neutral-500 hover:text-neutral-700"
+              >
+                {isTagExpanded ? '접기' : `+${hiddenTagCount}개 더보기`}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {hasProductId ? (
