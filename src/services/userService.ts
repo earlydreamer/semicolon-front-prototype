@@ -1,6 +1,7 @@
 import api from "../utils/api";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
 import type { SaleStatus } from "../types/product";
+import type { PageResponse } from "../types/order";
 import type {
   User,
   UserUpdateRequest,
@@ -45,20 +46,22 @@ export interface DepositHistoryResponse {
 
 export interface Address {
   id: number;
-  receiverName: string;
-  receiverPhone: string;
-  zipcode: string;
-  address1: string;
-  address2: string;
+  name: string;
+  recipient: string;
+  phone: string;
+  zonecode: string;
+  address: string;
+  detailAddress: string;
   isDefault: boolean;
 }
 
 export interface AddressRequest {
-  receiverName: string;
-  receiverPhone: string;
-  zipcode: string;
-  address1: string;
-  address2: string;
+  name: string;
+  recipient: string;
+  phone: string;
+  zonecode: string;
+  address: string;
+  detailAddress: string;
   isDefault: boolean;
 }
 
@@ -96,8 +99,10 @@ export const userService = {
   },
 
   // Address
-  getMyAddresses: async (): Promise<Address[]> => {
-    const response = await api.get<Address[]>(API_ENDPOINTS.USERS.ADDRESSES);
+  getMyAddresses: async (page = 0, size = 10): Promise<PageResponse<Address> | Address[]> => {
+    const response = await api.get<PageResponse<Address> | Address[]>(API_ENDPOINTS.USERS.ADDRESSES, {
+      params: { page, size }
+    });
     return response.data;
   },
 
