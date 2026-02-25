@@ -36,9 +36,19 @@ api.interceptors.response.use(
   (error) => {
     // 401 Unauthorized 에러 시 세션 종료
     if (error.response?.status === 401) {
+      const requestUrl = String(error.config?.url || '');
+      const isPaymentFlowRequest =
+        requestUrl.includes('/payments/request') ||
+        requestUrl.includes('/payments/confirm');
+
+      // 결제 단계의 401은 전역 로그아웃으로 끊지 않고 호출부에서 처리한다.
+      if (isPaymentFlowRequest) {
+        return Promise.reject(error);
+      }
+
       const { logout, accessToken } = useAuthStore.getState();
       
-      console.error(`[API 401 Unauthorized] URL: ${error.config?.url || 'unknown'}`);
+      console.error(`[API 401 Unauthorized] URL: ${requestUrl || 'unknown'}`);
       console.error(`[API 401 Unauthorized] Current Token: ${accessToken?.substring(0, 15)}...`);
       console.error(`[API 401 Unauthorized] Response Data:`, error.response?.data);
       

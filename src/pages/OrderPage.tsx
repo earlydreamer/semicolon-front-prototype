@@ -30,7 +30,9 @@ const OrderPage = () => {
   const fetchBalance = useUserStore((state) => state.fetchBalance);
 
   const {
+    orderUuid,
     orderItems,
+    orderResponseItems,
     shippingInfo,
     depositUseAmount,
     setShippingInfo,
@@ -132,6 +134,12 @@ const OrderPage = () => {
 
   const handlePayment = async () => {
     if (!isFormValid || !shippingInfo) return;
+
+    // "결제 계속하기" 흐름에서 기존 주문이 이미 있으면 새 주문을 만들지 않는다.
+    if (orderUuid && orderResponseItems && orderResponseItems.length > 0) {
+      navigate("/checkout");
+      return;
+    }
 
     setIsLoading(true);
 

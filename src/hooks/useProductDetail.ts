@@ -24,6 +24,9 @@ export const useProductDetail = (rawProductId: string | undefined) => {
   const { isLiked: checkIsLiked, toggleLike } = useLikeStore();
   const {
     clearOrder,
+    orderUuid,
+    orderItems,
+    orderResponseItems,
     setOrderUuid,
     setOrderItems,
     setOrderResponseItems,
@@ -214,6 +217,17 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       return;
     }
 
+    const hasLocalPendingForProduct =
+      !!orderUuid &&
+      !!orderResponseItems &&
+      orderResponseItems.some((item) => item.productUuid === product.id) &&
+      orderItems.length > 0;
+
+    if (hasLocalPendingForProduct) {
+      navigate("/checkout");
+      return;
+    }
+
     if (!pendingOrderUuidForProduct) {
       showToast("예약중인 상품입니다.", "error");
       return;
@@ -265,6 +279,9 @@ export const useProductDetail = (rawProductId: string | undefined) => {
     product,
     pendingOrderUuidForProduct,
     clearOrder,
+    orderUuid,
+    orderItems,
+    orderResponseItems,
     setOrderUuid,
     setOrderItems,
     setOrderResponseItems,

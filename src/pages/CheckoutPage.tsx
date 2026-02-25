@@ -79,7 +79,7 @@ function buildPaymentCouponMap(items: CouponDistributionItem[], couponTotal: num
 export default function CheckoutPage() {
     const navigate = useNavigate();
     const { showToast } = useToast();
-    const { user, isAuthenticated } = useAuthStore();
+    const { user, isAuthenticated, accessToken } = useAuthStore();
     const {
         orderUuid,
         orderItems,
@@ -93,7 +93,7 @@ export default function CheckoutPage() {
 
     const [ready, setReady] = useState(false);
     const [widgets, setWidgets] = useState<TossPaymentsWidgets | null>(null);
-    const shouldRedirectLogin = !isAuthenticated;
+    const shouldRedirectLogin = !isAuthenticated || !accessToken;
     const shouldRedirectOrder = !orderUuid || orderItems.length === 0 || !orderResponseItems;
 
     useEffect(() => {
