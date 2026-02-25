@@ -1,20 +1,23 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { addressService } from '../../../services/addressService';
-import { AddressItem } from './AddressItem';
-import { AddressFormModal } from './AddressFormModal';
-import { Modal } from '../../common/Modal';
-import { Button } from '../../common/Button';
-import { useToast } from '../../common/Toast';
-import type { Address } from '../../../types/address';
-import Plus from 'lucide-react/dist/esm/icons/plus';
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { addressService } from "../../../services/addressService";
+import { AddressItem } from "./AddressItem";
+import { AddressFormModal } from "./AddressFormModal";
+import { Modal } from "../../common/Modal";
+import { Button } from "../../common/Button";
+import { useToast } from "../../common/Toast";
+import type { Address } from "../../../types/address";
+import Plus from "lucide-react/dist/esm/icons/plus";
+import Loader2 from "lucide-react/dist/esm/icons/loader-2";
 
 interface AddressListProps {
   selectable?: boolean;
   onSelect?: (address: Address) => void;
 }
 
-export const AddressList = ({ selectable = false, onSelect }: AddressListProps) => {
+export const AddressList = ({
+  selectable = false,
+  onSelect,
+}: AddressListProps) => {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
@@ -22,67 +25,79 @@ export const AddressList = ({ selectable = false, onSelect }: AddressListProps) 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
-  
+
   const { showToast } = useToast();
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  const fetchAddresses = useCallback(async (page: number, append = false) => {
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      const response = await addressService.getMyAddresses(page, 10);
-      console.log('[DEBUG] getMyAddresses response:', response);
+  const fetchAddresses = useCallback(
+    async (page: number, append = false) => {
+      if (isLoading) return;
+      setIsLoading(true);
+      try {
+        const response = await addressService.getMyAddresses(page, 10);
+        console.log("[DEBUG] getMyAddresses response:", response);
 
-      // 데이터 추출 로직 개선: PageResponse 구조 또는 배열 구조 대응
-      let rawItems: any[] = [];
-      if (Array.isArray(response)) {
-        rawItems = response;
-      } else if (response && Array.isArray(response.content)) {
-        rawItems = response.content;
+        // 데이터 추출 로직 개선: PageResponse 구조 또는 배열 구조 대응
+        let rawItems: Record<string, unknown>[] = [];
+        if (Array.isArray(response)) {
+          rawItems = response as Record<string, unknown>[];
+        } else if (response && Array.isArray(response.content)) {
+          rawItems = response.content as Record<string, unknown>[];
+        }
+
+        const newItems: Address[] = rawItems.map((rawItem) => {
+          const item = rawItem as Record<string, unknown>;
+          return {
+            id: item.id as number,
+            name:
+              (item.name as string) ||
+              ((item.isDefault as boolean) || (item.default as boolean)
+                ? "기본 배송지"
+                : "배송지"),
+            recipient: (item.recipient as string) || "",
+            phone: (item.phone as string) || "",
+            address: (item.address as string) || "",
+            detailAddress: (item.detailAddress as string) || "",
+            zonecode: (item.zonecode as string) || "",
+            isDefault: Boolean(item.isDefault || item.default),
+          };
+        });
+
+        console.log("[DEBUG] Parsed items:", newItems);
+
+        if (append) {
+          setAddresses((prev) => [...(prev || []), ...newItems]);
+        } else {
+          setAddresses(newItems);
+        }
+        setIsLastPage(
+          response?.last ?? (Array.isArray(response) ? true : true),
+        );
+        setCurrentPage(response?.number ?? (Array.isArray(response) ? 0 : 0));
+      } catch (_error) {
+        console.error("[DEBUG] fetchAddresses error:", _error);
+        showToast("주소록을 불러오는 데 실패했습니다.", "error");
+      } finally {
+        setIsLoading(false);
       }
-
-      const newItems: Address[] = rawItems.map((item: any) => ({
-        id: item.id,
-        name: item.name || (item.isDefault || item.default ? '기본 배송지' : '배송지'),
-        recipient: item.recipient || '',
-        phone: item.phone || '',
-        address: item.address || '',
-        detailAddress: item.detailAddress || '',
-        zonecode: item.zonecode || '',
-        isDefault: Boolean(item.isDefault || item.default)
-      }));
-
-      console.log('[DEBUG] Parsed items:', newItems);
-      
-      if (append) {
-        setAddresses(prev => [...(prev || []), ...newItems]);
-      } else {
-        setAddresses(newItems);
-      }
-      setIsLastPage(response?.last ?? (Array.isArray(response) ? true : true));
-      setCurrentPage(response?.number ?? (Array.isArray(response) ? 0 : 0));
-    } catch (error) {
-      console.error('[DEBUG] fetchAddresses error:', error);
-      showToast('주소록을 불러오는 데 실패했습니다.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading, showToast]);
+    },
+    [isLoading, showToast],
+  );
 
   useEffect(() => {
     fetchAddresses(0);
-  }, []);
+  }, [fetchAddresses]);
 
   useEffect(() => {
     if (isLastPage || isLoading) return;
 
     const observer = new IntersectionObserver(
-      entries => {
+      (entries) => {
         if (entries[0].isIntersecting) {
           fetchAddresses(currentPage + 1, true);
         }
       },
-      { threshold: 1.0 }
+      { threshold: 1.0 },
     );
 
     if (observerTarget.current) {
@@ -110,10 +125,10 @@ export const AddressList = ({ selectable = false, onSelect }: AddressListProps) 
     if (deleteTargetId === null) return;
     try {
       await addressService.deleteAddress(deleteTargetId);
-      showToast('삭제되었습니다.', 'success');
-      fetchAddresses(0);
-    } catch (error) {
-      showToast('삭제에 실패했습니다.', 'error');
+      showToast("삭제되었습니다.", "success");
+      await fetchAddresses(0); // Wrapped in async call
+    } catch {
+      showToast("삭제에 실패했습니다.", "error");
     } finally {
       setDeleteTargetId(null);
     }
@@ -122,33 +137,34 @@ export const AddressList = ({ selectable = false, onSelect }: AddressListProps) 
   const handleSetDefault = async (id: number) => {
     try {
       await addressService.setDefaultAddress(id);
-      showToast('기본 배송지로 설정되었습니다.', 'success');
-      fetchAddresses(0);
-    } catch (error) {
-      showToast('설정에 실패했습니다.', 'error');
+      showToast("기본 배송지로 설정되었습니다.", "success");
+      await fetchAddresses(0); // Wrapped in async call
+    } catch {
+      showToast("설정에 실패했습니다.", "error");
     }
   };
 
-  const handleFormSubmit = async (data: Omit<Address, 'id' | 'isDefault'>) => {
+  const handleFormSubmit = async (data: Omit<Address, "id" | "isDefault">) => {
     try {
       if (editingAddress) {
         await addressService.updateAddress(editingAddress.id, data);
-        showToast('수정되었습니다.', 'success');
+        showToast("수정되었습니다.", "success");
       } else {
         await addressService.addAddress(data);
-        showToast('저장되었습니다.', 'success');
+        showToast("저장되었습니다.", "success");
       }
-      fetchAddresses(0);
-    } catch (error) {
-      showToast('저장에 실패했습니다.', 'error');
-      throw error;
+      await fetchAddresses(0); // Wrapped in async call
+    } catch {
+      showToast("저장에 실패했습니다.", "error");
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <p className="text-sm text-neutral-500">등록된 배송지 {(addresses || []).length}개</p>
+        <p className="text-sm text-neutral-500">
+          등록된 배송지 {(addresses || []).length}개
+        </p>
         <button
           onClick={handleAddClick}
           className="flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-bold text-sm transition-colors"
@@ -159,7 +175,7 @@ export const AddressList = ({ selectable = false, onSelect }: AddressListProps) 
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {addresses.map(address => (
+        {addresses.map((address) => (
           <AddressItem
             key={address.id}
             address={address}
@@ -197,7 +213,7 @@ export const AddressList = ({ selectable = false, onSelect }: AddressListProps) 
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleFormSubmit}
         initialData={editingAddress}
-        title={editingAddress ? '배송지 수정' : '배송지 추가'}
+        title={editingAddress ? "배송지 수정" : "배송지 추가"}
       />
 
       {/* 삭제 확인 모달 */}

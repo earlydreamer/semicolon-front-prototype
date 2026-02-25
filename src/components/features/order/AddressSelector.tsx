@@ -1,16 +1,19 @@
-import { useState, useEffect } from 'react';
-import type { Address } from '@/types/address';
-import { userService } from '@/services/userService';
-import { Button } from '../../common/Button';
-import MapPin from 'lucide-react/dist/esm/icons/map-pin';
-import Check from 'lucide-react/dist/esm/icons/check';
+import { useState, useEffect } from "react";
+import type { Address } from "@/types/address";
+import { userService } from "@/services/userService";
+import { Button } from "../../common/Button";
+import MapPin from "lucide-react/dist/esm/icons/map-pin";
+import Check from "lucide-react/dist/esm/icons/check";
 
 interface AddressSelectorProps {
   selectedAddress: Address | null;
   onSelect: (address: Address) => void;
 }
 
-const AddressSelector = ({ selectedAddress, onSelect }: AddressSelectorProps) => {
+const AddressSelector = ({
+  selectedAddress,
+  onSelect,
+}: AddressSelectorProps) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
 
@@ -18,37 +21,46 @@ const AddressSelector = ({ selectedAddress, onSelect }: AddressSelectorProps) =>
     const loadAddresses = async () => {
       try {
         const response = await userService.getMyAddresses(0, 50); // Fetch enough for selector
-        console.log('[DEBUG] AddressSelector getMyAddresses response:', response);
+        console.log(
+          "[DEBUG] AddressSelector getMyAddresses response:",
+          response,
+        );
 
         // 데이터 추출 로직 개선: PageResponse 구조 또는 배열 구조 대응
-        let rawItems: any[] = [];
+        let rawItems: unknown[] = [];
         if (Array.isArray(response)) {
           rawItems = response;
         } else if (response && Array.isArray(response.content)) {
           rawItems = response.content;
         }
 
-        const mapped: Address[] = rawItems.map((item: any) => ({
-          id: item.id,
-          name: item.name || (item.isDefault || item.default ? '기본 배송지' : '배송지'),
-          recipient: item.recipient || '',
-          phone: item.phone || '',
-          address: item.address || '',
-          detailAddress: item.detailAddress || '',
-          zonecode: item.zonecode || '',
-          isDefault: Boolean(item.isDefault || item.default),
-        }));
+        const mapped: Address[] = rawItems.map((rawItem) => {
+          const item = rawItem as Record<string, unknown>;
+          return {
+            id: item.id as number,
+            name:
+              (item.name as string) ||
+              (item.isDefault || item.default ? "기본 배송지" : "배송지"),
+            recipient: (item.recipient as string) || "",
+            phone: (item.phone as string) || "",
+            address: (item.address as string) || "",
+            detailAddress: (item.detailAddress as string) || "",
+            zonecode: (item.zonecode as string) || "",
+            isDefault: Boolean(item.isDefault || item.default),
+          };
+        });
 
         setAddresses(mapped);
 
         if (!selectedAddress) {
-          const defaultAddr = mapped.find((addr) => addr.isDefault) || mapped[0];
+          const defaultAddr =
+            mapped.find((addr) => addr.isDefault) || mapped[0];
           if (defaultAddr) {
             onSelect(defaultAddr);
           }
         }
       } catch (error) {
-        console.error('Failed to load addresses:', error);
+        console.error("Failed to load addresses:", error);
         setAddresses([]);
       }
     };
@@ -66,15 +78,21 @@ const AddressSelector = ({ selectedAddress, onSelect }: AddressSelectorProps) =>
           onClick={() => setIsAddingNew(!isAddingNew)}
           className="text-primary-600 hover:text-primary-700 font-medium"
         >
-          {isAddingNew ? '목록 선택' : '+ 새 배송지'}
+          {isAddingNew ? "목록 선택" : "+ 새 배송지"}
         </Button>
       </div>
 
       <div className="p-5">
         {isAddingNew ? (
           <div className="text-center py-8 bg-neutral-50 rounded-xl border border-dashed border-neutral-300">
-            <p className="text-neutral-500 mb-2">새 배송지 입력 기능은 준비중입니다.</p>
-            <Button size="sm" variant="outline" onClick={() => setIsAddingNew(false)}>
+            <p className="text-neutral-500 mb-2">
+              새 배송지 입력 기능은 준비중입니다.
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsAddingNew(false)}
+            >
               기존 배송지 선택하기
             </Button>
           </div>
@@ -87,13 +105,15 @@ const AddressSelector = ({ selectedAddress, onSelect }: AddressSelectorProps) =>
                 className={`relative p-4 rounded-xl border-2 transition-[border-color,background-color] cursor-pointer hover:border-primary-200
                   ${
                     selectedAddress?.id === address.id
-                      ? 'border-primary-500 bg-primary-50/10'
-                      : 'border-neutral-100 bg-neutral-50'
+                      ? "border-primary-500 bg-primary-50/10"
+                      : "border-neutral-100 bg-neutral-50"
                   }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`mt-0.5 p-1.5 rounded-full flex-shrink-0
-                    ${selectedAddress?.id === address.id ? 'bg-primary-500 text-white' : 'bg-neutral-200 text-neutral-500'}`}>
+                  <div
+                    className={`mt-0.5 p-1.5 rounded-full flex-shrink-0
+                    ${selectedAddress?.id === address.id ? "bg-primary-500 text-white" : "bg-neutral-200 text-neutral-500"}`}
+                  >
                     {selectedAddress?.id === address.id ? (
                       <Check className="w-3.5 h-3.5" />
                     ) : (
@@ -102,7 +122,9 @@ const AddressSelector = ({ selectedAddress, onSelect }: AddressSelectorProps) =>
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-neutral-900">{address.name}</span>
+                      <span className="font-bold text-neutral-900">
+                        {address.name}
+                      </span>
                       {address.isDefault && (
                         <span className="px-1.5 py-0.5 text-[10px] font-bold bg-neutral-200 text-neutral-600 rounded">
                           기본
@@ -113,7 +135,8 @@ const AddressSelector = ({ selectedAddress, onSelect }: AddressSelectorProps) =>
                       {address.recipient} ({address.phone})
                     </p>
                     <p className="text-sm text-neutral-600">
-                      [{address.zonecode}] {address.address} {address.detailAddress}
+                      [{address.zonecode}] {address.address}{" "}
+                      {address.detailAddress}
                     </p>
                   </div>
                 </div>

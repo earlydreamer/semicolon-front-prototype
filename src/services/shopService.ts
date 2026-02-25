@@ -1,6 +1,11 @@
-import api from '../utils/api';
-import { API_ENDPOINTS, API_BASE_URL } from '../constants/apiEndpoints';
-import type { SaleStatus, ProductListItem, ConditionStatus, VisibilityStatus } from '../types/product';
+import api from "../utils/api";
+import { API_ENDPOINTS, API_BASE_URL } from "../constants/apiEndpoints";
+import type {
+  SaleStatus,
+  ProductListItem,
+  ConditionStatus,
+  VisibilityStatus,
+} from "../types/product";
 
 export interface ProductCreateRequest {
   categoryId: number;
@@ -45,7 +50,9 @@ export interface ShopProductListResponse {
 
 export const shopService = {
   getShop: async (shopUuid: string): Promise<ShopResponse> => {
-    const response = await api.get<ShopResponse>(`${API_ENDPOINTS.SHOPS.BASE}/${shopUuid}`);
+    const response = await api.get<ShopResponse>(
+      `${API_ENDPOINTS.SHOPS.BASE}/${shopUuid}`,
+    );
     return response.data;
   },
 
@@ -65,20 +72,27 @@ export const shopService = {
     page?: number;
     size?: number;
   }): Promise<ShopProductListResponse> => {
-    const response = await api.get<ShopProductListResponse>(`${API_ENDPOINTS.SHOPS.ME}/products`, {
-      params,
-    });
+    const response = await api.get<ShopProductListResponse>(
+      `${API_ENDPOINTS.SHOPS.ME}/products`,
+      {
+        params,
+      },
+    );
     return response.data;
   },
 
-  createProduct: async (data: ProductCreateRequest): Promise<any> => {
+  createProduct: async (
+    data: ProductCreateRequest,
+  ): Promise<{ productUuid: string }> => {
     const response = await api.post(`${API_BASE_URL}/seller/products`, data);
     return response.data;
   },
 
-  updateProduct: async (productUuid: string, data: ProductUpdateRequest): Promise<any> => {
-    const response = await api.patch(`${API_BASE_URL}/seller/products/${productUuid}`, data);
-    return response.data;
+  updateProduct: async (
+    productUuid: string,
+    data: ProductUpdateRequest,
+  ): Promise<void> => {
+    await api.patch(`${API_BASE_URL}/seller/products/${productUuid}`, data);
   },
 
   deleteProduct: async (productUuid: string): Promise<void> => {

@@ -1,6 +1,10 @@
-import { create } from 'zustand';
-import type { SaleStatus, ConditionStatus } from '@/types/product';
-import { shopService } from '@/services/shopService';
+import { create } from "zustand";
+import type {
+  SaleStatus,
+  ConditionStatus,
+  ProductListItem,
+} from "@/types/product";
+import { shopService } from "@/services/shopService";
 
 export interface ProductFormData {
   title: string;
@@ -48,15 +52,18 @@ interface SellerState {
   updateProduct: (id: string, data: Partial<ProductFormData>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   updateSaleStatus: (id: string, status: SaleStatus) => Promise<void>;
-  updateTrackingInfo: (id: string, info: { number: string; company: string }) => Promise<void>;
+  updateTrackingInfo: (
+    id: string,
+    info: { number: string; company: string },
+  ) => Promise<void>;
   initSellerProducts: (status?: SaleStatus) => Promise<void>;
   loadMoreProducts: () => Promise<void>;
   hasNext: boolean;
   currentPage: number;
-  activeStatus: SaleStatus | 'all';
+  activeStatus: SaleStatus | "all";
 
   getProductById: (id: string) => SellerProduct | undefined;
-  getProductsByStatus: (status: SaleStatus | 'all') => SellerProduct[];
+  getProductsByStatus: (status: SaleStatus | "all") => SellerProduct[];
 
   getStats: () => {
     total: number;
@@ -67,21 +74,21 @@ interface SellerState {
   };
 }
 
-const mapToSellerProduct = (item: any): SellerProduct => ({
+const mapToSellerProduct = (item: ProductListItem): SellerProduct => ({
   id: item.productUuid,
-  categoryId: '',
-  sellerId: 'me',
+  categoryId: "",
+  sellerId: "me",
   title: item.title,
-  description: '',
+  description: "",
   price: item.price,
   shippingFee: 0,
-  conditionStatus: 'NO_WEAR',
-  saleStatus: item.saleStatus || 'ON_SALE',
+  conditionStatus: "NO_WEAR",
+  saleStatus: item.saleStatus || "ON_SALE",
   viewCount: item.viewCount || 0,
   likeCount: item.likeCount || 0,
   commentCount: item.commentCount || 0,
   createdAt: item.createdAt || new Date().toISOString(),
-  image: item.thumbnailUrl || '',
+  image: item.thumbnailUrl || "",
   images: item.thumbnailUrl ? [item.thumbnailUrl] : [],
   isSafe: true,
 });
@@ -91,7 +98,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
   isLoading: false,
   hasNext: false,
   currentPage: 0,
-  activeStatus: 'all',
+  activeStatus: "all",
 
   addProduct: async (data: ProductFormData) => {
     const response = await shopService.createProduct({
@@ -107,18 +114,18 @@ export const useSellerStore = create<SellerState>((set, get) => ({
     const newProduct: SellerProduct = {
       id: response.productUuid,
       categoryId: data.categoryId,
-      sellerId: 'me',
+      sellerId: "me",
       title: data.title,
       description: data.description,
       price: data.price,
       shippingFee: data.shippingFee,
       conditionStatus: data.conditionStatus,
-      saleStatus: 'ON_SALE',
+      saleStatus: "ON_SALE",
       viewCount: 0,
       likeCount: 0,
       commentCount: 0,
       createdAt: new Date().toISOString(),
-      image: data.images[0] || '',
+      image: data.images[0] || "",
       images: data.images,
       isSafe: true,
       purchaseDate: data.purchaseDate,
@@ -135,7 +142,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
 
   updateProduct: async (id: string, data: Partial<ProductFormData>) => {
     // 기존 상품 정보 확인
-    const currentProduct = get().products.find(p => p.id === id);
+    const currentProduct = get().products.find((p) => p.id === id);
     if (!currentProduct) return;
 
     // 백엔드 업데이트 요청 (visibilityStatus는 현재 프론트엔드 UI에 없으므로 기본값 VISIBLE 전달)
@@ -146,7 +153,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       price: data.price ?? currentProduct.price,
       shippingFee: data.shippingFee ?? currentProduct.shippingFee,
       conditionStatus: data.conditionStatus ?? currentProduct.conditionStatus,
-      visibilityStatus: 'VISIBLE',
+      visibilityStatus: "VISIBLE",
       imageUrls: data.images ?? currentProduct.images,
     });
 
@@ -173,7 +180,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
 
   updateSaleStatus: async (id: string, status: SaleStatus) => {
     // saleStatus 변경 API가 별도로 없을 경우 updateProduct 호출
-    const currentProduct = get().products.find(p => p.id === id);
+    const currentProduct = get().products.find((p) => p.id === id);
     if (!currentProduct) return;
 
     await shopService.updateProduct(id, {
@@ -183,19 +190,24 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       price: currentProduct.price,
       shippingFee: currentProduct.shippingFee,
       conditionStatus: currentProduct.conditionStatus,
-      visibilityStatus: 'VISIBLE',
+      visibilityStatus: "VISIBLE",
       imageUrls: currentProduct.images,
       // saleStatus 처리가 필요하다면 추가 확인 필요 (현재 백엔드 DTO에는 없음)
     });
 
     set((state) => ({
       products: state.products.map((p) =>
-        p.id === id ? { ...p, saleStatus: status, updatedAt: new Date().toISOString() } : p,
+        p.id === id
+          ? { ...p, saleStatus: status, updatedAt: new Date().toISOString() }
+          : p,
       ),
     }));
   },
 
-  updateTrackingInfo: async (id: string, info: { number: string; company: string }) => {
+  updateTrackingInfo: async (
+    id: string,
+    info: { number: string; company: string },
+  ) => {
     // 배송 정보 업데이트는 주문 도메인 이슈일 수 있으나, 여기서는 상태 변경만 처리
     set((state) => ({
       products: state.products.map((p) =>
@@ -204,7 +216,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
               ...p,
               trackingNumber: info.number,
               deliveryCompany: info.company,
-              saleStatus: 'SOLD_OUT',
+              saleStatus: "SOLD_OUT",
               updatedAt: new Date().toISOString(),
             }
           : p,
@@ -214,24 +226,24 @@ export const useSellerStore = create<SellerState>((set, get) => ({
 
   initSellerProducts: async (status?: SaleStatus) => {
     try {
-      const activeStatus = status || 'all';
+      const activeStatus = status || "all";
       set({ isLoading: true, activeStatus, currentPage: 0 });
-      
-      const response = await shopService.getMyShopProducts({ 
-        page: 0, 
+
+      const response = await shopService.getMyShopProducts({
+        page: 0,
         size: 50,
-        saleStatus: status 
+        saleStatus: status,
       });
 
       const mapped = (response.items || []).map(mapToSellerProduct);
 
-      set({ 
+      set({
         products: mapped,
         hasNext: response.hasNext,
-        currentPage: 0
+        currentPage: 0,
       });
     } catch (error) {
-      console.error('Failed to initialize seller products:', error);
+      console.error("Failed to initialize seller products:", error);
       set({ products: [], hasNext: false });
     } finally {
       set({ isLoading: false });
@@ -248,7 +260,8 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       const response = await shopService.getMyShopProducts({
         page: nextPage,
         size: 50,
-        saleStatus: activeStatus === 'all' ? undefined : activeStatus as SaleStatus
+        saleStatus:
+          activeStatus === "all" ? undefined : (activeStatus as SaleStatus),
       });
 
       const mapped = (response.items || []).map(mapToSellerProduct);
@@ -256,10 +269,10 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       set((state) => ({
         products: [...state.products, ...mapped],
         currentPage: nextPage,
-        hasNext: response.hasNext
+        hasNext: response.hasNext,
       }));
     } catch (error) {
-      console.error('Failed to load more products:', error);
+      console.error("Failed to load more products:", error);
     } finally {
       set({ isLoading: false });
     }
@@ -269,9 +282,9 @@ export const useSellerStore = create<SellerState>((set, get) => ({
     return get().products.find((p) => p.id === id);
   },
 
-  getProductsByStatus: (status: SaleStatus | 'all') => {
+  getProductsByStatus: (status: SaleStatus | "all") => {
     const products = get().products;
-    if (status === 'all') return products;
+    if (status === "all") return products;
     return products.filter((p) => p.saleStatus === status);
   },
 
@@ -283,9 +296,9 @@ export const useSellerStore = create<SellerState>((set, get) => ({
     let totalRevenue = 0;
 
     for (const p of products) {
-      if (p.saleStatus === 'ON_SALE') onSale++;
-      else if (p.saleStatus === 'RESERVED') reserved++;
-      else if (p.saleStatus === 'SOLD_OUT') {
+      if (p.saleStatus === "ON_SALE") onSale++;
+      else if (p.saleStatus === "RESERVED") reserved++;
+      else if (p.saleStatus === "SOLD_OUT") {
         soldOut++;
         totalRevenue += p.price;
       }
