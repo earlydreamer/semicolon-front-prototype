@@ -139,5 +139,10 @@ export interface ShopResponse {
 }
 
 export interface PresignedUrlResponse {
+  presignedUrl?: string;
+  url?: string;
+}
+
+export interface ImageUploadResponse {
   url: string;
 }

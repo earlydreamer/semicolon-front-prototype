@@ -5,7 +5,26 @@ import type {
   ProductListItem,
   ConditionStatus,
   VisibilityStatus,
+  ProductDetailResponse,
 } from "../types/product";
+
+const unwrapProductDetail = (payload: unknown): ProductDetailResponse => {
+  const direct = payload as ProductDetailResponse;
+  if (direct && typeof direct === "object" && "productUuid" in direct) {
+    return direct;
+  }
+
+  const wrapped = payload as { data?: ProductDetailResponse };
+  if (
+    wrapped?.data &&
+    typeof wrapped.data === "object" &&
+    "productUuid" in wrapped.data
+  ) {
+    return wrapped.data;
+  }
+
+  throw new Error("Unexpected createProduct response shape");
+};
 
 export interface ProductCreateRequest {
   categoryId: number;
@@ -83,9 +102,9 @@ export const shopService = {
 
   createProduct: async (
     data: ProductCreateRequest,
-  ): Promise<{ productUuid: string }> => {
+  ): Promise<ProductDetailResponse> => {
     const response = await api.post(`${API_BASE_URL}/seller/products`, data);
-    return response.data;
+    return unwrapProductDetail(response.data);
   },
 
   updateProduct: async (

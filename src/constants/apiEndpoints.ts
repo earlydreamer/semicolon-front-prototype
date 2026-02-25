@@ -36,7 +36,10 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE_URL}/products`,
     CATEGORIES: `${API_BASE_URL}/categories`,
     ME_LIKES: `${API_BASE_URL}/products/likes/me`,
+    IMAGE_BASE: `${API_BASE_URL}/products/images`,
     IMAGE_PRESIGNED_URL: `${API_BASE_URL}/products/images/presigned-url`,
+    IMAGE_UPLOAD: `${API_BASE_URL}/products/images/upload`,
+    IMAGE_PUBLIC: `${API_BASE_URL}/products/images/public`,
   },
   SHOPS: {
     BASE: `${API_BASE_URL}/shops`,

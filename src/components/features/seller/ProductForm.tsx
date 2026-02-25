@@ -10,9 +10,11 @@ import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import ProductImageUploader from './ProductImageUploader';
 import { productService } from '@/services/productService';
+import { useToast } from '@/components/common/Toast';
 import type { Category } from '@/types/category';
 import type { ConditionStatus } from '@/types/product';
 import { findCategoryPath } from '@/utils/category';
+import type { FieldErrors } from 'react-hook-form';
 
 // Zod 스키마 (location 필드 제거)
 const productSchema = z.object({
@@ -25,7 +27,18 @@ const productSchema = z.object({
   usePeriod: z.string().optional(),
   detailedCondition: z.string().optional(),
   description: z.string().min(10, '설명은 10자 이상 입력해주세요').max(5000, '설명은 5000자 이하로 입력해주세요'),
-  images: z.array(z.string()).min(1, '최소 1장 이상의 이미지를 등록해주세요'),
+  images: z
+    .array(z.string())
+    .min(1, '최소 1장 이상의 이미지를 등록해주세요')
+    .refine(
+      (urls) =>
+        urls.every(
+          (url) =>
+            /^(https?:\/\/|blob:|\/api\/)/.test(url) ||
+            /^products\//.test(url)
+        ),
+      '이미지 형식이 올바르지 않습니다'
+    ),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
@@ -33,6 +46,9 @@ export type ProductFormValues = z.infer<typeof productSchema>;
 interface ProductFormProps {
   defaultValues?: Partial<ProductFormValues>;
   onSubmit: (data: ProductFormValues) => void;
+  onImagesChange?: (images: string[]) => void;
+  deferImageUpload?: boolean;
+  onPendingFilesChange?: (files: File[]) => void;
   isLoading?: boolean;
   submitLabel?: string;
 }
@@ -49,6 +65,9 @@ const CONDITION_OPTIONS: { value: ConditionStatus; label: string; description: s
 const ProductForm = ({
   defaultValues,
   onSubmit,
+  onImagesChange,
+  deferImageUpload = false,
+  onPendingFilesChange,
   isLoading = false,
   submitLabel = '등록하기',
 }: ProductFormProps) => {
@@ -75,6 +94,36 @@ const ProductForm = ({
       ...defaultValues,
     },
   });
+  const { showToast } = useToast();
+
+  const extractFirstErrorMessage = (fieldErrors: FieldErrors<ProductFormValues>): string | null => {
+    const stack: unknown[] = [fieldErrors];
+
+    while (stack.length > 0) {
+      const current = stack.shift();
+      if (!current || typeof current !== 'object') {
+        continue;
+      }
+
+      const asRecord = current as Record<string, unknown>;
+      if (typeof asRecord.message === 'string' && asRecord.message.trim()) {
+        return asRecord.message;
+      }
+
+      Object.values(asRecord).forEach((value) => {
+        if (value && typeof value === 'object') {
+          stack.push(value);
+        }
+      });
+    }
+
+    return null;
+  };
+
+  const handleInvalidSubmit = (fieldErrors: FieldErrors<ProductFormValues>) => {
+    const message = extractFirstErrorMessage(fieldErrors) || '입력값을 다시 확인해주세요.';
+    showToast(message, 'error');
+  };
 
   // 카테고리 상태 관리 (3단계 Cascading)
   const [largeCategoryDraft, setLargeCategoryDraft] = useState<string>('');
@@ -147,7 +196,7 @@ const ProductForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)} className="space-y-6">
       {/* 이미지 업로더 */}
       <div className="bg-white rounded-2xl border border-neutral-200 p-6">
         <Controller
@@ -156,13 +205,15 @@ const ProductForm = ({
           render={({ field }) => (
             <ProductImageUploader
               images={field.value}
-              onChange={field.onChange}
+              deferUpload={deferImageUpload}
+              onPendingFilesChange={onPendingFilesChange}
+              onChange={(images) => {
+                field.onChange(images);
+                onImagesChange?.(images);
+              }}
             />
           )}
         />
-        {errors.images && (
-          <p className="mt-2 text-sm text-error-600">{errors.images.message}</p>
-        )}
       </div>
 
       {/* 기본 정보 */}
