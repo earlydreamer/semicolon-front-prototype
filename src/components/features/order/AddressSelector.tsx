@@ -17,16 +17,26 @@ const AddressSelector = ({ selectedAddress, onSelect }: AddressSelectorProps) =>
   useEffect(() => {
     const loadAddresses = async () => {
       try {
-        const list = await userService.getMyAddresses();
-        const mapped = list.map((addr) => ({
-          id: String(addr.id),
-          name: addr.isDefault ? '기본 배송지' : '배송지',
-          recipient: addr.receiverName,
-          phone: addr.receiverPhone,
-          address: addr.address1,
-          detailAddress: addr.address2,
-          zipCode: addr.zipcode,
-          isDefault: addr.isDefault,
+        const response = await userService.getMyAddresses(0, 50); // Fetch enough for selector
+        console.log('[DEBUG] AddressSelector getMyAddresses response:', response);
+
+        // 데이터 추출 로직 개선: PageResponse 구조 또는 배열 구조 대응
+        let rawItems: any[] = [];
+        if (Array.isArray(response)) {
+          rawItems = response;
+        } else if (response && Array.isArray(response.content)) {
+          rawItems = response.content;
+        }
+
+        const mapped: Address[] = rawItems.map((item: any) => ({
+          id: item.id,
+          name: item.name || (item.isDefault || item.default ? '기본 배송지' : '배송지'),
+          recipient: item.recipient || '',
+          phone: item.phone || '',
+          address: item.address || '',
+          detailAddress: item.detailAddress || '',
+          zonecode: item.zonecode || '',
+          isDefault: Boolean(item.isDefault || item.default),
         }));
 
         setAddresses(mapped);
@@ -103,7 +113,7 @@ const AddressSelector = ({ selectedAddress, onSelect }: AddressSelectorProps) =>
                       {address.recipient} ({address.phone})
                     </p>
                     <p className="text-sm text-neutral-600">
-                      [{address.zipCode}] {address.address} {address.detailAddress}
+                      [{address.zonecode}] {address.address} {address.detailAddress}
                     </p>
                   </div>
                 </div>

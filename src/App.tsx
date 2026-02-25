@@ -45,6 +45,7 @@ const NoticePage = lazy(() => import("./pages/NoticePage"));
 const FAQPage = lazy(() => import("./pages/FAQPage"));
 const PolicyPage = lazy(() => import("./pages/PolicyPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const AddressManagementPage = lazy(() => import("./pages/AddressManagementPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 // 관리자 페이지입니다.
@@ -144,6 +145,7 @@ function App() {
                 <Route path="mypage/orders" element={<OrderHistoryPage />} />
                 <Route path="mypage/likes" element={<LikedProductsPage />} />
                 <Route path="mypage/profile" element={<ProfilePage />} />
+                <Route path="mypage/address" element={<AddressManagementPage />} />
                 <Route path="shop/:shopId" element={<ShopPage />} />
                 <Route path="order" element={<OrderPage />} />
                 <Route path="order/complete" element={<OrderCompletePage />} />
