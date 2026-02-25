@@ -2,22 +2,25 @@
  * 주문서 작성 페이지
  */
 
-import { useEffect, useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
-import { useAuthStore } from '../stores/useAuthStore';
-import { useOrderStore } from '../stores/useOrderStore';
-import { useUserStore } from '../stores/useUserStore';
-import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
-import OrderItemList from '../components/features/order/OrderItemList';
-import ShippingInfoForm from '../components/features/order/ShippingInfoForm';
-import OrderSummary from '../components/features/order/OrderSummary';
-import DepositUseForm from '../components/features/order/DepositUseForm';
-import { CouponSelector } from '../components/features/order/CouponSelector';
-import { calculateCouponDiscount, type UserCoupon } from '../components/features/order/couponUtils';
-import { useToast } from '../components/common/Toast';
-import type { AxiosError } from 'axios';
-import { AddressSelectionModal } from '../components/features/address/AddressSelectionModal';
-import { addressService } from '../services/addressService';
+import { useEffect, useState } from "react";
+import { useNavigate, Navigate } from "react-router-dom";
+import { useAuthStore } from "../stores/useAuthStore";
+import { useOrderStore } from "../stores/useOrderStore";
+import { useUserStore } from "../stores/useUserStore";
+import ChevronLeft from "lucide-react/dist/esm/icons/chevron-left";
+import OrderItemList from "../components/features/order/OrderItemList";
+import ShippingInfoForm from "../components/features/order/ShippingInfoForm";
+import OrderSummary from "../components/features/order/OrderSummary";
+import DepositUseForm from "../components/features/order/DepositUseForm";
+import { CouponSelector } from "../components/features/order/CouponSelector";
+import {
+  calculateCouponDiscount,
+  type UserCoupon,
+} from "../components/features/order/couponUtils";
+import { useToast } from "../components/common/Toast";
+import type { AxiosError } from "axios";
+import { AddressSelectionModal } from "../components/features/address/AddressSelectionModal";
+import { addressService } from "../services/addressService";
 
 const OrderPage = () => {
   const navigate = useNavigate();
@@ -25,10 +28,10 @@ const OrderPage = () => {
   const { showToast } = useToast();
   const balance = useUserStore((state) => state.balance);
   const fetchBalance = useUserStore((state) => state.fetchBalance);
-  
-  const { 
-    orderItems, 
-    shippingInfo, 
+
+  const {
+    orderItems,
+    shippingInfo,
     depositUseAmount,
     setShippingInfo,
     setOrderUuid,
@@ -36,7 +39,7 @@ const OrderPage = () => {
     setCouponUuid,
     setCouponDiscountAmount,
     setDepositUseAmount,
-    getOrderSummary
+    getOrderSummary,
   } = useOrderStore();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -60,26 +63,26 @@ const OrderPage = () => {
           } else {
             setShippingInfo({
               id: 0,
-              name: '기본 배송지',
+              name: "기본 배송지",
               isDefault: true,
-              recipient: user.nickname || '',
-              phone: '',
-              zonecode: '',
-              address: '',
-              detailAddress: ''
+              recipient: user.nickname || "",
+              phone: "",
+              zonecode: "",
+              address: "",
+              detailAddress: "",
             });
           }
-        } catch (error) {
+        } catch {
           // 기본 배송지가 없는 경우 사용자 정보로 초기화
           setShippingInfo({
             id: 0,
-            name: '기본 배송지',
+            name: "기본 배송지",
             isDefault: true,
-            recipient: user.nickname || '',
-            phone: '',
-            zonecode: '',
-            address: '',
-            detailAddress: ''
+            recipient: user.nickname || "",
+            phone: "",
+            zonecode: "",
+            address: "",
+            detailAddress: "",
           });
         }
       };
@@ -90,8 +93,8 @@ const OrderPage = () => {
   // 주문할 상품이 없으면 홈으로 리다이렉트
   useEffect(() => {
     if (orderItems.length === 0) {
-      showToast('주문할 상품이 없습니다.', 'error');
-      navigate('/', { replace: true });
+      showToast("주문할 상품이 없습니다.", "error");
+      navigate("/", { replace: true });
     }
   }, [orderItems, navigate, showToast]);
 
@@ -110,11 +113,14 @@ const OrderPage = () => {
   }
 
   const { totalProductPrice, totalShippingFee, finalPrice } = getOrderSummary();
-  
+
   // 쿠폰 할인 계산
-  const couponDiscount = calculateCouponDiscount(selectedCoupon, totalProductPrice);
+  const couponDiscount = calculateCouponDiscount(
+    selectedCoupon,
+    totalProductPrice,
+  );
   const finalPriceWithCoupon = finalPrice;
-  
+
   // 배송지 유효성 검사
   const isFormValid = !!(
     shippingInfo?.recipient &&
@@ -128,21 +134,24 @@ const OrderPage = () => {
     if (!isFormValid || !shippingInfo) return;
 
     setIsLoading(true);
-    
+
     try {
       // 주소록 저장 옵션이 체크된 경우 주소록에 추가 (ID가 0이거나 없을 때만 신규 저장)
       if (saveAddress && (!shippingInfo.id || shippingInfo.id === 0)) {
         try {
           await addressService.addAddress({
-            name: shippingInfo.name || '최근 사용 배송지',
+            name: shippingInfo.name || "최근 사용 배송지",
             recipient: shippingInfo.recipient,
             phone: shippingInfo.phone,
             address: shippingInfo.address,
             detailAddress: shippingInfo.detailAddress,
-            zonecode: shippingInfo.zonecode
+            zonecode: shippingInfo.zonecode,
           });
-        } catch (error) {
-          console.warn('Address saving failed, but proceeding with order:', error);
+        } catch (_error) {
+          console.warn(
+            "Address saving failed, but proceeding with order:",
+            _error,
+          );
         }
       }
 
@@ -151,29 +160,30 @@ const OrderPage = () => {
         address: `${shippingInfo.address} ${shippingInfo.detailAddress}`,
         recipient: shippingInfo.recipient,
         contactNumber: shippingInfo.phone,
-        items: orderItems.map(item => ({
+        items: orderItems.map((item) => ({
           productUuid: item.productUuid,
           sellerUuid: item.sellerUuid,
           productName: item.title,
           productPrice: item.price,
-          imageUrl: item.thumbnailUrl || ''
-        }))
+          imageUrl: item.thumbnailUrl || "",
+        })),
       };
 
-      const orderService = (await import('../services/orderService')).orderService;
+      const orderService = (await import("../services/orderService"))
+        .orderService;
       const response = await orderService.createOrder(orderRequest);
-      
+
       setOrderUuid(response.orderUuid);
-      setOrderResponseItems(response.items); 
+      setOrderResponseItems(response.items);
       setCouponUuid(selectedCoupon?.uuid || null);
-      
-      navigate('/checkout');
+
+      navigate("/checkout");
     } catch (error: unknown) {
-      console.error('Order creation failed:', error);
+      console.error("Order creation failed:", error);
       const message =
         (error as AxiosError<{ message?: string }>)?.response?.data?.message ||
-        '주문 생성에 실패했습니다.';
-      showToast(message, 'error');
+        "주문 생성에 실패했습니다.";
+      showToast(message, "error");
     } finally {
       setIsLoading(false);
     }
@@ -190,15 +200,17 @@ const OrderPage = () => {
           >
             <ChevronLeft className="w-5 h-5 text-neutral-700" />
           </button>
-          <h1 className="text-lg font-bold text-neutral-900 min-[360px]:text-xl">주문서 작성</h1>
+          <h1 className="text-lg font-bold text-neutral-900 min-[360px]:text-xl">
+            주문서 작성
+          </h1>
         </div>
 
         <div className="grid grid-cols-1 gap-5 min-[360px]:gap-6 lg:grid-cols-3">
           {/* 왼쪽: 주문 정보 입력 */}
           <div className="lg:col-span-2 space-y-6">
             {/* 배송지 정보 */}
-            <ShippingInfoForm 
-              shippingInfo={shippingInfo} 
+            <ShippingInfoForm
+              shippingInfo={shippingInfo}
               onUpdate={setShippingInfo}
               onSelectAddressbook={() => setIsAddressModalOpen(true)}
               saveAddress={saveAddress}
@@ -214,7 +226,11 @@ const OrderPage = () => {
               onSelectCoupon={(coupon: UserCoupon | null) => {
                 setSelectedCoupon(coupon);
                 setCouponUuid(coupon?.uuid ?? null);
-                setCouponDiscountAmount(coupon ? calculateCouponDiscount(coupon, totalProductPrice) : 0);
+                setCouponDiscountAmount(
+                  coupon
+                    ? calculateCouponDiscount(coupon, totalProductPrice)
+                    : 0,
+                );
               }}
             />
 
@@ -253,4 +269,3 @@ const OrderPage = () => {
 };
 
 export default OrderPage;
-
