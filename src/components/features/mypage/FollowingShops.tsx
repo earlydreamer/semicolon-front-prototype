@@ -7,6 +7,7 @@ import { useFollowStore } from '@/stores/useFollowStore';
 import { followService, type FollowedSellerCardResponse } from '@/services/followService';
 import { Button } from '@/components/common/Button';
 import { EmptyState } from '@/components/common/EmptyState';
+import { useToast } from '@/components/common/Toast';
 
 interface FollowingShopsProps {
   userId: string;
@@ -14,6 +15,7 @@ interface FollowingShopsProps {
 
 export function FollowingShops({ userId }: FollowingShopsProps) {
   const { removeFollow, initFollowing } = useFollowStore();
+  const { showToast } = useToast();
   const [followingShops, setFollowingShops] = useState<FollowedSellerCardResponse[]>([]);
 
   useEffect(() => {
@@ -44,8 +46,14 @@ export function FollowingShops({ userId }: FollowingShopsProps) {
   const handleUnfollow = async (shopId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    await removeFollow(userId, shopId);
-    setFollowingShops((prev) => prev.filter((shop) => shop.sellerUuid !== shopId));
+    try {
+      await removeFollow(userId, shopId);
+      setFollowingShops((prev) => prev.filter((shop) => shop.sellerUuid !== shopId));
+      showToast('팔로우를 취소했어요.', 'info');
+    } catch (error) {
+      console.error('Failed to unfollow shop:', error);
+      showToast('팔로우 취소에 실패했어요. 잠시 후 다시 시도해 주세요.', 'error');
+    }
   };
 
   return (

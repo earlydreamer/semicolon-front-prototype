@@ -12,6 +12,7 @@ import type { Review } from '@/components/features/review/ReviewCard';
 import { shopService } from '@/services/shopService';
 import { reviewService } from '@/services/reviewService';
 import { followService } from '@/services/followService';
+import { useToast } from '@/components/common/Toast';
 
 type TabType = 'all' | 'ON_SALE' | 'RESERVED' | 'SOLD_OUT';
 const PAGE_SIZE = 20;
@@ -43,6 +44,7 @@ const ShopPage = () => {
   const [productsLoading, setProductsLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(false);
+  const { showToast } = useToast();
 
   const shopId = sanitizeUrlParam(rawShopId);
 
@@ -161,6 +163,7 @@ const ShopPage = () => {
       setHasNext(response.hasNext ?? false);
     } catch (error) {
       console.error('Failed to load more shop products:', error);
+      showToast('상품을 더 불러오지 못했어요. 잠시 후 다시 시도해 주세요.', 'error');
     } finally {
       setIsFetchingMore(false);
     }
