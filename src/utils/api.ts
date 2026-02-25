@@ -14,12 +14,17 @@ const api = axios.create({
 
 // 요청 인터셉터: Authorization 헤더 주입
 api.interceptors.request.use((config) => {
-  // useAuthStore.getState()로 현재 상태 확인
-  const { accessToken } = useAuthStore.getState();
+  const { accessToken, logout } = useAuthStore.getState();
   
-  if (accessToken) {
+  if (accessToken && accessToken !== 'undefined' && accessToken !== 'null') {
     const token = accessToken.trim();
-    config.headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+    const authHeader = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+    config.headers.Authorization = authHeader;
+    // console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url} | Auth: ${authHeader.substring(0, 15)}...`);
+  } else if (accessToken) {
+    // 토큰이 'undefined' 문자열이거나 비정상적인 경우 세션 정리
+    console.error(`[API Request] Invalid token detected: ${accessToken}`);
+    logout();
   }
   
   return config;
@@ -31,17 +36,19 @@ api.interceptors.response.use(
   (error) => {
     // 401 Unauthorized 에러 시 세션 종료
     if (error.response?.status === 401) {
-      const { logout } = useAuthStore.getState();
+      const { logout, accessToken } = useAuthStore.getState();
       
-      console.warn(`[API 401 Unauthorized] URL: ${error.config?.url || 'unknown'}`);
+      console.error(`[API 401 Unauthorized] URL: ${error.config?.url || 'unknown'}`);
+      console.error(`[API 401 Unauthorized] Current Token: ${accessToken?.substring(0, 15)}...`);
+      console.error(`[API 401 Unauthorized] Response Data:`, error.response?.data);
       
-      // 무한 루프 방지: 현재 경로가 로그인이 아닐 때만 로그아웃 처리 및 리다이렉트 고려
+      // 세션 종료 처리
       logout();
       
-      // 사용자 경험을 위해 강제 페이지 이동은 신중히 (필요 시 아래 주석 해제)
-      // if (!window.location.pathname.includes('/login')) {
-      //   window.location.href = '/login?expired=true';
-      // }
+      // 로그인 페이지가 아닌 경우 로그인 페이지로 리다이렉트
+      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
+        window.location.href = `/login?error=expired&returnUrl=${encodeURIComponent(window.location.pathname)}`;
+      }
     }
     return Promise.reject(error);
   }
