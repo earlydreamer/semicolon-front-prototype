@@ -6,14 +6,19 @@ import type { Address } from "../../../types/address";
 /** 숫자만 추출 후 한국 전화번호 형식으로 하이픈 삽입 */
 const formatPhone = (value: string): string => {
   const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.startsWith("02")) {
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 6) return `02-${digits.slice(2)}`;
+    return `02-${digits.slice(2, digits.length - 4)}-${digits.slice(digits.length - 4)}`;
+  }
   if (digits.length <= 3) return digits;
-  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  if (digits.length <= 10)
-    return `${digits.slice(0, 3)}-${digits.slice(3, digits.length - 4)}-${digits.slice(digits.length - 4)}`;
-  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, digits.length - 4)}-${digits.slice(digits.length - 4)}`;
 };
 
-const PHONE_REGEX = /^01[016789]-\d{3,4}-\d{4}$/;
+const MOBILE_PHONE_REGEX = /^01\d-\d{3,4}-\d{4}$/;
+const LANDLINE_PHONE_REGEX =
+  /^(02|0(?:31|32|33|41|42|43|44|51|52|53|54|55|61|62|63|64))-\d{3,4}-\d{4}$/;
 
 interface AddressFormModalProps {
   isOpen: boolean;
@@ -108,8 +113,13 @@ export const AddressFormModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!PHONE_REGEX.test(formData.phone)) {
-      setPhoneError("올바른 연락처 형식이 아닙니다 (예: 010-1234-5678)");
+    const isValidPhone =
+      MOBILE_PHONE_REGEX.test(formData.phone) ||
+      LANDLINE_PHONE_REGEX.test(formData.phone);
+    if (!isValidPhone) {
+      setPhoneError(
+        "올바른 연락처 형식이 아닙니다 (예: 010-1234-5678, 02-1234-5678, 031-123-4567)",
+      );
       return;
     }
     setIsLoading(true);

@@ -5,6 +5,7 @@ import { AddressFormModal } from "./AddressFormModal";
 import { Modal } from "../../common/Modal";
 import { Button } from "../../common/Button";
 import { useToast } from "../../common/Toast";
+import { isAxiosError } from "axios";
 import type { Address } from "../../../types/address";
 import Plus from "lucide-react/dist/esm/icons/plus";
 import Loader2 from "lucide-react/dist/esm/icons/loader-2";
@@ -28,10 +29,12 @@ export const AddressList = ({
 
   const { showToast } = useToast();
   const observerTarget = useRef<HTMLDivElement>(null);
+  const isFetchingRef = useRef(false);
 
   const fetchAddresses = useCallback(
     async (page: number, append = false) => {
-      if (isLoading) return;
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
       setIsLoading(true);
       try {
         const response = await addressService.getMyAddresses(page, 10);
@@ -71,13 +74,24 @@ export const AddressList = ({
         setIsLastPage(response?.last ?? true);
         setCurrentPage(response?.number ?? 0);
       } catch (_error) {
+        if (isAxiosError(_error) && _error.response?.status === 404) {
+          if (append) {
+            setIsLastPage(true);
+          } else {
+            setAddresses([]);
+            setCurrentPage(0);
+            setIsLastPage(true);
+          }
+          return;
+        }
         console.error("[DEBUG] fetchAddresses error:", _error);
         showToast("주소록을 불러오는 데 실패했습니다.", "error");
       } finally {
+        isFetchingRef.current = false;
         setIsLoading(false);
       }
     },
-    [isLoading, showToast],
+    [showToast],
   );
 
   useEffect(() => {
