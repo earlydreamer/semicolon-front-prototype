@@ -13,6 +13,7 @@ export interface ProductFormData {
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
+  tags?: string[];
   purchaseDate?: string;
   usePeriod?: string;
   detailedCondition?: string;
@@ -29,6 +30,7 @@ export interface SellerProduct {
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
+  tags?: string[];
   saleStatus: SaleStatus;
   viewCount: number;
   likeCount: number;
@@ -110,6 +112,7 @@ const mapToSellerProduct = (item: ProductListItem): SellerProduct => ({
   image: item.thumbnailUrl || "",
   images: item.thumbnailUrl ? [item.thumbnailUrl] : [],
   isSafe: true,
+  tags: item.tagNames ?? [],
 });
 
 export const useSellerStore = create<SellerState>((set, get) => ({
@@ -129,6 +132,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       shippingFee: data.shippingFee,
       conditionStatus: data.conditionStatus,
       imageUrls,
+      tags: data.tags,
     });
     if (!response.productUuid) {
       throw new Error("Product UUID is missing in create response");
@@ -143,6 +147,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       price: data.price,
       shippingFee: data.shippingFee,
       conditionStatus: data.conditionStatus,
+      tags: data.tags ?? [],
       saleStatus: "ON_SALE",
       viewCount: 0,
       likeCount: 0,
@@ -178,6 +183,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       conditionStatus: data.conditionStatus ?? currentProduct.conditionStatus,
       visibilityStatus: "VISIBLE",
       imageUrls,
+      tags: data.tags,
     });
 
     set((state) => ({
@@ -234,6 +240,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
         conditionStatus: currentProduct.conditionStatus,
         visibilityStatus: "VISIBLE",
         imageUrls: currentProduct.images,
+        tags: currentProduct.tags,
       });
     } catch (error) {
       set({ products: prevProducts });

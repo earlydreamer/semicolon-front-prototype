@@ -53,6 +53,7 @@ const ProductEditPage = () => {
           price: product.price,
           shippingFee: product.shippingFee,
           conditionStatus: product.conditionStatus,
+          tags: product.tagNames ?? [],
           description: product.description,
           images: (product.imageUrls ?? [])
             .map((url) => productService.normalizeImageUrl(url))
@@ -94,6 +95,7 @@ const ProductEditPage = () => {
         price: data.price,
         shippingFee: data.shippingFee,
         conditionStatus: data.conditionStatus,
+        tags: data.tags,
         purchaseDate: data.purchaseDate,
         usePeriod: data.usePeriod,
         detailedCondition: data.detailedCondition,

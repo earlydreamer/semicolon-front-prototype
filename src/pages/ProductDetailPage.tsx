@@ -75,6 +75,18 @@ export default function ProductDetailPage() {
               {product.title}
             </h1>
             <div className="mb-4 text-2xl font-bold text-neutral-900 min-[360px]:text-3xl">{formatPrice(product.price)}</div>
+            {product.tags.length > 0 && (
+              <div className="mb-5 flex flex-wrap gap-2">
+                {product.tags.map((tag: string) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-700"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <SellerProfileCard
               seller={{

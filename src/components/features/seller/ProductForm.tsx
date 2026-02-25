@@ -26,6 +26,9 @@ const productSchema = z.object({
   purchaseDate: z.string().optional(),
   usePeriod: z.string().optional(),
   detailedCondition: z.string().optional(),
+  tags: z
+    .array(z.string().trim().min(1).max(30))
+    .max(10, '태그는 최대 10개까지 등록할 수 있어요'),
   description: z.string().min(10, '설명은 10자 이상 입력해 주세요').max(5000, '설명은 5000자 이하로 입력해 주세요'),
   images: z
     .array(z.string())
@@ -89,6 +92,7 @@ const ProductForm = ({
       purchaseDate: '',
       usePeriod: '',
       detailedCondition: '',
+      tags: [],
       description: '',
       images: [],
       ...defaultValues,
@@ -129,6 +133,7 @@ const ProductForm = ({
   const [largeCategoryDraft, setLargeCategoryDraft] = useState<string>('');
   const [mediumCategoryDraft, setMediumCategoryDraft] = useState<string>('');
   const [categories, setCategories] = useState<Category[]>([]);
+  const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -158,6 +163,10 @@ const ProductForm = ({
     control,
     name: ['categoryId'],
   });
+  const [currentTags = []] = useWatch({
+    control,
+    name: ['tags'],
+  });
 
   const selectedPath = useMemo(
     () => findCategoryPath(categories, selectedCategoryId) || [],
@@ -186,6 +195,25 @@ const ProductForm = ({
     name: ['price', 'shippingFee'],
   });
   const totalPrice = price + shippingFee;
+
+  const addTag = (raw: string) => {
+    const cleaned = raw.trim().replace(/^#/, '');
+    if (!cleaned || currentTags.includes(cleaned)) return;
+    if (currentTags.length >= 10) {
+      showToast('태그는 최대 10개까지 등록할 수 있어요', 'error');
+      return;
+    }
+    setValue('tags', [...currentTags, cleaned], { shouldDirty: true, shouldValidate: true });
+    setTagInput('');
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setValue(
+      'tags',
+      currentTags.filter((tag) => tag !== tagToRemove),
+      { shouldDirty: true, shouldValidate: true }
+    );
+  };
 
   // 음수 방지를 위한 핸들러
   const handlePriceInput = (e: React.FormEvent<HTMLInputElement>) => {
@@ -226,6 +254,52 @@ const ProductForm = ({
           error={errors.title?.message}
           {...register('title')}
         />
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-neutral-700">태그</label>
+          <div className="flex gap-2">
+            <Input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                  e.preventDefault();
+                  addTag(tagInput);
+                }
+              }}
+              onBlur={() => {
+                if (tagInput.trim()) addTag(tagInput);
+              }}
+              placeholder="엔터 또는 쉼표로 태그 추가 (예: 아이폰, 미개봉)"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              className="shrink-0"
+              onClick={() => addTag(tagInput)}
+            >
+              추가
+            </Button>
+          </div>
+          {currentTags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {currentTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => removeTag(tag)}
+                  className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-700 hover:bg-neutral-100"
+                  aria-label={`태그 ${tag} 삭제`}
+                >
+                  #{tag} x
+                </button>
+              ))}
+            </div>
+          )}
+          {errors.tags && (
+            <p className="text-sm text-error-600">{errors.tags.message as string}</p>
+          )}
+        </div>
 
         <div className="space-y-4">
           <label className="text-sm font-medium text-neutral-700">카테고리</label>

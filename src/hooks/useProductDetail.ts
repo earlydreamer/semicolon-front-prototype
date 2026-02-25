@@ -116,6 +116,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       title: apiProduct.title,
       price: apiProduct.price,
       description: apiProduct.description,
+      tags: apiProduct.tagNames || [],
       image: apiProduct.imageUrls?.[0] || "",
       images: apiProduct.imageUrls || [],
       categoryId: apiProduct.category?.id || 0,
