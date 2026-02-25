@@ -25,27 +25,43 @@ declare global {
 interface ShippingInfoFormProps {
   shippingInfo: Address | null;
   onUpdate: (info: Address) => void;
+  onSelectAddressbook?: () => void;
+  saveAddress?: boolean;
+  onSaveAddressChange?: (save: boolean) => void;
 }
 
 const KAKAO_POSTCODE_URL = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
-const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => {
-  // 배송지 폼 상태입니다.
+const ShippingInfoForm = ({ 
+  shippingInfo, 
+  onUpdate, 
+  onSelectAddressbook,
+  saveAddress,
+  onSaveAddressChange
+}: ShippingInfoFormProps) => {
+  // 배송지 폼 상태입니다. (id가 number인 경우를 위해 string | number 허용)
   const [formData, setFormData] = useState<Address>(
     shippingInfo || {
-      id: 'manual',
+      id: 'manual' as any,
       name: '기본 배송지',
       recipient: '',
       phone: '',
-      zipCode: '',
       address: '',
       detailAddress: '',
+      zonecode: '',
       isDefault: false,
     }
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+
+  // 외부 props인 shippingInfo가 변경되면 내부 상태(formData)도 동기화합니다.
+  useEffect(() => {
+    if (shippingInfo) {
+      setFormData(shippingInfo);
+    }
+  }, [shippingInfo]);
 
   // 카카오 우편번호 스크립트를 로드합니다.
   useEffect(() => {
@@ -78,7 +94,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
         const updatedData = {
           ...formData,
           address: data.address,
-          zipCode: data.zonecode,
+          zonecode: data.zonecode,
         };
 
         setFormData(updatedData);
@@ -90,8 +106,17 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
   return (
     <>
       <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-neutral-200 bg-neutral-50">
+        <div className="px-5 py-4 border-b border-neutral-200 bg-neutral-50 flex justify-between items-center">
           <h3 className="font-bold text-neutral-900">배송지 정보</h3>
+          {onSelectAddressbook && (
+            <button
+              type="button"
+              onClick={onSelectAddressbook}
+              className="text-xs font-bold text-primary-600 hover:text-primary-700 transition-colors"
+            >
+              주소록에서 선택
+            </button>
+          )}
         </div>
 
         <div className="p-5 space-y-4">
@@ -127,9 +152,8 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
             <div className="flex gap-2">
               <input
                 type="text"
-                name="zipCode"
-                value={formData.zipCode}
-                onChange={handleChange}
+                name="zonecode"
+                value={formData.zonecode || ''}
                 readOnly
                 placeholder="우편번호"
                 className="w-32 px-4 py-3 rounded-xl border border-neutral-200 bg-neutral-50 focus:outline-none"
@@ -145,8 +169,7 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
             <input
               type="text"
               name="address"
-              value={formData.address}
-              onChange={handleChange}
+              value={formData.address || ''}
               readOnly
               placeholder="기본 주소 (주소 검색 후 자동 입력됩니다)"
               className="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-neutral-50 focus:outline-none"
@@ -154,12 +177,28 @@ const ShippingInfoForm = ({ shippingInfo, onUpdate }: ShippingInfoFormProps) => 
             <input
               type="text"
               name="detailAddress"
-              value={formData.detailAddress}
+              value={formData.detailAddress || ''}
               onChange={handleChange}
               placeholder="상세 주소를 입력해 주세요"
               className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-[border-color,box-shadow]"
             />
           </div>
+
+          {/* 배송지 저장 여부 */}
+          {onSaveAddressChange && (
+            <div className="pt-2 flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="save-address"
+                checked={saveAddress}
+                onChange={(e) => onSaveAddressChange(e.target.checked)}
+                className="w-4 h-4 text-primary-600 rounded border-neutral-300 focus:ring-primary-500"
+              />
+              <label htmlFor="save-address" className="text-sm text-neutral-600 font-medium cursor-pointer">
+                이 배송지를 주소록에 저장
+              </label>
+            </div>
+          )}
         </div>
       </div>
 
