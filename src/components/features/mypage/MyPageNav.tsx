@@ -8,6 +8,8 @@ import Heart from 'lucide-react/dist/esm/icons/heart';
 import Package from 'lucide-react/dist/esm/icons/package';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 
+import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+
 interface MenuItem {
   icon: React.ElementType;
   label: string;
@@ -33,6 +35,11 @@ const MyPageNav = ({ likeCount, orderCount }: MyPageNavProps) => {
       label: '찜한 상품',
       href: '/mypage/likes',
       badge: likeCount,
+    },
+    {
+      icon: MapPin,
+      label: '주소록 관리',
+      href: '/mypage/address',
     },
     {
       icon: Package,
