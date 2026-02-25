@@ -32,28 +32,48 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
   const { updateSaleStatus, deleteProduct } = useSellerStore();
   const { showToast } = useToast();
   const [showMenu, setShowMenu] = useState(false);
+  const [isActionPending, setIsActionPending] = useState(false);
   const hasProductId = Boolean(product.id && product.id !== 'undefined' && product.id !== 'null');
 
-  const handleStatusChange = (status: SaleStatus) => {
+  const handleStatusChange = async (status: SaleStatus) => {
     if (!hasProductId) {
-      showToast('상품 등록 완료 후 수정할 수 있습니다', 'error');
+      showToast('상품을 먼저 등록해 주세요.', 'error');
       return;
     }
-    updateSaleStatus(product.id, status);
-    showToast(`상태가 '${STATUS_LABELS[status].text}'로 변경되었습니다`);
-    setShowMenu(false);
+    try {
+      setIsActionPending(true);
+      await updateSaleStatus(product.id, status);
+      showToast(`${STATUS_LABELS[status].text} 상태로 바꿨어요.`, 'success');
+      setShowMenu(false);
+    } catch (error) {
+      console.error('Failed to update product status:', error);
+      showToast('상태를 바꾸지 못했어요. 다시 시도해 주세요.', 'error');
+    } finally {
+      setIsActionPending(false);
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!hasProductId) {
-      showToast('상품 등록 완료 후 삭제할 수 있습니다', 'error');
+      showToast('상품을 먼저 등록해 주세요.', 'error');
       return;
     }
-    if (confirm('정말 삭제하시겠습니까?')) {
-      deleteProduct(product.id);
-      showToast('상품이 삭제되었습니다', 'error');
+    if (!confirm('상품을 삭제할까요?')) {
+      setShowMenu(false);
+      return;
     }
-    setShowMenu(false);
+
+    try {
+      setIsActionPending(true);
+      await deleteProduct(product.id);
+      showToast('상품을 삭제했어요.', 'success');
+      setShowMenu(false);
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+      showToast('삭제하지 못했어요. 잠시 후 다시 시도해 주세요.', 'error');
+    } finally {
+      setIsActionPending(false);
+    }
   };
 
   const statusLabel = STATUS_LABELS[product.saleStatus];
@@ -88,30 +108,50 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
               </button>
             )}
             <div className="relative">
-              <button onClick={() => setShowMenu((v) => !v)} className="p-1 rounded-lg hover:bg-neutral-100 text-neutral-500">
+              <button
+                onClick={() => setShowMenu((v) => !v)}
+                disabled={isActionPending}
+                className="p-1 rounded-lg hover:bg-neutral-100 text-neutral-500 disabled:opacity-50"
+              >
                 <MoreVertical className="w-4 h-4" />
               </button>
 
               {showMenu && (
                 <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-10">
                   {product.saleStatus !== 'ON_SALE' && (
-                    <button onClick={() => handleStatusChange('ON_SALE')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
+                    <button
+                      onClick={() => handleStatusChange('ON_SALE')}
+                      disabled={isActionPending}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100 disabled:opacity-50"
+                    >
                       판매중으로 변경
                     </button>
                   )}
                   {product.saleStatus !== 'RESERVED' && (
-                    <button onClick={() => handleStatusChange('RESERVED')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
+                    <button
+                      onClick={() => handleStatusChange('RESERVED')}
+                      disabled={isActionPending}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100 disabled:opacity-50"
+                    >
                       예약중으로 변경
                     </button>
                   )}
                   {product.saleStatus !== 'SOLD_OUT' && (
-                    <button onClick={() => handleStatusChange('SOLD_OUT')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
+                    <button
+                      onClick={() => handleStatusChange('SOLD_OUT')}
+                      disabled={isActionPending}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100 disabled:opacity-50"
+                    >
                       판매완료로 변경
                     </button>
                   )}
                   <hr className="my-1" />
-                  <button onClick={handleDelete} className="w-full text-left px-3 py-2 text-sm text-error-600 hover:bg-neutral-100">
-                    삭제
+                  <button
+                    onClick={handleDelete}
+                    disabled={isActionPending}
+                    className="w-full text-left px-3 py-2 text-sm text-error-600 hover:bg-neutral-100 disabled:opacity-50"
+                  >
+                    {isActionPending ? '처리 중...' : '삭제'}
                   </button>
                 </div>
               )}

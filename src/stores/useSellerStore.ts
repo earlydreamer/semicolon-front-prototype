@@ -165,12 +165,10 @@ export const useSellerStore = create<SellerState>((set, get) => ({
 
   updateProduct: async (id: string, data: Partial<ProductFormData>) => {
     if (!hasValidProductId(id)) return;
-    // 기존 상품 정보 확인
     const currentProduct = get().products.find((p) => p.id === id);
     if (!currentProduct) return;
     const imageUrls = sanitizeImageUrls(data.images ?? currentProduct.images);
 
-    // 백엔드 업데이트 요청 (visibilityStatus는 현재 프론트엔드 UI에 없으므로 기본값 VISIBLE 전달)
     await shopService.updateProduct(id, {
       categoryId: Number(data.categoryId ?? currentProduct.categoryId),
       title: data.title ?? currentProduct.title,
@@ -199,29 +197,24 @@ export const useSellerStore = create<SellerState>((set, get) => ({
 
   deleteProduct: async (id: string) => {
     if (!hasValidProductId(id)) return;
-    await shopService.deleteProduct(id);
+    const prevProducts = get().products;
     set((state) => ({
       products: state.products.filter((p) => p.id !== id),
     }));
+
+    try {
+      await shopService.deleteProduct(id);
+    } catch (error) {
+      set({ products: prevProducts });
+      throw error;
+    }
   },
 
   updateSaleStatus: async (id: string, status: SaleStatus) => {
     if (!hasValidProductId(id)) return;
-    // saleStatus 변경 API가 별도로 없을 경우 updateProduct 호출
     const currentProduct = get().products.find((p) => p.id === id);
     if (!currentProduct) return;
-
-    await shopService.updateProduct(id, {
-      categoryId: Number(currentProduct.categoryId),
-      title: currentProduct.title,
-      description: currentProduct.description,
-      price: currentProduct.price,
-      shippingFee: currentProduct.shippingFee,
-      conditionStatus: currentProduct.conditionStatus,
-      visibilityStatus: "VISIBLE",
-      imageUrls: currentProduct.images,
-      // saleStatus 처리가 필요하다면 추가 확인 필요 (현재 백엔드 DTO에는 없음)
-    });
+    const prevProducts = get().products;
 
     set((state) => ({
       products: state.products.map((p) =>
@@ -230,13 +223,28 @@ export const useSellerStore = create<SellerState>((set, get) => ({
           : p,
       ),
     }));
+
+    try {
+      await shopService.updateProduct(id, {
+        categoryId: Number(currentProduct.categoryId),
+        title: currentProduct.title,
+        description: currentProduct.description,
+        price: currentProduct.price,
+        shippingFee: currentProduct.shippingFee,
+        conditionStatus: currentProduct.conditionStatus,
+        visibilityStatus: "VISIBLE",
+        imageUrls: currentProduct.images,
+      });
+    } catch (error) {
+      set({ products: prevProducts });
+      throw error;
+    }
   },
 
   updateTrackingInfo: async (
     id: string,
     info: { number: string; company: string },
   ) => {
-    // 배송 정보 업데이트는 주문 도메인 이슈일 수 있으나, 여기서는 상태 변경만 처리
     set((state) => ({
       products: state.products.map((p) =>
         p.id === id
@@ -341,4 +349,5 @@ export const useSellerStore = create<SellerState>((set, get) => ({
     };
   },
 }));
+
 

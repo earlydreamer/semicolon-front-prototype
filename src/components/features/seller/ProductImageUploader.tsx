@@ -69,7 +69,7 @@ const ProductImageUploader = ({
       return { extension: "webp", contentType: "image/webp" };
     }
 
-    throw new Error("Unsupported image type");
+    throw new Error("지원하지 않는 이미지 형식");
   };
 
   const handleAddClick = () => {
@@ -84,7 +84,7 @@ const ProductImageUploader = ({
 
     const remainingSlots = maxImages - images.length;
     if (remainingSlots <= 0) {
-      showToast(`Maximum ${maxImages} images are allowed.`, "error");
+      showToast(`이미지는 최대 ${maxImages}장까지 올릴 수 있어요.`, "error");
       return;
     }
 
@@ -97,7 +97,7 @@ const ProductImageUploader = ({
         });
       } catch (error) {
         console.error("Unsupported image file:", error);
-        showToast("Unsupported image type.", "error");
+        showToast("지원하지 않는 이미지 형식이에요.", "error");
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -143,7 +143,7 @@ const ProductImageUploader = ({
       onChange([...images, ...uploadedUrls]);
     } catch (error) {
       console.error("Failed to upload images:", error);
-      showToast("Failed to upload image.", "error");
+      showToast("이미지를 올리지 못했어요. 다시 시도해 주세요.", "error");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -193,8 +193,8 @@ const ProductImageUploader = ({
     const newImages = [...images];
     const [draggedItem] = newImages.splice(draggedIndex, 1);
     newImages.splice(index, 0, draggedItem);
-      onChange(newImages);
-      setDraggedIndex(index);
+    onChange(newImages);
+    setDraggedIndex(index);
   };
 
   const clearPendingItems = () => {
@@ -212,9 +212,9 @@ const ProductImageUploader = ({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-neutral-700">
-          Product Images ({images.length}/{maxImages})
+          상품 이미지 ({images.length}/{maxImages})
         </span>
-        <span className="text-xs text-neutral-500">Drag to reorder</span>
+        <span className="text-xs text-neutral-500">드래그해서 순서를 바꿀 수 있어요.</span>
       </div>
 
       <div className="grid grid-cols-5 gap-3">
@@ -231,7 +231,7 @@ const ProductImageUploader = ({
           >
             <img
               src={image}
-              alt={`Product image ${index + 1}`}
+              alt={`상품 이미지 ${index + 1}`}
               width={320}
               height={320}
               className="w-full h-full object-cover"
@@ -239,7 +239,7 @@ const ProductImageUploader = ({
 
             {index === 0 && (
               <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-primary-500 text-white text-xs font-medium rounded">
-                Main
+                대표
               </span>
             )}
 
@@ -274,7 +274,7 @@ const ProductImageUploader = ({
               <ImagePlus className="w-6 h-6" />
             )}
             <span className="text-xs font-medium">
-              {isUploading ? "Uploading..." : "Add"}
+              {isUploading ? "업로드 중..." : "추가"}
             </span>
           </button>
         )}
@@ -295,12 +295,12 @@ const ProductImageUploader = ({
           onClick={clearPendingItems}
           className="text-xs text-neutral-500 underline hover:text-neutral-700"
         >
-          Clear selected images
+          선택한 이미지 모두 지우기
         </button>
       )}
 
       <p className="text-xs text-neutral-500">
-        The first image is used as the main thumbnail.
+        첫 번째 이미지가 대표 이미지로 보여져요.
       </p>
     </div>
   );

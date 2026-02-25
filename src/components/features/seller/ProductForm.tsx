@@ -18,18 +18,18 @@ import type { FieldErrors } from 'react-hook-form';
 
 // Zod 스키마 (location 필드 제거)
 const productSchema = z.object({
-  title: z.string().min(2, '제목은 2자 이상 입력해주세요').max(100, '제목은 100자 이하로 입력해주세요'),
-  categoryId: z.string().min(1, '카테고리를 선택해주세요'),
+  title: z.string().min(2, '제목은 2자 이상 입력해 주세요').max(100, '제목은 100자 이하로 입력해 주세요'),
+  categoryId: z.string().min(1, '카테고리를 선택해 주세요'),
   price: z.number().min(0, '가격은 0원 이상이어야 합니다').max(100000000, '가격이 너무 높습니다'),
   shippingFee: z.number().min(0, '배송비는 0원 이상이어야 합니다'),
   conditionStatus: z.enum(['SEALED', 'NO_WEAR', 'MINOR_WEAR', 'VISIBLE_WEAR', 'DAMAGED'] as const),
   purchaseDate: z.string().optional(),
   usePeriod: z.string().optional(),
   detailedCondition: z.string().optional(),
-  description: z.string().min(10, '설명은 10자 이상 입력해주세요').max(5000, '설명은 5000자 이하로 입력해주세요'),
+  description: z.string().min(10, '설명은 10자 이상 입력해 주세요').max(5000, '설명은 5000자 이하로 입력해 주세요'),
   images: z
     .array(z.string())
-    .min(1, '최소 1장 이상의 이미지를 등록해주세요')
+    .min(1, '최소 1장 이상의 이미지를 등록해 주세요')
     .refine(
       (urls) =>
         urls.every(
@@ -37,7 +37,7 @@ const productSchema = z.object({
             /^(https?:\/\/|blob:|\/api\/)/.test(url) ||
             /^products\//.test(url)
         ),
-      '이미지 형식이 올바르지 않습니다'
+      '이미지 주소 형식이 맞지 않아요.'
     ),
 });
 
@@ -121,7 +121,7 @@ const ProductForm = ({
   };
 
   const handleInvalidSubmit = (fieldErrors: FieldErrors<ProductFormValues>) => {
-    const message = extractFirstErrorMessage(fieldErrors) || '입력값을 다시 확인해주세요.';
+    const message = extractFirstErrorMessage(fieldErrors) || '입력한 내용을 다시 확인해 주세요.';
     showToast(message, 'error');
   };
 
@@ -222,7 +222,7 @@ const ProductForm = ({
         
         <Input
           label="상품명"
-          placeholder="상품명을 입력해주세요"
+          placeholder="상품명을 입력해 주세요"
           error={errors.title?.message}
           {...register('title')}
         />
@@ -417,7 +417,7 @@ const ProductForm = ({
             {...register('description')}
             className="w-full min-h-[200px] px-3 py-2 rounded-md border border-neutral-300 bg-neutral-0 
               text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 resize-y"
-            placeholder="상품에 대한 상세한 설명을 작성해주세요.&#10;&#10;구매 시기, 사용 기간, 하자 여부 등을 포함하면 좋습니다."
+            placeholder="상품에 대한 상세한 설명을 작성해 주세요.&#10;&#10;구매 시기, 사용 기간, 하자 여부 등을 포함하면 좋습니다."
           />
           {errors.description && (
             <p className="text-sm text-error-600">{errors.description.message}</p>
