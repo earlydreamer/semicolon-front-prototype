@@ -61,7 +61,7 @@ export const SellerReturnManagement = () => {
       returnService
         .getSellerReturns()
         .then(setReturns)
-        .catch(() => showToast("반품 목록을 불러오는데 실패했습니다.", "error"))
+        .catch(() => showToast("반품 목록을 불러오는 데 실패했어요.", "error"))
         .finally(() => setIsLoading(false));
     },
     [showToast],
@@ -88,7 +88,7 @@ export const SellerReturnManagement = () => {
         } else {
           await returnService.approveReturn(ret.returnRequestUuid);
         }
-        showToast("성공적으로 승인되었습니다.", "success");
+        showToast("승인했어요.", "success");
         fetchReturns();
       },
     });
@@ -115,7 +115,7 @@ export const SellerReturnManagement = () => {
             reason: reason || "",
           });
         }
-        showToast("성공적으로 거절 처리되었습니다.", "success");
+        showToast("거절 처리했어요.", "success");
         fetchReturns();
       },
     });

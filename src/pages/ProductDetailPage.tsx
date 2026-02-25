@@ -41,7 +41,7 @@ export default function ProductDetailPage() {
   if (error || !product) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
-        <p className="text-gray-500">{error || '상품 정보를 불러오지 못했습니다.'}</p>
+        <p className="text-gray-500">{error || '상품 정보를 불러오지 못했어요.'}</p>
         <button
           onClick={() => navigate(-1)}
           className="rounded-lg bg-primary-500 px-4 py-2 text-white hover:bg-primary-600"

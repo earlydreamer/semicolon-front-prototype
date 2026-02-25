@@ -92,7 +92,7 @@ const ShippingInfoForm = ({
   const handleAddressSearch = () => {
     if (!window.daum || !window.daum.Postcode) {
       setModalMessage(
-        "주소 검색 서비스를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.",
+        "주소 검색 서비스를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.",
       );
       setIsModalOpen(true);
       return;

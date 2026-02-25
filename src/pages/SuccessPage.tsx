@@ -35,7 +35,7 @@ export default function SuccessPage() {
             const paymentUuid = searchParams.get('paymentUuid');
 
             if (!paymentKey || !orderId || !amount || !paymentUuid) {
-                showToast('필수 결제 정보가 누락되었습니다.', 'error');
+                showToast('필수 결제 정보가 누락됐어요.', 'error');
                 navigate('/payment/fail?message=MISSING_PARAMS');
                 return;
             }
@@ -58,7 +58,7 @@ export default function SuccessPage() {
 
                 if (response.success) {
                     setResponseData(response.data);
-                    showToast('결제가 완료되었습니다. 잠시 후 홈으로 이동합니다.', 'success');
+                    showToast('결제가 완료됐어요. 잠시 후 홈으로 이동합니다.', 'success');
                     fetchItems(); // 장바구니 새로고침 (백엔드에서 비워진 상태 반영)
                     clearOrder(); // 주문 정보 정리
                     setTimeout(() => navigate('/'), 3000); // 3초 후 홈으로 자동 이동
@@ -97,7 +97,7 @@ export default function SuccessPage() {
           </svg>
         </div>
         <h1 className="mb-2 text-xl font-bold text-gray-900 min-[360px]:text-2xl">결제 성공</h1>
-        <p className="text-gray-600">결제가 완료되었습니다.</p>
+        <p className="text-gray-600">결제가 완료됐어요.</p>
       </div>
 
       {/* 결제 정보 */}

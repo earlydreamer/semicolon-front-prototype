@@ -98,7 +98,7 @@ export function HeroBanner() {
       onTouchEnd={onTouchEnd}
     >
       <div className="absolute z-30 top-3 left-3 max-w-xs hidden md:block">
-        <MockDataNotice title="Mock 배너" message="배너 데이터는 현재 mock 기반입니다." />
+        <MockDataNotice title="샘플 배너" message="배너 데이터는 현재 샘플 데이터 기반이에요." />
       </div>
 
       <div

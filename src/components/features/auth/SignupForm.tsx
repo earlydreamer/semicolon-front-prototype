@@ -146,7 +146,7 @@ export function SignupForm() {
       setRemainingCooldown(getRemainingVerificationCooldown(targetEmail));
       setIsSentModalOpen(true);
     } catch (error) {
-      showToast(parseHttpError(error, '인증 메일 발송에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '인증 메일 발송에 실패했어요.'), 'error');
     } finally {
       setIsSendingVerification(false);
     }
@@ -162,7 +162,7 @@ export function SignupForm() {
       });
       setIsSuccessModalOpen(true);
     } catch (error) {
-      const message = parseHttpError(error, '회원가입 중 문제가 발생했습니다.');
+      const message = parseHttpError(error, '회원가입 중 문제가 생겼어요.');
       if (message.includes('이메일 인증이 필요합니다')) {
         setIsVerifyRequiredModalOpen(true);
       } else {
@@ -430,7 +430,7 @@ export function SignupForm() {
           <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
             <span className="text-green-500 text-xl font-bold">✓</span>
           </div>
-          <p className="text-neutral-700 font-medium mb-6">회원가입이 성공적으로 완료되었습니다.</p>
+          <p className="text-neutral-700 font-medium mb-6">회원가입이 성공적으로 완료됐어요.</p>
           <Button
             onClick={() => {
               setIsSuccessModalOpen(false);

@@ -28,11 +28,11 @@ export const ReturnTrackingModal = ({ isOpen, onClose, returnRequestUuid, onSucc
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!carrierCode) {
-      showToast('택배사를 선택해주세요', 'error');
+      showToast('택배사를 선택해 주세요', 'error');
       return;
     }
     if (!trackingNumber.trim()) {
-      showToast('운송장 번호를 입력해주세요', 'error');
+      showToast('운송장 번호를 입력해 주세요', 'error');
       return;
     }
 
@@ -46,12 +46,12 @@ export const ReturnTrackingModal = ({ isOpen, onClose, returnRequestUuid, onSucc
         trackingNumber: trackingNumber.trim()
       });
       
-      showToast('반품 운송장 등록이 완료되었습니다', 'success');
+      showToast('반품 운송장 등록이 완료됐어요', 'success');
       onSuccess?.();
       onClose();
     } catch (error) {
       console.error('운송장 등록 실패:', error);
-      showToast('운송장 등록에 실패했습니다. 다시 시도해주세요.', 'error');
+      showToast('운송장 등록에 실패했어요. 다시 시도해 주세요.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +86,7 @@ export const ReturnTrackingModal = ({ isOpen, onClose, returnRequestUuid, onSucc
             type="text"
             value={trackingNumber}
             onChange={(e) => setTrackingNumber(e.target.value.replace(/[^0-9]/g, ''))} // 숫자만 입력
-            placeholder="숫자만 입력해주세요 (예: 1234567890)"
+            placeholder="숫자만 입력해 주세요 (예: 1234567890)"
             className="w-full h-11 px-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             maxLength={20}
           />

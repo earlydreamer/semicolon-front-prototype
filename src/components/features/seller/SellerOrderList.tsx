@@ -59,7 +59,7 @@ export default function SellerOrderList() {
     orderService
       .getSellerOrderItems()
       .then(setItems)
-      .catch(() => showToast("판매 주문을 불러오는데 실패했습니다.", "error"))
+      .catch(() => showToast("판매 주문을 불러오는 데 실패했어요.", "error"))
       .finally(() => setIsLoading(false));
   }, [showToast]);
 
@@ -73,16 +73,16 @@ export default function SellerOrderList() {
   ) => {
     try {
       await orderService.updateOrderItemStatus(orderItemUuid, nextStatus);
-      showToast("상태가 변경되었습니다.", "success");
+      showToast("상태를 바꿨어요.", "success");
       fetchItems();
     } catch {
-      showToast("상태 변경에 실패했습니다.", "error");
+      showToast("상태 변경에 실패했어요.", "error");
     }
   };
 
   const handleDeliverySubmit = async (orderItemUuid: string) => {
     if (!deliveryForm.carrierName || !deliveryForm.trackingNumber) {
-      showToast("택배사와 운송장 번호를 입력해주세요.", "error");
+      showToast("택배사와 운송장 번호를 입력해 주세요.", "error");
       return;
     }
     setIsSubmitting(true);
@@ -95,12 +95,12 @@ export default function SellerOrderList() {
       await orderService.updateDeliveryInfo(orderItemUuid, req);
       // 운송장 입력 시 자동으로 SHIPPED 상태로 변경
       await orderService.updateOrderItemStatus(orderItemUuid, "SHIPPED");
-      showToast("운송장이 등록되었습니다.", "success");
+      showToast("운송장이 등록됐어요.", "success");
       setOpenDeliveryForm(null);
       setDeliveryForm({ carrierName: "", carrierCode: "", trackingNumber: "" });
       fetchItems();
     } catch {
-      showToast("운송장 등록에 실패했습니다.", "error");
+      showToast("운송장 등록에 실패했어요.", "error");
     } finally {
       setIsSubmitting(false);
     }

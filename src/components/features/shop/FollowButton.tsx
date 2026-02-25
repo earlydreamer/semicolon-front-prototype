@@ -35,7 +35,7 @@ const FollowButton = ({ shopId, className = '' }: FollowButtonProps) => {
     // 결과값(nowFollowing) 대신 상태를 다시 체크하거나 단순히 메시지 노출
     const nextFollowing = !following;
     showToast(
-      nextFollowing ? '상점을 팔로우했습니다' : '팔로우를 취소했습니다',
+      nextFollowing ? '상점을 팔로우했어요' : '팔로우를 취소했어요',
       nextFollowing ? 'success' : 'info'
     );
   };

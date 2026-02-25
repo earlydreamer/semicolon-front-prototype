@@ -50,7 +50,7 @@ const MyShopInfo = () => {
   const handleSave = () => {
     setShopInfo(editForm);
     setIsEditing(false);
-    showToast('상점 정보가 저장되었습니다', 'success');
+    showToast('상점 정보를 저장했어요', 'success');
   };
 
   const handleAvatarClick = () => {
@@ -110,7 +110,7 @@ const MyShopInfo = () => {
             label="상점명"
             value={editForm.name}
             onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-            placeholder="상점명을 입력해주세요"
+            placeholder="상점명을 입력해 주세요"
           />
 
           {/* 소개 */}
@@ -121,7 +121,7 @@ const MyShopInfo = () => {
               onChange={(e) => setEditForm({ ...editForm, intro: e.target.value })}
               className="w-full min-h-[100px] px-3 py-2 rounded-md border border-neutral-300 bg-neutral-0 
                 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 resize-y"
-              placeholder="상점 소개를 입력해주세요"
+              placeholder="상점 소개를 입력해 주세요"
             />
           </div>
 

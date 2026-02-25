@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 관리자 로그인 페이지
  */
 
@@ -63,7 +63,7 @@ const AdminLoginPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="관리자 이메일을 입력하세요…"
+              placeholder="관리자 이메일을 입력해 주세요…"
               autoComplete="username"
               spellCheck={false}
               className="bg-neutral-700 border-neutral-600 text-white placeholder:text-neutral-400"
@@ -73,7 +73,7 @@ const AdminLoginPage = () => {
               label="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="비밀번호를 입력하세요…"
+              placeholder="비밀번호를 입력해 주세요…"
               autoComplete="current-password"
               className="bg-neutral-700 border-neutral-600 text-white placeholder:text-neutral-400"
             />

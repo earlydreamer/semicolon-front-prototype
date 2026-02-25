@@ -50,11 +50,11 @@ const ProductRegisterPage = () => {
         images: uploadedImageUrls,
       });
 
-      showToast('상품이 등록되었습니다', 'success');
+      showToast('상품이 등록됐어요', 'success');
       navigate('/seller');
     } catch (error) {
       console.error('Failed to add product:', error);
-      showToast('상품 등록에 실패했습니다', 'error');
+      showToast('상품 등록에 실패했어요', 'error');
     } finally {
       setIsLoading(false);
     }

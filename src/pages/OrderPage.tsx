@@ -190,7 +190,7 @@ const OrderPage = () => {
       console.error("Order creation failed:", error);
       const message =
         (error as AxiosError<{ message?: string }>)?.response?.data?.message ||
-        "주문 생성에 실패했습니다.";
+        "주문 생성에 실패했어요.";
       showToast(message, "error");
     } finally {
       setIsLoading(false);

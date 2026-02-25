@@ -37,7 +37,7 @@ export const useAdminCoupons = () => {
       setCoupons(list);
     } catch (error) {
       console.error('Failed to load admin coupons:', error);
-      showToast('쿠폰 목록을 불러오지 못했습니다.', 'error');
+      showToast('쿠폰 목록을 불러오지 못했어요.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +73,7 @@ export const useAdminCoupons = () => {
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.validFrom) {
-      showToast('시작 일시를 입력해주세요.', 'error');
+      showToast('시작 일시를 입력해 주세요.', 'error');
       return;
     }
 
@@ -86,7 +86,7 @@ export const useAdminCoupons = () => {
           minimumOrderAmount: formData.minimumOrderAmount,
           validFrom: toIsoString(formData.validFrom),
         });
-        showToast('쿠폰 초안이 수정되었습니다.', 'success');
+        showToast('쿠폰 초안이 수정됐어요.', 'success');
       } else {
         await couponService.createAdminCoupon({
           couponName: formData.couponName,
@@ -95,14 +95,14 @@ export const useAdminCoupons = () => {
           validFrom: toIsoString(formData.validFrom),
           totalQuantity: formData.totalQuantity,
         });
-        showToast('새 쿠폰이 생성되었습니다.', 'success');
+        showToast('새 쿠폰을 만들었어요.', 'success');
       }
 
       await loadCoupons();
       resetForm();
     } catch (error) {
       console.error('Failed to submit coupon:', error);
-      showToast('쿠폰 저장 중 오류가 발생했습니다.', 'error');
+      showToast('쿠폰 저장 중 문제가 생겼어요.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -111,11 +111,11 @@ export const useAdminCoupons = () => {
   const handleActivate = useCallback(async (couponUuid: string) => {
     try {
       await couponService.activateAdminCoupon(couponUuid);
-      showToast('쿠폰이 활성화되었습니다.', 'success');
+      showToast('쿠폰이 활성화됐어요.', 'success');
       await loadCoupons();
     } catch (error) {
       console.error('Failed to activate coupon:', error);
-      showToast('활성화 처리 중 오류가 발생했습니다.', 'error');
+      showToast('활성화 처리 중 문제가 생겼어요.', 'error');
     }
   }, [loadCoupons, showToast]);
 

@@ -95,7 +95,7 @@ export const CouponTable = ({ coupons, onEdit, onActivate }: CouponTableProps) =
                   </button>
                   <button
                     type="button"
-                    onClick={() => showToast('준비중입니다.', 'info')}
+                    onClick={() => showToast('준비 중이에요.', 'info')}
                     className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                     title="삭제 (준비중)"
                     aria-label={`${coupon.couponName} 삭제`}

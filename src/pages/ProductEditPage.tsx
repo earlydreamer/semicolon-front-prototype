@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 상품 수정 페이지
  */
 
@@ -68,7 +68,7 @@ const ProductEditPage = () => {
         );
       } catch (error) {
         console.error("Failed to load product detail for edit:", error);
-        showToast("상품 정보를 불러오지 못했습니다.", "error");
+        showToast("상품 정보를 불러오지 못했어요.", "error");
         navigate("/seller", { replace: true });
       } finally {
         setIsPageLoading(false);
@@ -110,11 +110,11 @@ const ProductEditPage = () => {
         );
       }
 
-      showToast("상품이 수정되었습니다.", "success");
+      showToast("상품이 수정됐어요.", "success");
       navigate("/seller");
     } catch (error) {
       console.error("Failed to update product:", error);
-      showToast("상품 수정에 실패했습니다.", "error");
+      showToast("상품 수정에 실패했어요.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -127,7 +127,7 @@ const ProductEditPage = () => {
   if (isPageLoading || !defaultValues) {
     return (
       <div className="container mx-auto max-w-2xl px-3 py-5 min-[360px]:px-4 min-[360px]:py-6">
-        <p className="text-neutral-500">상품 정보를 불러오는 중입니다...</p>
+        <p className="text-neutral-500">상품 정보를 불러오는 중이에요...</p>
       </div>
     );
   }

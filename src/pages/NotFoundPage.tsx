@@ -15,7 +15,7 @@ const NotFoundPage = () => {
       <p className="text-neutral-500 mb-8 max-w-sm">
         요청하신 페이지가 사라졌거나 잘못된 경로입니다.
         <br />
-        입력하신 주소가 정확한지 다시 한번 확인해주세요.
+        입력하신 주소가 정확한지 다시 한번 확인해 주세요.
       </p>
       <Link to="/">
         <Button size="lg" className="px-8">

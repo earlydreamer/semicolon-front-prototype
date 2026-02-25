@@ -13,7 +13,7 @@ const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
       <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
         <h1 className="text-xl font-bold">
           <span className="text-primary-400">세미콜론</span>
-          <span className="text-sm font-normal text-neutral-400 ml-2">Admin</span>
+          <span className="text-sm font-normal text-neutral-400 ml-2">운영자</span>
         </h1>
         {onClose && (
           <button

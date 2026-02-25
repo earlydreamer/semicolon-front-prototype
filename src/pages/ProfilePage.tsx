@@ -31,11 +31,11 @@ const ProfilePage = () => {
     try {
       await userService.updateProfile({ name: nickname });
       await refreshUser();
-      showToast('프로필이 수정되었습니다.', 'success');
+      showToast('프로필이 수정됐어요.', 'success');
       navigate('/mypage');
     } catch (error) {
       console.error(error);
-      showToast('프로필 수정에 실패했습니다.', 'error');
+      showToast('프로필 수정에 실패했어요.', 'error');
     }
   };
 
@@ -92,7 +92,7 @@ const ProfilePage = () => {
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
                   className="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                  placeholder="닉네임을 입력하세요"
+                  placeholder="닉네임을 입력해 주세요"
                 />
               </div>
 
@@ -104,7 +104,7 @@ const ProfilePage = () => {
                   onChange={(e) => setIntro(e.target.value)}
                   rows={4}
                   className="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none transition-all"
-                  placeholder="자기소개를 입력하세요"
+                  placeholder="자기소개를 입력해 주세요"
                 />
               </div>
 

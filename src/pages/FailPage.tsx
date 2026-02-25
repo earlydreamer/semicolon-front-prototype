@@ -21,7 +21,7 @@ export default function FailPage() {
           </svg>
         </div>
         <h1 className="mb-2 text-xl font-bold text-gray-900 min-[360px]:text-2xl">결제 실패</h1>
-        <p className="text-gray-600">결제 처리 중 문제가 발생했습니다.</p>
+        <p className="text-gray-600">결제 처리 중 문제가 생겼어요.</p>
       </div>
 
       {/* 에러 정보 */}
@@ -40,7 +40,7 @@ export default function FailPage() {
           <div className="flex flex-col gap-1 pt-1">
             <dt className="text-red-600 font-medium">상세 사유</dt>
             <dd className="text-red-800 leading-relaxed font-medium">
-              {errorMessage || '결제 중 알 수 없는 오류가 발생했습니다. 다시 시도해 주세요.'}
+              {errorMessage || '결제 중 알 수 없는 문제가 생겼어요. 다시 시도해 주세요.'}
             </dd>
           </div>
         </dl>

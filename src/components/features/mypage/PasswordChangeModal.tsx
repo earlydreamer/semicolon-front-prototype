@@ -27,7 +27,7 @@ export const PasswordChangeModal = ({ isOpen, onClose }: PasswordChangeModalProp
 
   const handleSave = async () => {
     if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
-      showToast('모든 필드값을 입력해주세요.', 'error');
+      showToast('모든 필드값을 입력해 주세요.', 'error');
       return;
     }
 
@@ -47,7 +47,7 @@ export const PasswordChangeModal = ({ isOpen, onClose }: PasswordChangeModalProp
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       });
-      showToast('비밀번호가 성공적으로 변경되었습니다.', 'success');
+      showToast('비밀번호를 바꿨어요.', 'success');
       onClose();
       // Reset form
       setFormData({
@@ -58,7 +58,7 @@ export const PasswordChangeModal = ({ isOpen, onClose }: PasswordChangeModalProp
     } catch (error: unknown) {
       const message =
         (error as AxiosError<{ message?: string }>)?.response?.data?.message ||
-        '비밀번호 변경에 실패했습니다.';
+        '비밀번호 변경에 실패했어요.';
       showToast(message, 'error');
     } finally {
       setLoading(false);
@@ -81,7 +81,7 @@ export const PasswordChangeModal = ({ isOpen, onClose }: PasswordChangeModalProp
             name="currentPassword"
             value={formData.currentPassword}
             onChange={handleChange}
-            placeholder="현재 비밀번호를 입력하세요"
+            placeholder="현재 비밀번호를 입력해 주세요"
             className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-[border-color,box-shadow]"
           />
         </div>
@@ -105,7 +105,7 @@ export const PasswordChangeModal = ({ isOpen, onClose }: PasswordChangeModalProp
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            placeholder="새 비밀번호를 한번 더 입력하세요"
+            placeholder="새 비밀번호를 한번 더 입력해 주세요"
             className="w-full px-4 py-2.5 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-[border-color,box-shadow]"
           />
         </div>

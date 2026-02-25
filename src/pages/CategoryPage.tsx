@@ -73,7 +73,7 @@ export default function CategoryPage() {
         const data = await productService.getCategories();
         setCategories(transformCategories(data));
       } catch (error) {
-        console.error('카테고리를 불러오지 못했습니다.', error);
+        console.error('카테고리를 불러오지 못했어요.', error);
       } finally {
         setLoading(false);
       }
@@ -110,7 +110,7 @@ export default function CategoryPage() {
       try {
         await fetchProductsPage(0, false);
       } catch (error) {
-        console.error('상품을 불러오지 못했습니다.', error);
+        console.error('상품을 불러오지 못했어요.', error);
         setProducts([]);
         setHasNext(false);
         setTotalCount(0);
@@ -176,7 +176,7 @@ export default function CategoryPage() {
     try {
       await fetchProductsPage(page + 1, true);
     } catch (error) {
-      console.error('추가 상품을 불러오지 못했습니다.', error);
+      console.error('추가 상품을 불러오지 못했어요.', error);
     } finally {
       setIsFetchingMore(false);
     }

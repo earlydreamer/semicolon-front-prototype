@@ -21,7 +21,7 @@ const CartSummary = ({ summary }: CartSummaryProps) => {
 
   const handleOrder = () => {
     if (summary.selectedCount === 0) {
-      showToast('주문할 상품을 선택해주세요', 'error');
+      showToast('주문할 상품을 선택해 주세요', 'error');
       return;
     }
 
@@ -73,7 +73,7 @@ const CartSummary = ({ summary }: CartSummaryProps) => {
       >
         {summary.selectedCount > 0
           ? `${summary.selectedCount}개 상품 주문하기`
-          : '상품을 선택해주세요'}
+          : '상품을 선택해 주세요'}
       </button>
 
       <p className="mt-3 text-xs text-neutral-500 text-center">

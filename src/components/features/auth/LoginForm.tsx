@@ -64,16 +64,16 @@ export function LoginForm() {
         await fetchUserLikes(user.id);
       }
 
-      showToast('로그인에 성공했습니다.', 'success');
+      showToast('로그인했어요.', 'success');
       navigate('/');
     } catch (error) {
-      const message = parseHttpError(error, '로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.');
+      const message = parseHttpError(error, '로그인에 실패했어요. 이메일과 비밀번호를 확인해 주세요.');
 
       if (message.includes('이메일 인증이 필요합니다')) {
         try {
           await handleVerificationRequired(data.email);
         } catch (sendError) {
-          showToast(parseHttpError(sendError, '인증 메일 재발송에 실패했습니다.'), 'error');
+          showToast(parseHttpError(sendError, '인증 메일 재발송에 실패했어요.'), 'error');
         }
       } else {
         showToast(message, 'error');

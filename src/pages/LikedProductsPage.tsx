@@ -40,7 +40,7 @@ const LikedProductsPage = () => {
       }
     } catch (error) {
       console.error('Failed to load liked products:', error);
-      showToast('찜한 상품을 불러오는데 실패했습니다.', 'error');
+      showToast('찜한 상품을 불러오는 데 실패했어요.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -62,9 +62,9 @@ const LikedProductsPage = () => {
     try {
       await toggleLike(user.id, productId);
       setLikedProducts((prev) => prev.filter((p) => p.productUuid !== productId));
-      showToast(`"${productTitle}" 찜한 상품에서 제거되었습니다`, 'info');
+      showToast(`"${productTitle}" 찜한 상품에서 뺐어요`, 'info');
     } catch {
-      showToast('처리에 실패했습니다.', 'error');
+      showToast('처리에 실패했어요.', 'error');
     }
   };
 

@@ -57,7 +57,7 @@ export const ReturnActionModal = ({
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="거절 사유를 명확하게 입력해주세요."
+              placeholder="거절 사유를 명확하게 입력해 주세요."
               className="w-full h-24 px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
               maxLength={500}
               required

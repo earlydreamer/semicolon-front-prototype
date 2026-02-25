@@ -102,7 +102,7 @@ export const useBannerManage = () => {
     setBanners(workingBanners);
     setLocalBanners(null);
     setHasChanges(false);
-    showToast('준비중입니다.', 'info');
+    showToast('준비 중이에요.', 'info');
   };
   
   // 초기화 (이전 상태로 복원)
@@ -189,7 +189,7 @@ export const useBannerManage = () => {
         return filtered.map((banner, idx) => ({ ...banner, order: idx + 1 }));
       });
       setHasChanges(true);
-      showToast('준비중입니다.', 'info');
+      showToast('준비 중이에요.', 'info');
     }
   };
 

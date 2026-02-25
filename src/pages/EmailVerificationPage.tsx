@@ -15,7 +15,7 @@ export default function EmailVerificationPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState(
     resultToken
-      ? "인증 결과를 확인하는 중입니다."
+      ? "인증 결과를 확인하고 있어요."
       : "올바른 인증 경로로 접근해 주세요.",
   );
 
@@ -34,19 +34,19 @@ export default function EmailVerificationPage() {
         if (result.verified) {
           setState("success");
           setEmail(result.email ?? "");
-          setMessage("이메일 인증이 완료되었습니다.");
+          setMessage("이메일 인증이 완료됐어요.");
           return;
         }
 
         setState("failure");
-        setMessage("이메일 인증에 실패했습니다. 다시 시도해 주세요.");
+        setMessage("이메일 인증에 실패했어요. 다시 시도해 주세요.");
       })
       .catch(() => {
         if (!isMounted) {
           return;
         }
         setState("failure");
-        setMessage("인증 결과 확인에 실패했습니다. 다시 시도해 주세요.");
+        setMessage("인증 결과 확인에 실패했어요. 다시 시도해 주세요.");
       });
 
     return () => {

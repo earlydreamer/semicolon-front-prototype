@@ -26,14 +26,14 @@ export const ReviewForm = ({ orderId, productTitle, onSubmit, onCancel }: Review
     e.preventDefault();
     
     if (content.trim().length < 10) {
-      showToast('리뷰 내용은 10자 이상 작성해주세요.', 'error');
+      showToast('리뷰 내용은 10자 이상 작성해 주세요.', 'error');
       return;
     }
 
     // TODO: 실제 서버로 리뷰 데이터 전송
     console.log('[MOCK] Submitting review:', { orderId, rating, content, images });
     
-    showToast('리뷰가 등록되었습니다.', 'success');
+    showToast('리뷰가 등록됐어요.', 'success');
     onSubmit();
   };
 

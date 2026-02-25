@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { addressService } from "../../../services/addressService";
 import { AddressItem } from "./AddressItem";
 import { AddressFormModal } from "./AddressFormModal";
@@ -85,7 +85,7 @@ export const AddressList = ({
           return;
         }
         console.error("[DEBUG] fetchAddresses error:", _error);
-        showToast("주소록을 불러오는 데 실패했습니다.", "error");
+        showToast("주소록을 불러오는 데 실패했어요.", "error");
       } finally {
         isFetchingRef.current = false;
         setIsLoading(false);
@@ -135,10 +135,10 @@ export const AddressList = ({
     if (deleteTargetId === null) return;
     try {
       await addressService.deleteAddress(deleteTargetId);
-      showToast("삭제되었습니다.", "success");
+      showToast("삭제됐어요.", "success");
       await fetchAddresses(0);
     } catch {
-      showToast("삭제에 실패했습니다.", "error");
+      showToast("삭제에 실패했어요.", "error");
     } finally {
       setDeleteTargetId(null);
     }
@@ -147,10 +147,10 @@ export const AddressList = ({
   const handleSetDefault = async (id: number) => {
     try {
       await addressService.setDefaultAddress(id);
-      showToast("기본 배송지로 설정되었습니다.", "success");
+      showToast("기본 배송지로 설정됐어요.", "success");
       await fetchAddresses(0);
     } catch {
-      showToast("설정에 실패했습니다.", "error");
+      showToast("설정에 실패했어요.", "error");
     }
   };
 
@@ -158,14 +158,14 @@ export const AddressList = ({
     try {
       if (editingAddress) {
         await addressService.updateAddress(editingAddress.id, data);
-        showToast("수정되었습니다.", "success");
+        showToast("수정됐어요.", "success");
       } else {
         await addressService.addAddress(data);
-        showToast("저장되었습니다.", "success");
+        showToast("저장됐어요.", "success");
       }
       await fetchAddresses(0);
     } catch {
-      showToast("저장에 실패했습니다.", "error");
+      showToast("저장에 실패했어요.", "error");
     }
   };
 

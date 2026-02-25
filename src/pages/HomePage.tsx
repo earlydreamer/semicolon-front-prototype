@@ -22,7 +22,7 @@ export default function HomePage() {
 
       {error && (
         <div className="flex justify-center px-4 py-14 text-center text-neutral-500 min-[360px]:py-20">
-          상품 정보를 불러오는 중 오류가 발생했습니다.
+          상품 정보를 불러오는 중 문제가 생겼어요.
         </div>
       )}
 

@@ -38,7 +38,7 @@ export const useAdminProducts = () => {
       setTotalCount(response.totalCount ?? response.items.length);
     } catch (error) {
       console.error('Failed to load admin products:', error);
-      setErrorMessage('상품 목록을 불러오지 못했습니다.');
+      setErrorMessage('상품 목록을 불러오지 못했어요.');
     } finally {
       setIsLoading(false);
     }

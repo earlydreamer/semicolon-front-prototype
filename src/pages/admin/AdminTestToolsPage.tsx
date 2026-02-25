@@ -77,7 +77,7 @@ export default function AdminTestToolsPage() {
   const handleLookupUser = async (event: FormEvent) => {
     event.preventDefault();
     if (!email.trim()) {
-      showToast('이메일을 입력해주세요.', 'error');
+      showToast('이메일을 입력해 주세요.', 'error');
       return;
     }
 
@@ -88,7 +88,7 @@ export default function AdminTestToolsPage() {
       showToast('대상 사용자 조회 완료', 'success');
     } catch (error) {
       setTargetUser(null);
-      showToast(parseHttpError(error, '사용자 조회에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '사용자 조회에 실패했어요.'), 'error');
     } finally {
       setIsLookingUp(false);
     }
@@ -97,7 +97,7 @@ export default function AdminTestToolsPage() {
   const handleGrantDeposit = async (event: FormEvent) => {
     event.preventDefault();
     if (!targetUser) {
-      showToast('먼저 사용자 이메일 조회를 완료해주세요.', 'error');
+      showToast('먼저 사용자 이메일 조회를 완료해 주세요.', 'error');
       return;
     }
     if (!Number.isFinite(depositAmount) || depositAmount <= 0) {
@@ -110,7 +110,7 @@ export default function AdminTestToolsPage() {
       await adminTestService.grantDepositToUser(targetUser.userUuid, depositAmount);
       showToast('예치금 지급 요청 완료', 'success');
     } catch (error) {
-      showToast(parseHttpError(error, '예치금 지급에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '예치금 지급에 실패했어요.'), 'error');
     } finally {
       setIsGrantingDeposit(false);
     }
@@ -119,11 +119,11 @@ export default function AdminTestToolsPage() {
   const handleIssueCoupon = async (event: FormEvent) => {
     event.preventDefault();
     if (!targetUser) {
-      showToast('먼저 사용자 이메일 조회를 완료해주세요.', 'error');
+      showToast('먼저 사용자 이메일 조회를 완료해 주세요.', 'error');
       return;
     }
     if (!selectedCouponUuid) {
-      showToast('지급할 쿠폰을 선택해주세요.', 'error');
+      showToast('지급할 쿠폰을 선택해 주세요.', 'error');
       return;
     }
 
@@ -132,7 +132,7 @@ export default function AdminTestToolsPage() {
       await adminTestService.issueCouponToUser(selectedCouponUuid, targetUser.userUuid);
       showToast('쿠폰 지급 요청 완료', 'success');
     } catch (error) {
-      showToast(parseHttpError(error, '쿠폰 지급에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '쿠폰 지급에 실패했어요.'), 'error');
     } finally {
       setIsIssuingCoupon(false);
     }
@@ -141,7 +141,7 @@ export default function AdminTestToolsPage() {
   const handleFindOrder = async (event: FormEvent) => {
     event.preventDefault();
     if (!orderUuid.trim()) {
-      showToast('주문 UUID를 입력해주세요.', 'error');
+      showToast('주문 UUID를 입력해 주세요.', 'error');
       return;
     }
 
@@ -155,7 +155,7 @@ export default function AdminTestToolsPage() {
     } catch (error) {
       setOrderDetail(null);
       setSelectedOrderItemUuid('');
-      showToast(parseHttpError(error, '주문 조회에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '주문 조회에 실패했어요.'), 'error');
     } finally {
       setIsLoadingOrder(false);
     }
@@ -164,7 +164,7 @@ export default function AdminTestToolsPage() {
   const handleUpdateOrderItemStatus = async (event: FormEvent) => {
     event.preventDefault();
     if (!selectedOrderItemUuid) {
-      showToast('주문 아이템을 선택해주세요.', 'error');
+      showToast('주문 아이템을 선택해 주세요.', 'error');
       return;
     }
 
@@ -177,7 +177,7 @@ export default function AdminTestToolsPage() {
         setOrderDetail(refreshed);
       }
     } catch (error) {
-      showToast(parseHttpError(error, '주문 상태 변경에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '주문 상태 변경에 실패했어요.'), 'error');
     } finally {
       setIsUpdatingOrderItemStatus(false);
     }
@@ -186,7 +186,7 @@ export default function AdminTestToolsPage() {
   const handleUpdateOrderStatus = async (event: FormEvent) => {
     event.preventDefault();
     if (!orderDetail) {
-      showToast('먼저 주문 조회를 완료해주세요.', 'error');
+      showToast('먼저 주문 조회를 완료해 주세요.', 'error');
       return;
     }
 
@@ -198,7 +198,7 @@ export default function AdminTestToolsPage() {
       setOrderDetail(refreshed);
       setSelectedOrderStatus(refreshed.orderStatus);
     } catch (error) {
-      showToast(parseHttpError(error, '주문 전체 상태 변경에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '주문 전체 상태 변경에 실패했어요.'), 'error');
     } finally {
       setIsUpdatingOrderStatus(false);
     }
@@ -212,7 +212,7 @@ export default function AdminTestToolsPage() {
       </div>
 
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-        임시 운영 페이지입니다. 운영 환경에서는 내부 API 접근 정책을 먼저 확인해주세요.
+        임시 운영 페이지입니다. 운영 환경에서는 내부 API 접근 정책을 먼저 확인해 주세요.
       </div>
 
       <section className="rounded-xl border border-neutral-200 bg-white p-5">

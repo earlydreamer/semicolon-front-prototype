@@ -272,7 +272,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
         setDepositUseAmount(0);
         navigate("/checkout");
       } catch {
-        showToast("결제 페이지로 이동하지 못했습니다.", "error");
+        showToast("결제 페이지로 이동하지 못했어요.", "error");
       }
     })();
   }, [

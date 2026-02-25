@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 구매 내역 페이지
  */
 
@@ -42,7 +42,7 @@ const OrderHistoryPage = () => {
   if (isError) {
     return (
       <div className="flex flex-col h-screen items-center justify-center gap-4">
-        <p className="text-neutral-500">주문 내역을 불러오는데 실패했습니다.</p>
+        <p className="text-neutral-500">주문 내역을 불러오는 데 실패했어요.</p>
         <button
           onClick={() => window.location.reload()}
           className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"

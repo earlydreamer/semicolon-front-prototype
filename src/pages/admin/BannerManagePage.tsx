@@ -92,7 +92,7 @@ const BannerManagePage = () => {
         </div>
       </div>
 
-      <MockDataNotice message="배너 API 연동 준비중입니다. 현재 변경사항은 mock 데이터로 동작합니다." />
+      <MockDataNotice message="배너 API 연동 준비 중이에요. 현재 변경사항은 샘플 데이터로 동작해요." />
 
       {/* 변경사항 알림 */}
       {hasChanges && (

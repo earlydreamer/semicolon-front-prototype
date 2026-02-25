@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 주문 내역 카드 컴포넌트
  */
 
@@ -118,11 +118,11 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
     if (!orderItemUuid) return;
     try {
       await orderService.updateOrderItemStatus(orderItemUuid, 'CONFIRMED');
-      showToast('구매가 확정되었습니다. 리뷰를 작성해주세요.', 'success');
+      showToast('구매를 확정했어요. 리뷰를 남겨 주세요.', 'success');
       setShowReviewModal(true);
       onUpdate?.();
     } catch {
-      showToast('구매 확정에 실패했습니다.', 'error');
+      showToast('구매 확정에 실패했어요.', 'error');
     }
   };
 
@@ -147,11 +147,11 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
       }
 
       await orderService.updateOrderItemStatus(targetOrderItemUuid, 'CANCEL_REQUESTED');
-      showToast('주문이 취소되었습니다.', 'success');
+      showToast('주문을 취소했어요.', 'success');
       setShowCancelConfirmModal(false);
       onUpdate?.();
     } catch {
-      showToast('주문 취소에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
+      showToast('주문 취소에 실패했어요. 잠시 후 다시 시도해 주세요.', 'error');
     } finally {
       setIsCancelLoading(false);
     }
@@ -203,7 +203,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
 
       navigate('/checkout');
     } catch {
-      showToast('결제 페이지 진입에 실패했습니다.', 'error');
+      showToast('결제 페이지 진입에 실패했어요.', 'error');
     } finally {
       setIsResumeLoading(false);
     }

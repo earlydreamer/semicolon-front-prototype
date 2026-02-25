@@ -49,9 +49,9 @@ const OrderCompletePage = () => {
           <CheckCircle className="w-10 h-10 text-green-500" />
         </div>
         
-        <h1 className="mb-2 text-xl font-bold text-neutral-900 min-[360px]:text-2xl">주문이 완료되었습니다!</h1>
+        <h1 className="mb-2 text-xl font-bold text-neutral-900 min-[360px]:text-2xl">주문이 완료됐어요!</h1>
         <p className="text-neutral-500 mb-8">
-          고객님의 주문이 성공적으로 접수되었습니다.<br />
+          주문을 접수했어요.<br />
           판매자가 확인 후 발송할 예정입니다.
         </p>
 

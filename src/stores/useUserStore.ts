@@ -41,7 +41,7 @@ export const useUserStore = create<UserState>((set, get) => ({
         isLoading: false,
       }));
     } catch {
-      set({ error: '예치금 내역을 불러오는데 실패했습니다.', isLoading: false });
+      set({ error: '예치금 내역을 불러오는 데 실패했어요.', isLoading: false });
     }
   },
 }));
