@@ -43,8 +43,12 @@ const CartPage = () => {
     }
     
     const selectedCount = items.filter((i) => i.selected).length;
-    await removeSelectedItems();
-    showToast(`${selectedCount}개 상품이 삭제되었습니다`, 'success');
+    try {
+      await removeSelectedItems();
+      showToast(`${selectedCount}개 상품이 삭제되었습니다`, 'success');
+    } catch {
+      showToast('선택한 상품 삭제에 실패했습니다', 'error');
+    }
   };
 
   // 주문하기 핸들러 (모바일용)
@@ -87,8 +91,12 @@ const CartPage = () => {
             <CartList
               items={items}
               onRemove={async (cartId) => {
-                await removeItem(cartId);
-                showToast('상품이 삭제되었습니다', 'success');
+                try {
+                  await removeItem(cartId);
+                  showToast('상품이 삭제되었습니다', 'success');
+                } catch {
+                  showToast('상품 삭제에 실패했습니다', 'error');
+                }
               }}
               onToggleSelect={toggleSelect}
               onSelectAll={selectAll}

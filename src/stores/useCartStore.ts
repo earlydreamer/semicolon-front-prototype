@@ -75,12 +75,13 @@ export const useCartStore = create<CartState>((set, get) => ({
    */
   removeItem: async (cartId: number) => {
     try {
-      await cartService.removeFromCart(cartId);
+      await cartService.removeFromCart([cartId]);
       set((state) => ({
         items: state.items.filter((item) => item.cartId !== cartId),
       }));
     } catch (error) {
       console.error('Remove from cart failed:', error);
+      throw error;
     }
   },
   
@@ -123,12 +124,15 @@ export const useCartStore = create<CartState>((set, get) => ({
     const selectedItems = get().getSelectedItems();
     try {
       // 순차적 삭제 (백엔드에 벌크 삭제 API가 있다면 교체 필요)
-      await Promise.all(selectedItems.map(item => cartService.removeFromCart(item.cartId)));
+      const cartIds = selectedItems.map((item) => item.cartId);
+      if (cartIds.length === 0) return;
+      await cartService.removeFromCart(cartIds);
       set((state) => ({
         items: state.items.filter((item) => !item.selected),
       }));
     } catch (error) {
       console.error('Remove selected items failed:', error);
+      throw error;
     }
   },
   
