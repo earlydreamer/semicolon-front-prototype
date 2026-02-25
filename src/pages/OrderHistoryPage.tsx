@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 구매 내역 페이지
  */
 
@@ -23,7 +23,7 @@ const OrderHistoryPage = () => {
     }, 10000);
 
     orderService.getMyOrders()
-      .then(res => setOrders(res.content))
+      .then((res) => setOrders(res.content))
       .catch(() => setIsError(true))
       .finally(() => {
         clearTimeout(timeoutId);
@@ -35,7 +35,6 @@ const OrderHistoryPage = () => {
     if (isAuthenticated) fetchOrders();
   }, [isAuthenticated]);
 
-  // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -43,8 +42,13 @@ const OrderHistoryPage = () => {
   if (isError) {
     return (
       <div className="flex flex-col h-screen items-center justify-center gap-4">
-        <p className="text-neutral-500">주문 내역을 불러오는데 실패했습니다 (서버 응답 지연).</p>
-        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600">다시 시도</button>
+        <p className="text-neutral-500">주문 내역을 불러오는데 실패했습니다.</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
+        >
+          다시 시도
+        </button>
       </div>
     );
   }
@@ -60,7 +64,6 @@ const OrderHistoryPage = () => {
   return (
     <div className="min-h-screen bg-neutral-50 py-5 pb-20 min-[360px]:py-6">
       <div className="mx-auto max-w-2xl px-3 min-[360px]:px-4">
-        {/* 헤더 */}
         <div className="mb-5 flex items-center gap-2 min-[360px]:mb-6 min-[360px]:gap-3">
           <Link
             to="/mypage"
@@ -71,7 +74,6 @@ const OrderHistoryPage = () => {
           <h1 className="text-xl font-bold text-neutral-900">구매 내역</h1>
         </div>
 
-        {/* 주문 목록 */}
         {orders.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-neutral-500 mb-4">구매 내역이 없습니다</p>
@@ -79,7 +81,7 @@ const OrderHistoryPage = () => {
               to="/"
               className="inline-block px-6 py-3 bg-primary-500 text-white font-medium rounded-xl hover:bg-primary-600"
             >
-              상품 둘러보기
+              상품 보러가기
             </Link>
           </div>
         ) : (

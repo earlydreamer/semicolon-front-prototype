@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 주문 내역 카드 컴포넌트
  */
 
@@ -26,63 +26,91 @@ interface OrderHistoryCardProps {
 const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { setOrderUuid, setOrderItems, setOrderResponseItems, setCouponUuid, setCouponDiscountAmount, setDepositUseAmount } = useOrderStore();
+  const {
+    setOrderUuid,
+    setOrderItems,
+    setOrderResponseItems,
+    setCouponUuid,
+    setCouponDiscountAmount,
+    setDepositUseAmount,
+  } = useOrderStore();
+
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
   const [showReturnRequestModal, setShowReturnRequestModal] = useState(false);
   const [showReturnTrackingModal, setShowReturnTrackingModal] = useState(false);
   const [returnRequestUuid, setReturnRequestUuid] = useState<string | null>(null);
   const [isResumeLoading, setIsResumeLoading] = useState(false);
+  const [isCancelLoading, setIsCancelLoading] = useState(false);
 
-  // API 데이터 여부 확인 및 통합 매핑
   const isApiData = 'orderUuid' in order || 'items' in order;
   const id = isApiData ? (order as OrderListResponse).orderUuid : (order as OrderHistory).id;
   const createdAt = isApiData ? (order as OrderListResponse).orderDate : (order as OrderHistory).createdAt;
   const status = (isApiData
     ? (order as OrderListResponse).status
     : (order as OrderHistory).status) ?? 'PENDING';
-  const totalAmount = isApiData ? (order as OrderListResponse).totalAmount : (order as OrderHistory).totalPrice;
+  const totalAmount = isApiData
+    ? (order as OrderListResponse).totalAmount
+    : (order as OrderHistory).totalPrice;
 
-  // 첫 번째 아이템 정보를 대표로 사용 (API의 경우)
   const firstItem = isApiData ? (order as OrderListResponse).items?.[0] : undefined;
   const productUuid = isApiData ? firstItem?.productUuid : (order as OrderHistory).productUuid;
   const title = isApiData ? firstItem?.productName : (order as OrderHistory).product?.title;
   const image = isApiData ? firstItem?.imageUrl : (order as OrderHistory).product?.image;
   const sellerNickname = isApiData ? '판매자' : (order as OrderHistory).product?.seller?.nickname;
 
-  const statusInfo = ORDER_STATUS_LABELS[status] || { text: status, className: 'bg-neutral-100 text-neutral-600' };
+  const statusInfo = ORDER_STATUS_LABELS[status] || {
+    text: status,
+    className: 'bg-neutral-100 text-neutral-600',
+  };
 
-  // 개별 아이템 상태 확인 (API 데이터인 경우)
   const itemStatus = isApiData ? firstItem?.itemStatus : undefined;
-  
-  // 상황에 따라 가장 적절한 Status Info 객체를 도출
-  let itemStatusInfo;
-  if (isApiData && itemStatus) {
-    itemStatusInfo = ORDER_ITEM_STATUS_LABELS[itemStatus] ?? { text: itemStatus, className: 'bg-neutral-100 text-neutral-700' };
-  } else {
-    // API 데이터가 아니거나 (Mock) itemStatus가 배열에 없다면 큰 범주인 OrderStatusLabel을 사용 (fallback)
-    itemStatusInfo = ORDER_STATUS_LABELS[status] ?? { text: status, className: 'bg-neutral-100 text-neutral-600' };
-  }
 
-  // 배송 정보 (API / 로컬 공통)
+  const itemStatusInfo = isApiData && itemStatus
+    ? (ORDER_ITEM_STATUS_LABELS[itemStatus] ?? { text: itemStatus, className: 'bg-neutral-100 text-neutral-700' })
+    : (ORDER_STATUS_LABELS[status] ?? { text: status, className: 'bg-neutral-100 text-neutral-600' });
+
   const carrierName = isApiData ? firstItem?.carrierName : (order as OrderHistory).deliveryCompany;
   const trackingNumber = isApiData ? firstItem?.trackingNumber : (order as OrderHistory).trackingNumber;
-  
-  // 운송장 보여주는 기준 (api status 기준 또는 mock status 기준 모두 포함)
-  const deliveryStatusMatch = itemStatus 
-       ? ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING', 'SHIPPING'].includes(itemStatus)
-       : ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING', 'SHIPPING'].includes(status as string);
-       
+
+  const deliveryStatusMatch = itemStatus
+    ? ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING'].includes(itemStatus)
+    : ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING'].includes(status as string);
+
   const showDelivery = !!trackingNumber && deliveryStatusMatch;
 
-  // 구매 확정 가능 여부 - 아이템 상태 기준
   const canConfirm = itemStatus === 'DELIVERED' || itemStatus === 'CONFIRM_PENDING';
-  // 취소 가능 여부 - 주문 상태 기준
-  const canCancel = status === 'PENDING' || status === 'PAID';
-  // 반품 신청 가능 여부
+  const closedItemStatuses = [
+    'CANCELED',
+    'CANCEL_REQUESTED',
+    'REFUND_REQUESTED',
+    'REFUND_IN_PROGRESS',
+    'REFUND_COMPLETED',
+    'CONFIRMED',
+  ] as const;
+  const isClosedItem = itemStatus
+    ? closedItemStatuses.includes(itemStatus as typeof closedItemStatuses[number])
+    : false;
+  const nonCancelableItemStatuses = [
+    'CANCELED',
+    'CANCEL_REQUESTED',
+    'SHIPPED',
+    'IN_TRANSIT',
+    'OUT_FOR_DELIVERY',
+    'DELIVERED',
+    'CONFIRMED',
+    'REFUND_REQUESTED',
+    'REFUND_IN_PROGRESS',
+    'REFUND_COMPLETED',
+  ] as const;
+  const canCancelByItemStatus = itemStatus
+    ? !nonCancelableItemStatuses.includes(itemStatus as typeof nonCancelableItemStatuses[number])
+    : false;
+  const canCancelByOrderStatusFallback = !isClosedItem && (status === 'PENDING' || status === 'PAID');
+  const canCancel = canCancelByItemStatus || canCancelByOrderStatusFallback;
   const canReturn = itemStatus === 'DELIVERED';
-  // 운송장 등록 가능 여부
   const canRegisterTracking = itemStatus === 'REFUND_REQUESTED' || itemStatus === 'REFUND_IN_PROGRESS';
-  const canResumePayment = status === 'PENDING';
+  const canResumePayment = status === 'PENDING' && !isClosedItem;
 
   const orderItemUuid = isApiData ? (order as OrderListResponse).items[0]?.orderItemUuid : undefined;
 
@@ -103,17 +131,32 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   };
 
   const handleCancel = async () => {
-    if (!orderItemUuid) return;
     try {
-      await orderService.updateOrderItemStatus(orderItemUuid, 'CANCEL_REQUESTED');
+      setIsCancelLoading(true);
+      let targetOrderItemUuid = orderItemUuid;
+
+      // Order list payload may miss item UUID in some pending-order cases; re-fetch detail as fallback.
+      if (!targetOrderItemUuid && id && typeof id === 'string') {
+        const orderDetail = await orderService.getOrder(id);
+        targetOrderItemUuid = orderDetail.items?.[0]?.orderItemUuid;
+      }
+
+      if (!targetOrderItemUuid) {
+        showToast('취소할 주문 상품 정보를 찾을 수 없습니다.', 'error');
+        return;
+      }
+
+      await orderService.updateOrderItemStatus(targetOrderItemUuid, 'CANCEL_REQUESTED');
       showToast('주문이 취소되었습니다.', 'success');
+      setShowCancelConfirmModal(false);
       onUpdate?.();
     } catch {
-      showToast('주문 취소에 실패했습니다.', 'error');
+      showToast('주문 취소에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
+    } finally {
+      setIsCancelLoading(false);
     }
   };
 
-  // PENDING 주문을 다시 조회해 결제 스토어를 복원하고 결제 페이지로 이동한다.
   const handleResumePayment = async () => {
     if (!id || typeof id !== 'string') return;
 
@@ -169,11 +212,10 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   return (
     <>
       <div className="bg-white rounded-xl border border-neutral-200 p-4">
-        {/* 상단: 주문 정보 */}
         <div className="flex items-center justify-between mb-3 pb-3 border-b border-neutral-100">
           <div className="text-xs text-neutral-500">
             <span>주문번호 {id}</span>
-            <span className="mx-2">•</span>
+            <span className="mx-2">|</span>
             <span>{formatTimeAgo(createdAt)}</span>
           </div>
           <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${statusInfo.className}`}>
@@ -181,7 +223,6 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
           </span>
         </div>
 
-        {/* 상품 정보 */}
         <div className="flex gap-4">
           <Link
             to={`/products/${productUuid}`}
@@ -208,19 +249,14 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
             >
               {title}
             </Link>
-            <p className="text-xs text-neutral-500 mt-1">
-              판매자: {sellerNickname}
-            </p>
+            <p className="text-xs text-neutral-500 mt-1">판매자 {sellerNickname}</p>
             <p className="text-base font-bold text-neutral-900 mt-2">
               {formatPrice(totalAmount)}
               {!isApiData && (order as OrderHistory).shippingFee > 0 && (
-                <span className="text-xs font-normal text-neutral-500 ml-1">
-                  (배송비 포함)
-                </span>
+                <span className="text-xs font-normal text-neutral-500 ml-1">(배송비 포함)</span>
               )}
             </p>
 
-            {/* 운송장 정보 (배송중/배송완료/구매확정 시 노출) */}
             {showDelivery && (
               <div className="mt-3 p-3 bg-neutral-50 rounded-lg border border-neutral-100 flex items-center justify-between">
                 <div>
@@ -233,7 +269,12 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
                   size="sm"
                   variant="outline"
                   className="h-8 text-[11px] px-3 border-neutral-300 text-neutral-600 hover:bg-white"
-                  onClick={() => window.open(`https://search.naver.com/search.naver?query=${encodeURIComponent(carrierName ?? '')}+${encodeURIComponent(trackingNumber ?? '')}`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `https://search.naver.com/search.naver?query=${encodeURIComponent(carrierName ?? '')}+${encodeURIComponent(trackingNumber ?? '')}`,
+                      '_blank'
+                    )
+                  }
                 >
                   배송 조회
                 </Button>
@@ -242,7 +283,6 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
           </div>
         </div>
 
-        {/* 액션 버튼 */}
         {(canConfirm || canCancel || canReturn || canRegisterTracking || canResumePayment) && (
           <div className="flex gap-2 mt-4 pt-3 border-t border-neutral-100 flex-wrap">
             {canResumePayment && (
@@ -256,13 +296,18 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
               </Button>
             )}
             {canCancel && (
-              <Button size="sm" variant="outline" onClick={handleCancel} className="flex-1 min-w-[80px]">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowCancelConfirmModal(true)}
+                className="flex-1 min-w-[80px]"
+              >
                 주문 취소
               </Button>
             )}
             {canReturn && (
               <Button size="sm" variant="outline" onClick={() => setShowReturnRequestModal(true)} className="flex-1 min-w-[80px]">
-                반품 신청
+                반품 요청
               </Button>
             )}
             {canRegisterTracking && (
@@ -274,7 +319,6 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
         )}
       </div>
 
-      {/* 리뷰 작성 모달 */}
       <Modal
         isOpen={showReviewModal}
         onClose={() => setShowReviewModal(false)}
@@ -288,7 +332,34 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
         />
       </Modal>
 
-      {/* 반품 신청 모달 */}
+      <Modal
+        isOpen={showCancelConfirmModal}
+        onClose={() => {
+          if (isCancelLoading) return;
+          setShowCancelConfirmModal(false);
+        }}
+        title="주문 취소 확인"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-neutral-700">
+            주문을 취소하시겠어요? 취소 후에는 결제를 다시 진행해야 합니다.
+          </p>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowCancelConfirmModal(false)}
+              disabled={isCancelLoading}
+            >
+              닫기
+            </Button>
+            <Button onClick={handleCancel} disabled={isCancelLoading}>
+              {isCancelLoading ? '취소 중...' : '확인'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       <ReturnRequestModal
         isOpen={showReturnRequestModal}
         onClose={() => setShowReturnRequestModal(false)}
@@ -301,7 +372,6 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
         }}
       />
 
-      {/* 반품 운송장 등록 모달 (반품 신청 성공 후 returnRequestUuid 전달) */}
       {returnRequestUuid && (
         <ReturnTrackingModal
           isOpen={showReturnTrackingModal}
