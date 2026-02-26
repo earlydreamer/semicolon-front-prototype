@@ -19,6 +19,7 @@ interface CategoryItemProps {
   category: CategoryNode;
   depth: number;
   onUnsupportedAction: () => void;
+  onAddCategory: (parentId: number, categoryName: string) => void;
 }
 
 const buildTree = (categories: CategoryResponse[]): CategoryNode[] => {
@@ -53,9 +54,10 @@ const buildTree = (categories: CategoryResponse[]): CategoryNode[] => {
   return rootNodes;
 };
 
-const CategoryItem = ({ category, depth, onUnsupportedAction }: CategoryItemProps) => {
+const CategoryItem = ({ category, depth, onUnsupportedAction, onAddCategory }: CategoryItemProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasChildren = category.children.length > 0;
+  const isMaxDepth = depth >= 2; // 0, 1, 2 = 3 levels max
 
   return (
     <div>
@@ -83,15 +85,22 @@ const CategoryItem = ({ category, depth, onUnsupportedAction }: CategoryItemProp
         </span>
 
         <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
-          <button
-            type="button"
-            onClick={onUnsupportedAction}
-            className="p-1.5 hover:bg-primary-100 rounded text-primary-600"
-            title="하위 카테고리 추가 (백엔드 미지원)"
-            aria-label={`${category.name} 하위 카테고리 추가`}
-          >
-            <Plus className="w-4 h-4" aria-hidden="true" />
-          </button>
+          {!isMaxDepth && (
+            <button
+              type="button"
+              onClick={() => {
+                const name = window.prompt(`'${category.name}' 하위에 추가할 카테고리 이름을 입력하세요:`);
+                if (name?.trim()) {
+                  onAddCategory(category.id, name.trim());
+                }
+              }}
+              className="p-1.5 hover:bg-primary-100 rounded text-primary-600"
+              title="하위 카테고리 추가"
+              aria-label={`${category.name} 하위 카테고리 추가`}
+            >
+              <Plus className="w-4 h-4" aria-hidden="true" />
+            </button>
+          )}
           <button
             type="button"
             onClick={onUnsupportedAction}
@@ -121,6 +130,7 @@ const CategoryItem = ({ category, depth, onUnsupportedAction }: CategoryItemProp
               category={child}
               depth={depth + 1}
               onUnsupportedAction={onUnsupportedAction}
+              onAddCategory={onAddCategory}
             />
           ))}
         </div>
@@ -154,7 +164,22 @@ const CategoryTree = () => {
   }, [loadCategories]);
 
   const handleUnsupportedAction = () => {
-    showToast('카테고리 관리 API가 아직 없어 읽기 전용으로 제공됩니다.', 'info');
+    showToast('수정/삭제 관리는 아직 준비 중이에요.', 'info');
+  };
+
+  const handleAddCategory = async (parentId: number | null = null, name: string) => {
+    try {
+      setIsLoading(true);
+      await productService.createCategory(name, parentId);
+      showToast('카테고리가 생성되었습니다.', 'success');
+      await loadCategories();
+    } catch (error: any) {
+      console.error('Failed to create category:', error);
+      const msg = error.response?.data?.message || '카테고리 생성에 실패했어요.';
+      showToast(msg, 'error');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -164,7 +189,7 @@ const CategoryTree = () => {
           <div className="flex items-start gap-2">
             <AlertCircle className="w-4 h-4 mt-0.5" aria-hidden="true" />
             <p>
-              카테고리 조회는 실데이터 연동 완료됐어요. 추가/수정/삭제는 백엔드 API 미구현으로 준비 중이에요.
+              백엔드 생성이 구현되었습니다. 생성은 가능하지만 수정/삭제는 준비 중입니다.
             </p>
           </div>
         </div>
@@ -173,7 +198,12 @@ const CategoryTree = () => {
           <h3 className="font-semibold text-neutral-900">카테고리 목록</h3>
           <button
             type="button"
-            onClick={handleUnsupportedAction}
+            onClick={() => {
+              const name = window.prompt("최상위 카테고리 이름을 입력하세요:");
+              if (name?.trim()) {
+                handleAddCategory(null, name.trim());
+              }
+            }}
             className="flex items-center gap-2 px-3 py-2 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
           >
             <Plus className="w-4 h-4" aria-hidden="true" />
@@ -201,6 +231,7 @@ const CategoryTree = () => {
               category={category}
               depth={0}
               onUnsupportedAction={handleUnsupportedAction}
+              onAddCategory={(parentId, name) => handleAddCategory(parentId, name)}
             />
           ))
         ) : (
