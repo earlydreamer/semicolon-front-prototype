@@ -25,7 +25,7 @@ interface SellerProductCardProps {
 
 const STATUS_LABELS: Record<SaleStatus, { text: string; className: string }> = {
   ON_SALE: { text: '판매중', className: 'bg-blue-100 text-blue-700' },
-  RESERVED: { text: '예약중', className: 'bg-yellow-100 text-yellow-700' },
+  RESERVED: { text: '거래중', className: 'bg-yellow-100 text-yellow-700' },
   SOLD_OUT: { text: '판매완료', className: 'bg-green-100 text-green-700' },
 };
 
@@ -139,7 +139,7 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
                       disabled={isActionPending}
                       className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100 disabled:opacity-50"
                     >
-                      예약중으로 변경
+                      거래중으로 변경
                     </button>
                   )}
                   {product.saleStatus !== 'SOLD_OUT' && (

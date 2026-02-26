@@ -42,7 +42,7 @@ const OrderItemList = ({ items }: OrderItemListProps) => {
                 {item.title}
               </Link>
               <div className="mt-1 text-xs text-neutral-500">
-                {item.saleStatus === 'RESERVED' ? '예약중' : '판매중'}
+                {item.saleStatus === 'RESERVED' ? '거래중' : '판매중'}
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <span className="font-bold text-neutral-900">

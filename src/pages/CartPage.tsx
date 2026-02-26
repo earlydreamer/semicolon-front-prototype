@@ -60,7 +60,7 @@ const CartPage = () => {
     const selectedItems = getSelectedItems();
     const hasUnavailable = selectedItems.some((item) => item.saleStatus !== 'ON_SALE');
     if (hasUnavailable) {
-      showToast('예약중 또는 판매완료 상품은 주문할 수 없습니다.', 'error');
+      showToast('거래중 또는 판매완료 상품은 주문할 수 없습니다.', 'error');
       return;
     }
     

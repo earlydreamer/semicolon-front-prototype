@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Modal } from '@/components/common/Modal';
 import { Button } from '@/components/common/Button';
 
@@ -19,7 +19,7 @@ export const ReturnActionModal = ({
   description,
   actionType,
   requireReason = false,
-  onSubmit
+  onSubmit,
 }: ReturnActionModalProps) => {
   const [reason, setReason] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +27,7 @@ export const ReturnActionModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (requireReason && !reason.trim()) {
-      return; // 폼 검증 처리는 HTML5 required 속성으로도 처리 가능
+      return;
     }
 
     try {
@@ -35,8 +35,6 @@ export const ReturnActionModal = ({
       await onSubmit(actionType === 'reject' ? reason : undefined);
       setReason('');
       onClose();
-    } catch (error) {
-      console.error('반품 처리 중 오류 발생:', error);
     } finally {
       setIsLoading(false);
     }
@@ -45,9 +43,7 @@ export const ReturnActionModal = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {description && (
-          <p className="text-sm text-neutral-600 mb-4">{description}</p>
-        )}
+        {description && <p className="text-sm text-neutral-600">{description}</p>}
 
         {requireReason && (
           <div>
@@ -57,7 +53,7 @@ export const ReturnActionModal = ({
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="거절 사유를 명확하게 입력해 주세요."
+              placeholder="거절 사유를 입력해 주세요"
               className="w-full h-24 px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
               maxLength={500}
               required

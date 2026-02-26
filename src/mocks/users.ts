@@ -297,7 +297,7 @@ export const getSellerOrders = (sellerId: string): OrderHistory[] =>
 /**
  * 현재 사용자(u1)의 판매 상품 목록
  * - SOLD_OUT: 구매확정된 판매완료 상품
- * - RESERVED: 결제 완료됐지만 구매확정 안 된 상품 (정책: 예약중으로 표시)
+ * - RESERVED: 결제 완료됐지만 구매확정 안 된 상품 (정책: 거래중으로 표시)
  * - ON_SALE: 판매중 상품
  */
 const IMG = {
@@ -372,7 +372,7 @@ export const MOCK_SALES_PRODUCTS = [
     isSafe: true,
   },
   
-  // 예약중 (RESERVED) - 결제 완료됐지만 구매확정 안 된 상품 2개
+  // 거래중 (RESERVED) - 결제 완료됐지만 구매확정 안 된 상품 2개
   {
     id: 'sp4',
     categoryId: 'lens',

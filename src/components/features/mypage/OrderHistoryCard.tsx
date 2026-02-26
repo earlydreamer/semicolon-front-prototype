@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 주문 내역 카드 컴포넌트
  */
 
@@ -17,6 +17,7 @@ import { ReturnRequestModal } from './ReturnRequestModal';
 import { ReturnTrackingModal } from './ReturnTrackingModal';
 import { orderService } from '@/services/orderService';
 import { useOrderStore } from '@/stores/useOrderStore';
+import { openNaverTrackingSearch, validateTrackingNumber } from '@/utils/shippingTracking';
 
 interface OrderHistoryCardProps {
   order: OrderHistory | OrderListResponse;
@@ -39,7 +40,9 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
   const [showReturnRequestModal, setShowReturnRequestModal] = useState(false);
   const [showReturnTrackingModal, setShowReturnTrackingModal] = useState(false);
-  const [returnRequestUuid, setReturnRequestUuid] = useState<string | null>(null);
+  const [returnRequestUuid, setReturnRequestUuid] = useState<string | null>(
+    (order as OrderListResponse).returnRequestUuid ?? null,
+  );
   const [isResumeLoading, setIsResumeLoading] = useState(false);
   const [isCancelLoading, setIsCancelLoading] = useState(false);
 
@@ -65,6 +68,9 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   };
 
   const itemStatus = isApiData ? firstItem?.itemStatus : undefined;
+  const returnStatus = isApiData ? (order as OrderListResponse).returnStatus : undefined;
+  const returnCarrierName = isApiData ? (order as OrderListResponse).returnCarrierName : undefined;
+  const returnTrackingNumber = isApiData ? (order as OrderListResponse).returnTrackingNumber : undefined;
 
   const itemStatusInfo = isApiData && itemStatus
     ? (ORDER_ITEM_STATUS_LABELS[itemStatus] ?? { text: itemStatus, className: 'bg-neutral-100 text-neutral-700' })
@@ -78,6 +84,9 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
     : ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING'].includes(status as string);
 
   const showDelivery = !!trackingNumber && deliveryStatusMatch;
+  const trackingValidation = validateTrackingNumber(undefined, carrierName, trackingNumber);
+  const showReturnTracking = !!returnTrackingNumber;
+  const returnTrackingValidation = validateTrackingNumber(undefined, returnCarrierName, returnTrackingNumber);
 
   const canConfirm = itemStatus === 'DELIVERED' || itemStatus === 'CONFIRM_PENDING';
   const closedItemStatuses = [
@@ -107,9 +116,22 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
     ? !nonCancelableItemStatuses.includes(itemStatus as typeof nonCancelableItemStatuses[number])
     : false;
   const canCancelByOrderStatusFallback = !isClosedItem && (status === 'PENDING' || status === 'PAID');
-  const canCancel = canCancelByItemStatus || canCancelByOrderStatusFallback;
+  // Item status is the source of truth when present; fallback is only for legacy payloads without item status.
+  const canCancel = itemStatus ? canCancelByItemStatus : canCancelByOrderStatusFallback;
   const canReturn = itemStatus === 'DELIVERED';
-  const canRegisterTracking = itemStatus === 'REFUND_REQUESTED' || itemStatus === 'REFUND_IN_PROGRESS';
+  const isWaitingSellerFirstApproval = returnStatus
+    ? returnStatus === 'RETURN_REQUESTED'
+    : itemStatus === 'REFUND_REQUESTED';
+  const canRegisterTracking = returnStatus
+    ? returnStatus === 'RETURN_SELLER_APPROVED'
+    : itemStatus === 'REFUND_IN_PROGRESS';
+  const isReturnTrackingRegistered = !!returnStatus && [
+    'RETURN_SHIPPED',
+    'RETURN_RECEIVED',
+    'RETURN_APPROVED',
+    'RETURN_COMPLETED',
+    'RETURN_REJECTED_AFTER_SHIPMENT',
+  ].includes(returnStatus);
   const canResumePayment = status === 'PENDING' && !isClosedItem;
 
   const orderItemUuid = isApiData ? (order as OrderListResponse).items[0]?.orderItemUuid : undefined;
@@ -118,7 +140,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
     if (!orderItemUuid) return;
     try {
       await orderService.updateOrderItemStatus(orderItemUuid, 'CONFIRMED');
-      showToast('구매를 확정했어요. 리뷰를 남겨 주세요.', 'success');
+      showToast('구매 확정이 완료됐어요. 리뷰를 작성해 주세요.', 'success');
       setShowReviewModal(true);
       onUpdate?.();
     } catch {
@@ -142,7 +164,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
       }
 
       if (!targetOrderItemUuid) {
-        showToast('취소할 주문 상품 정보를 찾을 수 없습니다.', 'error');
+        showToast('취소할 주문 상품 정보를 찾을 수 없어요.', 'error');
         return;
       }
 
@@ -171,7 +193,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
       }
 
       if (!orderDetail.items || orderDetail.items.length === 0) {
-        showToast('주문 상품 정보를 찾을 수 없습니다.', 'error');
+        showToast('주문 상품 정보를 찾을 수 없어요.', 'error');
         return;
       }
 
@@ -207,6 +229,15 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
     } finally {
       setIsResumeLoading(false);
     }
+  };
+
+  const handleOpenReturnTrackingModal = async () => {
+    if (returnRequestUuid) {
+      setShowReturnTrackingModal(true);
+      return;
+    }
+
+    showToast('반품 요청 정보를 찾을 수 없어요. 목록을 새로고침해 주세요.', 'error');
   };
 
   return (
@@ -264,17 +295,53 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
                   <p className="text-xs font-semibold text-neutral-700">
                     {carrierName} {trackingNumber}
                   </p>
+                  {!trackingValidation.valid && (
+                    <p className="mt-1 text-[10px] font-medium text-red-600">
+                      유효하지 않은 운송장
+                    </p>
+                  )}
                 </div>
                 <Button
                   size="sm"
                   variant="outline"
                   className="h-8 text-[11px] px-3 border-neutral-300 text-neutral-600 hover:bg-white"
-                  onClick={() =>
-                    window.open(
-                      `https://search.naver.com/search.naver?query=${encodeURIComponent(carrierName ?? '')}+${encodeURIComponent(trackingNumber ?? '')}`,
-                      '_blank'
-                    )
-                  }
+                  disabled={!trackingValidation.valid}
+                  onClick={() => {
+                    const result = openNaverTrackingSearch(carrierName, trackingNumber);
+                    if (!result.opened) {
+                      showToast(result.hint, 'error');
+                    }
+                  }}
+                >
+                  배송 조회
+                </Button>
+              </div>
+            )}
+
+            {showReturnTracking && (
+              <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-100 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] text-amber-600 font-medium leading-none mb-1">반품 운송장</p>
+                  <p className="text-xs font-semibold text-amber-900">
+                    {returnCarrierName} {returnTrackingNumber}
+                  </p>
+                  {!returnTrackingValidation.valid && (
+                    <p className="mt-1 text-[10px] font-medium text-red-600">
+                      유효하지 않은 운송장
+                    </p>
+                  )}
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-[11px] px-3 border-amber-200 text-amber-700 hover:bg-amber-100"
+                  disabled={!returnTrackingValidation.valid}
+                  onClick={() => {
+                    const result = openNaverTrackingSearch(returnCarrierName, returnTrackingNumber);
+                    if (!result.opened) {
+                      showToast(result.hint, 'error');
+                    }
+                  }}
                 >
                   배송 조회
                 </Button>
@@ -283,7 +350,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
           </div>
         </div>
 
-        {(canConfirm || canCancel || canReturn || canRegisterTracking || canResumePayment) && (
+        {(canConfirm || canCancel || canReturn || canRegisterTracking || canResumePayment || isWaitingSellerFirstApproval) && (
           <div className="flex gap-2 mt-4 pt-3 border-t border-neutral-100 flex-wrap">
             {canResumePayment && (
               <Button size="sm" onClick={handleResumePayment} disabled={isResumeLoading} className="flex-1 min-w-[120px]">
@@ -310,10 +377,26 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
                 반품 요청
               </Button>
             )}
-            {canRegisterTracking && (
-              <Button size="sm" variant="outline" onClick={() => setShowReturnTrackingModal(true)} className="flex-1 min-w-[100px]">
+            {(canRegisterTracking || isWaitingSellerFirstApproval) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleOpenReturnTrackingModal}
+                className="flex-1 min-w-[100px]"
+                disabled={isWaitingSellerFirstApproval}
+              >
                 운송장 등록
               </Button>
+            )}
+            {isWaitingSellerFirstApproval && (
+              <p className="w-full text-center text-xs text-neutral-500">
+                판매자 승인 후 운송장을 등록할 수 있어요.
+              </p>
+            )}
+            {isReturnTrackingRegistered && (
+              <p className="w-full text-center text-xs text-neutral-500">
+                반품 운송장이 등록되었어요.
+              </p>
             )}
           </div>
         )}
@@ -367,7 +450,6 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
         onSuccess={(uuid) => {
           setReturnRequestUuid(uuid);
           setShowReturnRequestModal(false);
-          setShowReturnTrackingModal(true);
           onUpdate?.();
         }}
       />
@@ -377,6 +459,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
           isOpen={showReturnTrackingModal}
           onClose={() => setShowReturnTrackingModal(false)}
           returnRequestUuid={returnRequestUuid}
+          onSuccess={() => onUpdate?.()}
         />
       )}
     </>
@@ -384,3 +467,5 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
 };
 
 export default OrderHistoryCard;
+
+

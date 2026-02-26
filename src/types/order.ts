@@ -76,6 +76,19 @@ export interface OrderResponse {
 
 export interface OrderListResponse {
   orderUuid: string;
+  returnRequestUuid?: string;
+  returnStatus?:
+    | 'RETURN_REQUESTED'
+    | 'RETURN_SELLER_APPROVED'
+    | 'RETURN_SHIPPED'
+    | 'RETURN_RECEIVED'
+    | 'RETURN_APPROVED'
+    | 'RETURN_COMPLETED'
+    | 'RETURN_REJECTED_BEFORE_SHIPMENT'
+    | 'RETURN_REJECTED_AFTER_SHIPMENT'
+    | 'RETURN_REJECTED';
+  returnCarrierName?: string;
+  returnTrackingNumber?: string;
   orderDate: string;
   status: OrderStatus;
   totalAmount: number;
