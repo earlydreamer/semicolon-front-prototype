@@ -41,6 +41,8 @@ export const BannerFormModal = ({
       <div className="space-y-4">
         <Input
           label="제목"
+          data-modal-initial-focus
+          autoFocus
           value={formData.title}
           onChange={(e) => updateForm({ title: e.target.value })}
           placeholder="배너 제목을 입력해 주세요…"

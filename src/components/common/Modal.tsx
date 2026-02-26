@@ -25,7 +25,25 @@ export const Modal = ({ isOpen, onClose, children, title, size = 'md' }: ModalPr
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previousFocusedElementRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  const wasOpenRef = useRef(false);
   const titleId = useId();
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    if (isOpen) {
+      wasOpenRef.current = true;
+      return;
+    }
+
+    if (wasOpenRef.current) {
+      previousFocusedElementRef.current?.focus();
+      wasOpenRef.current = false;
+    }
+  }, [isOpen]);
 
   // 모달이 열렸을 때 body 스크롤 방지
   useEffect(() => {
@@ -42,14 +60,22 @@ export const Modal = ({ isOpen, onClose, children, title, size = 'md' }: ModalPr
   useEffect(() => {
     if (!isOpen) return;
 
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
     previousFocusedElementRef.current = document.activeElement as HTMLElement | null;
 
-    const dialog = dialogRef.current;
-    if (dialog) {
-      const focusableElements = dialog.querySelectorAll<HTMLElement>(
+    const getFocusableElements = () =>
+      dialog.querySelectorAll<HTMLElement>(
         'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
-      (focusableElements[0] ?? closeButtonRef.current)?.focus();
+
+    if (!dialog.contains(document.activeElement)) {
+      const initialFocusTarget =
+        dialog.querySelector<HTMLElement>('[data-modal-initial-focus]') ??
+        getFocusableElements()[0] ??
+        closeButtonRef.current;
+      initialFocusTarget?.focus();
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -57,15 +83,13 @@ export const Modal = ({ isOpen, onClose, children, title, size = 'md' }: ModalPr
 
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
       if (event.key !== 'Tab') return;
 
-      const focusableElements = dialogRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      );
+      const focusableElements = getFocusableElements();
 
       if (focusableElements.length === 0) return;
 
@@ -85,9 +109,8 @@ export const Modal = ({ isOpen, onClose, children, title, size = 'md' }: ModalPr
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      previousFocusedElementRef.current?.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
