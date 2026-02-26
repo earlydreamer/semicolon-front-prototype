@@ -16,6 +16,7 @@ export default function ProductDetailPage() {
 
   const {
     product,
+    isBootstrapping,
     isLoading,
     error,
     categoryPath,
@@ -30,9 +31,9 @@ export default function ProductDetailPage() {
     isOwnPendingReservation,
   } = useProductDetail(rawProductId);
 
-  if (isLoading) {
+  if (isBootstrapping || isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white">
+      <div className="flex h-[50vh] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
       </div>
     );

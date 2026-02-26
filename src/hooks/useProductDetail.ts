@@ -40,19 +40,28 @@ export const useProductDetail = (rawProductId: string | undefined) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [comments, setComments] = useState<ProductComment[]>([]);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [isLikeSubmitting, setIsLikeSubmitting] = useState(false);
   const [pendingOrderUuidForProduct, setPendingOrderUuidForProduct] = useState<string | null>(null);
 
   const productId = useMemo(() => sanitizeUrlParam(rawProductId), [rawProductId]);
 
   useEffect(() => {
-    if (!productId || !isValidId(productId)) return;
+    if (!productId || !isValidId(productId)) {
+      setCategories([]);
+      setComments([]);
+      setIsBootstrapping(false);
+      return;
+    }
+
+    setIsBootstrapping(true);
 
     const loadInitialData = async () => {
       try {
         const [categoryData, commentData] = await Promise.all([
           productService.getCategories(),
           commentService.getProductComments(productId, { page: 0, size: 20 }),
+          fetchProductDetail(productId),
         ]);
 
         const buildTree = (parentId: number | null, depth: number): Category[] =>
@@ -82,10 +91,10 @@ export const useProductDetail = (rawProductId: string | undefined) => {
             })),
           })),
         );
-
-        fetchProductDetail(productId);
       } catch (err) {
         console.error('Failed to load product initial data:', err);
+      } finally {
+        setIsBootstrapping(false);
       }
     };
 
@@ -292,6 +301,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
 
   return {
     product,
+    isBootstrapping,
     isLoading,
     error,
     categoryPath,
