@@ -3,10 +3,18 @@
  */
 
 /** 상품 상태 */
-export type ConditionStatus = 'SEALED' | 'NO_WEAR' | 'MINOR_WEAR' | 'VISIBLE_WEAR' | 'DAMAGED';
+export type ConditionStatus =
+  | "SEALED"
+  | "NO_WEAR"
+  | "MINOR_WEAR"
+  | "VISIBLE_WEAR"
+  | "DAMAGED";
 
 /** 판매 상태 */
-export type SaleStatus = 'ON_SALE' | 'RESERVED' | 'SOLD_OUT' | 'HIDDEN' | 'BLOCKED';
+export type SaleStatus = "ON_SALE" | "RESERVED" | "SOLD_OUT";
+
+/** 가시성 상태 */
+export type VisibilityStatus = "VISIBLE" | "HIDDEN" | "BLOCKED";
 
 /** 판매자 정보 */
 export interface ProductSeller {
@@ -23,7 +31,7 @@ export interface ProductSeller {
 /** 상품 댓글 */
 export interface ProductComment {
   id: number;
-  productId: string;
+  productUuid: string;
   parentId: number | null;
   userId: string;
   user: { nickname: string; avatar?: string };
@@ -32,25 +40,112 @@ export interface ProductComment {
   replies?: ProductComment[];
 }
 
-/** 상품 */
+/** 상품 (Mock 데이터용) */
 export interface Product {
   id: string;
-  categoryId: string;
-  sellerId: string;
+  title: string;
+  price: number;
+  description: string;
+  image: string;
+  images: string[];
+  category: string;
+  categoryId: number;
+  createdAt: string;
+  conditionStatus: ConditionStatus;
+  saleStatus: SaleStatus;
+  visibilityStatus?: VisibilityStatus;
+  shippingFee: number;
+  viewCount: number;
+  likeCount: number;
+  commentCount: number;
+  isSafe: boolean;
+  purchaseDate?: string;
+  usePeriod?: string;
+  detailedCondition?: string;
+  seller: ProductSeller;
+  comments?: ProductComment[];
+}
+
+/**
+ * API 응답용 DTO
+ */
+
+export interface CategoryResponse {
+  id: number;
+  name: string;
+  depth: number;
+  parentId: number | null;
+}
+
+export interface ProductListItem {
+  productUuid: string;
+  title: string;
+  price: number;
+  thumbnailUrl: string | null;
+  tagNames?: string[];
+  likeCount: number;
+  viewCount?: number;
+  commentCount?: number;
+  createdAt?: string;
+  saleStatus?: SaleStatus;
+  visibilityStatus?: VisibilityStatus;
+}
+
+export interface ProductListResponse {
+  items: ProductListItem[];
+  page: number;
+  size: number;
+  totalCount: number;
+  hasNext: boolean;
+  // 구버전 응답 호환 필드
+  content?: ProductListItem[];
+  totalElements?: number;
+  last?: boolean;
+}
+
+export interface ProductDetailResponse {
+  productUuid: string;
+  sellerUuid: string;
   title: string;
   description: string;
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
-  saleStatus: SaleStatus;
-  viewCount: number;
+  saleStatus: "ON_SALE" | "RESERVED" | "SOLD_OUT";
+  visibilityStatus: "VISIBLE" | "HIDDEN" | "BLOCKED";
   likeCount: number;
-  commentCount: number;
-  createdAt: string;
-  updatedAt?: string;
-  image: string;
-  images: string[];
-  isSafe: boolean;
-  seller: ProductSeller;
-  comments?: ProductComment[];
+  viewCount: number;
+  imageUrls: string[];
+  tagNames?: string[];
+  category: {
+    id: number;
+    name: string;
+    depth: number;
+  };
+  seller?: {
+    shopUuid: string;
+    sellerUuid: string;
+    nickname: string;
+    averageRating: number;
+    reviewCount: number;
+  };
+}
+
+export interface ShopResponse {
+  shopUuid: string;
+  nickname: string;
+  intro: string;
+  salesCount: number;
+  activeListingCount: number;
+  averageRating: number;
+  reviewCount: number;
+}
+
+export interface PresignedUrlResponse {
+  presignedUrl?: string;
+  url?: string;
+}
+
+export interface ImageUploadResponse {
+  url: string;
 }

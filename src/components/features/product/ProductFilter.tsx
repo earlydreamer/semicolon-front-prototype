@@ -1,47 +1,27 @@
 /**
- * 상품 필터 컴포넌트
- * 가격대 및 판매 상태 필터 제공 (Desktop/Mobile 모두 지원)
+ * 상품 필터 컴포넌트입니다.
+ * 가격대 및 판매 상태 필터를 데스크톱/모바일에서 제공합니다.
  */
 
-import { SlidersHorizontal, X } from 'lucide-react';
-import type { SaleStatus } from '@/mocks/products';
-import { MOCK_CATEGORIES } from '@/mocks/categories';
-
-export const SALE_STATUS_OPTIONS: { value: SaleStatus | 'all'; label: string }[] = [
-  { value: 'all', label: '전체' },
-  { value: 'ON_SALE', label: '판매중' },
-  { value: 'RESERVED', label: '예약중' },
-  { value: 'SOLD_OUT', label: '판매완료' },
-];
-
-export interface ProductFilterState {
-  minPrice: number;
-  maxPrice: number;
-  status: SaleStatus | 'all';
-  categoryId?: string;
-}
+import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal';
+import X from 'lucide-react/dist/esm/icons/x';
+import type { Category } from '@/types/category';
+import {
+  SALE_STATUS_OPTIONS,
+  getActiveFilterCount,
+  type ProductFilterState,
+} from './productFilterUtils';
 
 interface ProductFilterProps {
   filters: ProductFilterState;
   onFilterChange: (key: keyof ProductFilterState, value: string) => void;
   onClearFilters: () => void;
   showCategoryFilter?: boolean;
+  categories?: Category[];
 }
 
 /**
- * 활성 필터 개수 계산
- */
-export const getActiveFilterCount = (filters: ProductFilterState, showCategory = false): number => {
-  return [
-    showCategory && filters.categoryId,
-    filters.minPrice > 0,
-    filters.maxPrice > 0,
-    filters.status !== 'all',
-  ].filter(Boolean).length;
-};
-
-/**
- * Desktop 사이드바 필터
+ * 데스크톱 사이드바 필터입니다.
  */
 export const DesktopProductFilter = ({
   filters,
@@ -115,12 +95,12 @@ interface MobileFilterButtonProps {
 }
 
 /**
- * 모바일 필터 버튼
+ * 모바일 필터 버튼입니다.
  */
 export const MobileFilterButton = ({ activeFilterCount, onClick }: MobileFilterButtonProps) => (
   <button
     onClick={onClick}
-    className="md:hidden flex items-center gap-1 text-sm text-neutral-600 hover:text-neutral-900"
+    className="flex min-h-9 items-center gap-1 rounded-md px-2 text-xs text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 md:hidden min-[360px]:text-sm"
   >
     <SlidersHorizontal className="w-4 h-4" />
     필터
@@ -139,10 +119,11 @@ interface MobileFilterModalProps {
   onFilterChange: (key: keyof ProductFilterState, value: string) => void;
   onClearFilters: () => void;
   showCategoryFilter?: boolean;
+  categories?: Category[];
 }
 
 /**
- * 모바일 필터 모달 (바텀시트)
+ * 모바일 필터 모달입니다.
  */
 export const MobileFilterModal = ({
   isOpen,
@@ -151,6 +132,7 @@ export const MobileFilterModal = ({
   onFilterChange,
   onClearFilters,
   showCategoryFilter = false,
+  categories = [],
 }: MobileFilterModalProps) => {
   if (!isOpen) return null;
 
@@ -165,7 +147,7 @@ export const MobileFilterModal = ({
         </div>
 
         <div className="p-4 space-y-6">
-          {/* 카테고리 - 옵션 */}
+          {/* 카테고리 */}
           {showCategoryFilter && (
             <div>
               <h3 className="font-semibold mb-3">카테고리</h3>
@@ -178,7 +160,7 @@ export const MobileFilterModal = ({
                 >
                   전체
                 </button>
-                {MOCK_CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => onFilterChange('categoryId', cat.id)}

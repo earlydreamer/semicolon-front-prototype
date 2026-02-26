@@ -21,15 +21,18 @@ const CartSummary = ({ summary }: CartSummaryProps) => {
 
   const handleOrder = () => {
     if (summary.selectedCount === 0) {
-      showToast('주문할 상품을 선택해주세요', 'error');
+      showToast('주문할 상품을 선택해 주세요', 'error');
       return;
     }
-    
-    // 선택된 상품을 주문 Store에 저장
+
     const selectedItems = getSelectedItems();
+    const hasUnavailable = selectedItems.some((item) => item.saleStatus !== 'ON_SALE');
+    if (hasUnavailable) {
+      showToast('거래중 또는 판매완료 상품은 주문할 수 없습니다.', 'error');
+      return;
+    }
+
     setOrderItems(selectedItems);
-    
-    // 주문 페이지로 이동
     navigate('/order');
   };
 
@@ -37,7 +40,6 @@ const CartSummary = ({ summary }: CartSummaryProps) => {
     <div className="bg-white rounded-xl border border-neutral-200 p-5 sticky top-24">
       <h3 className="text-lg font-bold text-neutral-900 mb-4">주문 요약</h3>
 
-      {/* 가격 상세 */}
       <div className="space-y-3 pb-4 border-b border-neutral-200">
         <div className="flex justify-between text-sm">
           <span className="text-neutral-600">선택 상품 ({summary.selectedCount}개)</span>
@@ -54,7 +56,6 @@ const CartSummary = ({ summary }: CartSummaryProps) => {
         </div>
       </div>
 
-      {/* 총 금액 */}
       <div className="flex justify-between items-center py-4 border-b border-neutral-200">
         <span className="text-base font-semibold text-neutral-900">총 결제 예정</span>
         <span className="text-xl font-bold text-primary-600">
@@ -62,7 +63,6 @@ const CartSummary = ({ summary }: CartSummaryProps) => {
         </span>
       </div>
 
-      {/* 주문 버튼 */}
       <button
         type="button"
         onClick={handleOrder}
@@ -73,10 +73,9 @@ const CartSummary = ({ summary }: CartSummaryProps) => {
       >
         {summary.selectedCount > 0
           ? `${summary.selectedCount}개 상품 주문하기`
-          : '상품을 선택해주세요'}
+          : '상품을 선택해 주세요'}
       </button>
 
-      {/* 안내 문구 */}
       <p className="mt-3 text-xs text-neutral-500 text-center">
         주문 시 결제 정보 입력 페이지로 이동합니다
       </p>

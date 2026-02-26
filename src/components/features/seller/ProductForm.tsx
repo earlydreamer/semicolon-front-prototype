@@ -3,28 +3,45 @@
  */
 
 import { useState, useMemo, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import ProductImageUploader from './ProductImageUploader';
-import { MOCK_CATEGORIES } from '@/mocks/categories';
-import type { ConditionStatus } from '@/mocks/products';
+import { productService } from '@/services/productService';
+import { useToast } from '@/components/common/Toast';
+import type { Category } from '@/types/category';
+import type { ConditionStatus } from '@/types/product';
 import { findCategoryPath } from '@/utils/category';
+import type { FieldErrors } from 'react-hook-form';
 
 // Zod 스키마 (location 필드 제거)
 const productSchema = z.object({
-  title: z.string().min(2, '제목은 2자 이상 입력해주세요').max(100, '제목은 100자 이하로 입력해주세요'),
-  categoryId: z.string().min(1, '카테고리를 선택해주세요'),
+  title: z.string().min(2, '제목은 2자 이상 입력해 주세요').max(100, '제목은 100자 이하로 입력해 주세요'),
+  categoryId: z.string().min(1, '카테고리를 선택해 주세요'),
   price: z.number().min(0, '가격은 0원 이상이어야 합니다').max(100000000, '가격이 너무 높습니다'),
   shippingFee: z.number().min(0, '배송비는 0원 이상이어야 합니다'),
   conditionStatus: z.enum(['SEALED', 'NO_WEAR', 'MINOR_WEAR', 'VISIBLE_WEAR', 'DAMAGED'] as const),
   purchaseDate: z.string().optional(),
   usePeriod: z.string().optional(),
   detailedCondition: z.string().optional(),
-  description: z.string().min(10, '설명은 10자 이상 입력해주세요').max(5000, '설명은 5000자 이하로 입력해주세요'),
-  images: z.array(z.string()).min(1, '최소 1장 이상의 이미지를 등록해주세요'),
+  tags: z
+    .array(z.string().trim().min(1).max(30))
+    .max(10, '태그는 최대 10개까지 등록할 수 있어요'),
+  description: z.string().min(10, '설명은 10자 이상 입력해 주세요').max(5000, '설명은 5000자 이하로 입력해 주세요'),
+  images: z
+    .array(z.string())
+    .min(1, '최소 1장 이상의 이미지를 등록해 주세요')
+    .refine(
+      (urls) =>
+        urls.every(
+          (url) =>
+            /^(https?:\/\/|blob:|\/api\/)/.test(url) ||
+            /^products\//.test(url)
+        ),
+      '이미지 주소 형식이 맞지 않아요.'
+    ),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
@@ -32,6 +49,9 @@ export type ProductFormValues = z.infer<typeof productSchema>;
 interface ProductFormProps {
   defaultValues?: Partial<ProductFormValues>;
   onSubmit: (data: ProductFormValues) => void;
+  onImagesChange?: (images: string[]) => void;
+  deferImageUpload?: boolean;
+  onPendingFilesChange?: (files: File[]) => void;
   isLoading?: boolean;
   submitLabel?: string;
 }
@@ -48,6 +68,9 @@ const CONDITION_OPTIONS: { value: ConditionStatus; label: string; description: s
 const ProductForm = ({
   defaultValues,
   onSubmit,
+  onImagesChange,
+  deferImageUpload = false,
+  onPendingFilesChange,
   isLoading = false,
   submitLabel = '등록하기',
 }: ProductFormProps) => {
@@ -56,7 +79,6 @@ const ProductForm = ({
     handleSubmit,
     control,
     formState: { errors },
-    watch,
     setValue,
     trigger,
   } = useForm<ProductFormValues>({
@@ -70,34 +92,96 @@ const ProductForm = ({
       purchaseDate: '',
       usePeriod: '',
       detailedCondition: '',
+      tags: [],
       description: '',
       images: [],
       ...defaultValues,
     },
   });
+  const { showToast } = useToast();
+
+  const extractFirstErrorMessage = (fieldErrors: FieldErrors<ProductFormValues>): string | null => {
+    const stack: unknown[] = [fieldErrors];
+
+    while (stack.length > 0) {
+      const current = stack.shift();
+      if (!current || typeof current !== 'object') {
+        continue;
+      }
+
+      const asRecord = current as Record<string, unknown>;
+      if (typeof asRecord.message === 'string' && asRecord.message.trim()) {
+        return asRecord.message;
+      }
+
+      Object.values(asRecord).forEach((value) => {
+        if (value && typeof value === 'object') {
+          stack.push(value);
+        }
+      });
+    }
+
+    return null;
+  };
+
+  const handleInvalidSubmit = (fieldErrors: FieldErrors<ProductFormValues>) => {
+    const message = extractFirstErrorMessage(fieldErrors) || '입력한 내용을 다시 확인해 주세요.';
+    showToast(message, 'error');
+  };
 
   // 카테고리 상태 관리 (3단계 Cascading)
-  const [largeCategory, setLargeCategory] = useState<string>('');
-  const [mediumCategory, setMediumCategory] = useState<string>('');
-  const [smallCategory, setSmallCategory] = useState<string>('');
+  const [largeCategoryDraft, setLargeCategoryDraft] = useState<string>('');
+  const [mediumCategoryDraft, setMediumCategoryDraft] = useState<string>('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [tagInput, setTagInput] = useState('');
 
-  // 수정 모드 시 초기 카테고리 설정
   useEffect(() => {
-    if (defaultValues?.categoryId) {
-      const path = findCategoryPath(MOCK_CATEGORIES, defaultValues.categoryId);
-      if (path) {
-        if (path[0]) setLargeCategory(path[0].id);
-        if (path[1]) setMediumCategory(path[1].id);
-        if (path[2]) setSmallCategory(path[2].id);
+    const loadCategories = async () => {
+      try {
+        const data = await productService.getCategories();
+        const buildTree = (parentId: number | null, depth: number): Category[] =>
+          data
+            .filter((cat) => cat.parentId === parentId)
+            .map((cat) => ({
+              id: String(cat.id),
+              name: cat.name,
+              depth: Math.min(Math.max(depth, 1), 3) as 1 | 2 | 3,
+              parentId: cat.parentId === null ? null : String(cat.parentId),
+              children: buildTree(cat.id, depth + 1),
+            }));
+
+        setCategories(buildTree(null, 1));
+      } catch (error) {
+        console.error('Failed to load categories:', error);
       }
-    }
-  }, [defaultValues?.categoryId]);
+    };
+
+    loadCategories();
+  }, []);
+
+  const [selectedCategoryId = ''] = useWatch({
+    control,
+    name: ['categoryId'],
+  });
+  const [currentTags = []] = useWatch({
+    control,
+    name: ['tags'],
+  });
+
+  const selectedPath = useMemo(
+    () => findCategoryPath(categories, selectedCategoryId) || [],
+    [categories, selectedCategoryId]
+  );
+
+  const largeCategory = largeCategoryDraft || selectedPath[0]?.id || '';
+  const mediumCategory = mediumCategoryDraft || selectedPath[1]?.id || '';
+  const smallCategory = selectedPath[2]?.id || '';
 
   // 대분류 선택 시 하위 목록 계산
   const mediumCategories = useMemo(() => {
-    const found = MOCK_CATEGORIES.find((cat) => cat.id === largeCategory);
+    const found = categories.find((cat) => cat.id === largeCategory);
     return found?.children || [];
-  }, [largeCategory]);
+  }, [categories, largeCategory]);
 
   // 중분류 선택 시 하위 목록 계산
   const smallCategories = useMemo(() => {
@@ -106,9 +190,30 @@ const ProductForm = ({
   }, [mediumCategory, mediumCategories]);
   
   // 가격 실시간 계산
-  const price = watch('price') || 0;
-  const shippingFee = watch('shippingFee') || 0;
+  const [price = 0, shippingFee = 0] = useWatch({
+    control,
+    name: ['price', 'shippingFee'],
+  });
   const totalPrice = price + shippingFee;
+
+  const addTag = (raw: string) => {
+    const cleaned = raw.trim().replace(/^#/, '');
+    if (!cleaned || currentTags.includes(cleaned)) return;
+    if (currentTags.length >= 10) {
+      showToast('태그는 최대 10개까지 등록할 수 있어요', 'error');
+      return;
+    }
+    setValue('tags', [...currentTags, cleaned], { shouldDirty: true, shouldValidate: true });
+    setTagInput('');
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setValue(
+      'tags',
+      currentTags.filter((tag) => tag !== tagToRemove),
+      { shouldDirty: true, shouldValidate: true }
+    );
+  };
 
   // 음수 방지를 위한 핸들러
   const handlePriceInput = (e: React.FormEvent<HTMLInputElement>) => {
@@ -119,7 +224,7 @@ const ProductForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)} className="space-y-6">
       {/* 이미지 업로더 */}
       <div className="bg-white rounded-2xl border border-neutral-200 p-6">
         <Controller
@@ -128,13 +233,15 @@ const ProductForm = ({
           render={({ field }) => (
             <ProductImageUploader
               images={field.value}
-              onChange={field.onChange}
+              deferUpload={deferImageUpload}
+              onPendingFilesChange={onPendingFilesChange}
+              onChange={(images) => {
+                field.onChange(images);
+                onImagesChange?.(images);
+              }}
             />
           )}
         />
-        {errors.images && (
-          <p className="mt-2 text-sm text-error-600">{errors.images.message}</p>
-        )}
       </div>
 
       {/* 기본 정보 */}
@@ -143,10 +250,56 @@ const ProductForm = ({
         
         <Input
           label="상품명"
-          placeholder="상품명을 입력해주세요"
+          placeholder="상품명을 입력해 주세요"
           error={errors.title?.message}
           {...register('title')}
         />
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-neutral-700">태그</label>
+          <div className="flex gap-2">
+            <Input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                  e.preventDefault();
+                  addTag(tagInput);
+                }
+              }}
+              onBlur={() => {
+                if (tagInput.trim()) addTag(tagInput);
+              }}
+              placeholder="엔터 또는 쉼표로 태그 추가 (예: 아이폰, 미개봉)"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              className="shrink-0"
+              onClick={() => addTag(tagInput)}
+            >
+              추가
+            </Button>
+          </div>
+          {currentTags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {currentTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => removeTag(tag)}
+                  className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-700 hover:bg-neutral-100"
+                  aria-label={`태그 ${tag} 삭제`}
+                >
+                  #{tag} x
+                </button>
+              ))}
+            </div>
+          )}
+          {errors.tags && (
+            <p className="text-sm text-error-600">{errors.tags.message as string}</p>
+          )}
+        </div>
 
         <div className="space-y-4">
           <label className="text-sm font-medium text-neutral-700">카테고리</label>
@@ -156,9 +309,8 @@ const ProductForm = ({
               value={largeCategory}
               onChange={(e) => {
                 const val = e.target.value;
-                setLargeCategory(val);
-                setMediumCategory('');
-                setSmallCategory('');
+                setLargeCategoryDraft(val);
+                setMediumCategoryDraft('');
                 setValue('categoryId', '');
                 trigger('categoryId');
               }}
@@ -166,7 +318,7 @@ const ProductForm = ({
                 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             >
               <option value="">대분류 선택</option>
-              {MOCK_CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
@@ -177,8 +329,7 @@ const ProductForm = ({
               disabled={!largeCategory}
               onChange={(e) => {
                 const val = e.target.value;
-                setMediumCategory(val);
-                setSmallCategory('');
+                setMediumCategoryDraft(val);
                 setValue('categoryId', '');
                 trigger('categoryId');
               }}
@@ -197,8 +348,9 @@ const ProductForm = ({
               disabled={!mediumCategory}
               onChange={(e) => {
                 const val = e.target.value;
-                setSmallCategory(val);
                 setValue('categoryId', val);
+                setLargeCategoryDraft('');
+                setMediumCategoryDraft('');
                 trigger('categoryId');
               }}
               className="h-11 px-3 rounded-md border border-neutral-300 bg-neutral-0 
@@ -339,7 +491,7 @@ const ProductForm = ({
             {...register('description')}
             className="w-full min-h-[200px] px-3 py-2 rounded-md border border-neutral-300 bg-neutral-0 
               text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 resize-y"
-            placeholder="상품에 대한 상세한 설명을 작성해주세요.&#10;&#10;구매 시기, 사용 기간, 하자 여부 등을 포함하면 좋습니다."
+            placeholder="상품에 대한 상세한 설명을 작성해 주세요.&#10;&#10;구매 시기, 사용 기간, 하자 여부 등을 포함하면 좋습니다."
           />
           {errors.description && (
             <p className="text-sm text-error-600">{errors.description.message}</p>
