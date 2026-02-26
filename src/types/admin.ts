@@ -59,7 +59,7 @@ export interface UserAdminProfileResponse {
   userUuid: string;
   email: string;
   nickname: string;
-  role: 'USER' | 'ADMIN';
+  role: 'USER' | 'SELLER' | 'ADMIN';
   status: string;
   statusLabel: string;
   createdAt: string;
@@ -83,7 +83,7 @@ export interface AdminUserListItem {
   email: string;
   nickname: string;
   intro: string | null;
-  role: 'USER' | 'ADMIN';
+  role: 'USER' | 'SELLER' | 'ADMIN';
   status: string;
   statusLabel: string;
   createdAt: string;

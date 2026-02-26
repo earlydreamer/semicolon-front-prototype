@@ -150,11 +150,17 @@ export const AdminUserList = () => {
                         {openMenuId === user.userUuid && (
                           <div className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-neutral-200 z-10">
                             <button
-                              onClick={() => window.open(`/shop/${user.userUuid}`, '_blank')}
+                              onClick={() => {
+                                if (user.role === 'SELLER') {
+                                  window.open(`/shop/${user.userUuid}`, '_blank');
+                                } else {
+                                  alert('판매자 등급이 아닌 일반 회원은 공개 프로필(상점)이 없습니다.');
+                                }
+                              }}
                               className="flex items-center gap-2 w-full px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
                             >
                               <User className="w-4 h-4" />
-                              프로필 보기
+                              상점(프로필) 보기
                             </button>
                             <button
                               onClick={() => handleToggleStatus()}
