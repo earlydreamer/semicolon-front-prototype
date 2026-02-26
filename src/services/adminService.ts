@@ -153,11 +153,11 @@ export const adminService = {
   },
 
   suspendAdminProduct: async (productUuid: string): Promise<void> => {
-    await api.post(`${API_ENDPOINTS.ADMIN_PRODUCTS.BASE}/${productUuid}/suspend`);
+    await api.post(`${API_ENDPOINTS.ADMIN_PRODUCTS.ADMIN_BASE}/${productUuid}/suspend`);
   },
 
   deleteAdminProduct: async (productUuid: string): Promise<void> => {
-    await api.delete(`${API_ENDPOINTS.ADMIN_PRODUCTS.BASE}/${productUuid}`);
+    await api.delete(`${API_ENDPOINTS.ADMIN_PRODUCTS.ADMIN_BASE}/${productUuid}`);
   },
 
   deactivateAdminCoupon: async (couponUuid: string): Promise<void> => {

@@ -84,6 +84,7 @@ export const API_ENDPOINTS = {
   },
   ADMIN_PRODUCTS: {
     BASE: `${API_BASE_URL}/products`,
+    ADMIN_BASE: `${API_BASE_URL}/admin/products`,
     USER_BY_PRODUCT: (productUuid: string) =>
       `${API_BASE_URL}/admin/products/${productUuid}/user`,
   },
