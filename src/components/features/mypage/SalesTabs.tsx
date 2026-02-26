@@ -21,7 +21,7 @@ interface SalesTabsProps {
 const TABS: { key: TabType; label: string }[] = [
   { key: 'all', label: '전체' },
   { key: 'ON_SALE', label: '판매중' },
-  { key: 'RESERVED', label: '예약중' },
+  { key: 'RESERVED', label: '거래중' },
   { key: 'SOLD_OUT', label: '판매완료' },
 ];
 

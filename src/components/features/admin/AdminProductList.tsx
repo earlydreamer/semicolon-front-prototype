@@ -64,7 +64,7 @@ const AdminProductList = () => {
           >
             <option value="all">전체 상태</option>
             <option value="ON_SALE">판매중</option>
-            <option value="RESERVED">예약중</option>
+            <option value="RESERVED">거래중</option>
             <option value="SOLD_OUT">판매완료</option>
           </select>
         </div>
