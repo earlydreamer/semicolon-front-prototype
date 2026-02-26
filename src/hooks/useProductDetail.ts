@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+﻿import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { sanitizeUrlParam, isValidId } from "@/utils/sanitize";
 import { findCategoryPath } from "@/utils/category";
@@ -21,7 +21,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
   const { showToast } = useToast();
   const { user, isAuthenticated } = useAuthStore();
   const addToCart = useCartStore((state) => state.addItem);
-  const { isLiked: checkIsLiked, toggleLike } = useLikeStore();
+  const { isLiked: checkIsLiked, toggleLike, fetchUserLikes } = useLikeStore();
   const {
     clearOrder,
     orderUuid,
@@ -45,6 +45,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [comments, setComments] = useState<ProductComment[]>([]);
+  const [isLikeSubmitting, setIsLikeSubmitting] = useState(false);
   const [pendingOrderUuidForProduct, setPendingOrderUuidForProduct] = useState<
     string | null
   >(null);
@@ -54,7 +55,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
     [rawProductId],
   );
 
-  // 병렬 데이터 페칭 (Waterfall 제거)
+  // 蹂묐젹 ?곗씠???섏묶 (Waterfall ?쒓굅)
   useEffect(() => {
     if (!productId || !isValidId(productId)) return;
 
@@ -65,7 +66,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
           commentService.getProductComments(productId, { page: 0, size: 20 }),
         ]);
 
-        // 카테고리 트리 빌드
+        // 移댄뀒怨좊━ ?몃━ 鍮뚮뱶
         const buildTree = (
           parentId: number | null,
           depth: number,
@@ -81,7 +82,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
             }));
         setCategories(buildTree(null, 1));
 
-        // 댓글 데이터 가공
+        // ?볤? ?곗씠??媛怨?
         setComments(
           (commentData.items || []).map((thread: CommentThreadResponse) => ({
               id: thread.parent.commentUuid,
@@ -98,7 +99,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
           ),
         );
 
-        // 상품 상세 정보는 Store를 통해 별도로 유지 (기존 아키텍처 존중)
+        // ?곹뭹 ?곸꽭 ?뺣낫??Store瑜??듯빐 蹂꾨룄濡??좎? (湲곗〈 ?꾪궎?띿쿂 議댁쨷)
         fetchProductDetail(productId);
       } catch (err) {
         console.error("Failed to load product initial data:", err);
@@ -136,15 +137,20 @@ export const useProductDetail = (rawProductId: string | undefined) => {
     };
   }, [apiProduct, comments]);
 
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) {
+      return;
+    }
+
+    void fetchUserLikes(user.id);
+  }, [isAuthenticated, user?.id, fetchUserLikes]);
+
   const categoryPath = useMemo(
     () => findCategoryPath(categories, String(product?.categoryId || "")) || [],
     [categories, product?.categoryId],
   );
 
-  const isLiked = useMemo(
-    () => (productId && user ? checkIsLiked(user.id, productId) : false),
-    [productId, user, checkIsLiked],
-  );
+  const isLiked = productId && user ? checkIsLiked(user.id, productId) : false;
 
   useEffect(() => {
     const findMyPendingOrder = async () => {
@@ -174,19 +180,30 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       showToast("로그인이 필요합니다.", "error");
       return;
     }
+    if (isLikeSubmitting) return;
 
-    await toggleLike(user.id, productId);
-    showToast(
-      !isLiked ? "찜 목록에 추가했어요." : "찜을 해제했어요.",
-      !isLiked ? "success" : "info",
-    );
-  }, [productId, user, isLiked, toggleLike, showToast]);
-
+    setIsLikeSubmitting(true);
+    try {
+      const nextLike = await toggleLike(user.id, productId);
+      const nextIsLiked = nextLike.isLiked;
+      showToast(
+        nextIsLiked ? "찜 목록에 추가했어요." : "찜을 해제했어요.",
+        nextIsLiked ? "success" : "info",
+      );
+    } catch {
+      showToast(
+        "찜 처리에 실패했습니다. 잠시 후 다시 시도해주세요.",
+        "error",
+      );
+    } finally {
+      setIsLikeSubmitting(false);
+    }
+  }, [productId, user, toggleLike, showToast, isLikeSubmitting]);
   const handleAddToCart = useCallback(async () => {
     if (!product) return;
     const added = await addToCart(product.id);
     showToast(
-      added ? "장바구니에 추가했어요." : "이미 장바구니에 있어요.",
+      added ? "?λ컮援щ땲??異붽??덉뼱??" : "?대? ?λ컮援щ땲???덉뼱??",
       added ? "success" : "info",
     );
   }, [product, addToCart, showToast]);
@@ -194,7 +211,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
   const handlePurchase = useCallback(() => {
     if (!product) return;
     if (!product.seller.sellerUserUuid) {
-      showToast("판매자 정보가 없어 주문을 진행할 수 없습니다.", "error");
+      showToast("?먮ℓ???뺣낫媛 ?놁뼱 二쇰Ц??吏꾪뻾?????놁뒿?덈떎.", "error");
       return;
     }
 
@@ -232,7 +249,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
     }
 
     if (!pendingOrderUuidForProduct) {
-      showToast("거래중인 상품입니다.", "error");
+      showToast("嫄곕옒以묒씤 ?곹뭹?낅땲??", "error");
       return;
     }
 
@@ -242,7 +259,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
           pendingOrderUuidForProduct,
         );
         if (orderDetail.orderStatus !== "PENDING") {
-          showToast("이미 처리된 주문입니다.", "info");
+          showToast("?대? 泥섎━??二쇰Ц?낅땲??", "info");
           return;
         }
 
@@ -275,7 +292,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
         setDepositUseAmount(0);
         navigate("/checkout");
       } catch {
-        showToast("결제 페이지로 이동하지 못했어요.", "error");
+        showToast("寃곗젣 ?섏씠吏濡??대룞?섏? 紐삵뻽?댁슂.", "error");
       }
     })();
   }, [
@@ -312,3 +329,4 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       product?.saleStatus === "RESERVED" && !!pendingOrderUuidForProduct,
   };
 };
+

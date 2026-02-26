@@ -1,18 +1,17 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { userService } from '../services/userService';
-import type { LikedProductItem } from '../services/userService';
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { userService } from "../services/userService";
+import type { LikedProductItem } from "../services/userService";
 
 interface LikeState {
-  // 유저별 찜 목록: { [userId: string]: string[] }
   userLikes: Record<string, string[]>;
-  
-  // Actions
-  toggleLike: (userId: string, productUuid: string) => Promise<void>;
+
+  toggleLike: (
+    userId: string,
+    productUuid: string,
+  ) => Promise<{ isLiked: boolean }>;
   isLiked: (userId: string, productUuid: string) => boolean;
   fetchUserLikes: (userId: string) => Promise<void>;
-  
-  // Computed
   getLikedCount: (userId: string) => number;
 }
 
@@ -20,24 +19,45 @@ export const useLikeStore = create<LikeState>()(
   persist(
     (set, get) => ({
       userLikes: {},
-      
+
       fetchUserLikes: async (userId: string) => {
         try {
-          const response = await userService.getLikedProducts();
-          const likedProducts: LikedProductItem[] = response.items ?? response.content ?? [];
-          const likedProductUuids = likedProducts.map((p) => p.productUuid);
+          // 단건 대용량 조회로 요청 폭주를 피하면서 누락 가능성을 줄인다.
+          const response = await userService.getLikedProducts(0, 200);
+          const likedProducts: LikedProductItem[] =
+            response.items ?? response.content ?? [];
+          const uniqueLikedProductUuids = Array.from(
+            new Set(likedProducts.map((p) => p.productUuid)),
+          );
+
           set((state) => ({
-            userLikes: { ...state.userLikes, [userId]: likedProductUuids }
+            ...state,
+            userLikes: {
+              ...state.userLikes,
+              [userId]: uniqueLikedProductUuids,
+            },
           }));
         } catch (error) {
-          console.error('Fetch user likes failed:', error);
+          console.error("Fetch user likes failed:", error);
         }
       },
 
       toggleLike: async (userId: string, productUuid: string) => {
-        const currentLikes = get().userLikes[userId] || [];
-        const isCurrentlyLiked = currentLikes.includes(productUuid);
-        
+        const previousLikes = get().userLikes[userId] || [];
+        const isCurrentlyLiked = previousLikes.includes(productUuid);
+        const nextLiked = !isCurrentlyLiked;
+        const nextLikes = nextLiked
+          ? Array.from(new Set([...previousLikes, productUuid]))
+          : previousLikes.filter((id) => id !== productUuid);
+
+        set((state) => ({
+          ...state,
+          userLikes: {
+            ...state.userLikes,
+            [userId]: nextLikes,
+          },
+        }));
+
         try {
           if (isCurrentlyLiked) {
             await userService.unlikeProduct(productUuid);
@@ -45,34 +65,38 @@ export const useLikeStore = create<LikeState>()(
             await userService.likeProduct(productUuid);
           }
 
-          // Update local state after successful API call
-          let newLikes: string[];
-          if (isCurrentlyLiked) {
-            newLikes = currentLikes.filter((id) => id !== productUuid);
-          } else {
-            newLikes = [...currentLikes, productUuid];
-          }
+          // 서버 상태를 다시 동기화해서 누락/불일치 방지
+          void get().fetchUserLikes(userId);
 
-          set((state) => ({
-            userLikes: { ...state.userLikes, [userId]: newLikes }
-          }));
+          return {
+            isLiked: nextLiked,
+          };
         } catch (error) {
-          console.error('Toggle like failed:', error);
+          // 실패 시 즉시 롤백
+          set((state) => ({
+            ...state,
+            userLikes: {
+              ...state.userLikes,
+              [userId]: previousLikes,
+            },
+          }));
+
           throw error;
         }
       },
-      
+
       isLiked: (userId: string, productUuid: string) => {
         return (get().userLikes[userId] || []).includes(productUuid);
       },
-      
+
       getLikedCount: (userId: string) => {
         return (get().userLikes[userId] || []).length;
       },
     }),
     {
-      name: 'like-storage-v2',
+      name: "like-storage-v2",
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+      partialize: (state) => ({ userLikes: state.userLikes }),
+    },
+  ),
 );
