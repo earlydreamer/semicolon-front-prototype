@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 // AI API 통신을 위한 인터페이스 정의
