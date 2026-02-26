@@ -49,6 +49,15 @@ export const returnService = {
   },
 
   /**
+   * [판매자] 반송품 수령 확인
+   * POST /api/v1/returns/{returnRequestUuid}/seller-receive
+   */
+  receiveBySeller: async (returnRequestUuid: string): Promise<ReturnResponse> => {
+    const response = await api.post<ReturnResponse>(`${API_ENDPOINTS.RETURNS.BASE}/${returnRequestUuid}/seller-receive`);
+    return response.data;
+  },
+
+  /**
    * [판매자] 환불 최종 승인
    * POST /api/v1/returns/{returnRequestUuid}/final-approve
    */
@@ -73,5 +82,5 @@ export const returnService = {
   getSellerReturns: async (): Promise<SellerReturnResponse[]> => {
     const response = await api.get<SellerReturnResponse[]>(`${API_ENDPOINTS.RETURNS.BASE}/me/sales`);
     return response.data;
-  }
+  },
 };

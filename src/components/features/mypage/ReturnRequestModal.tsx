@@ -38,7 +38,7 @@ export const ReturnRequestModal = ({ isOpen, onClose, order, onSuccess }: Return
         reason,
         orderItemUuids: selectedItems,
       });
-      showToast('반품 신청이 완료됐어요. 반품 송장을 등록해 주세요.', 'success');
+      showToast('반품 요청이 접수됐어요. 판매자 승인 후 운송장을 등록해 주세요.', 'success');
       onSuccess?.(result.returnRequestUuid);
       onClose();
     } catch (error) {
