@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useSellerStore } from '@/stores/useSellerStore';
 import { useToast } from '@/components/common/Toast';
 import ProductForm, { type ProductFormValues } from '@/components/features/seller/ProductForm';
+import { productService } from '@/services/productService';
 
 const ProductRegisterPage = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const ProductRegisterPage = () => {
   const { addProduct } = useSellerStore();
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -27,24 +29,33 @@ const ProductRegisterPage = () => {
   const handleSubmit = async (data: ProductFormValues) => {
     try {
       setIsLoading(true);
+      if (pendingFiles.length === 0) {
+        throw new Error('No pending images to upload');
+      }
+
+      const uploadedImageUrls = await Promise.all(
+        pendingFiles.map((file) => productService.uploadImageViaBackend(file)),
+      );
+
       await addProduct({
         title: data.title,
         categoryId: data.categoryId,
         price: data.price,
         shippingFee: data.shippingFee,
         conditionStatus: data.conditionStatus,
+        tags: data.tags,
         purchaseDate: data.purchaseDate,
         usePeriod: data.usePeriod,
         detailedCondition: data.detailedCondition,
         description: data.description,
-        images: data.images,
+        images: uploadedImageUrls,
       });
 
-      showToast('상품이 등록되었습니다', 'success');
+      showToast('상품이 등록됐어요', 'success');
       navigate('/seller');
     } catch (error) {
       console.error('Failed to add product:', error);
-      showToast('상품 등록에 실패했습니다', 'error');
+      showToast('상품 등록에 실패했어요', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +81,13 @@ const ProductRegisterPage = () => {
       </div>
 
       {/* 폼 */}
-      <ProductForm onSubmit={handleSubmit} submitLabel="등록하기" isLoading={isLoading} />
+      <ProductForm
+        onSubmit={handleSubmit}
+        submitLabel="등록하기"
+        isLoading={isLoading}
+        deferImageUpload
+        onPendingFilesChange={setPendingFiles}
+      />
     </div>
   );
 };

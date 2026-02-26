@@ -65,11 +65,11 @@ const AdminDashboardPage = () => {
         />
         <div className="relative">
           <p className="inline-flex items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
-            Admin Landing
+            운영 시작 화면
           </p>
           <h1 className="mt-3 text-2xl font-bold tracking-tight text-neutral-900 lg:text-3xl">운영 대시보드</h1>
           <p className="mt-2 max-w-2xl text-sm text-neutral-600 lg:text-base">
-            관리자 핵심 메뉴와 운영 도구를 한 곳에서 이동할 수 있는 허브입니다. 현재 운영 흐름에 맞춰 메뉴를 빠르게 선택하세요.
+            관리자 핵심 메뉴와 운영 도구를 한 곳에서 빠르게 확인할 수 있어요. 필요한 메뉴를 바로 선택해 보세요.
           </p>
         </div>
       </section>

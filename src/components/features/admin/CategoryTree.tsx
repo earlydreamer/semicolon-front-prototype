@@ -143,7 +143,7 @@ const CategoryTree = () => {
       setCategories(buildTree(categoryList));
     } catch (error) {
       console.error('Failed to load categories:', error);
-      setErrorMessage('카테고리 목록을 불러오지 못했습니다.');
+      setErrorMessage('카테고리 목록을 불러오지 못했어요.');
     } finally {
       setIsLoading(false);
     }
@@ -164,7 +164,7 @@ const CategoryTree = () => {
           <div className="flex items-start gap-2">
             <AlertCircle className="w-4 h-4 mt-0.5" aria-hidden="true" />
             <p>
-              카테고리 조회는 실데이터 연동 완료되었습니다. 추가/수정/삭제는 백엔드 API 미구현으로 준비중입니다.
+              카테고리 조회는 실데이터 연동 완료됐어요. 추가/수정/삭제는 백엔드 API 미구현으로 준비 중이에요.
             </p>
           </div>
         </div>
@@ -185,7 +185,7 @@ const CategoryTree = () => {
       <div className="p-4">
         {isLoading ? (
           <div className="py-8 text-center text-sm text-neutral-500" role="status" aria-live="polite">
-            카테고리를 불러오는 중입니다…
+            카테고리를 불러오는 중이에요…
           </div>
         ) : errorMessage ? (
           <div className="py-8 text-center space-y-3">

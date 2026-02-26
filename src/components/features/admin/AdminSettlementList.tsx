@@ -50,8 +50,8 @@ export function AdminSettlementList() {
       setStatistics(settlementStats);
     } catch (error) {
       console.error('Failed to load admin settlements:', error);
-      setErrorMessage('정산 데이터를 불러오지 못했습니다.');
-      showToast('정산 데이터를 불러오지 못했습니다.', 'error');
+      setErrorMessage('정산 데이터를 불러오지 못했어요.');
+      showToast('정산 데이터를 불러오지 못했어요.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +130,7 @@ export function AdminSettlementList() {
       <div className="bg-white rounded-lg border border-neutral-200 overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-neutral-500" role="status" aria-live="polite">
-            정산 데이터를 불러오는 중입니다…
+            정산 데이터를 불러오는 중이에요…
           </div>
         ) : errorMessage ? (
           <div className="p-8 text-center space-y-3">

@@ -95,7 +95,7 @@ export const CouponFormPanel = ({
         </div>
 
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-          비활성화/삭제 기능은 준비중입니다.
+          비활성화/삭제 기능은 준비 중이에요.
         </div>
 
         <div className="flex gap-2">

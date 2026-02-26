@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import Search from 'lucide-react/dist/esm/icons/search';
 import Wallet from 'lucide-react/dist/esm/icons/wallet';
@@ -19,7 +19,6 @@ const ORDER_ITEM_STATUSES: OrderItemStatus[] = [
   'PREPARING_SHIPMENT',
   'SHIPPED',
   'DELIVERED',
-  'CONFIRM_PENDING',
   'CONFIRMED',
   'CANCEL_REQUESTED',
   'CANCEL_IN_PROGRESS',
@@ -56,8 +55,7 @@ export default function AdminTestToolsPage() {
   const [isGrantingDeposit, setIsGrantingDeposit] = useState(false);
   const [isIssuingCoupon, setIsIssuingCoupon] = useState(false);
   const [isLoadingOrder, setIsLoadingOrder] = useState(false);
-  const [isUpdatingOrderItemStatus, setIsUpdatingOrderItemStatus] = useState(false);
-  const [isUpdatingOrderStatus, setIsUpdatingOrderStatus] = useState(false);
+  const [isUpdatingOrderStatuses, setIsUpdatingOrderStatuses] = useState(false);
 
   const { showToast } = useToast();
 
@@ -77,7 +75,7 @@ export default function AdminTestToolsPage() {
   const handleLookupUser = async (event: FormEvent) => {
     event.preventDefault();
     if (!email.trim()) {
-      showToast('이메일을 입력해주세요.', 'error');
+      showToast('이메일을 입력해 주세요.', 'error');
       return;
     }
 
@@ -88,7 +86,7 @@ export default function AdminTestToolsPage() {
       showToast('대상 사용자 조회 완료', 'success');
     } catch (error) {
       setTargetUser(null);
-      showToast(parseHttpError(error, '사용자 조회에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '사용자 조회에 실패했어요.'), 'error');
     } finally {
       setIsLookingUp(false);
     }
@@ -97,7 +95,7 @@ export default function AdminTestToolsPage() {
   const handleGrantDeposit = async (event: FormEvent) => {
     event.preventDefault();
     if (!targetUser) {
-      showToast('먼저 사용자 이메일 조회를 완료해주세요.', 'error');
+      showToast('먼저 사용자 이메일 조회를 완료해 주세요.', 'error');
       return;
     }
     if (!Number.isFinite(depositAmount) || depositAmount <= 0) {
@@ -110,7 +108,7 @@ export default function AdminTestToolsPage() {
       await adminTestService.grantDepositToUser(targetUser.userUuid, depositAmount);
       showToast('예치금 지급 요청 완료', 'success');
     } catch (error) {
-      showToast(parseHttpError(error, '예치금 지급에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '예치금 지급에 실패했어요.'), 'error');
     } finally {
       setIsGrantingDeposit(false);
     }
@@ -119,11 +117,11 @@ export default function AdminTestToolsPage() {
   const handleIssueCoupon = async (event: FormEvent) => {
     event.preventDefault();
     if (!targetUser) {
-      showToast('먼저 사용자 이메일 조회를 완료해주세요.', 'error');
+      showToast('먼저 사용자 이메일 조회를 완료해 주세요.', 'error');
       return;
     }
     if (!selectedCouponUuid) {
-      showToast('지급할 쿠폰을 선택해주세요.', 'error');
+      showToast('지급할 쿠폰을 선택해 주세요.', 'error');
       return;
     }
 
@@ -132,7 +130,7 @@ export default function AdminTestToolsPage() {
       await adminTestService.issueCouponToUser(selectedCouponUuid, targetUser.userUuid);
       showToast('쿠폰 지급 요청 완료', 'success');
     } catch (error) {
-      showToast(parseHttpError(error, '쿠폰 지급에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '쿠폰 지급에 실패했어요.'), 'error');
     } finally {
       setIsIssuingCoupon(false);
     }
@@ -141,7 +139,7 @@ export default function AdminTestToolsPage() {
   const handleFindOrder = async (event: FormEvent) => {
     event.preventDefault();
     if (!orderUuid.trim()) {
-      showToast('주문 UUID를 입력해주세요.', 'error');
+      showToast('주문 UUID를 입력해 주세요.', 'error');
       return;
     }
 
@@ -150,57 +148,48 @@ export default function AdminTestToolsPage() {
       const order = await orderService.getOrder(orderUuid.trim());
       setOrderDetail(order);
       setSelectedOrderItemUuid(order.items[0]?.orderItemUuid ?? '');
+      setSelectedOrderItemStatus(order.items[0]?.itemStatus ?? 'SHIPPED');
       setSelectedOrderStatus(order.orderStatus);
       showToast('주문 조회 완료', 'success');
     } catch (error) {
       setOrderDetail(null);
       setSelectedOrderItemUuid('');
-      showToast(parseHttpError(error, '주문 조회에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '주문 조회에 실패했어요.'), 'error');
     } finally {
       setIsLoadingOrder(false);
     }
   };
 
-  const handleUpdateOrderItemStatus = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!selectedOrderItemUuid) {
-      showToast('주문 아이템을 선택해주세요.', 'error');
-      return;
-    }
-
-    setIsUpdatingOrderItemStatus(true);
-    try {
-      await orderService.updateOrderItemStatus(selectedOrderItemUuid, selectedOrderItemStatus);
-      showToast('주문 아이템 상태 변경 완료', 'success');
-      if (orderDetail) {
-        const refreshed = await orderService.getOrder(orderDetail.orderUuid);
-        setOrderDetail(refreshed);
-      }
-    } catch (error) {
-      showToast(parseHttpError(error, '주문 상태 변경에 실패했습니다.'), 'error');
-    } finally {
-      setIsUpdatingOrderItemStatus(false);
-    }
-  };
-
-  const handleUpdateOrderStatus = async (event: FormEvent) => {
+  const handleUpdateOrderStatuses = async (event: FormEvent) => {
     event.preventDefault();
     if (!orderDetail) {
-      showToast('먼저 주문 조회를 완료해주세요.', 'error');
+      showToast('먼저 주문 조회를 완료해 주세요.', 'error');
+      return;
+    }
+    if (!selectedOrderItemUuid) {
+      showToast('주문 아이템을 선택해 주세요.', 'error');
       return;
     }
 
-    setIsUpdatingOrderStatus(true);
+    setIsUpdatingOrderStatuses(true);
     try {
-      await adminTestService.updateOrderStatus(orderDetail.orderUuid, selectedOrderStatus);
-      showToast('주문 전체 상태 변경 완료', 'success');
+      await Promise.all([
+        orderService.updateOrderItemStatus(selectedOrderItemUuid, selectedOrderItemStatus),
+        adminTestService.updateOrderStatus(orderDetail.orderUuid, selectedOrderStatus),
+      ]);
+
       const refreshed = await orderService.getOrder(orderDetail.orderUuid);
       setOrderDetail(refreshed);
       setSelectedOrderStatus(refreshed.orderStatus);
+      const refreshedItem = refreshed.items.find((item) => item.orderItemUuid === selectedOrderItemUuid);
+      if (refreshedItem) {
+        setSelectedOrderItemStatus(refreshedItem.itemStatus);
+      }
+      showToast('주문/주문아이템 상태 동시 변경 완료', 'success');
     } catch (error) {
-      showToast(parseHttpError(error, '주문 전체 상태 변경에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '주문 상태 동시 변경에 실패했어요.'), 'error');
     } finally {
-      setIsUpdatingOrderStatus(false);
+      setIsUpdatingOrderStatuses(false);
     }
   };
 
@@ -208,11 +197,11 @@ export default function AdminTestToolsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">테스트 도구</h1>
-        <p className="text-neutral-500 mt-1">이메일 기준으로 사용자를 찾고 테스트 지급 작업을 실행합니다.</p>
+        <p className="text-neutral-500 mt-1">이메일 기반으로 사용자를 찾고 테스트 지급 작업을 실행합니다.</p>
       </div>
 
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-        임시 운영 페이지입니다. 운영 환경에서는 내부 API 접근 정책을 먼저 확인해주세요.
+        임시 운영 페이지입니다. 운영 환경에서는 내부 API 연동 정책을 먼저 확인해 주세요.
       </div>
 
       <section className="rounded-xl border border-neutral-200 bg-white p-5">
@@ -352,7 +341,7 @@ export default function AdminTestToolsPage() {
               </p>
             </div>
 
-            <form onSubmit={handleUpdateOrderStatus} className="space-y-3 rounded-lg border border-neutral-200 bg-white p-3">
+            <form onSubmit={handleUpdateOrderStatuses} className="space-y-3 rounded-lg border border-neutral-200 bg-white p-3">
               <div>
                 <label htmlFor="target-order-status" className="block text-sm font-medium text-neutral-700 mb-1">
                   변경할 주문 전체 상태
@@ -372,12 +361,6 @@ export default function AdminTestToolsPage() {
                 </select>
               </div>
 
-              <Button type="submit" isLoading={isUpdatingOrderStatus}>
-                주문 상태 변경 실행
-              </Button>
-            </form>
-
-            <form onSubmit={handleUpdateOrderItemStatus} className="space-y-3">
               <div>
                 <label htmlFor="target-order-item" className="block text-sm font-medium text-neutral-700 mb-1">
                   주문 아이템
@@ -385,7 +368,14 @@ export default function AdminTestToolsPage() {
                 <select
                   id="target-order-item"
                   value={selectedOrderItemUuid}
-                  onChange={(event) => setSelectedOrderItemUuid(event.target.value)}
+                  onChange={(event) => {
+                    const nextOrderItemUuid = event.target.value;
+                    setSelectedOrderItemUuid(nextOrderItemUuid);
+                    const selectedItem = orderDetail.items.find((item) => item.orderItemUuid === nextOrderItemUuid);
+                    if (selectedItem) {
+                      setSelectedOrderItemStatus(selectedItem.itemStatus);
+                    }
+                  }}
                   className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
                   required
                 >
@@ -417,8 +407,8 @@ export default function AdminTestToolsPage() {
                 </select>
               </div>
 
-              <Button type="submit" isLoading={isUpdatingOrderItemStatus}>
-                상태 변경 실행
+              <Button type="submit" isLoading={isUpdatingOrderStatuses}>
+                주문/주문아이템 상태 동시 변경 실행
               </Button>
             </form>
           </div>

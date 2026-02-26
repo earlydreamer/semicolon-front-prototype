@@ -98,7 +98,7 @@ export function AiChatWidget() {
           console.error('Chat error:', error);
           const errorMessage = error instanceof Error && error.message.includes('401')
             ? '로그인이 필요한 서비스입니다.'
-            : '오류가 발생했습니다. 다시 시도해주세요.';
+            : '문제가 생겼어요. 다시 시도해 주세요.';
             
           setMessages(prev => prev.map(msg => 
             msg.id === aiMessageId

@@ -6,6 +6,7 @@ import { formatTimeAgo } from '@/utils/date';
 import { SALE_STATUS_LABELS } from '@/constants';
 import { useLikeStore } from '@/stores/useLikeStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useToast } from '@/components/common/Toast';
 
 interface ProductCardProps {
   product: Product | ProductListItem;
@@ -21,6 +22,9 @@ const getProductSaleStatus = (product: Product | ProductListItem) => product.sal
 
 const getProductCreatedAt = (product: Product | ProductListItem) => product.createdAt ?? new Date().toISOString();
 
+const getProductTags = (product: Product | ProductListItem) =>
+  'tagNames' in product ? (product.tagNames ?? []) : [];
+
 export function ProductCard({ product }: ProductCardProps) {
   // 대응 필드 추출 (API vs Mock)
   const id = getProductId(product);
@@ -29,19 +33,34 @@ export function ProductCard({ product }: ProductCardProps) {
   const image = getProductImage(product);
   const saleStatus = getProductSaleStatus(product);
   const createdAt = getProductCreatedAt(product);
+  const tags = getProductTags(product);
+  const visibleTags = tags.slice(0, 2);
   
   const isUnavailable = saleStatus === 'SOLD_OUT' || saleStatus === 'RESERVED';
   const { user } = useAuthStore();
   const { isLiked, toggleLike } = useLikeStore();
+  const { showToast } = useToast();
   
   const userId = user?.userUuid ?? user?.id;
   const liked = userId ? isLiked(userId, id) : false;
 
-    const handleLikeClick = (e: React.MouseEvent) => {
+    const handleLikeClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!userId) return;
-    toggleLike(userId, id);
+    if (!userId) {
+      showToast('로그인이 필요합니다.', 'error');
+      return;
+    }
+
+    try {
+      await toggleLike(userId, id);
+      showToast(
+        liked ? '찜을 해제했어요.' : '찜 목록에 추가했어요.',
+        liked ? 'info' : 'success'
+      );
+    } catch {
+      showToast('찜 처리에 실패했어요. 잠시 후 다시 시도해 주세요.', 'error');
+    }
   };
 
   return (
@@ -100,7 +119,22 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Content */}
         <div className="flex flex-col gap-1 p-3">
-          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium text-neutral-900">
+          <div className="min-h-[1.5rem]">
+            {visibleTags.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {visibleTags.map((tag) => (
+                  <span
+                    key={`${id}-${tag}`}
+                    className="rounded-full bg-primary-50 px-2 py-0.5 text-[11px] font-medium text-primary-700"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <h3 className="line-clamp-2 min-h-[2.5rem] text-lg font-medium text-neutral-900">
             {title}
           </h3>
           

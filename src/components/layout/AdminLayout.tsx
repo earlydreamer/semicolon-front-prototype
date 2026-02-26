@@ -72,7 +72,7 @@ const AdminLayout = () => {
             <div className="flex items-center gap-3 pl-2">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-neutral-900">최고관리자</p>
-                <p className="text-xs text-neutral-500">Super Admin</p>
+                <p className="text-xs text-neutral-500">최고 관리자</p>
               </div>
               <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700">
                 <UserIcon className="w-5 h-5" aria-hidden="true" />

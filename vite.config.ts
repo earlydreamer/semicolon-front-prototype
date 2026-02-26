@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+﻿import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import mkcert from "vite-plugin-mkcert";
 import path from "path";
@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), mkcert()],
-  // 배포 환경에 따라 base 경로를 유연하게 설정 (Vercel/Local: '/', GitHub Pages: '/semicolon-front-prototype/')
+  // 諛고룷 ?섍꼍???곕씪 base 寃쎈줈瑜??좎뿰?섍쾶 ?ㅼ젙 (Vercel/Local: '/', GitHub Pages: '/semicolon-front-prototype/')
   // base: process.env.GITHUB_ACTIONS ? '/semicolon-front-prototype/' : '/',
   base: process.env.VITE_BASE_PATH || "/",
   resolve: {
@@ -29,17 +29,17 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: "http://localhost:80",
+        target: "http://100.99.145.22:80",
         changeOrigin: true,
         secure: false,
       },
       "/oauth2": {
-        target: "http://localhost:80",
+        target: "http://100.99.145.22:80",
         changeOrigin: true,
         secure: false,
       },
       "/login/oauth2": {
-        target: "http://localhost:80",
+        target: "http://100.99.145.22:80",
         changeOrigin: true,
         secure: false,
       },

@@ -21,7 +21,7 @@ export default function LoginPage() {
             <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-100" role="alert" aria-live="polite">
               <p className="text-sm text-red-600 font-medium">
                 {error === "social_login_failed"
-                  ? "소셜 로그인에 실패했습니다. 다시 시도해 주세요."
+                  ? "소셜 로그인에 실패했어요. 다시 시도해 주세요."
                   : `로그인 실패: ${error}`}
               </p>
             </div>

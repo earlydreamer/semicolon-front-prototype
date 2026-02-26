@@ -12,6 +12,7 @@ import type { Review } from '@/components/features/review/ReviewCard';
 import { shopService } from '@/services/shopService';
 import { reviewService } from '@/services/reviewService';
 import { followService } from '@/services/followService';
+import { useToast } from '@/components/common/Toast';
 
 type TabType = 'all' | 'ON_SALE' | 'RESERVED' | 'SOLD_OUT';
 const PAGE_SIZE = 20;
@@ -19,14 +20,14 @@ const PAGE_SIZE = 20;
 const TABS: { key: TabType; label: string }[] = [
   { key: 'all', label: '전체' },
   { key: 'ON_SALE', label: '판매중' },
-  { key: 'RESERVED', label: '예약중' },
+  { key: 'RESERVED', label: '거래중' },
   { key: 'SOLD_OUT', label: '판매완료' },
 ];
 
 const ShopPage = () => {
   const { shopId: rawShopId } = useParams();
   const [activeTab, setActiveTab] = useState<TabType>('all');
-  const [shop, setShop] = useState<{ shopUuid: string; nickname: string; intro?: string } | null>(null);
+  const [shop, setShop] = useState<{ shopUuid: string; sellerUuid: string; nickname: string; intro?: string } | null>(null);
   const [shopProducts, setShopProducts] = useState<ProductListItem[]>([]);
   const [statusCounts, setStatusCounts] = useState<Record<TabType, number>>({
     all: 0,
@@ -43,6 +44,7 @@ const ShopPage = () => {
   const [productsLoading, setProductsLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(false);
+  const { showToast } = useToast();
 
   const shopId = sanitizeUrlParam(rawShopId);
 
@@ -56,14 +58,15 @@ const ShopPage = () => {
       setLoading(true);
 
       try {
-        const [shopRes, reviewRes, followers] = await Promise.all([
-          shopService.getShop(shopId),
-          reviewService.getSellerReviews(shopId, { page: 0, size: 20 }),
-          followService.getSellerFollowers(shopId),
+        const shopRes = await shopService.getShop(shopId);
+        const [reviewRes, followers] = await Promise.all([
+          reviewService.getSellerReviews(shopRes.sellerUuid, { page: 0, size: 20 }),
+          followService.getSellerFollowers(shopRes.sellerUuid),
         ]);
 
         setShop({
           shopUuid: shopRes.shopUuid,
+          sellerUuid: shopRes.sellerUuid,
           nickname: shopRes.nickname,
           intro: shopRes.intro,
         });
@@ -161,6 +164,7 @@ const ShopPage = () => {
       setHasNext(response.hasNext ?? false);
     } catch (error) {
       console.error('Failed to load more shop products:', error);
+      showToast('상품을 더 불러오지 못했어요. 잠시 후 다시 시도해 주세요.', 'error');
     } finally {
       setIsFetchingMore(false);
     }

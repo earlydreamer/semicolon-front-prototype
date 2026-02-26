@@ -41,7 +41,7 @@ export default function ProductDetailPage() {
   if (error || !product) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
-        <p className="text-gray-500">{error || '상품 정보를 불러오지 못했습니다.'}</p>
+        <p className="text-gray-500">{error || '상품 정보를 불러오지 못했어요.'}</p>
         <button
           onClick={() => navigate(-1)}
           className="rounded-lg bg-primary-500 px-4 py-2 text-white hover:bg-primary-600"
@@ -75,10 +75,24 @@ export default function ProductDetailPage() {
               {product.title}
             </h1>
             <div className="mb-4 text-2xl font-bold text-neutral-900 min-[360px]:text-3xl">{formatPrice(product.price)}</div>
+            {product.tags.length > 0 && (
+              <div className="mb-5 flex flex-wrap gap-2">
+                {product.tags.map((tag: string) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-700"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <SellerProfileCard
               seller={{
-                id: product.seller.userUuid,
+                sellerUuid: product.seller.sellerUuid,
+                sellerUserUuid: product.seller.sellerUserUuid,
+                shopUuid: product.seller.shopUuid,
                 nickname: product.seller.nickname,
                 rating: product.seller.rating,
                 reviewCount: product.seller.reviewCount,
@@ -92,7 +106,7 @@ export default function ProductDetailPage() {
               <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">{product.description}</div>
             </div>
 
-            <ProductComments comments={product.comments} sellerUserId={product.seller.userUuid} />
+            <ProductComments comments={product.comments} sellerUserId={product.seller.sellerUserUuid} />
 
             <ProductActionBar
               saleStatus={product.saleStatus}

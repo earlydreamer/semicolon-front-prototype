@@ -30,7 +30,9 @@ const OrderPage = () => {
   const fetchBalance = useUserStore((state) => state.fetchBalance);
 
   const {
+    orderUuid,
     orderItems,
+    orderResponseItems,
     shippingInfo,
     depositUseAmount,
     setShippingInfo,
@@ -133,6 +135,12 @@ const OrderPage = () => {
   const handlePayment = async () => {
     if (!isFormValid || !shippingInfo) return;
 
+    // "결제 계속하기" 흐름에서 기존 주문이 이미 있으면 새 주문을 만들지 않는다.
+    if (orderUuid && orderResponseItems && orderResponseItems.length > 0) {
+      navigate("/checkout");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -182,7 +190,7 @@ const OrderPage = () => {
       console.error("Order creation failed:", error);
       const message =
         (error as AxiosError<{ message?: string }>)?.response?.data?.message ||
-        "주문 생성에 실패했습니다.";
+        "주문 생성에 실패했어요.";
       showToast(message, "error");
     } finally {
       setIsLoading(false);

@@ -90,7 +90,7 @@ export function CategorySidebar() {
         const data = await productService.getCategories();
         setCategories(transformCategories(data));
       } catch (error) {
-        console.error('카테고리 사이드바를 불러오지 못했습니다.', error);
+        console.error('카테고리 사이드바를 불러오지 못했어요.', error);
       } finally {
         setLoading(false);
       }

@@ -29,7 +29,7 @@ export function AdminCouponList() {
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 animate-in fade-in slide-in-from-top-1">
-        비활성화/삭제 기능은 백엔드 미지원으로 준비중입니다.
+        비활성화/삭제 기능은 백엔드 미지원으로 준비 중이에요.
       </div>
 
       <div className="flex items-center justify-between gap-3">
@@ -74,7 +74,7 @@ export function AdminCouponList() {
         {isLoading ? (
           <div className="p-12 text-center text-neutral-500" role="status" aria-live="polite">
             <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent mb-2" />
-            <p>쿠폰 목록을 불러오는 중입니다...</p>
+            <p>쿠폰 목록을 불러오는 중이에요...</p>
           </div>
         ) : coupons.length > 0 ? (
           <CouponTable

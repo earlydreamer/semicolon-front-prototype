@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 마이페이지 빠른 메뉴 네비게이션
  */
 
@@ -7,7 +7,6 @@ import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
 import Heart from 'lucide-react/dist/esm/icons/heart';
 import Package from 'lucide-react/dist/esm/icons/package';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
-
 import MapPin from 'lucide-react/dist/esm/icons/map-pin';
 
 interface MenuItem {
@@ -47,7 +46,6 @@ const MyPageNav = ({ likeCount, orderCount }: MyPageNavProps) => {
       href: '/seller',
     },
   ];
-
 
   return (
     <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">

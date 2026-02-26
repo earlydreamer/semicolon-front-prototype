@@ -59,7 +59,7 @@ export const BannerTable = ({
           {banners.length === 0 && (
             <tr>
               <td colSpan={6} className="px-4 py-12 text-center text-neutral-500">
-                등록된 배너가 없습니다. 배너를 추가해주세요.
+                등록된 배너가 없습니다. 배너를 추가해 주세요.
               </td>
             </tr>
           )}

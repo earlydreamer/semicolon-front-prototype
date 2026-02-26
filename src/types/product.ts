@@ -82,6 +82,7 @@ export interface ProductListItem {
   title: string;
   price: number;
   thumbnailUrl: string | null;
+  tagNames?: string[];
   likeCount: number;
   viewCount?: number;
   commentCount?: number;
@@ -115,12 +116,14 @@ export interface ProductDetailResponse {
   likeCount: number;
   viewCount: number;
   imageUrls: string[];
+  tagNames?: string[];
   category: {
     id: number;
     name: string;
     depth: number;
   };
   seller?: {
+    shopUuid: string;
     sellerUuid: string;
     nickname: string;
     averageRating: number;
@@ -139,5 +142,10 @@ export interface ShopResponse {
 }
 
 export interface PresignedUrlResponse {
+  presignedUrl?: string;
+  url?: string;
+}
+
+export interface ImageUploadResponse {
   url: string;
 }

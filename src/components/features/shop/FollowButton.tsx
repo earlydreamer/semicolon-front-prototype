@@ -2,6 +2,7 @@
  * 팔로우 버튼 컴포넌트
  */
 
+import { useEffect } from 'react';
 import UserPlus from 'lucide-react/dist/esm/icons/user-plus';
 import UserCheck from 'lucide-react/dist/esm/icons/user-check';
 import { useFollowStore } from '../../../stores/useFollowStore';
@@ -9,16 +10,23 @@ import { useAuthStore } from '../../../stores/useAuthStore';
 import { useToast } from '../../common/Toast';
 
 interface FollowButtonProps {
-  shopId: string;
+  sellerUuid: string;
   className?: string;
 }
 
-const FollowButton = ({ shopId, className = '' }: FollowButtonProps) => {
+const FollowButton = ({ sellerUuid, className = '' }: FollowButtonProps) => {
   const { user } = useAuthStore();
-  const { isFollowing, toggleFollow } = useFollowStore();
+  const { isFollowing, toggleFollow, initFollowing } = useFollowStore();
   const { showToast } = useToast();
   
-  const following = user ? isFollowing(user.id, shopId) : false;
+  const following = user ? isFollowing(user.id, sellerUuid) : false;
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    initFollowing(user.id);
+  }, [user, initFollowing]);
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -29,15 +37,15 @@ const FollowButton = ({ shopId, className = '' }: FollowButtonProps) => {
       return;
     }
 
-    await toggleFollow(user.id, shopId);
-    
-    // toggleFollow가 void를 반환한다고 로깅에 나와있으므로, 
-    // 결과값(nowFollowing) 대신 상태를 다시 체크하거나 단순히 메시지 노출
-    const nextFollowing = !following;
-    showToast(
-      nextFollowing ? '상점을 팔로우했습니다' : '팔로우를 취소했습니다',
-      nextFollowing ? 'success' : 'info'
-    );
+    try {
+      const nextFollowing = await toggleFollow(user.id, sellerUuid);
+      showToast(
+        nextFollowing ? '상점을 팔로우했어요' : '팔로우를 취소했어요',
+        nextFollowing ? 'success' : 'info'
+      );
+    } catch {
+      showToast('팔로우 처리에 실패했어요. 잠시 후 다시 시도해 주세요.', 'error');
+    }
   };
 
   return (

@@ -73,7 +73,7 @@ const SELLERS: Record<string, ProductSeller> = {
   s20: { id: 's20', userId: 'u20', nickname: '레트로매니아', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u20', rating: 4.8, salesCount: 56, activeListingCount: 7 },
   // 빈 상점 (판매중인 상품 없음)
   s21: { id: 's21', userId: 'u21', nickname: '새싹판매자', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u21', rating: 0, intro: '이제 막 시작했어요!', salesCount: 0, activeListingCount: 0 },
-  s22: { id: 's22', userId: 'u22', nickname: '준비중상점', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u22', rating: 0, intro: '상품 준비중입니다.', salesCount: 0, activeListingCount: 0 },
+  s22: { id: 's22', userId: 'u22', nickname: '준비중상점', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=u22', rating: 0, intro: '상품 준비 중이에요.', salesCount: 0, activeListingCount: 0 },
 };
 
 const IMG = {

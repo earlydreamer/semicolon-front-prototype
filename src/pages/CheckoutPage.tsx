@@ -79,7 +79,7 @@ function buildPaymentCouponMap(items: CouponDistributionItem[], couponTotal: num
 export default function CheckoutPage() {
     const navigate = useNavigate();
     const { showToast } = useToast();
-    const { user, isAuthenticated } = useAuthStore();
+    const { user, isAuthenticated, accessToken } = useAuthStore();
     const {
         orderUuid,
         orderItems,
@@ -93,7 +93,7 @@ export default function CheckoutPage() {
 
     const [ready, setReady] = useState(false);
     const [widgets, setWidgets] = useState<TossPaymentsWidgets | null>(null);
-    const shouldRedirectLogin = !isAuthenticated;
+    const shouldRedirectLogin = !isAuthenticated || !accessToken;
     const shouldRedirectOrder = !orderUuid || orderItems.length === 0 || !orderResponseItems;
 
     useEffect(() => {
@@ -110,7 +110,7 @@ export default function CheckoutPage() {
                 setWidgets(widgetsInstance);
             } catch (error) {
                 console.error('Error fetching payment widgets:', error);
-                showToast('결제 위젯을 불러오는 중 오류가 발생했습니다.', 'error');
+                showToast('결제 위젯을 불러오는 중 문제가 생겼어요.', 'error');
             }
         }
 
@@ -187,7 +187,7 @@ export default function CheckoutPage() {
             }, idempotencyKey);
 
             if (!prepareResponse.success) {
-                showToast(prepareResponse.message || '결제 준비 중 오류가 발생했습니다.', 'error');
+                showToast(prepareResponse.message || '결제 준비 중 문제가 생겼어요.', 'error');
                 return;
             }
 
@@ -214,7 +214,7 @@ export default function CheckoutPage() {
             // 토스 결제창을 사용자가 직접 닫거나 취소한 경우 — 현재 페이지에 머무름
             const tossCode = apiError.code || apiError.response?.data?.code || '';
             if (tossCode === 'PAYMENT_CANCELED' || tossCode === 'USER_CANCEL') {
-                showToast('결제를 취소했습니다.', 'info');
+                showToast('결제를 취소했어요.', 'info');
                 return;
             }
 
@@ -222,7 +222,7 @@ export default function CheckoutPage() {
             const message = apiError.response?.data?.details
                 || apiError.response?.data?.message
                 || apiError.message
-                || '결제 요청 중 오류가 발생했습니다.';
+                || '결제 요청 중 문제가 생겼어요.';
 
             showToast(message, 'error');
             navigate(`/payment/fail?code=${encodeURIComponent(code)}&message=${encodeURIComponent(message)}`);

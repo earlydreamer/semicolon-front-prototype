@@ -33,7 +33,7 @@ export function Header() {
     productService
       .getCategories()
       .then((data) => setCategories(transformCategories(data)))
-      .catch((error) => console.error('카테고리를 불러오지 못했습니다.', error));
+      .catch((error) => console.error('카테고리를 불러오지 못했어요.', error));
   }, []);
 
   useEffect(() => {

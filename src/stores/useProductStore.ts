@@ -52,7 +52,7 @@ export const useProductStore = create<ProductState>((set) => ({
       const featuredProducts = await productService.getFeaturedProducts(size);
       set({ featuredProducts, isLoading: false });
     } catch {
-      set({ error: '추천 상품을 불러오는데 실패했습니다.', isLoading: false });
+      set({ error: '추천 상품을 불러오는 데 실패했어요.', isLoading: false });
     }
   },
 
@@ -62,7 +62,7 @@ export const useProductStore = create<ProductState>((set) => ({
       const productList = await productService.getProducts(params);
       set({ productList, isLoading: false });
     } catch {
-      set({ error: '상품 목록을 불러오는데 실패했습니다.', isLoading: false });
+      set({ error: '상품 목록을 불러오는 데 실패했어요.', isLoading: false });
     }
   },
 
@@ -72,7 +72,7 @@ export const useProductStore = create<ProductState>((set) => ({
       const currentProduct = await productService.getProductDetail(productUuid);
       set({ currentProduct, isLoading: false });
     } catch {
-      set({ error: '상품 정보를 불러오는데 실패했습니다.', isLoading: false });
+      set({ error: '상품 정보를 불러오는 데 실패했어요.', isLoading: false });
     }
   },
 }));

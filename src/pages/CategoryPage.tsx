@@ -22,6 +22,7 @@ import { findCategoryPath, getCategoryChildren, transformCategories } from '@/ut
 import { cn } from '@/utils/cn';
 import { sanitizeUrlParam } from '@/utils/sanitize';
 import { productService } from '@/services/productService';
+import { useToast } from '@/components/common/Toast';
 
 const PAGE_SIZE = 20;
 
@@ -43,6 +44,7 @@ export default function CategoryPage() {
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const { showToast } = useToast();
 
   // URL 파라미터는 sanitize 후 사용합니다.
   const categoryId = sanitizeUrlParam(rawCategoryId);
@@ -73,7 +75,7 @@ export default function CategoryPage() {
         const data = await productService.getCategories();
         setCategories(transformCategories(data));
       } catch (error) {
-        console.error('카테고리를 불러오지 못했습니다.', error);
+        console.error('카테고리를 불러오지 못했어요.', error);
       } finally {
         setLoading(false);
       }
@@ -110,7 +112,7 @@ export default function CategoryPage() {
       try {
         await fetchProductsPage(0, false);
       } catch (error) {
-        console.error('상품을 불러오지 못했습니다.', error);
+        console.error('상품을 불러오지 못했어요.', error);
         setProducts([]);
         setHasNext(false);
         setTotalCount(0);
@@ -176,7 +178,8 @@ export default function CategoryPage() {
     try {
       await fetchProductsPage(page + 1, true);
     } catch (error) {
-      console.error('추가 상품을 불러오지 못했습니다.', error);
+      console.error('추가 상품을 불러오지 못했어요.', error);
+      showToast('상품을 더 불러오지 못했어요. 잠시 후 다시 시도해 주세요.', 'error');
     } finally {
       setIsFetchingMore(false);
     }

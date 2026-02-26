@@ -1,4 +1,4 @@
-﻿import { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Card } from "@/components/common/Card";
@@ -60,8 +60,8 @@ export default function SocialLoginCallbackPage() {
           </h1>
           <p className="text-neutral-500 mb-8 leading-relaxed">
             {error
-              ? `${providerName} 로그인 처리 중 오류가 발생했습니다: ${error}`
-              : `${providerName} 로그인 인증 토큰을 받지 못했습니다. 다시 시도해 주세요.`}
+              ? `${providerName} 로그인 처리 중 문제가 생겼어요: ${error}`
+              : `${providerName} 로그인 인증 토큰을 받지 못했어요. 다시 시도해 주세요.`}
           </p>
           <Button
             onClick={() => navigate("/login")}

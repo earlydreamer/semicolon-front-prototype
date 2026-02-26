@@ -24,11 +24,11 @@ export const ReturnRequestModal = ({ isOpen, onClose, order, onSuccess }: Return
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reason.trim()) {
-      showToast('반품 사유를 입력해주세요', 'error');
+      showToast('반품 사유를 입력해 주세요', 'error');
       return;
     }
     if (selectedItems.length === 0) {
-      showToast('반품할 상품을 1개 이상 선택해주세요', 'error');
+      showToast('반품할 상품을 1개 이상 선택해 주세요', 'error');
       return;
     }
 
@@ -38,12 +38,12 @@ export const ReturnRequestModal = ({ isOpen, onClose, order, onSuccess }: Return
         reason,
         orderItemUuids: selectedItems,
       });
-      showToast('반품 신청이 완료되었습니다. 반품 송장을 등록해주세요.', 'success');
+      showToast('반품 요청이 접수됐어요. 판매자 승인 후 운송장을 등록해 주세요.', 'success');
       onSuccess?.(result.returnRequestUuid);
       onClose();
     } catch (error) {
       console.error('반품 신청 실패:', error);
-      showToast('반품 신청에 실패했습니다. 다시 시도해주세요.', 'error');
+      showToast('반품 신청에 실패했어요. 다시 시도해 주세요.', 'error');
     } finally {
       setIsLoading(false);
     }

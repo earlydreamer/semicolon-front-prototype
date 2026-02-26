@@ -40,7 +40,7 @@ const SettlementAccountPage = () => {
           <h2 className="text-xl font-bold text-neutral-900 mb-2">출금 기능 준비 중</h2>
           <p className="text-neutral-500 mb-8 leading-relaxed">
             보다 안전하고 편리한 출금 서비스를 위해<br />
-            현재 시스템을 준비 중입니다.
+            현재 준비 중이에요.
           </p>
           
           <div className="bg-primary-50 rounded-2xl p-5 mb-8 text-left border border-primary-100">

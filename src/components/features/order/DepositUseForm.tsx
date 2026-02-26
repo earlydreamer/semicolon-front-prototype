@@ -114,7 +114,7 @@ const DepositUseForm = ({
           
           {useAmount > 0 && isApplied && (
             <p className="mt-3 text-sm text-primary-600 font-medium">
-              현재 <span className="font-bold">{useAmount.toLocaleString()}원</span>이 적용되었습니다.
+              현재 <span className="font-bold">{useAmount.toLocaleString()}원</span>을 적용했어요.
             </p>
           )}
           

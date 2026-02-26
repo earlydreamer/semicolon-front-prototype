@@ -59,7 +59,7 @@ const requestSettlementApi = async <T>(path: string, params?: object): Promise<T
     }
   }
 
-  throw lastError ?? new Error('정산 API 호출에 실패했습니다.');
+  throw lastError ?? new Error('정산 API 호출에 실패했어요.');
 };
 
 const getSellerProfiles = async (productUuids: string[]) => {

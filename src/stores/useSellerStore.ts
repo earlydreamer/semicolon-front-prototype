@@ -5,6 +5,7 @@ import type {
   ProductListItem,
 } from "@/types/product";
 import { shopService } from "@/services/shopService";
+import { productService } from "@/services/productService";
 
 export interface ProductFormData {
   title: string;
@@ -12,6 +13,7 @@ export interface ProductFormData {
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
+  tags?: string[];
   purchaseDate?: string;
   usePeriod?: string;
   detailedCondition?: string;
@@ -28,6 +30,7 @@ export interface SellerProduct {
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
+  tags?: string[];
   saleStatus: SaleStatus;
   viewCount: number;
   likeCount: number;
@@ -74,8 +77,26 @@ interface SellerState {
   };
 }
 
+const isUploadedImageUrl = (value: string): boolean => {
+  const url = value.trim();
+  return /^https?:\/\//.test(url) || url.startsWith("/api/");
+};
+
+const sanitizeImageUrls = (images: string[]): string[] =>
+  images
+    .map((image) => productService.normalizeImageUrl(image))
+    .filter(isUploadedImageUrl);
+
+const hasValidProductId = (id: string | undefined | null): id is string =>
+  !!id && id !== "undefined" && id !== "null";
+
+const getProductId = (item: ProductListItem): string => {
+  const fallbackId = (item as ProductListItem & { id?: string }).id;
+  return item.productUuid || fallbackId || "";
+};
+
 const mapToSellerProduct = (item: ProductListItem): SellerProduct => ({
-  id: item.productUuid,
+  id: getProductId(item),
   categoryId: "",
   sellerId: "me",
   title: item.title,
@@ -91,6 +112,7 @@ const mapToSellerProduct = (item: ProductListItem): SellerProduct => ({
   image: item.thumbnailUrl || "",
   images: item.thumbnailUrl ? [item.thumbnailUrl] : [],
   isSafe: true,
+  tags: item.tagNames ?? [],
 });
 
 export const useSellerStore = create<SellerState>((set, get) => ({
@@ -101,6 +123,7 @@ export const useSellerStore = create<SellerState>((set, get) => ({
   activeStatus: "all",
 
   addProduct: async (data: ProductFormData) => {
+    const imageUrls = sanitizeImageUrls(data.images);
     const response = await shopService.createProduct({
       categoryId: Number(data.categoryId),
       title: data.title,
@@ -108,8 +131,12 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       price: data.price,
       shippingFee: data.shippingFee,
       conditionStatus: data.conditionStatus,
-      imageUrls: data.images,
+      imageUrls,
+      tags: data.tags,
     });
+    if (!response.productUuid) {
+      throw new Error("Product UUID is missing in create response");
+    }
 
     const newProduct: SellerProduct = {
       id: response.productUuid,
@@ -120,13 +147,14 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       price: data.price,
       shippingFee: data.shippingFee,
       conditionStatus: data.conditionStatus,
+      tags: data.tags ?? [],
       saleStatus: "ON_SALE",
       viewCount: 0,
       likeCount: 0,
       commentCount: 0,
       createdAt: new Date().toISOString(),
-      image: data.images[0] || "",
-      images: data.images,
+      image: imageUrls[0] || "",
+      images: imageUrls,
       isSafe: true,
       purchaseDate: data.purchaseDate,
       usePeriod: data.usePeriod,
@@ -141,11 +169,11 @@ export const useSellerStore = create<SellerState>((set, get) => ({
   },
 
   updateProduct: async (id: string, data: Partial<ProductFormData>) => {
-    // 기존 상품 정보 확인
+    if (!hasValidProductId(id)) return;
     const currentProduct = get().products.find((p) => p.id === id);
     if (!currentProduct) return;
+    const imageUrls = sanitizeImageUrls(data.images ?? currentProduct.images);
 
-    // 백엔드 업데이트 요청 (visibilityStatus는 현재 프론트엔드 UI에 없으므로 기본값 VISIBLE 전달)
     await shopService.updateProduct(id, {
       categoryId: Number(data.categoryId ?? currentProduct.categoryId),
       title: data.title ?? currentProduct.title,
@@ -154,7 +182,8 @@ export const useSellerStore = create<SellerState>((set, get) => ({
       shippingFee: data.shippingFee ?? currentProduct.shippingFee,
       conditionStatus: data.conditionStatus ?? currentProduct.conditionStatus,
       visibilityStatus: "VISIBLE",
-      imageUrls: data.images ?? currentProduct.images,
+      imageUrls,
+      tags: data.tags,
     });
 
     set((state) => ({
@@ -163,7 +192,8 @@ export const useSellerStore = create<SellerState>((set, get) => ({
           ? {
               ...p,
               ...data,
-              image: data.images?.[0] ?? p.image,
+              image: imageUrls[0] ?? p.image,
+              images: imageUrls,
               updatedAt: new Date().toISOString(),
             }
           : p,
@@ -172,28 +202,25 @@ export const useSellerStore = create<SellerState>((set, get) => ({
   },
 
   deleteProduct: async (id: string) => {
-    await shopService.deleteProduct(id);
+    if (!hasValidProductId(id)) return;
+    const prevProducts = get().products;
     set((state) => ({
       products: state.products.filter((p) => p.id !== id),
     }));
+
+    try {
+      await shopService.deleteProduct(id);
+    } catch (error) {
+      set({ products: prevProducts });
+      throw error;
+    }
   },
 
   updateSaleStatus: async (id: string, status: SaleStatus) => {
-    // saleStatus 변경 API가 별도로 없을 경우 updateProduct 호출
+    if (!hasValidProductId(id)) return;
     const currentProduct = get().products.find((p) => p.id === id);
     if (!currentProduct) return;
-
-    await shopService.updateProduct(id, {
-      categoryId: Number(currentProduct.categoryId),
-      title: currentProduct.title,
-      description: currentProduct.description,
-      price: currentProduct.price,
-      shippingFee: currentProduct.shippingFee,
-      conditionStatus: currentProduct.conditionStatus,
-      visibilityStatus: "VISIBLE",
-      imageUrls: currentProduct.images,
-      // saleStatus 처리가 필요하다면 추가 확인 필요 (현재 백엔드 DTO에는 없음)
-    });
+    const prevProducts = get().products;
 
     set((state) => ({
       products: state.products.map((p) =>
@@ -202,13 +229,29 @@ export const useSellerStore = create<SellerState>((set, get) => ({
           : p,
       ),
     }));
+
+    try {
+      await shopService.updateProduct(id, {
+        categoryId: Number(currentProduct.categoryId),
+        title: currentProduct.title,
+        description: currentProduct.description,
+        price: currentProduct.price,
+        shippingFee: currentProduct.shippingFee,
+        conditionStatus: currentProduct.conditionStatus,
+        visibilityStatus: "VISIBLE",
+        imageUrls: currentProduct.images,
+        tags: currentProduct.tags,
+      });
+    } catch (error) {
+      set({ products: prevProducts });
+      throw error;
+    }
   },
 
   updateTrackingInfo: async (
     id: string,
     info: { number: string; company: string },
   ) => {
-    // 배송 정보 업데이트는 주문 도메인 이슈일 수 있으나, 여기서는 상태 변경만 처리
     set((state) => ({
       products: state.products.map((p) =>
         p.id === id
@@ -313,3 +356,5 @@ export const useSellerStore = create<SellerState>((set, get) => ({
     };
   },
 }));
+
+

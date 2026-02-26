@@ -42,7 +42,7 @@ export function ReportModal({
     e.preventDefault();
     
     if (!reason) {
-      showToast('신고 사유를 선택해주세요.', 'info');
+      showToast('신고 사유를 선택해 주세요.', 'info');
       return;
     }
 
@@ -60,7 +60,7 @@ export function ReportModal({
     // 모의 딜레이
     await new Promise((resolve) => setTimeout(resolve, 500));
     
-    showToast('신고가 접수되었습니다. 검토 후 처리해드리겠습니다.', 'success');
+    showToast('신고를 접수했어요. 확인 후 안내드릴게요.', 'success');
     setIsSubmitting(false);
     setReason('');
     setDescription('');
@@ -109,7 +109,7 @@ export function ReportModal({
               className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm
                          focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
-              <option value="">선택해주세요</option>
+              <option value="">선택해 주세요</option>
               {REPORT_REASONS.map((r) => (
                 <option key={r.value} value={r.value}>
                   {r.label}
@@ -126,7 +126,7 @@ export function ReportModal({
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="상세 내용을 입력해주세요"
+              placeholder="상세 내용을 입력해 주세요"
               rows={4}
               className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm resize-none
                          focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"

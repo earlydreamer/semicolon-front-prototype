@@ -38,25 +38,29 @@ const CartPage = () => {
   // 선택 삭제 핸들러
   const handleRemoveSelected = async () => {
     if (!hasSelectedItems) {
-      showToast('삭제할 상품을 선택해주세요', 'error');
+      showToast('삭제할 상품을 선택해 주세요', 'error');
       return;
     }
     
     const selectedCount = items.filter((i) => i.selected).length;
-    await removeSelectedItems();
-    showToast(`${selectedCount}개 상품이 삭제되었습니다`, 'success');
+    try {
+      await removeSelectedItems();
+      showToast(`${selectedCount}개 상품이 삭제됐어요`, 'success');
+    } catch {
+      showToast('선택한 상품 삭제에 실패했어요', 'error');
+    }
   };
 
   // 주문하기 핸들러 (모바일용)
   const handleOrder = () => {
     if (summary.selectedCount === 0) {
-      showToast('주문할 상품을 선택해주세요', 'error');
+      showToast('주문할 상품을 선택해 주세요', 'error');
       return;
     }
     const selectedItems = getSelectedItems();
     const hasUnavailable = selectedItems.some((item) => item.saleStatus !== 'ON_SALE');
     if (hasUnavailable) {
-      showToast('예약중 또는 판매완료 상품은 주문할 수 없습니다.', 'error');
+      showToast('거래중 또는 판매완료 상품은 주문할 수 없습니다.', 'error');
       return;
     }
     
@@ -87,8 +91,12 @@ const CartPage = () => {
             <CartList
               items={items}
               onRemove={async (cartId) => {
-                await removeItem(cartId);
-                showToast('상품이 삭제되었습니다', 'success');
+                try {
+                  await removeItem(cartId);
+                  showToast('상품이 삭제됐어요', 'success');
+                } catch {
+                  showToast('상품 삭제에 실패했어요', 'error');
+                }
               }}
               onToggleSelect={toggleSelect}
               onSelectAll={selectAll}

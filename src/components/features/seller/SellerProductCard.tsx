@@ -14,6 +14,7 @@ interface SellerProductCardProps {
     title: string;
     price: number;
     image: string;
+    tags?: string[];
     saleStatus: SaleStatus;
     viewCount: number;
     likeCount: number;
@@ -24,75 +25,139 @@ interface SellerProductCardProps {
 
 const STATUS_LABELS: Record<SaleStatus, { text: string; className: string }> = {
   ON_SALE: { text: '판매중', className: 'bg-blue-100 text-blue-700' },
-  RESERVED: { text: '예약중', className: 'bg-yellow-100 text-yellow-700' },
+  RESERVED: { text: '거래중', className: 'bg-yellow-100 text-yellow-700' },
   SOLD_OUT: { text: '판매완료', className: 'bg-green-100 text-green-700' },
 };
 
 const SellerProductCard = ({ product }: SellerProductCardProps) => {
+  const MAX_VISIBLE_TAGS = 2;
   const { updateSaleStatus, deleteProduct } = useSellerStore();
   const { showToast } = useToast();
   const [showMenu, setShowMenu] = useState(false);
+  const [isActionPending, setIsActionPending] = useState(false);
+  const [isTagExpanded, setIsTagExpanded] = useState(false);
+  const hasProductId = Boolean(product.id && product.id !== 'undefined' && product.id !== 'null');
+  const tags = product.tags ?? [];
+  const visibleTags = isTagExpanded ? tags : tags.slice(0, MAX_VISIBLE_TAGS);
+  const hiddenTagCount = Math.max(tags.length - MAX_VISIBLE_TAGS, 0);
 
-  const handleStatusChange = (status: SaleStatus) => {
-    updateSaleStatus(product.id, status);
-    showToast(`상태가 '${STATUS_LABELS[status].text}'로 변경되었습니다`);
-    setShowMenu(false);
+  const handleStatusChange = async (status: SaleStatus) => {
+    if (!hasProductId) {
+      showToast('상품을 먼저 등록해 주세요.', 'error');
+      return;
+    }
+    try {
+      setIsActionPending(true);
+      await updateSaleStatus(product.id, status);
+      showToast(`${STATUS_LABELS[status].text} 상태로 바꿨어요.`, 'success');
+      setShowMenu(false);
+    } catch (error) {
+      console.error('Failed to update product status:', error);
+      showToast('상태를 바꾸지 못했어요. 다시 시도해 주세요.', 'error');
+    } finally {
+      setIsActionPending(false);
+    }
   };
 
-  const handleDelete = () => {
-    if (confirm('정말 삭제하시겠습니까?')) {
-      deleteProduct(product.id);
-      showToast('상품이 삭제되었습니다', 'error');
+  const handleDelete = async () => {
+    if (!hasProductId) {
+      showToast('상품을 먼저 등록해 주세요.', 'error');
+      return;
     }
-    setShowMenu(false);
+    if (!confirm('상품을 삭제할까요?')) {
+      setShowMenu(false);
+      return;
+    }
+
+    try {
+      setIsActionPending(true);
+      await deleteProduct(product.id);
+      showToast('상품을 삭제했어요.', 'success');
+      setShowMenu(false);
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+      showToast('삭제하지 못했어요. 잠시 후 다시 시도해 주세요.', 'error');
+    } finally {
+      setIsActionPending(false);
+    }
   };
 
   const statusLabel = STATUS_LABELS[product.saleStatus];
 
   return (
     <div className="flex gap-3 p-3 bg-white rounded-xl border border-neutral-200 hover:shadow-md transition-shadow">
-      <Link to={`/products/${product.id}`} className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-neutral-100">
+      <Link to={hasProductId ? `/products/${product.id}` : '/seller'} className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-neutral-100">
         <img src={product.image || '/images/placeholder.png'} alt={product.title} width={80} height={80} className="w-full h-full object-cover" />
       </Link>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <Link to={`/products/${product.id}`} className="flex-1 min-w-0">
+          <Link to={hasProductId ? `/products/${product.id}` : '/seller'} className="flex-1 min-w-0">
             <h4 className="font-medium text-neutral-900 truncate hover:text-primary-600">{product.title}</h4>
           </Link>
 
           <div className="flex items-center gap-1">
-            <Link
-              to={`/seller/products/${product.id}/edit`}
-              className="px-2 py-1 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-md hover:bg-neutral-100"
-            >
-              수정
-            </Link>
+            {hasProductId ? (
+              <Link
+                to={`/seller/products/${product.id}/edit`}
+                className="px-2 py-1 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-md hover:bg-neutral-100"
+              >
+                수정
+              </Link>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="px-2 py-1 text-xs font-medium text-neutral-400 border border-neutral-200 rounded-md cursor-not-allowed"
+              >
+                수정
+              </button>
+            )}
             <div className="relative">
-              <button onClick={() => setShowMenu((v) => !v)} className="p-1 rounded-lg hover:bg-neutral-100 text-neutral-500">
+              <button
+                onClick={() => setShowMenu((v) => !v)}
+                disabled={isActionPending}
+                className="p-1 rounded-lg hover:bg-neutral-100 text-neutral-500 disabled:opacity-50"
+              >
                 <MoreVertical className="w-4 h-4" />
               </button>
 
               {showMenu && (
                 <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-10">
                   {product.saleStatus !== 'ON_SALE' && (
-                    <button onClick={() => handleStatusChange('ON_SALE')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
+                    <button
+                      onClick={() => handleStatusChange('ON_SALE')}
+                      disabled={isActionPending}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100 disabled:opacity-50"
+                    >
                       판매중으로 변경
                     </button>
                   )}
                   {product.saleStatus !== 'RESERVED' && (
-                    <button onClick={() => handleStatusChange('RESERVED')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
-                      예약중으로 변경
+                    <button
+                      onClick={() => handleStatusChange('RESERVED')}
+                      disabled={isActionPending}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100 disabled:opacity-50"
+                    >
+                      거래중으로 변경
                     </button>
                   )}
                   {product.saleStatus !== 'SOLD_OUT' && (
-                    <button onClick={() => handleStatusChange('SOLD_OUT')} className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100">
+                    <button
+                      onClick={() => handleStatusChange('SOLD_OUT')}
+                      disabled={isActionPending}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-neutral-100 disabled:opacity-50"
+                    >
                       판매완료로 변경
                     </button>
                   )}
                   <hr className="my-1" />
-                  <button onClick={handleDelete} className="w-full text-left px-3 py-2 text-sm text-error-600 hover:bg-neutral-100">
-                    삭제
+                  <button
+                    onClick={handleDelete}
+                    disabled={isActionPending}
+                    className="w-full text-left px-3 py-2 text-sm text-error-600 hover:bg-neutral-100 disabled:opacity-50"
+                  >
+                    {isActionPending ? '처리 중...' : '삭제'}
                   </button>
                 </div>
               )}
@@ -106,6 +171,29 @@ const SellerProductCard = ({ product }: SellerProductCardProps) => {
           </span>
           <span className="text-sm font-bold text-neutral-900">{product.price.toLocaleString()}원</span>
         </div>
+
+        {visibleTags.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            {visibleTags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex max-w-[110px] truncate rounded-md border border-neutral-200 bg-white px-1.5 py-0.5 text-[10px] leading-4 text-neutral-500"
+                title={`#${tag}`}
+              >
+                #{tag}
+              </span>
+            ))}
+            {hiddenTagCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsTagExpanded((prev) => !prev)}
+                className="text-[10px] leading-4 text-neutral-500 hover:text-neutral-700"
+              >
+                {isTagExpanded ? '접기' : `+${hiddenTagCount}개 더보기`}
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="mt-2 flex items-center gap-3 text-xs text-neutral-500">
           <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{product.viewCount}</span>

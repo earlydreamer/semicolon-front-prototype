@@ -4,7 +4,6 @@ import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
-import { MockDataNotice } from '@/components/common/MockDataNotice';
 import { useBannerStore } from '@/stores/useBannerStore';
 
 // 배너 자동 전환 설정입니다.
@@ -97,10 +96,6 @@ export function HeroBanner() {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      <div className="absolute z-30 top-3 left-3 max-w-xs hidden md:block">
-        <MockDataNotice title="Mock 배너" message="배너 데이터는 현재 mock 기반입니다." />
-      </div>
-
       <div
         className="flex transition-transform ease-out motion-reduce:transition-none"
         style={{

@@ -17,7 +17,7 @@ import type { SaleStatus } from '@/types/product';
 
 const SALE_STATUS_BADGE: Record<SaleStatus, { text: string; className: string }> = {
   ON_SALE: { text: '판매중', className: 'bg-green-100 text-green-700' },
-  RESERVED: { text: '예약중', className: 'bg-yellow-100 text-yellow-700' },
+  RESERVED: { text: '거래중', className: 'bg-yellow-100 text-yellow-700' },
   SOLD_OUT: { text: '판매완료', className: 'bg-neutral-200 text-neutral-600' },
 };
 
@@ -40,7 +40,7 @@ const LikedProductsPage = () => {
       }
     } catch (error) {
       console.error('Failed to load liked products:', error);
-      showToast('찜한 상품을 불러오는데 실패했습니다.', 'error');
+      showToast('찜한 상품을 불러오는 데 실패했어요.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -62,9 +62,9 @@ const LikedProductsPage = () => {
     try {
       await toggleLike(user.id, productId);
       setLikedProducts((prev) => prev.filter((p) => p.productUuid !== productId));
-      showToast(`"${productTitle}" 찜한 상품에서 제거되었습니다`, 'info');
+      showToast(`"${productTitle}" 찜한 상품에서 뺐어요`, 'info');
     } catch {
-      showToast('처리에 실패했습니다.', 'error');
+      showToast('처리에 실패했어요.', 'error');
     }
   };
 

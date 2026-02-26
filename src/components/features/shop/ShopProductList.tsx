@@ -6,7 +6,7 @@ import Clock from 'lucide-react/dist/esm/icons/clock';
 
 const STATUS_BADGE: Record<string, { text: string; className: string }> = {
   ON_SALE: { text: '판매중', className: 'bg-blue-100 text-blue-700' },
-  RESERVED: { text: '예약중', className: 'bg-yellow-100 text-yellow-700' },
+  RESERVED: { text: '거래중', className: 'bg-yellow-100 text-yellow-700' },
   SOLD_OUT: { text: '판매완료', className: 'bg-green-100 text-green-700' },
   HIDDEN: { text: '숨김', className: 'bg-neutral-100 text-neutral-700' },
   BLOCKED: { text: '차단됨', className: 'bg-red-100 text-red-700' },
@@ -14,7 +14,7 @@ const STATUS_BADGE: Record<string, { text: string; className: string }> = {
 
 const EMPTY_MESSAGES: Record<string, { title: string; subtitle: string }> = {
   ON_SALE: { title: '판매중인 상품이 없습니다', subtitle: '새로운 상품을 기다려주세요.' },
-  RESERVED: { title: '예약중인 상품이 없습니다', subtitle: '현재 예약 대기중인 상품이 없어요.' },
+  RESERVED: { title: '거래중인 상품이 없습니다', subtitle: '현재 거래 대기중인 상품이 없어요.' },
   SOLD_OUT: { title: '판매완료된 상품이 없습니다', subtitle: '아직 거래가 완료된 상품이 없어요.' },
 };
 

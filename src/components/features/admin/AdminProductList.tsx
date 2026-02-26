@@ -29,7 +29,7 @@ const AdminProductList = () => {
           <div className="flex items-start gap-2">
             <AlertCircle className="w-4 h-4 mt-0.5" aria-hidden="true" />
             <p>
-              상품 조회는 실데이터 연동 완료되었습니다. 판매 정지/삭제는 관리자 API 미구현으로 준비중입니다.
+              상품 조회는 실데이터 연동 완료됐어요. 판매 정지/삭제는 관리자 API 미구현으로 준비 중이에요.
             </p>
           </div>
         </div>
@@ -64,7 +64,7 @@ const AdminProductList = () => {
           >
             <option value="all">전체 상태</option>
             <option value="ON_SALE">판매중</option>
-            <option value="RESERVED">예약중</option>
+            <option value="RESERVED">거래중</option>
             <option value="SOLD_OUT">판매완료</option>
           </select>
         </div>
@@ -73,7 +73,7 @@ const AdminProductList = () => {
       {isLoading ? (
         <div className="p-12 text-center text-neutral-500" role="status" aria-live="polite">
           <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent mb-2" />
-          <p>상품 목록을 불러오는 중입니다…</p>
+          <p>상품 목록을 불러오는 중이에요…</p>
         </div>
       ) : errorMessage ? (
         <div className="p-12 text-center space-y-3">

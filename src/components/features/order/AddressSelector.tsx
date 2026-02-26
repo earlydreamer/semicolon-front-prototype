@@ -86,7 +86,7 @@ const AddressSelector = ({
         {isAddingNew ? (
           <div className="text-center py-8 bg-neutral-50 rounded-xl border border-dashed border-neutral-300">
             <p className="text-neutral-500 mb-2">
-              새 배송지 입력 기능은 준비중입니다.
+              새 배송지 입력 기능은 준비 중이에요.
             </p>
             <Button
               size="sm"

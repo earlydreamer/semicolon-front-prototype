@@ -29,7 +29,7 @@ export default function EmailVerificationPendingPage() {
 
   const handleResend = async () => {
     if (!email) {
-      showToast('이메일 정보가 없습니다. 다시 회원가입/로그인을 시도해주세요.', 'error');
+      showToast('이메일 정보가 없습니다. 다시 회원가입/로그인을 시도해 주세요.', 'error');
       return;
     }
 
@@ -43,9 +43,9 @@ export default function EmailVerificationPendingPage() {
       await authService.sendVerificationEmail(email);
       markVerificationEmailSent(email);
       setRemaining(getVerificationCooldownSeconds());
-      showToast('인증 메일을 다시 발송했습니다.', 'success');
+      showToast('인증 메일을 다시 보냈어요.', 'success');
     } catch (error) {
-      showToast(parseHttpError(error, '인증 메일 재발송에 실패했습니다.'), 'error');
+      showToast(parseHttpError(error, '인증 메일 재발송에 실패했어요.'), 'error');
     } finally {
       setIsResending(false);
     }
@@ -63,7 +63,7 @@ export default function EmailVerificationPendingPage() {
           </div>
           <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">이메일 인증이 필요합니다</h1>
           <p className="text-neutral-600">
-            인증 메일을 발송했습니다. 메일의 인증 링크를 클릭한 뒤 다시 진행해주세요.
+            인증 메일을 보냈어요. 메일의 인증 링크를 누른 뒤 다시 진행해 주세요.
           </p>
           {email && <p className="text-sm text-neutral-500 break-all">{email}</p>}
 

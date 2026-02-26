@@ -24,6 +24,9 @@ export const useProductDetail = (rawProductId: string | undefined) => {
   const { isLiked: checkIsLiked, toggleLike } = useLikeStore();
   const {
     clearOrder,
+    orderUuid,
+    orderItems,
+    orderResponseItems,
     setOrderUuid,
     setOrderItems,
     setOrderResponseItems,
@@ -113,6 +116,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       title: apiProduct.title,
       price: apiProduct.price,
       description: apiProduct.description,
+      tags: apiProduct.tagNames || [],
       image: apiProduct.imageUrls?.[0] || "",
       images: apiProduct.imageUrls || [],
       categoryId: apiProduct.category?.id || 0,
@@ -121,7 +125,9 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       viewCount: apiProduct.viewCount || 0,
       createdAt: new Date().toISOString(),
       seller: {
-        userUuid: apiProduct.seller.sellerUuid,
+        sellerUuid: apiProduct.seller.sellerUuid,
+        sellerUserUuid: apiProduct.sellerUuid,
+        shopUuid: apiProduct.seller.shopUuid,
         nickname: apiProduct.seller.nickname,
         rating: apiProduct.seller.averageRating || 0,
         reviewCount: apiProduct.seller.reviewCount || 0,
@@ -187,7 +193,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
 
   const handlePurchase = useCallback(() => {
     if (!product) return;
-    if (!product.seller.userUuid) {
+    if (!product.seller.sellerUserUuid) {
       showToast("판매자 정보가 없어 주문을 진행할 수 없습니다.", "error");
       return;
     }
@@ -197,7 +203,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       const orderItem: CartItem = {
         cartId: -1,
         productUuid: product.id,
-        sellerUuid: product.seller.userUuid,
+        sellerUuid: product.seller.sellerUserUuid,
         title: product.title,
         price: product.price ?? 0,
         saleStatus: product.saleStatus,
@@ -214,8 +220,19 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       return;
     }
 
+    const hasLocalPendingForProduct =
+      !!orderUuid &&
+      !!orderResponseItems &&
+      orderResponseItems.some((item) => item.productUuid === product.id) &&
+      orderItems.length > 0;
+
+    if (hasLocalPendingForProduct) {
+      navigate("/checkout");
+      return;
+    }
+
     if (!pendingOrderUuidForProduct) {
-      showToast("예약중인 상품입니다.", "error");
+      showToast("거래중인 상품입니다.", "error");
       return;
     }
 
@@ -258,13 +275,16 @@ export const useProductDetail = (rawProductId: string | undefined) => {
         setDepositUseAmount(0);
         navigate("/checkout");
       } catch {
-        showToast("결제 페이지로 이동하지 못했습니다.", "error");
+        showToast("결제 페이지로 이동하지 못했어요.", "error");
       }
     })();
   }, [
     product,
     pendingOrderUuidForProduct,
     clearOrder,
+    orderUuid,
+    orderItems,
+    orderResponseItems,
     setOrderUuid,
     setOrderItems,
     setOrderResponseItems,

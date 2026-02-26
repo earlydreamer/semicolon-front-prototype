@@ -43,7 +43,7 @@ export const BannerFormModal = ({
           label="제목"
           value={formData.title}
           onChange={(e) => updateForm({ title: e.target.value })}
-          placeholder="배너 제목을 입력하세요…"
+          placeholder="배너 제목을 입력해 주세요…"
         />
         
         <div>
@@ -52,7 +52,7 @@ export const BannerFormModal = ({
             id="banner-description"
             value={formData.description}
             onChange={(e) => updateForm({ description: e.target.value })}
-            placeholder="배너 설명을 입력하세요… (줄바꿈: \\n)"
+            placeholder="배너 설명을 입력해 주세요… (줄바꿈: \\n)"
             className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             rows={3}
           />
