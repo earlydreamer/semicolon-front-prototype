@@ -2,9 +2,11 @@
  * 주문 완료 페이지
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { CheckCircle, ShoppingBag, Home } from 'lucide-react';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import Home from 'lucide-react/dist/esm/icons/home';
 import { useOrderStore } from '../stores/useOrderStore';
 import { useCartStore } from '../stores/useCartStore';
 import { Button } from '../components/common/Button';
@@ -15,7 +17,7 @@ const OrderCompletePage = () => {
   const { removeSelectedItems } = useCartStore(); // 장바구니에서 구매한 상품 제거
 
   const { finalPrice } = getOrderSummary();
-  const orderNumber = `ORD-${Date.now()}`;
+  const [orderNumber] = useState(() => `ORD-${Date.now()}`);
 
   // 컴포넌트 마운트 시 장바구니 정리 (구매한 상품만) 및 주문 Store 초기화는 나갈 때
   useEffect(() => {
@@ -41,15 +43,15 @@ const OrderCompletePage = () => {
   if (orderItems.length === 0) return null;
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center py-12 px-4">
-      <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl text-center border border-neutral-100">
+    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-3 py-8 min-[360px]:px-4 min-[360px]:py-12">
+      <div className="w-full max-w-md rounded-3xl border border-neutral-100 bg-white p-5 text-center shadow-xl min-[360px]:p-8">
         <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-6 animate-in zoom-in duration-300">
           <CheckCircle className="w-10 h-10 text-green-500" />
         </div>
         
-        <h1 className="text-2xl font-bold text-neutral-900 mb-2">주문이 완료되었습니다!</h1>
+        <h1 className="mb-2 text-xl font-bold text-neutral-900 min-[360px]:text-2xl">주문이 완료됐어요!</h1>
         <p className="text-neutral-500 mb-8">
-          고객님의 주문이 성공적으로 접수되었습니다.<br />
+          주문을 접수했어요.<br />
           판매자가 확인 후 발송할 예정입니다.
         </p>
 

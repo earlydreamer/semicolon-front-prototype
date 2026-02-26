@@ -2,7 +2,10 @@
  * 결제 수단 선택 컴포넌트
  */
 
-import { CreditCard, Smartphone, Check, Building } from 'lucide-react';
+import CreditCard from 'lucide-react/dist/esm/icons/credit-card';
+import Smartphone from 'lucide-react/dist/esm/icons/smartphone';
+import Check from 'lucide-react/dist/esm/icons/check';
+import Building from 'lucide-react/dist/esm/icons/building';
 
 interface PaymentMethodSelectorProps {
   selectedMethod: string | null;
@@ -27,7 +30,7 @@ const PaymentMethodSelector = ({ selectedMethod, onSelect }: PaymentMethodSelect
           <button
             key={method.id}
             onClick={() => onSelect(method.id)}
-            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2
+            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-colors gap-2
               ${
                 selectedMethod === method.id
                   ? 'border-primary-500 bg-primary-50 text-primary-700'

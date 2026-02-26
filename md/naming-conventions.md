@@ -35,7 +35,7 @@
 | 프로필 이미지 | `profileImage` | 프로필 사진 URL | `string` |
 | 휴대폰 | `phoneNumber` | 휴대폰 번호 | `string` |
 | 가입일 | `createdAt` | 가입 일시 | `Date` |
-| 포인트 | `points` | 보유 포인트 | `number` |
+| 예치금 | `deposit` | 예치금 잔액 | `number` |
 | 역할 | `role` | 사용자 역할 | `'user' \| 'admin'` |
 
 ### 상품 (Product)
@@ -81,7 +81,7 @@
 | 수량 | `quantity` | 주문 수량 | `number` |
 | 상품금액 | `productAmount` | 상품 총 금액 | `number` |
 | 배송비 | `shippingFee` | 배송비 | `number` |
-| 할인금액 | `discountAmount` | 쿠폰/포인트 할인 | `number` |
+| 할인금액 | `discountAmount` | 쿠폰/예치금 할인 | `number` |
 | 최종금액 | `totalAmount` | 최종 결제 금액 | `number` |
 | 주문상태 | `orderStatus` | 주문 상태 | `OrderStatus` |
 | 결제일시 | `paidAt` | 결제 완료 일시 | `Date` |

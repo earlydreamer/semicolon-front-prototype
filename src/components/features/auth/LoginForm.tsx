@@ -1,89 +1,118 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useLikeStore } from '@/stores/useLikeStore';
+import { useToast } from '@/components/common/Toast';
+import { authService } from '@/services/authService';
+import { parseHttpError } from '@/utils/httpError';
+import {
+  getRemainingVerificationCooldown,
+  markVerificationEmailSent,
+} from '@/utils/verificationCooldown';
 
 const loginSchema = z.object({
-  loginId: z.string().min(1, '아이디를 입력해주세요.'),
-  password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.'),
+  email: z.string().email('이메일 형식을 확인해 주세요.'),
+  password: z.string().min(1, '비밀번호를 입력해 주세요.'),
   autoLogin: z.boolean().optional(),
 });
 
 type LoginSchema = z.infer<typeof loginSchema>;
-
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { useToast } from '@/components/common/Toast';
-import { useLikeStore } from '@/stores/useLikeStore';
-import { useFollowStore } from '@/stores/useFollowStore';
-import { useSellerStore } from '@/stores/useSellerStore';
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuthStore();
   const { showToast } = useToast();
-  const initUserLikes = useLikeStore((state) => state.initUserLikes);
-  const initFollowing = useFollowStore((state) => state.initFollowing);
-  const initSellerProducts = useSellerStore((state) => state.initSellerProducts);
+  const fetchUserLikes = useLikeStore((state) => state.fetchUserLikes);
 
   const {
     register,
     handleSubmit,
+    setFocus,
     formState: { errors },
   } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      autoLogin: false,
-    },
+    defaultValues: { autoLogin: false },
   });
+
+  const handleVerificationRequired = async (email: string) => {
+    const remaining = getRemainingVerificationCooldown(email);
+    if (remaining > 0) {
+      showToast(`인증 메일은 ${remaining}초 후 다시 보낼 수 있습니다.`, 'info');
+      navigate(`/email/pending?email=${encodeURIComponent(email)}`);
+      return;
+    }
+
+    await authService.sendVerificationEmail(email);
+    markVerificationEmailSent(email);
+    showToast('이메일 인증이 필요합니다. 인증 안내 페이지로 이동합니다.', 'info');
+    navigate(`/email/pending?email=${encodeURIComponent(email)}`);
+  };
 
   const onSubmit = async (data: LoginSchema) => {
     setIsLoading(true);
-    
     try {
-      const result = await login(data.loginId, data.password);
-      
-      if (result.success) {
-        // 유저별 초기 데이터(찜, 팔로우) 로드
-        const { user } = useAuthStore.getState();
-        if (user) {
-          initUserLikes(user.id);
-          initFollowing(user.id);
-          initSellerProducts(user.id);
-        }
-        
-        showToast('로그인 성공', 'success');
-        navigate('/');
-      } else {
-        showToast(result.message || 'ID 또는 비밀번호를 확인해주세요.', 'error');
+      await login({ email: data.email, password: data.password }, Boolean(data.autoLogin));
+
+      const { user } = useAuthStore.getState();
+      if (user) {
+        await fetchUserLikes(user.id);
       }
+
+      showToast('로그인했어요.', 'success');
+      navigate('/');
     } catch (error) {
-      showToast('로그인 중 문제가 발생했습니다.', 'error');
+      const message = parseHttpError(error, '로그인에 실패했어요. 이메일과 비밀번호를 확인해 주세요.');
+
+      if (message.includes('이메일 인증이 필요합니다')) {
+        try {
+          await handleVerificationRequired(data.email);
+        } catch (sendError) {
+          showToast(parseHttpError(sendError, '인증 메일 재발송에 실패했어요.'), 'error');
+        }
+      } else {
+        showToast(message, 'error');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  const onInvalid = (formErrors: FieldErrors<LoginSchema>) => {
+    if (formErrors.email) {
+      setFocus('email');
+      return;
+    }
+    if (formErrors.password) {
+      setFocus('password');
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4" noValidate>
       <Input
-        label="아이디"
-        type="text"
-        placeholder="user1 ~ user20"
-        error={errors.loginId?.message}
-        {...register('loginId')}
+        label="이메일"
+        type="email"
+        placeholder="name@example.com…"
+        autoComplete="email"
+        spellCheck={false}
+        error={errors.email?.message}
+        {...register('email')}
       />
       <Input
         label="비밀번호"
         type="password"
-        placeholder="testuser (테스트용)"
+        placeholder="비밀번호를 입력해 주세요…"
+        autoComplete="current-password"
         error={errors.password?.message}
         {...register('password')}
       />
-      
+
       <div className="flex items-center space-x-2">
         <input
           type="checkbox"

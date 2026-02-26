@@ -1,17 +1,19 @@
-/**
- * 판매자 상품 관리 Store (Zustand)
- */
+import { create } from "zustand";
+import type {
+  SaleStatus,
+  ConditionStatus,
+  ProductListItem,
+} from "@/types/product";
+import { shopService } from "@/services/shopService";
+import { productService } from "@/services/productService";
 
-import { create } from 'zustand';
-import { MOCK_PRODUCTS, type SaleStatus, type ConditionStatus } from '@/mocks/products';
-
-// 상품 등록/수정 폼 데이터
 export interface ProductFormData {
   title: string;
   categoryId: string;
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
+  tags?: string[];
   purchaseDate?: string;
   usePeriod?: string;
   detailedCondition?: string;
@@ -19,7 +21,6 @@ export interface ProductFormData {
   images: string[];
 }
 
-// 판매자 상품 (Product 타입과 유사하지만 seller 정보 제외)
 export interface SellerProduct {
   id: string;
   categoryId: string;
@@ -29,6 +30,7 @@ export interface SellerProduct {
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
+  tags?: string[];
   saleStatus: SaleStatus;
   viewCount: number;
   likeCount: number;
@@ -47,20 +49,25 @@ export interface SellerProduct {
 
 interface SellerState {
   products: SellerProduct[];
-  
-  // Actions
-  addProduct: (data: ProductFormData) => SellerProduct;
-  updateProduct: (id: string, data: Partial<ProductFormData>) => void;
-  deleteProduct: (id: string) => void;
-  updateSaleStatus: (id: string, status: SaleStatus) => void;
-  updateTrackingInfo: (id: string, info: { number: string; company: string }) => void;
-  initSellerProducts: (userId: string) => void;
-  
-  // Getters
+  isLoading: boolean;
+
+  addProduct: (data: ProductFormData) => Promise<SellerProduct>;
+  updateProduct: (id: string, data: Partial<ProductFormData>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  updateSaleStatus: (id: string, status: SaleStatus) => Promise<void>;
+  updateTrackingInfo: (
+    id: string,
+    info: { number: string; company: string },
+  ) => Promise<void>;
+  initSellerProducts: (status?: SaleStatus) => Promise<void>;
+  loadMoreProducts: () => Promise<void>;
+  hasNext: boolean;
+  currentPage: number;
+  activeStatus: SaleStatus | "all";
+
   getProductById: (id: string) => SellerProduct | undefined;
-  getProductsByStatus: (status: SaleStatus | 'all') => SellerProduct[];
-  
-  // Stats
+  getProductsByStatus: (status: SaleStatus | "all") => SellerProduct[];
+
   getStats: () => {
     total: number;
     onSale: number;
@@ -70,147 +77,276 @@ interface SellerState {
   };
 }
 
+const isUploadedImageUrl = (value: string): boolean => {
+  const url = value.trim();
+  return /^https?:\/\//.test(url) || url.startsWith("/api/");
+};
+
+const sanitizeImageUrls = (images: string[]): string[] =>
+  images
+    .map((image) => productService.normalizeImageUrl(image))
+    .filter(isUploadedImageUrl);
+
+const hasValidProductId = (id: string | undefined | null): id is string =>
+  !!id && id !== "undefined" && id !== "null";
+
+const getProductId = (item: ProductListItem): string => {
+  const fallbackId = (item as ProductListItem & { id?: string }).id;
+  return item.productUuid || fallbackId || "";
+};
+
+const mapToSellerProduct = (item: ProductListItem): SellerProduct => ({
+  id: getProductId(item),
+  categoryId: "",
+  sellerId: "me",
+  title: item.title,
+  description: "",
+  price: item.price,
+  shippingFee: 0,
+  conditionStatus: "NO_WEAR",
+  saleStatus: item.saleStatus || "ON_SALE",
+  viewCount: item.viewCount || 0,
+  likeCount: item.likeCount || 0,
+  commentCount: item.commentCount || 0,
+  createdAt: item.createdAt || new Date().toISOString(),
+  image: item.thumbnailUrl || "",
+  images: item.thumbnailUrl ? [item.thumbnailUrl] : [],
+  isSafe: true,
+  tags: item.tagNames ?? [],
+});
+
 export const useSellerStore = create<SellerState>((set, get) => ({
-  // 초기 상태는 빈 배열, 로그인 시 initSellerProducts 호출로 채워짐
   products: [],
-  
-  /**
-   * 상품 등록
-   */
-  addProduct: (data: ProductFormData) => {
-    const newProduct: SellerProduct = {
-      id: `product-${Date.now()}`,
-      categoryId: data.categoryId,
-      sellerId: 'u1', // 현재 유저
+  isLoading: false,
+  hasNext: false,
+  currentPage: 0,
+  activeStatus: "all",
+
+  addProduct: async (data: ProductFormData) => {
+    const imageUrls = sanitizeImageUrls(data.images);
+    const response = await shopService.createProduct({
+      categoryId: Number(data.categoryId),
       title: data.title,
       description: data.description,
       price: data.price,
       shippingFee: data.shippingFee,
       conditionStatus: data.conditionStatus,
-      saleStatus: 'ON_SALE',
+      imageUrls,
+      tags: data.tags,
+    });
+    if (!response.productUuid) {
+      throw new Error("Product UUID is missing in create response");
+    }
+
+    const newProduct: SellerProduct = {
+      id: response.productUuid,
+      categoryId: data.categoryId,
+      sellerId: "me",
+      title: data.title,
+      description: data.description,
+      price: data.price,
+      shippingFee: data.shippingFee,
+      conditionStatus: data.conditionStatus,
+      tags: data.tags ?? [],
+      saleStatus: "ON_SALE",
       viewCount: 0,
       likeCount: 0,
       commentCount: 0,
       createdAt: new Date().toISOString(),
-      image: data.images[0] || '',
-      images: data.images,
+      image: imageUrls[0] || "",
+      images: imageUrls,
       isSafe: true,
       purchaseDate: data.purchaseDate,
       usePeriod: data.usePeriod,
       detailedCondition: data.detailedCondition,
     };
-    
+
     set((state) => ({
       products: [newProduct, ...state.products],
     }));
-    
+
     return newProduct;
   },
-  
-  /**
-   * 상품 수정
-   */
-  updateProduct: (id: string, data: Partial<ProductFormData>) => {
+
+  updateProduct: async (id: string, data: Partial<ProductFormData>) => {
+    if (!hasValidProductId(id)) return;
+    const currentProduct = get().products.find((p) => p.id === id);
+    if (!currentProduct) return;
+    const imageUrls = sanitizeImageUrls(data.images ?? currentProduct.images);
+
+    await shopService.updateProduct(id, {
+      categoryId: Number(data.categoryId ?? currentProduct.categoryId),
+      title: data.title ?? currentProduct.title,
+      description: data.description ?? currentProduct.description,
+      price: data.price ?? currentProduct.price,
+      shippingFee: data.shippingFee ?? currentProduct.shippingFee,
+      conditionStatus: data.conditionStatus ?? currentProduct.conditionStatus,
+      visibilityStatus: "VISIBLE",
+      imageUrls,
+      tags: data.tags,
+    });
+
     set((state) => ({
       products: state.products.map((p) =>
         p.id === id
           ? {
               ...p,
               ...data,
-              image: data.images?.[0] ?? p.image,
+              image: imageUrls[0] ?? p.image,
+              images: imageUrls,
               updatedAt: new Date().toISOString(),
             }
-          : p
+          : p,
       ),
     }));
   },
-  
-  /**
-   * 상품 삭제
-   */
-  deleteProduct: (id: string) => {
+
+  deleteProduct: async (id: string) => {
+    if (!hasValidProductId(id)) return;
+    const prevProducts = get().products;
     set((state) => ({
       products: state.products.filter((p) => p.id !== id),
     }));
+
+    try {
+      await shopService.deleteProduct(id);
+    } catch (error) {
+      set({ products: prevProducts });
+      throw error;
+    }
   },
-  
-  /**
-   * 판매 상태 변경
-   */
-  updateSaleStatus: (id: string, status: SaleStatus) => {
+
+  updateSaleStatus: async (id: string, status: SaleStatus) => {
+    if (!hasValidProductId(id)) return;
+    const currentProduct = get().products.find((p) => p.id === id);
+    if (!currentProduct) return;
+    const prevProducts = get().products;
+
     set((state) => ({
       products: state.products.map((p) =>
-        p.id === id ? { ...p, saleStatus: status, updatedAt: new Date().toISOString() } : p
+        p.id === id
+          ? { ...p, saleStatus: status, updatedAt: new Date().toISOString() }
+          : p,
       ),
     }));
+
+    try {
+      await shopService.updateProduct(id, {
+        categoryId: Number(currentProduct.categoryId),
+        title: currentProduct.title,
+        description: currentProduct.description,
+        price: currentProduct.price,
+        shippingFee: currentProduct.shippingFee,
+        conditionStatus: currentProduct.conditionStatus,
+        visibilityStatus: "VISIBLE",
+        imageUrls: currentProduct.images,
+        tags: currentProduct.tags,
+      });
+    } catch (error) {
+      set({ products: prevProducts });
+      throw error;
+    }
   },
-  
-  /**
-   * 운송장 정보 업데이트
-   */
-  updateTrackingInfo: (id: string, info: { number: string; company: string }) => {
+
+  updateTrackingInfo: async (
+    id: string,
+    info: { number: string; company: string },
+  ) => {
     set((state) => ({
       products: state.products.map((p) =>
-        p.id === id 
-          ? { 
-              ...p, 
-              trackingNumber: info.number, 
+        p.id === id
+          ? {
+              ...p,
+              trackingNumber: info.number,
               deliveryCompany: info.company,
-              saleStatus: 'SOLD_OUT', // 운송장 입력 시 판매완료(배송중) 처리
-              updatedAt: new Date().toISOString() 
-            } 
-          : p
+              saleStatus: "SOLD_OUT",
+              updatedAt: new Date().toISOString(),
+            }
+          : p,
       ),
     }));
-  }, // Added missing comma here
-  /**
-   * 유저별 판매 상품 초기화
-   */
-  initSellerProducts: (userId: string) => {
-    const userProducts = MOCK_PRODUCTS.filter(p => p.seller.userId === userId);
-    set({
-      products: userProducts.map(p => ({
-        ...p,
-        // SellerProduct 인터페이스에 맞게 변환 (필요한 경우)
-      })) as SellerProduct[]
-    });
   },
-  
-  /**
-   * ID로 상품 조회
-   */
+
+  initSellerProducts: async (status?: SaleStatus) => {
+    try {
+      const activeStatus = status || "all";
+      set({ isLoading: true, activeStatus, currentPage: 0 });
+
+      const response = await shopService.getMyShopProducts({
+        page: 0,
+        size: 50,
+        saleStatus: status,
+      });
+
+      const mapped = (response.items || []).map(mapToSellerProduct);
+
+      set({
+        products: mapped,
+        hasNext: response.hasNext,
+        currentPage: 0,
+      });
+    } catch (error) {
+      console.error("Failed to initialize seller products:", error);
+      set({ products: [], hasNext: false });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  loadMoreProducts: async () => {
+    const { currentPage, hasNext, isLoading, activeStatus } = get();
+    if (!hasNext || isLoading) return;
+
+    try {
+      set({ isLoading: true });
+      const nextPage = currentPage + 1;
+      const response = await shopService.getMyShopProducts({
+        page: nextPage,
+        size: 50,
+        saleStatus:
+          activeStatus === "all" ? undefined : (activeStatus as SaleStatus),
+      });
+
+      const mapped = (response.items || []).map(mapToSellerProduct);
+
+      set((state) => ({
+        products: [...state.products, ...mapped],
+        currentPage: nextPage,
+        hasNext: response.hasNext,
+      }));
+    } catch (error) {
+      console.error("Failed to load more products:", error);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   getProductById: (id: string) => {
     return get().products.find((p) => p.id === id);
   },
-  
-  /**
-   * 상태별 상품 조회
-   */
-  getProductsByStatus: (status: SaleStatus | 'all') => {
+
+  getProductsByStatus: (status: SaleStatus | "all") => {
     const products = get().products;
-    if (status === 'all') return products;
+    if (status === "all") return products;
     return products.filter((p) => p.saleStatus === status);
   },
-  
-  /**
-   * 통계 조회 (단일 루프로 최적화)
-   */
+
   getStats: () => {
     const products = get().products;
     let onSale = 0;
     let reserved = 0;
     let soldOut = 0;
     let totalRevenue = 0;
-    
+
     for (const p of products) {
-      if (p.saleStatus === 'ON_SALE') onSale++;
-      else if (p.saleStatus === 'RESERVED') reserved++;
-      else if (p.saleStatus === 'SOLD_OUT') {
+      if (p.saleStatus === "ON_SALE") onSale++;
+      else if (p.saleStatus === "RESERVED") reserved++;
+      else if (p.saleStatus === "SOLD_OUT") {
         soldOut++;
         totalRevenue += p.price;
       }
     }
-    
+
     return {
       total: products.length,
       onSale,
@@ -220,3 +356,5 @@ export const useSellerStore = create<SellerState>((set, get) => ({
     };
   },
 }));
+
+
