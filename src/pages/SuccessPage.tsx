@@ -1,141 +1,129 @@
 /**
- * 결제 성공 페이지 (토스 공식 샘플 스타일)
- * 
- * @see https://docs.tosspayments.com/guides/v2/payment-widget/integration
+ * 결제 성공 페이지
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { paymentService } from '../services/paymentService';
-import { useOrderStore } from '../stores/useOrderStore';
-import { useCartStore } from '../stores/useCartStore';
-import { useToast } from '../components/common/Toast';
-import type { PaymentResponseData } from '../types/payment';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
+import { useToast } from '../components/common/Toast';
+import { paymentService } from '../services/paymentService';
+import { useCartStore } from '../stores/useCartStore';
+import { useOrderStore } from '../stores/useOrderStore';
 
 export default function SuccessPage() {
-    const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const { showToast } = useToast();
-    const { clearOrder } = useOrderStore();
-    const { fetchItems } = useCartStore();
-    
-    const [responseData, setResponseData] = useState<PaymentResponseData | null>(null);
-    const [isConfirming, setIsConfirming] = useState(true);
-    const hasConfirmed = useRef(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { showToast } = useToast();
+  const { clearOrder } = useOrderStore();
+  const { fetchItems } = useCartStore();
 
-    useEffect(() => {
-        // [FIX] 중복 요청 방지 (StrictMode 대응)
-        if (hasConfirmed.current) return;
-        
-        async function confirm() {
-            const paymentKey = searchParams.get('paymentKey');
-            const orderId = searchParams.get('orderId');
-            const amount = searchParams.get('amount');
-            const paymentUuid = searchParams.get('paymentUuid');
+  const [isConfirming, setIsConfirming] = useState(true);
+  const hasConfirmed = useRef(false);
 
-            if (!paymentKey || !orderId || !amount || !paymentUuid) {
-                showToast('필수 결제 정보가 누락됐어요.', 'error');
-                navigate('/payment/fail?message=MISSING_PARAMS');
-                return;
-            }
+  const orderId = searchParams.get('orderId') ?? '';
+  const amountParam = searchParams.get('amount') ?? '0';
+  const amount = Number(amountParam);
 
-            hasConfirmed.current = true;
+  useEffect(() => {
+    if (hasConfirmed.current) return;
 
-            // 백엔드에 결제 승인 요청
-            try {
-                // [FIX] paymentUuid를 멱등키로 사용하여 새로고침 시 중복 승인 방지
-                const idempotencyKey = paymentUuid;
-                
-                const response = await paymentService.confirmPayment({
-                    paymentUuid,
-                    toss: {
-                        paymentKey,
-                        orderId,
-                        amount: Number(amount),
-                    },
-                }, idempotencyKey);
+    async function confirm() {
+      const paymentKey = searchParams.get('paymentKey');
+      const paymentUuid = searchParams.get('paymentUuid');
+      const requestOrderId = searchParams.get('orderId');
+      const requestAmount = searchParams.get('amount');
 
-                if (response.success) {
-                    setResponseData(response.data);
-                    showToast('결제가 완료됐어요. 잠시 후 홈으로 이동합니다.', 'success');
-                    fetchItems(); // 장바구니 새로고침 (백엔드에서 비워진 상태 반영)
-                    clearOrder(); // 주문 정보 정리
-                    setTimeout(() => navigate('/'), 3000); // 3초 후 홈으로 자동 이동
-                } else {
-                    throw new Error(response.message || '승인 실패');
-                }
-            } catch (error: unknown) {
-                console.error('결제 승인 실패:', error);
-                const apiError = error as AxiosError<{ code?: string; message?: string }>;
-                const code = apiError.response?.data?.code || 'CONFIRM_ERROR';
-                const message = apiError.response?.data?.message || apiError.message || '결제 승인 실패';
-                navigate(`/payment/fail?code=${code}&message=${encodeURIComponent(message)}`);
-            } finally {
-                setIsConfirming(false);
-            }
+      if (!paymentKey || !requestOrderId || !requestAmount || !paymentUuid) {
+        showToast('필수 결제 정보가 누락되었습니다.', 'error');
+        navigate('/payment/fail?message=MISSING_PARAMS');
+        return;
+      }
+
+      hasConfirmed.current = true;
+
+      try {
+        const idempotencyKey = paymentUuid;
+
+        const response = await paymentService.confirmPayment(
+          {
+            paymentUuid,
+            toss: {
+              paymentKey,
+              orderId: requestOrderId,
+              amount: Number(requestAmount),
+            },
+          },
+          idempotencyKey
+        );
+
+        if (!response.success) {
+          throw new Error(response.message || '결제 확인에 실패했습니다.');
         }
 
-        confirm();
-    }, [searchParams, navigate, showToast, clearOrder, fetchItems]);
+        showToast('결제가 완료되었습니다.', 'success');
+        fetchItems();
+        clearOrder();
+      } catch (error: unknown) {
+        console.error('결제 확인 실패:', error);
+        const apiError = error as AxiosError<{ code?: string; message?: string }>;
+        const code = apiError.response?.data?.code || 'CONFIRM_ERROR';
+        const message = apiError.response?.data?.message || apiError.message || '결제 확인에 실패했습니다.';
+        navigate(`/payment/fail?code=${code}&message=${encodeURIComponent(message)}`);
+      } finally {
+        setIsConfirming(false);
+      }
+    }
+
+    confirm();
+  }, [searchParams, navigate, showToast, clearOrder, fetchItems]);
 
   if (isConfirming) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4" />
-        <p className="text-gray-600">결제 승인 중...</p>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50">
+        <div className="mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-primary-600" />
+        <p className="text-neutral-600">결제 확인 중입니다...</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-3 py-6 min-[360px]:px-4 min-[360px]:py-10">
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="min-h-screen bg-neutral-50 px-4 py-10">
+      <div className="mx-auto max-w-md rounded-2xl border border-neutral-200 bg-white p-7 text-center shadow-sm">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h1 className="mb-2 text-xl font-bold text-gray-900 min-[360px]:text-2xl">결제 성공</h1>
-        <p className="text-gray-600">결제가 완료됐어요.</p>
-      </div>
 
-      {/* 결제 정보 */}
-      <div className="mb-6 rounded-lg bg-gray-50 p-4 min-[360px]:p-6">
-        <h2 className="font-semibold mb-4">결제 정보</h2>
-        <dl className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <dt className="text-gray-500">주문번호</dt>
-            <dd className="font-medium">{searchParams.get('orderId')}</dd>
+        <h1 className="mb-2 text-2xl font-bold text-neutral-900">결제가 완료되었어요</h1>
+        <p className="mb-6 text-sm text-neutral-500">주문이 정상적으로 접수되었습니다.</p>
+
+        <dl className="mb-6 rounded-xl bg-neutral-50 p-4 text-sm">
+          <div className="flex items-center justify-between py-1.5">
+            <dt className="text-neutral-500">주문번호</dt>
+            <dd className="max-w-[65%] truncate font-medium text-neutral-800" title={orderId}>
+              {orderId || '-'}
+            </dd>
           </div>
-          <div className="flex justify-between">
-            <dt className="text-gray-500">결제금액</dt>
-            <dd className="font-medium">{Number(searchParams.get('amount')).toLocaleString()}원</dd>
-          </div>
-          <div className="flex flex-col justify-between gap-1 min-[360px]:flex-row min-[360px]:items-center">
-            <dt className="text-gray-500">결제키</dt>
-            <dd className="font-medium text-xs break-all">{searchParams.get('paymentKey')}</dd>
+          <div className="flex items-center justify-between py-1.5">
+            <dt className="text-neutral-500">결제금액</dt>
+            <dd className="font-semibold text-neutral-900">
+              {Number.isFinite(amount) ? amount.toLocaleString('ko-KR') : '0'}원
+            </dd>
           </div>
         </dl>
-      </div>
 
-      {/* API 응답 (학습용) */}
-      <div className="bg-gray-900 text-gray-100 rounded-lg p-4 mb-6 overflow-auto">
-        <p className="text-xs text-gray-400 mb-2">토스 API 응답 (학습용)</p>
-        <pre className="text-xs whitespace-pre-wrap">
-          {JSON.stringify(responseData, null, 2)}
-        </pre>
+        <button
+          type="button"
+          onClick={() => {
+            clearOrder();
+            navigate('/');
+          }}
+          className="w-full rounded-xl bg-primary-600 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-primary-700"
+        >
+          홈으로 이동
+        </button>
       </div>
-
-      <button 
-        onClick={() => {
-          clearOrder();
-          navigate('/');
-        }}
-        className="block w-full text-center bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-6 rounded-xl transition-colors"
-      >
-        홈으로 돌아가기
-      </button>
     </div>
   );
 }

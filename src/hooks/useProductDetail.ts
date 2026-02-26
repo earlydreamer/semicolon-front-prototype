@@ -1,20 +1,20 @@
-﻿import { useEffect, useMemo, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { sanitizeUrlParam, isValidId } from "@/utils/sanitize";
-import { findCategoryPath } from "@/utils/category";
-import type { Category } from "@/types/category";
-import { useToast } from "@/components/common/Toast";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { useCartStore } from "@/stores/useCartStore";
-import { useLikeStore } from "@/stores/useLikeStore";
-import { useOrderStore } from "@/stores/useOrderStore";
-import { useProductStore } from "@/stores/useProductStore";
-import { productService } from "@/services/productService";
-import { orderService } from "@/services/orderService";
-import { commentService } from "@/services/commentService";
-import type { CartItem } from "@/types/cart";
-import type { CommentThreadResponse } from "@/services/commentService";
-import type { ProductComment } from "@/types/comment";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { commentService } from '@/services/commentService';
+import { orderService } from '@/services/orderService';
+import { productService } from '@/services/productService';
+import { useToast } from '@/components/common/Toast';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useCartStore } from '@/stores/useCartStore';
+import { useLikeStore } from '@/stores/useLikeStore';
+import { useOrderStore } from '@/stores/useOrderStore';
+import { useProductStore } from '@/stores/useProductStore';
+import type { Category } from '@/types/category';
+import type { CartItem } from '@/types/cart';
+import type { ProductComment } from '@/types/comment';
+import type { CommentThreadResponse } from '@/services/commentService';
+import { findCategoryPath } from '@/utils/category';
+import { isValidId, sanitizeUrlParam } from '@/utils/sanitize';
 
 export const useProductDetail = (rawProductId: string | undefined) => {
   const navigate = useNavigate();
@@ -34,28 +34,17 @@ export const useProductDetail = (rawProductId: string | undefined) => {
     setCouponDiscountAmount,
     setDepositUseAmount,
   } = useOrderStore();
-  const {
-    currentProduct: apiProduct,
-    isLoading,
-    error,
-    fetchProductDetail,
-  } = useProductStore();
+  const { currentProduct: apiProduct, isLoading, error, fetchProductDetail } = useProductStore();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [comments, setComments] = useState<ProductComment[]>([]);
   const [isLikeSubmitting, setIsLikeSubmitting] = useState(false);
-  const [pendingOrderUuidForProduct, setPendingOrderUuidForProduct] = useState<
-    string | null
-  >(null);
+  const [pendingOrderUuidForProduct, setPendingOrderUuidForProduct] = useState<string | null>(null);
 
-  const productId = useMemo(
-    () => sanitizeUrlParam(rawProductId),
-    [rawProductId],
-  );
+  const productId = useMemo(() => sanitizeUrlParam(rawProductId), [rawProductId]);
 
-  // 蹂묐젹 ?곗씠???섏묶 (Waterfall ?쒓굅)
   useEffect(() => {
     if (!productId || !isValidId(productId)) return;
 
@@ -66,11 +55,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
           commentService.getProductComments(productId, { page: 0, size: 20 }),
         ]);
 
-        // 移댄뀒怨좊━ ?몃━ 鍮뚮뱶
-        const buildTree = (
-          parentId: number | null,
-          depth: number,
-        ): Category[] =>
+        const buildTree = (parentId: number | null, depth: number): Category[] =>
           categoryData
             .filter((cat) => cat.parentId === parentId)
             .map((cat) => ({
@@ -80,33 +65,31 @@ export const useProductDetail = (rawProductId: string | undefined) => {
               parentId: cat.parentId === null ? null : String(cat.parentId),
               children: buildTree(cat.id, depth + 1),
             }));
+
         setCategories(buildTree(null, 1));
 
-        // ?볤? ?곗씠??媛怨?
         setComments(
           (commentData.items || []).map((thread: CommentThreadResponse) => ({
-              id: thread.parent.commentUuid,
-              authorUuid: thread.parent.authorUuid,
-              authorRole: thread.parent.authorRole,
-              content: thread.parent.content,
-              replies: (thread.replies || []).map((reply) => ({
-                id: reply.commentUuid,
-                authorUuid: reply.authorUuid,
-                authorRole: reply.authorRole,
-                content: reply.content,
-              })),
-            }),
-          ),
+            id: thread.parent.commentUuid,
+            authorUuid: thread.parent.authorUuid,
+            authorRole: thread.parent.authorRole,
+            content: thread.parent.content,
+            replies: (thread.replies || []).map((reply) => ({
+              id: reply.commentUuid,
+              authorUuid: reply.authorUuid,
+              authorRole: reply.authorRole,
+              content: reply.content,
+            })),
+          })),
         );
 
-        // ?곹뭹 ?곸꽭 ?뺣낫??Store瑜??듯빐 蹂꾨룄濡??좎? (湲곗〈 ?꾪궎?띿쿂 議댁쨷)
         fetchProductDetail(productId);
       } catch (err) {
-        console.error("Failed to load product initial data:", err);
+        console.error('Failed to load product initial data:', err);
       }
     };
 
-    loadInitialData();
+    void loadInitialData();
   }, [productId, fetchProductDetail]);
 
   const product = useMemo(() => {
@@ -118,7 +101,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       price: apiProduct.price,
       description: apiProduct.description,
       tags: apiProduct.tagNames || [],
-      image: apiProduct.imageUrls?.[0] || "",
+      image: apiProduct.imageUrls?.[0] || '',
       images: apiProduct.imageUrls || [],
       categoryId: apiProduct.category?.id || 0,
       saleStatus: apiProduct.saleStatus,
@@ -138,15 +121,12 @@ export const useProductDetail = (rawProductId: string | undefined) => {
   }, [apiProduct, comments]);
 
   useEffect(() => {
-    if (!isAuthenticated || !user?.id) {
-      return;
-    }
-
+    if (!isAuthenticated || !user?.id) return;
     void fetchUserLikes(user.id);
   }, [isAuthenticated, user?.id, fetchUserLikes]);
 
   const categoryPath = useMemo(
-    () => findCategoryPath(categories, String(product?.categoryId || "")) || [],
+    () => findCategoryPath(categories, String(product?.categoryId || '')) || [],
     [categories, product?.categoryId],
   );
 
@@ -162,9 +142,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       try {
         const res = await orderService.getMyOrders(0, 100);
         const pendingOrder = res.content.find(
-          (order) =>
-            order.status === "PENDING" &&
-            order.items?.some((item) => item.productUuid === product.id),
+          (order) => order.status === 'PENDING' && order.items?.some((item) => item.productUuid === product.id),
         );
         setPendingOrderUuidForProduct(pendingOrder?.orderUuid ?? null);
       } catch {
@@ -172,12 +150,12 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       }
     };
 
-    findMyPendingOrder();
+    void findMyPendingOrder();
   }, [isAuthenticated, product?.id]);
 
   const handleLike = useCallback(async () => {
     if (!productId || !user) {
-      showToast("로그인이 필요합니다.", "error");
+      showToast('로그인이 필요합니다.', 'error');
       return;
     }
     if (isLikeSubmitting) return;
@@ -186,32 +164,33 @@ export const useProductDetail = (rawProductId: string | undefined) => {
     try {
       const nextLike = await toggleLike(user.id, productId);
       const nextIsLiked = nextLike.isLiked;
-      showToast(
-        nextIsLiked ? "찜 목록에 추가했어요." : "찜을 해제했어요.",
-        nextIsLiked ? "success" : "info",
-      );
+      showToast(nextIsLiked ? '찜 목록에 추가했어요.' : '찜을 해제했어요.', nextIsLiked ? 'success' : 'info');
     } catch {
-      showToast(
-        "찜 처리에 실패했습니다. 잠시 후 다시 시도해주세요.",
-        "error",
-      );
+      showToast('찜 처리에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
     } finally {
       setIsLikeSubmitting(false);
     }
   }, [productId, user, toggleLike, showToast, isLikeSubmitting]);
+
   const handleAddToCart = useCallback(async () => {
     if (!product) return;
-    const added = await addToCart(product.id);
-    showToast(
-      added ? "?λ컮援щ땲??異붽??덉뼱??" : "?대? ?λ컮援щ땲???덉뼱??",
-      added ? "success" : "info",
-    );
+
+    try {
+      const added = await addToCart(product.id);
+      showToast(
+        added ? '상품을 장바구니에 담았습니다.' : '이미 장바구니에 담긴 상품입니다.',
+        added ? 'success' : 'info',
+      );
+    } catch {
+      showToast('장바구니 담기에 실패했어요. 잠시 후 다시 시도해 주세요.', 'error');
+    }
   }, [product, addToCart, showToast]);
 
   const handlePurchase = useCallback(() => {
     if (!product) return;
+
     if (!product.seller.sellerUserUuid) {
-      showToast("?먮ℓ???뺣낫媛 ?놁뼱 二쇰Ц??吏꾪뻾?????놁뒿?덈떎.", "error");
+      showToast('판매자 정보가 없어 주문을 진행할 수 없습니다.', 'error');
       return;
     }
 
@@ -224,15 +203,15 @@ export const useProductDetail = (rawProductId: string | undefined) => {
         title: product.title,
         price: product.price ?? 0,
         saleStatus: product.saleStatus,
-        thumbnailUrl: product.images?.[0] || "",
+        thumbnailUrl: product.images?.[0] || '',
         createdAt: new Date().toISOString(),
         selected: true,
       };
       setOrderItems([orderItem]);
-      navigate("/order");
+      navigate('/order');
     };
 
-    if (product.saleStatus !== "RESERVED") {
+    if (product.saleStatus !== 'RESERVED') {
       moveToOrderWithSingleItem();
       return;
     }
@@ -244,22 +223,21 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       orderItems.length > 0;
 
     if (hasLocalPendingForProduct) {
-      navigate("/checkout");
+      navigate('/checkout');
       return;
     }
 
     if (!pendingOrderUuidForProduct) {
-      showToast("嫄곕옒以묒씤 ?곹뭹?낅땲??", "error");
+      showToast('거래중인 상품입니다.', 'error');
       return;
     }
 
     (async () => {
       try {
-        const orderDetail = await orderService.getOrder(
-          pendingOrderUuidForProduct,
-        );
-        if (orderDetail.orderStatus !== "PENDING") {
-          showToast("?대? 泥섎━??二쇰Ц?낅땲??", "info");
+        const orderDetail = await orderService.getOrder(pendingOrderUuidForProduct);
+
+        if (orderDetail.orderStatus !== 'PENDING') {
+          showToast('이미 처리된 주문입니다.', 'info');
           return;
         }
 
@@ -269,7 +247,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
           sellerUuid: item.sellerUuid,
           title: item.productName,
           price: item.productPrice,
-          saleStatus: "ON_SALE" as const,
+          saleStatus: 'ON_SALE' as const,
           thumbnailUrl: item.imageUrl ?? null,
           createdAt: orderDetail.orderedAt,
           selected: true,
@@ -290,9 +268,9 @@ export const useProductDetail = (rawProductId: string | undefined) => {
         setCouponUuid(null);
         setCouponDiscountAmount(0);
         setDepositUseAmount(0);
-        navigate("/checkout");
+        navigate('/checkout');
       } catch {
-        showToast("寃곗젣 ?섏씠吏濡??대룞?섏? 紐삵뻽?댁슂.", "error");
+        showToast('결제 페이지로 이동하지 못했어요.', 'error');
       }
     })();
   }, [
@@ -325,8 +303,6 @@ export const useProductDetail = (rawProductId: string | undefined) => {
     handleLike,
     handleAddToCart,
     handlePurchase,
-    isOwnPendingReservation:
-      product?.saleStatus === "RESERVED" && !!pendingOrderUuidForProduct,
+    isOwnPendingReservation: product?.saleStatus === 'RESERVED' && !!pendingOrderUuidForProduct,
   };
 };
-
