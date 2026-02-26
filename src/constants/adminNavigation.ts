@@ -19,7 +19,7 @@ export type AdminNavItem = {
   external?: boolean;
 };
 
-const grafanaUrl = import.meta.env.VITE_GRAFANA_URL || 'https://grafana.api.dukku.shop';
+const grafanaUrl = import.meta.env.VITE_GRAFANA_URL || 'http://grafana.api.dukku.shop';
 
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   {
