@@ -24,9 +24,10 @@ interface SellerProductCardProps {
 }
 
 const STATUS_LABELS: Record<SaleStatus, { text: string; className: string }> = {
-  ON_SALE: { text: '판매중', className: 'bg-blue-100 text-blue-700' },
-  RESERVED: { text: '거래중', className: 'bg-yellow-100 text-yellow-700' },
-  SOLD_OUT: { text: '판매완료', className: 'bg-green-100 text-green-700' },
+  ON_SALE: { text: "판매중", className: "bg-green-100 text-green-700" },
+  RESERVED: { text: "거래중", className: "bg-yellow-100 text-yellow-700" },
+  SOLD_OUT: { text: "판매완료", className: "bg-neutral-200 text-neutral-600" },
+  BLOCKED: { text: "차단됨", className: "bg-red-100 text-red-700" },
 };
 
 const SellerProductCard = ({ product }: SellerProductCardProps) => {
