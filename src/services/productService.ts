@@ -59,6 +59,17 @@ export const productService = {
   },
 
   /**
+   * 카테고리를 생성합니다. (어드민 전용)
+   */
+  createCategory: async (name: string, parentId: number | null = null): Promise<CategoryResponse> => {
+    const response = await api.post<CategoryResponse>(
+      API_ENDPOINTS.ADMIN_CATEGORIES.BASE,
+      { name, parentId }
+    );
+    return response.data;
+  },
+
+  /**
    * 추천 상품 목록을 조회합니다.
    */
   getFeaturedProducts: async (size = 20): Promise<ProductListItem[]> => {
