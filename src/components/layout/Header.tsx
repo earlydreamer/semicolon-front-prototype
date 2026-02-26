@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type FocusEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
-import Bell from 'lucide-react/dist/esm/icons/bell';
 import Menu from 'lucide-react/dist/esm/icons/menu';
 import Search from 'lucide-react/dist/esm/icons/search';
 import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
@@ -33,7 +32,7 @@ export function Header() {
     productService
       .getCategories()
       .then((data) => setCategories(transformCategories(data)))
-      .catch((error) => console.error('카테고리를 불러오지 못했어요.', error));
+      .catch((error) => console.error('카테고리를 불러오지 못했습니다.', error));
   }, []);
 
   useEffect(() => {
@@ -98,7 +97,6 @@ export function Header() {
   const openMobileSearch = () => setIsMobileSearchOpen(true);
   const closeMobileSearch = () => setIsMobileSearchOpen(false);
 
-  // Keep category menu open while pointer moves between trigger and dropdown.
   const openCategoryMenu = () => {
     if (categoryCloseTimerRef.current) {
       clearTimeout(categoryCloseTimerRef.current);
@@ -227,7 +225,7 @@ export function Header() {
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="상품명, 브랜드, 상점명…"
+              placeholder="상품명, 브랜드, 상점명 검색"
               autoComplete="off"
               spellCheck={false}
               className="h-11 w-full rounded-lg border border-neutral-300 bg-white px-4 pr-11 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
@@ -250,7 +248,7 @@ export function Header() {
             <Link to="/" className="flex items-center flex-shrink-0">
               <img
                 src={logo}
-                alt="세미콜론"
+                alt="덕구콜렉트"
                 width={144}
                 height={48}
                 className="h-8 min-[320px]:h-10 md:h-12 w-auto transition-transform hover:scale-105"
@@ -289,7 +287,7 @@ export function Header() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="상품 또는 상점을 검색하세요…"
+                placeholder="상품 또는 상점을 검색해보세요"
                 autoComplete="off"
                 spellCheck={false}
                 className="h-10 w-full px-4 pr-10 bg-neutral-100 border-none rounded-lg focus:bg-white focus:ring-1 focus:ring-primary-500 transition-[background-color,box-shadow] text-sm"
@@ -318,15 +316,6 @@ export function Header() {
 
             {isAuthenticated ? (
               <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative hidden text-neutral-900 min-[360px]:inline-flex"
-                  aria-label="알림"
-                >
-                  <Bell className="h-5 w-5" aria-hidden="true" />
-                  <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-red-500" />
-                </Button>
                 <Link to="/cart" className="relative">
                   <Button
                     variant="ghost"
