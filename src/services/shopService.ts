@@ -51,6 +51,7 @@ export interface ProductUpdateRequest {
 
 export interface ShopResponse {
   shopUuid: string;
+  sellerUuid: string;
   nickname: string;
   intro: string;
   salesCount: number;
@@ -68,6 +69,11 @@ export interface ShopProductListResponse {
 }
 
 export const shopService = {
+  getMyShop: async (): Promise<ShopResponse> => {
+    const response = await api.get<ShopResponse>(API_ENDPOINTS.SHOPS.ME);
+    return response.data;
+  },
+
   getShop: async (shopUuid: string): Promise<ShopResponse> => {
     const response = await api.get<ShopResponse>(
       `${API_ENDPOINTS.SHOPS.BASE}/${shopUuid}`,

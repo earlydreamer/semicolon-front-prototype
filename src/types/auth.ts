@@ -30,6 +30,7 @@ export interface UserRegisterRequest {
 
 export interface UserUpdateRequest {
   name: string;
+  intro?: string;
 }
 
 export interface PasswordUpdateRequest {

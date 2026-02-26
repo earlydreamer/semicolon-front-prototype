@@ -10,6 +10,7 @@ import { useFollowStore } from '../stores/useFollowStore';
 import { useSellerStore } from '../stores/useSellerStore';
 import { useUserStore } from '../stores/useUserStore';
 import { orderService } from '../services/orderService';
+import { shopService } from '../services/shopService';
 
 import ProfileCard from '../components/features/mypage/ProfileCard';
 import ProfileStats from '../components/features/mypage/ProfileStats';
@@ -24,6 +25,7 @@ const MyPage = () => {
   const fetchBalance = useUserStore((state) => state.fetchBalance);
   
   const [purchaseCount, setPurchaseCount] = useState(0);
+  const [myShopIntro, setMyShopIntro] = useState('');
 
   const likeCount = useLikeStore((state) => state.getLikedCount(user?.id || ''));
   const followingCount = useFollowStore((state) => state.getFollowingCount(user?.id || ''));
@@ -36,8 +38,12 @@ const MyPage = () => {
     if (user?.id) {
       initSellerProducts();
       fetchUserLikes(user.id);
-      initFollowing(user.id);
+      initFollowing(user.id).catch(console.error);
       fetchBalance();
+      shopService
+        .getMyShop()
+        .then((shop) => setMyShopIntro(shop.intro || ''))
+        .catch(() => setMyShopIntro(''));
 
       // 주문 내역 개수 조회
       orderService.getMyOrders(0, 1).then(res => {
@@ -60,7 +66,7 @@ const MyPage = () => {
     <div className="min-h-screen bg-neutral-50 py-5 pb-20 min-[360px]:py-6">
       <div className="mx-auto max-w-2xl space-y-5 px-3 min-[360px]:space-y-6 min-[360px]:px-4">
         {/* 프로필 카드 */}
-        <ProfileCard user={user} />
+        <ProfileCard user={{ ...user, intro: user.intro || myShopIntro }} />
 
         {/* 통계 */}
         <ProfileStats
@@ -86,7 +92,7 @@ const MyPage = () => {
           <h2 className="text-lg font-bold text-neutral-900 mb-3">
             팔로우한 상점 <span className="text-primary-600">{followingCount}</span>
           </h2>
-          <FollowingShops userId={user.id} />
+          <FollowingShops userId={user.id} refreshKey={followingCount} />
         </div>
       </div>
     </div>

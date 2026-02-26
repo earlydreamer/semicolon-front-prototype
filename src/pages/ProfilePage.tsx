@@ -29,7 +29,7 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      await userService.updateProfile({ name: nickname });
+      await userService.updateProfile({ name: nickname, intro });
       await refreshUser();
       showToast('프로필이 수정됐어요.', 'success');
       navigate('/mypage');
