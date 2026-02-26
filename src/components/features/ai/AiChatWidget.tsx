@@ -122,7 +122,7 @@ export function AiChatWidget() {
           {/* 헤더 */}
           <div className="bg-primary-500 p-4 text-white flex justify-between items-center shrink-0">
             <div>
-              <h3 className="font-bold">AI 덕쿠 상담사</h3>
+              <h3 className="font-bold text-white">AI 덕쿠 상담사</h3>
               <p className="text-xs text-primary-100 mt-1">개인 맞춤화된 상품을 추천받아보세요!</p>
             </div>
             <div className="flex gap-2">

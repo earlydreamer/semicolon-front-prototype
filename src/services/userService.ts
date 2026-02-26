@@ -65,11 +65,6 @@ export interface AddressRequest {
   isDefault: boolean;
 }
 
-export interface LikeProductResponse {
-  productUuid: string;
-  isLiked: boolean;
-}
-
 export interface LikedProductItem {
   productUuid: string;
   title: string;
@@ -81,6 +76,10 @@ export interface LikedProductItem {
 export interface LikedProductListResponse {
   content?: LikedProductItem[];
   items?: LikedProductItem[];
+  page?: number;
+  size?: number;
+  totalCount?: number;
+  hasNext?: boolean;
 }
 
 export const userService = {
@@ -137,17 +136,15 @@ export const userService = {
 
   // Likes
   likeProduct: async (productUuid: string) => {
-    const response = await api.post<LikeProductResponse>(
+    await api.post(
       `${API_ENDPOINTS.PRODUCTS.BASE}/${productUuid}/like`,
     );
-    return response.data;
   },
 
   unlikeProduct: async (productUuid: string) => {
-    const response = await api.delete<LikeProductResponse>(
+    await api.delete(
       `${API_ENDPOINTS.PRODUCTS.BASE}/${productUuid}/like`,
     );
-    return response.data;
   },
 
   getLikedProducts: async (page = 0, size = 20): Promise<LikedProductListResponse> => {
