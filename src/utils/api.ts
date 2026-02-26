@@ -1,8 +1,20 @@
 ﻿import axios from 'axios';
 import { useAuthStore } from '../stores/useAuthStore';
 
-// Use Vite environment variables (must start with VITE_)
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const resolveApiBaseUrl = (): string => {
+  const configured = String(import.meta.env.VITE_API_BASE_URL || '').trim();
+  if (configured && configured !== '/') {
+    return configured.replace(/\/+$/, '');
+  }
+
+  if (typeof window !== 'undefined' && window.location.hostname === 'dukku.shop') {
+    return 'https://api.dukku.shop';
+  }
+
+  return configured;
+};
+
+const BASE_URL = resolveApiBaseUrl();
 
 const api = axios.create({
   baseURL: BASE_URL,

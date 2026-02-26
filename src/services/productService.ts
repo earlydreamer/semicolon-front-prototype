@@ -10,6 +10,21 @@ import type {
 } from "../types/product";
 import axios from "axios";
 
+const resolveApiOrigin = (): string => {
+  const configured = String(import.meta.env.VITE_API_BASE_URL || "").trim();
+  if (configured && configured !== "/") {
+    return configured.replace(/\/+$/, "");
+  }
+
+  if (typeof window !== "undefined" && window.location.hostname === "dukku.shop") {
+    return "https://api.dukku.shop";
+  }
+
+  return "";
+};
+
+const API_ORIGIN = resolveApiOrigin();
+
 export const productService = {
   /**
    * 카테고리 목록을 조회합니다.
@@ -127,7 +142,7 @@ export const productService = {
   },
 
   buildPublicImageUrl: (key: string): string => {
-    return `${API_ENDPOINTS.PRODUCTS.IMAGE_PUBLIC}?key=${encodeURIComponent(key)}`;
+    return `${API_ORIGIN}${API_ENDPOINTS.PRODUCTS.IMAGE_PUBLIC}?key=${encodeURIComponent(key)}`;
   },
 
   normalizeImageUrl: (url: string): string => {
