@@ -24,14 +24,12 @@ export function AdminCouponList() {
     handleEdit,
     handleSubmit,
     handleActivate,
+    handleDeactivate,
+    handleDelete,
   } = useAdminCoupons();
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 animate-in fade-in slide-in-from-top-1">
-        비활성화/삭제 기능은 백엔드 미지원으로 준비 중이에요.
-      </div>
-
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-neutral-900">쿠폰 목록</h2>
         <Button onClick={() => setShowForm(true)} disabled={isSubmitting}>
@@ -81,6 +79,8 @@ export function AdminCouponList() {
             coupons={coupons}
             onEdit={handleEdit}
             onActivate={handleActivate}
+            onDeactivate={handleDeactivate}
+            onDelete={handleDelete}
           />
         ) : (
           <EmptyState icon={Gift} description="등록된 쿠폰이 없습니다." />

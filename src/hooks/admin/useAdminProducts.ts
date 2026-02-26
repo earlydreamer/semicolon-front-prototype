@@ -86,6 +86,28 @@ export const useAdminProducts = () => {
     setOpenMenuId(null);
   }, []);
 
+  const suspendProduct = useCallback(async (productUuid: string) => {
+    try {
+      await adminService.suspendAdminProduct(productUuid);
+      showToast('상품 판매가 정지되었습니다.', 'success');
+      void loadProducts();
+    } catch (error) {
+      showToast('상품 정지에 실패했습니다.', 'error');
+      console.error(error);
+    }
+  }, [loadProducts, showToast]);
+
+  const deleteProduct = useCallback(async (productUuid: string) => {
+    try {
+      await adminService.deleteAdminProduct(productUuid);
+      showToast('상품이 삭제되었습니다.', 'success');
+      void loadProducts();
+    } catch (error) {
+      showToast('상품 삭제에 실패했습니다.', 'error');
+      console.error(error);
+    }
+  }, [loadProducts, showToast]);
+
   return {
     searchQuery,
     setSearchQuery,
@@ -100,5 +122,7 @@ export const useAdminProducts = () => {
     toggleMenu,
     closeMenu,
     showToast,
+    suspendProduct,
+    deleteProduct,
   };
 };

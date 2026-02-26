@@ -77,3 +77,16 @@ export interface AdminProductListResponse extends ProductListResponse {
 }
 
 export type AdminOrderPageResponse = PageResponse<OrderListResponse>;
+
+export interface AdminUserListItem {
+  userUuid: string;
+  email: string;
+  nickname: string;
+  intro: string | null;
+  role: 'USER' | 'ADMIN';
+  status: string;
+  statusLabel: string;
+  createdAt: string;
+}
+
+export type AdminUserPageResponse = PageResponse<AdminUserListItem>;
