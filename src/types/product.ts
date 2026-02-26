@@ -11,7 +11,7 @@ export type ConditionStatus =
   | "DAMAGED";
 
 /** 판매 상태 */
-export type SaleStatus = "ON_SALE" | "RESERVED" | "SOLD_OUT";
+export type SaleStatus = "ON_SALE" | "RESERVED" | "SOLD_OUT" | "BLOCKED";
 
 /** 가시성 상태 */
 export type VisibilityStatus = "VISIBLE" | "HIDDEN" | "BLOCKED";
@@ -111,7 +111,7 @@ export interface ProductDetailResponse {
   price: number;
   shippingFee: number;
   conditionStatus: ConditionStatus;
-  saleStatus: "ON_SALE" | "RESERVED" | "SOLD_OUT";
+  saleStatus: "ON_SALE" | "RESERVED" | "SOLD_OUT" | "BLOCKED";
   visibilityStatus: "VISIBLE" | "HIDDEN" | "BLOCKED";
   likeCount: number;
   viewCount: number;
