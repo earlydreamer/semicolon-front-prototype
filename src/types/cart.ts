@@ -11,7 +11,7 @@ export interface CartItem {
   sellerUuid: string;       // 판매자 UUID (주문 생성 시 사용)
   title: string;            // 상품 제목
   price: number;            // 현재 상품 가격
-  saleStatus: 'ON_SALE' | 'RESERVED' | 'SOLD_OUT'; // 판매 상태
+  saleStatus: 'ON_SALE' | 'RESERVED' | 'SOLD_OUT' | 'BLOCKED'; // 판매 상태
   thumbnailUrl: string | null; // 썸네일 이미지 URL
   createdAt: string;        // 장바구니에 담은 날짜
   selected?: boolean;       // 프론트엔드 UI 관리를 위한 필드 (선택 필수 아님)

@@ -19,13 +19,14 @@ const SALE_STATUS_BADGE: Record<SaleStatus, { text: string; className: string }>
   ON_SALE: { text: '판매중', className: 'bg-green-100 text-green-700' },
   RESERVED: { text: '거래중', className: 'bg-yellow-100 text-yellow-700' },
   SOLD_OUT: { text: '판매완료', className: 'bg-neutral-200 text-neutral-600' },
+  BLOCKED: { text: '차단됨', className: 'bg-red-100 text-red-700' },
 };
 
 const LikedProductsPage = () => {
   const { isAuthenticated, user } = useAuthStore();
   const { toggleLike, fetchUserLikes } = useLikeStore();
   const { showToast } = useToast();
-  
+
   const [likedProducts, setLikedProducts] = useState<LikedProductItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -79,7 +80,7 @@ const LikedProductsPage = () => {
           >
             <ChevronLeft className="w-5 h-5 text-neutral-700" />
           </Link>
-            <h1 className="text-lg font-bold text-neutral-900 min-[360px]:text-xl">
+          <h1 className="text-lg font-bold text-neutral-900 min-[360px]:text-xl">
             찜한 상품
             {!isLoading && (
               <span className="ml-2 text-sm font-normal text-neutral-500">
@@ -130,9 +131,8 @@ const LikedProductsPage = () => {
                 <div className="flex-1 min-w-0">
                   <div className="mb-1">
                     <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                        SALE_STATUS_BADGE[product.saleStatus ?? 'ON_SALE'].className
-                      }`}
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${SALE_STATUS_BADGE[product.saleStatus ?? 'ON_SALE'].className
+                        }`}
                     >
                       {SALE_STATUS_BADGE[product.saleStatus ?? 'ON_SALE'].text}
                     </span>
