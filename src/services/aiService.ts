@@ -67,16 +67,18 @@ export const aiApi = {
 
                 let newlineIndex;
                 while ((newlineIndex = buffer.indexOf('\n')) >= 0) {
-                    const line = buffer.slice(0, newlineIndex);
+                    let line = buffer.slice(0, newlineIndex);
                     buffer = buffer.slice(newlineIndex + 1);
+
+                    if (line.endsWith('\r')) {
+                        line = line.slice(0, -1);
+                    }
 
                     try {
                         if (line.startsWith('data:')) {
-                            // SSE 표준: 'data:' 직후의 공백 하나만 제거하고 나머지는 보존
+                            // 백엔드(Spring)에서 SSE 전송 시 'data:' 직후에 공백 구분을 넣지 않고 바로 페이로드를 보낼 수 있습니다.
+                            // 따라서 data.startsWith(' ') 조건을 제거하여 모델이 응답한 실제 띄어쓰기가 잘리지 않도록 합니다.
                             let data = line.slice(5);
-                            if (data.startsWith(' ')) {
-                                data = data.slice(1);
-                            }
 
                             // 백엔드에서 DONE 신호가 올 경우 종료 처리
                             if (data === '[DONE]') {
