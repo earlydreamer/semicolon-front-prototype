@@ -11,13 +11,7 @@ export interface User {
   nickname: string;
   avatar?: string;
   intro?: string;
-  deposit: number;
-  phone?: string;
-  settlementAccount?: {
-    bank: string;
-    accountNumber: string;
-    accountHolder: string;
-  };
+  point: number;
   createdAt: string;
 }
 
@@ -25,16 +19,18 @@ export interface User {
 export type OrderStatus =
   | 'PENDING'
   | 'PAID'
-  | 'PAYMENT_FAILED'
-  | 'CANCELED'
-  | 'PARTIAL_REFUNDED';
+  | 'SHIPPING'
+  | 'DELIVERED'
+  | 'CONFIRMED'
+  | 'CANCELLED'
+  | 'REFUNDED';
 
 /** 주문 내역 */
 export interface OrderHistory {
   id: string;
   buyerId: string;
   sellerId: string;
-  productUuid: string;
+  productId: string;
   product: Product;
   status: OrderStatus;
   createdAt: string;

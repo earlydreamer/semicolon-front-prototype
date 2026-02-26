@@ -54,7 +54,7 @@
   /* Font Families */
   --font-sans: "Pretendard Variable", "Pretendard", -apple-system,
     BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  --font-numeric: var(--font-sans);
+  --font-numeric: "Inter", var(--font-sans);
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
   /* Spacing */
@@ -111,11 +111,6 @@
     @apply bg-neutral-0 text-neutral-800 antialiased font-sans;
   }
 
-  button,
-  a {
-    touch-action: manipulation;
-  }
-
   h1,
   h2,
   h3,
@@ -123,10 +118,6 @@
   h5,
   h6 {
     @apply font-bold text-neutral-900;
-  }
-
-  :target {
-    scroll-margin-top: 5.5rem;
   }
 }
 
@@ -152,16 +143,5 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }

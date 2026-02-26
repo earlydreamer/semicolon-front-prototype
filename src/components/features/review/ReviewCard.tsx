@@ -3,7 +3,7 @@
  */
 
 import { StarRating } from './StarRating';
-import UserIcon from 'lucide-react/dist/esm/icons/user';
+import { User as UserIcon } from 'lucide-react';
 
 interface Review {
   id: string;
@@ -36,13 +36,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
         {/* 프로필 이미지 */}
         <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center overflow-hidden flex-shrink-0">
           {review.buyer.avatar ? (
-            <img
-              src={review.buyer.avatar}
-              alt={review.buyer.nickname}
-              width={40}
-              height={40}
-              className="w-full h-full object-cover"
-            />
+            <img src={review.buyer.avatar} alt="" className="w-full h-full object-cover" />
           ) : (
             <UserIcon className="w-5 h-5 text-neutral-400" />
           )}

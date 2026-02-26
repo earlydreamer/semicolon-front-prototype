@@ -8,12 +8,10 @@ import CartItem from './CartItem';
 
 interface CartListProps {
   items: CartItemType[];
-  onRemove: (cartId: number) => void;
-  onToggleSelect: (productUuid: string) => void;
+  onRemove: (productId: string) => void;
+  onToggleSelect: (productId: string) => void;
   onSelectAll: (selected: boolean) => void;
   allSelected: boolean;
-  selectedSelectableCount: number;
-  selectableCount: number;
 }
 
 const CartList = ({
@@ -22,12 +20,12 @@ const CartList = ({
   onToggleSelect,
   onSelectAll,
   allSelected,
-  selectedSelectableCount,
-  selectableCount,
 }: CartListProps) => {
+  // 빈 장바구니
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
+        {/* 빈 장바구니 아이콘 */}
         <div className="w-24 h-24 mb-6 rounded-full bg-neutral-100 flex items-center justify-center">
           <svg
             className="w-12 h-12 text-neutral-400"
@@ -48,7 +46,7 @@ const CartList = ({
           장바구니가 비어있어요
         </h3>
         <p className="text-neutral-500 mb-6">
-          관심있는 상품을 담아보세요
+          관심있는 상품을 담아보세요!
         </p>
 
         <Link
@@ -64,6 +62,7 @@ const CartList = ({
 
   return (
     <div className="space-y-4">
+      {/* 전체 선택 헤더 */}
       <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
         <label className="flex items-center gap-2 cursor-pointer">
           <input
@@ -74,15 +73,16 @@ const CartList = ({
                        focus:ring-primary-500 focus:ring-offset-0 cursor-pointer"
           />
           <span className="text-sm font-medium text-neutral-700">
-            전체 선택 ({selectedSelectableCount}/{selectableCount})
+            전체 선택 ({items.filter((i) => i.selected).length}/{items.length})
           </span>
         </label>
       </div>
 
+      {/* 상품 목록 */}
       <div className="space-y-3">
         {items.map((item) => (
           <CartItem
-            key={item.cartId}
+            key={item.productId}
             item={item}
             onRemove={onRemove}
             onToggleSelect={onToggleSelect}

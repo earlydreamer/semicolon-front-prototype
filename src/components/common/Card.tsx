@@ -12,7 +12,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          "rounded-xl transition-[box-shadow,transform,border-color,background-color] duration-200",
+          "rounded-xl transition-all duration-200",
           
           // Variants
           variant === 'elevated' && "bg-neutral-0 shadow-sm border border-neutral-100",

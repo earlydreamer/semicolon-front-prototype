@@ -76,12 +76,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
             {/* 메시지 */}
             <h2 className="text-xl font-bold text-neutral-900 mb-2">
-              문제가 생겼어요
+              문제가 발생했습니다
             </h2>
             <p className="text-neutral-600 mb-6">
-              예기치 않은 문제가 생겼어요.
+              예기치 않은 오류가 발생했습니다.
               <br />
-              잠시 후 다시 시도해 주세요.
+              잠시 후 다시 시도해주세요.
             </p>
 
             {/* 에러 상세 (개발 환경에서만) */}
