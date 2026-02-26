@@ -36,13 +36,13 @@ export const ProductActionBar = ({
 
   const getPurchaseButtonText = () => {
     if (saleStatus === 'SOLD_OUT') return '품절된 상품';
-    if (saleStatus === 'RESERVED') return isOwnPendingReservation ? '결제 계속하기' : '예약중';
+    if (saleStatus === 'RESERVED') return isOwnPendingReservation ? '결제 계속하기' : '거래중';
     return '구매하기';
   };
 
   const getMobilePurchaseText = () => {
     if (saleStatus === 'SOLD_OUT') return '품절';
-    if (saleStatus === 'RESERVED') return isOwnPendingReservation ? '결제 계속' : '예약중';
+    if (saleStatus === 'RESERVED') return isOwnPendingReservation ? '결제 계속' : '거래중';
     return '구매하기';
   };
 

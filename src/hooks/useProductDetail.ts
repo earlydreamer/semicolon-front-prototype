@@ -232,7 +232,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
     }
 
     if (!pendingOrderUuidForProduct) {
-      showToast("예약중인 상품입니다.", "error");
+      showToast("거래중인 상품입니다.", "error");
       return;
     }
 
