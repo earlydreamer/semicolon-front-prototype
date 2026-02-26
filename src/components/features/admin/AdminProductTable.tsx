@@ -11,6 +11,7 @@ const STATUS_COLORS: Record<SaleStatus, string> = {
   ON_SALE: 'bg-green-100 text-green-700',
   RESERVED: 'bg-yellow-100 text-yellow-700',
   SOLD_OUT: 'bg-neutral-100 text-neutral-700',
+  BLOCKED: 'bg-red-100 text-red-700',
 };
 
 const parseDate = (value: string) => {

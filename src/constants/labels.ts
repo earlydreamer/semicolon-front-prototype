@@ -9,6 +9,7 @@ export const SALE_STATUS_LABELS: Record<SaleStatus, string> = {
   ON_SALE: '판매중',
   RESERVED: '거래중',
   SOLD_OUT: '판매완료',
+  BLOCKED: '판매정지',
 };
 
 export const VISIBILITY_STATUS_LABELS: Record<string, string> = {
@@ -21,6 +22,7 @@ export const SALE_STATUS_COLORS: Record<SaleStatus, string> = {
   ON_SALE: 'bg-green-100 text-green-700',
   RESERVED: 'bg-yellow-100 text-yellow-700',
   SOLD_OUT: 'bg-neutral-200 text-neutral-500',
+  BLOCKED: 'bg-red-100 text-red-700',
 };
 
 export const VISIBILITY_STATUS_COLORS: Record<string, string> = {
@@ -44,6 +46,7 @@ export const SALE_STATUS_DESCRIPTIONS: Record<SaleStatus, string> = {
   ON_SALE: '현재 구매 가능한 상품입니다.',
   RESERVED: '다른 구매자가 결제를 진행 중인 상품입니다. 구매 확정 전까지는 거래가 취소될 수 있습니다.',
   SOLD_OUT: '이미 판매가 완료된 상품입니다.',
+  BLOCKED: '관리자에 의해 판매가 정지된 상품입니다.',
 };
 
 export const VISIBILITY_STATUS_DESCRIPTIONS: Record<string, string> = {
