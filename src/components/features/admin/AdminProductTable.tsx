@@ -6,7 +6,6 @@ import { formatPrice } from '@/utils/formatPrice';
 import { SALE_STATUS_LABELS } from '@/constants';
 import type { AdminProductListItem } from '@/types/admin';
 import type { SaleStatus } from '@/types/product';
-import type { ToastType } from '@/components/common/Toast';
 
 const STATUS_COLORS: Record<SaleStatus, string> = {
   ON_SALE: 'bg-green-100 text-green-700',
@@ -25,7 +24,8 @@ interface AdminProductTableProps {
   openMenuId: string | null;
   onToggleMenu: (id: string) => void;
   onCloseMenu: () => void;
-  onShowToast: (message: string, type?: ToastType) => void;
+  onSuspend: (productUuid: string) => void;
+  onDelete: (productUuid: string) => void;
 }
 
 export const AdminProductTable = ({
@@ -33,7 +33,8 @@ export const AdminProductTable = ({
   openMenuId,
   onToggleMenu,
   onCloseMenu,
-  onShowToast,
+  onSuspend,
+  onDelete,
 }: AdminProductTableProps) => {
   return (
     <div className="overflow-x-auto">
@@ -112,7 +113,7 @@ export const AdminProductTable = ({
                         type="button"
                         onClick={() => {
                           onCloseMenu();
-                          onShowToast('판매 정지 API가 아직 구현되지 않았습니다.', 'info');
+                          onSuspend(product.productUuid);
                         }}
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm text-yellow-600 hover:bg-neutral-50"
                       >
@@ -123,7 +124,7 @@ export const AdminProductTable = ({
                         type="button"
                         onClick={() => {
                           onCloseMenu();
-                          onShowToast('상품 삭제 API가 아직 구현되지 않았습니다.', 'info');
+                          onDelete(product.productUuid);
                         }}
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-neutral-50"
                       >

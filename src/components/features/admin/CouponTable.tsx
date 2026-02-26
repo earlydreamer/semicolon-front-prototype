@@ -1,10 +1,11 @@
 import Gift from 'lucide-react/dist/esm/icons/gift';
 import Edit2 from 'lucide-react/dist/esm/icons/edit-2';
 import Play from 'lucide-react/dist/esm/icons/play';
+import Pause from 'lucide-react/dist/esm/icons/pause';
 import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
 import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign';
 import type { CouponResponse, CouponStatus } from '@/types/coupon';
-import { useToast } from '@/components/common/Toast';
+
 
 const STATUS_LABELS: Record<CouponStatus, { text: string; color: string }> = {
   DRAFT: { text: '초안', color: 'bg-neutral-100 text-neutral-700' },
@@ -17,10 +18,11 @@ interface CouponTableProps {
   coupons: CouponResponse[];
   onEdit: (coupon: CouponResponse) => void;
   onActivate: (uuid: string) => void;
+  onDeactivate: (uuid: string) => void;
+  onDelete: (uuid: string) => void;
 }
 
-export const CouponTable = ({ coupons, onEdit, onActivate }: CouponTableProps) => {
-  const { showToast } = useToast();
+export const CouponTable = ({ coupons, onEdit, onActivate, onDeactivate, onDelete }: CouponTableProps) => {
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('ko-KR').format(value) + '원';
@@ -95,9 +97,19 @@ export const CouponTable = ({ coupons, onEdit, onActivate }: CouponTableProps) =
                   </button>
                   <button
                     type="button"
-                    onClick={() => showToast('준비 중이에요.', 'info')}
+                    onClick={() => onDeactivate(coupon.uuid)}
+                    disabled={coupon.status !== 'ACTIVE'}
+                    className="p-1.5 text-yellow-500 hover:text-yellow-700 hover:bg-yellow-50 rounded disabled:opacity-40 transition-colors"
+                    title={coupon.status === 'ACTIVE' ? '비활성화' : '활성 상태에서만 비활성화 가능'}
+                    aria-label={`${coupon.couponName} 비활성화`}
+                  >
+                    <Pause className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(coupon.uuid)}
                     className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                    title="삭제 (준비중)"
+                    title="삭제"
                     aria-label={`${coupon.couponName} 삭제`}
                   >
                     <Trash2 className="w-4 h-4" aria-hidden="true" />

@@ -1,5 +1,5 @@
 import Search from 'lucide-react/dist/esm/icons/search';
-import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
+
 
 import { Button } from '@/components/common/Button';
 import { AdminProductTable } from '@/components/features/admin/AdminProductTable';
@@ -19,21 +19,13 @@ const AdminProductList = () => {
     loadProducts,
     toggleMenu,
     closeMenu,
-    showToast,
+    suspendProduct,
+    deleteProduct,
   } = useAdminProducts();
 
   return (
     <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
       <div className="p-4 border-b border-neutral-200 space-y-3 bg-white/50 backdrop-blur-sm">
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 animate-in fade-in slide-in-from-top-1">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 mt-0.5" aria-hidden="true" />
-            <p>
-              상품 조회는 실데이터 연동 완료됐어요. 판매 정지/삭제는 관리자 API 미구현으로 준비 중이에요.
-            </p>
-          </div>
-        </div>
-
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <label htmlFor="admin-product-search" className="sr-only">
@@ -89,7 +81,8 @@ const AdminProductList = () => {
             openMenuId={openMenuId}
             onToggleMenu={toggleMenu}
             onCloseMenu={closeMenu}
-            onShowToast={showToast}
+            onSuspend={suspendProduct}
+            onDelete={deleteProduct}
           />
 
           {products.length === 0 ? (

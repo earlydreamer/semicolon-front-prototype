@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useToast } from '@/components/common/Toast';
+import { adminService } from '@/services/adminService';
 import { couponService } from '@/services/couponService';
 import type { CouponResponse, CouponStatus } from '@/types/coupon';
 import type { CouponFormData } from '@/components/features/admin/CouponFormPanel';
@@ -119,6 +120,28 @@ export const useAdminCoupons = () => {
     }
   }, [loadCoupons, showToast]);
 
+  const handleDeactivate = useCallback(async (couponUuid: string) => {
+    try {
+      await adminService.deactivateAdminCoupon(couponUuid);
+      showToast('쿠폰이 비활성화됐어요.', 'success');
+      await loadCoupons();
+    } catch (error) {
+      console.error('Failed to deactivate coupon:', error);
+      showToast('비활성화 처리 중 문제가 생겼어요.', 'error');
+    }
+  }, [loadCoupons, showToast]);
+
+  const handleDelete = useCallback(async (couponUuid: string) => {
+    try {
+      await adminService.deleteAdminCoupon(couponUuid);
+      showToast('쿠폰이 삭제됐어요.', 'success');
+      await loadCoupons();
+    } catch (error) {
+      console.error('Failed to delete coupon:', error);
+      showToast('삭제 처리 중 문제가 생겼어요.', 'error');
+    }
+  }, [loadCoupons, showToast]);
+
   return {
     coupons: filteredCoupons,
     showForm,
@@ -134,5 +157,7 @@ export const useAdminCoupons = () => {
     handleEdit,
     handleSubmit,
     handleActivate,
+    handleDeactivate,
+    handleDelete,
   };
 };

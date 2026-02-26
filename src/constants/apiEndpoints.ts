@@ -72,6 +72,10 @@ export const API_ENDPOINTS = {
     BASE: `${API_BASE_URL}/admin/coupons`,
     ISSUE_TO_USER: (couponUuid: string) =>
       `${API_BASE_URL}/admin/coupons/${couponUuid}/issue`,
+    DEACTIVATE: (couponUuid: string) =>
+      `${API_BASE_URL}/admin/coupons/${couponUuid}/deactivate`,
+    DELETE: (couponUuid: string) =>
+      `${API_BASE_URL}/admin/coupons/${couponUuid}`,
   },
   ADMIN_ORDERS: {
     BASE: `${API_BASE_URL}/admin/orders`,
