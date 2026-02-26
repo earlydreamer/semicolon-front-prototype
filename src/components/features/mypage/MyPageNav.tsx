@@ -1,13 +1,9 @@
-﻿/**
+/**
  * 마이페이지 빠른 메뉴 네비게이션
  */
 
 import { Link } from 'react-router-dom';
-import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
-import Heart from 'lucide-react/dist/esm/icons/heart';
-import Package from 'lucide-react/dist/esm/icons/package';
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
-import MapPin from 'lucide-react/dist/esm/icons/map-pin';
+import { ShoppingBag, Heart, Package, ChevronRight } from 'lucide-react';
 
 interface MenuItem {
   icon: React.ElementType;
@@ -36,16 +32,12 @@ const MyPageNav = ({ likeCount, orderCount }: MyPageNavProps) => {
       badge: likeCount,
     },
     {
-      icon: MapPin,
-      label: '주소록 관리',
-      href: '/mypage/address',
-    },
-    {
       icon: Package,
       label: '판매 관리',
       href: '/seller',
     },
   ];
+
 
   return (
     <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">

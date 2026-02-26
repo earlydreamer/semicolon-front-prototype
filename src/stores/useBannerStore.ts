@@ -9,7 +9,6 @@ import { MOCK_BANNERS, DEFAULT_BANNER } from '@/mocks/banners';
 
 interface BannerStore {
   banners: Banner[];
-  isMockMode: boolean;
   
   // 활성 배너 목록 (order 순 정렬)
   getActiveBanners: () => Banner[];
@@ -41,7 +40,6 @@ export const useBannerStore = create<BannerStore>()(
   persist(
     (set, get) => ({
       banners: [...MOCK_BANNERS],
-      isMockMode: true,
       
       getActiveBanners: () => {
         return get().banners

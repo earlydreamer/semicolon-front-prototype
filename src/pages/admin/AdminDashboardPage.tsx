@@ -1,137 +1,206 @@
-import type { ComponentType } from 'react';
+/**
+ * 관리자 대시보드 페이지
+ * 
+ * Mock 데이터에서 실제 통계를 계산하여 표시합니다.
+ * 
+ * 집계 기준:
+ * - 매일 00:00 KST 기준으로 집계
+ * - 변화율: 이번 달 vs 이전 달 동일 기간 비교
+ */
+
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import ArrowUpRight from 'lucide-react/dist/esm/icons/arrow-up-right';
-import Activity from 'lucide-react/dist/esm/icons/activity';
-import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check';
-import Clock3 from 'lucide-react/dist/esm/icons/clock-3';
-import { ADMIN_NAV_ITEMS } from '@/constants/adminNavigation';
-
-type StatusCard = {
-  title: string;
-  value: string;
-  description: string;
-  icon: ComponentType<{ className?: string }>;
-  isTime?: boolean;
-};
-
-const statusCards: StatusCard[] = [
-  {
-    title: '관리자 허브',
-    value: `${ADMIN_NAV_ITEMS.length}개 메뉴`,
-    description: '자주 쓰는 운영 메뉴 바로가기',
-    icon: Activity,
-  },
-  {
-    title: '접근 권한',
-    value: 'ADMIN',
-    description: '관리자 전용 페이지 접근 중',
-    icon: ShieldCheck,
-  },
-  {
-    title: '현재 시간',
-    value: '',
-    description: '대시보드 진입 시각 기준',
-    icon: Clock3,
-    isTime: true,
-  },
-];
-
-const formatNow = (date: Date) =>
-  new Intl.DateTimeFormat('ko-KR', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
+import { DollarSign, Users, Package, ShoppingCart, Clock, Calendar, Info } from 'lucide-react';
+import StatsCard from '@/components/features/admin/StatsCard';
+import { MOCK_ORDER_HISTORY, MOCK_USERS_DATA } from '@/mocks/users';
+import { getDashboardStats, STATS_AGGREGATION_INFO } from '@/mocks/stats';
 
 const AdminDashboardPage = () => {
-  const now = useMemo(() => new Date(), []);
-  const quickLinks = useMemo(
-    () => ADMIN_NAV_ITEMS.filter((item) => item.key !== 'dashboard'),
-    []
-  );
-
+  // Mock 데이터에서 통계 및 변화율 가져오기
+  const dashboardStats = useMemo(() => getDashboardStats(), []);
+  
+  // 최근 주문 5개 (최신순)
+  const recentOrders = useMemo(() => {
+    return [...MOCK_ORDER_HISTORY]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  }, []);
+  
+  // 최근 가입자 5명 (최신순)
+  const recentUsers = useMemo(() => {
+    return [...MOCK_USERS_DATA]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  }, []);
+  
+  // 시간 포맷 함수
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffMins < 60) return `${diffMins}분 전`;
+    if (diffHours < 24) return `${diffHours}시간 전`;
+    if (diffDays < 30) return `${diffDays}일 전`;
+    return `${Math.floor(diffDays / 30)}개월 전`;
+  };
+  
+  // 집계 시점 포맷
+  const formatAggregationTime = (isoString: string) => {
+    const date = new Date(isoString);
+    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')} 00:00`;
+  };
+  
   return (
-    <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-6 lg:p-8">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-60"
-          style={{
-            background:
-              'radial-gradient(circle at 10% 20%, rgba(59,130,246,0.14) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(16,185,129,0.12) 0%, transparent 35%)',
-          }}
-          aria-hidden="true"
+    <div>
+      {/* 페이지 헤더 */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-neutral-900">대시보드</h1>
+        <p className="text-neutral-500 mt-1">플랫폼 운영 현황을 확인하세요</p>
+      </div>
+      
+      {/* 집계 정보 배너 */}
+      <div className="mb-6 p-4 bg-neutral-50 border border-neutral-200 rounded-lg">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+          <div className="flex items-center gap-2 text-neutral-600">
+            <Clock className="w-4 h-4" />
+            <span className="font-medium">마지막 집계:</span>
+            <span>{formatAggregationTime(STATS_AGGREGATION_INFO.lastAggregatedAt)}</span>
+          </div>
+          <div className="flex items-center gap-2 text-neutral-600">
+            <Calendar className="w-4 h-4" />
+            <span className="font-medium">집계 주기:</span>
+            <span>{STATS_AGGREGATION_INFO.aggregationCycle}</span>
+          </div>
+          <div className="flex items-center gap-2 text-neutral-600">
+            <Info className="w-4 h-4" />
+            <span className="font-medium">집계 기간:</span>
+            <span>{STATS_AGGREGATION_INFO.aggregationPeriod}</span>
+          </div>
+        </div>
+        <p className="mt-2 text-xs text-neutral-500">
+          * 변화율은 이번 달과 이전 달({STATS_AGGREGATION_INFO.comparisonPeriod}) 동일 기간을 비교한 값입니다.
+        </p>
+      </div>
+
+      {/* 통계 카드 그리드 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatsCard
+          icon={DollarSign}
+          label="총 거래액 (이번 달)"
+          value={`${(dashboardStats.totalRevenue / 10000).toLocaleString()}만원`}
+          change={dashboardStats.revenueChange}
+          iconColor="text-green-600"
+          iconBgColor="bg-green-100"
         />
-        <div className="relative">
-          <p className="inline-flex items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
-            운영 시작 화면
-          </p>
-          <h1 className="mt-3 text-2xl font-bold tracking-tight text-neutral-900 lg:text-3xl">운영 대시보드</h1>
-          <p className="mt-2 max-w-2xl text-sm text-neutral-600 lg:text-base">
-            관리자 핵심 메뉴와 운영 도구를 한 곳에서 빠르게 확인할 수 있어요. 필요한 메뉴를 바로 선택해 보세요.
-          </p>
+        <StatsCard
+          icon={Users}
+          label="신규 가입자 (이번 달)"
+          value={dashboardStats.newUsers.toLocaleString()}
+          change={dashboardStats.usersChange}
+          iconColor="text-blue-600"
+          iconBgColor="bg-blue-100"
+        />
+        <StatsCard
+          icon={Package}
+          label="신규 상품 (이번 달)"
+          value="8"
+          change={dashboardStats.productsChange}
+          iconColor="text-purple-600"
+          iconBgColor="bg-purple-100"
+        />
+        <StatsCard
+          icon={ShoppingCart}
+          label="신규 주문 (이번 달)"
+          value="18"
+          change={dashboardStats.ordersChange}
+          iconColor="text-orange-600"
+          iconBgColor="bg-orange-100"
+        />
+      </div>
+      
+      {/* 누적 통계 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
+          <p className="text-2xl font-bold text-neutral-900">{dashboardStats.totalProducts}</p>
+          <p className="text-sm text-neutral-500">전체 등록 상품</p>
         </div>
-      </section>
-
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {statusCards.map((card) => (
-          <article key={card.title} className="rounded-xl border border-neutral-200 bg-white p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{card.title}</p>
-                <p className="mt-2 text-lg font-semibold text-neutral-900">
-                  {card.isTime ? formatNow(now) : card.value}
-                </p>
-                <p className="mt-1 text-sm text-neutral-600">{card.description}</p>
-              </div>
-              <div className="rounded-lg bg-neutral-100 p-2">
-                <card.icon className="h-4 w-4 text-neutral-700" />
-              </div>
-            </div>
-          </article>
-        ))}
-      </section>
-
-      <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-neutral-900">빠른 이동</h2>
-          <span className="text-xs text-neutral-500">총 {quickLinks.length}개</span>
+        <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
+          <p className="text-2xl font-bold text-neutral-900">{dashboardStats.totalOrders}</p>
+          <p className="text-sm text-neutral-500">전체 주문</p>
         </div>
+        <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
+          <p className="text-2xl font-bold text-neutral-900">20</p>
+          <p className="text-sm text-neutral-500">전체 회원</p>
+        </div>
+        <div className="bg-white rounded-lg border border-neutral-200 p-4 text-center">
+          <p className="text-2xl font-bold text-neutral-900">22</p>
+          <p className="text-sm text-neutral-500">전체 상점</p>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {quickLinks.map((item) => {
-            const content = (
-              <>
-                <div className="flex items-start justify-between">
-                  <div className="rounded-lg bg-white/70 p-2 backdrop-blur-sm">
-                    <item.icon className="h-5 w-5 text-neutral-800" />
+      {/* 최근 활동 섹션 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 최근 주문 */}
+        <div className="bg-white rounded-xl border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">최근 주문</h2>
+          <div className="space-y-4">
+            {recentOrders.map((order) => (
+              <div key={order.id} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
+                <div className="flex items-center gap-3">
+                  <img 
+                    src={order.product.image} 
+                    alt={order.product.title}
+                    className="w-10 h-10 rounded-lg object-cover"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-neutral-900 truncate max-w-[150px]">
+                      {order.product.title}
+                    </p>
+                    <p className="text-xs text-neutral-500">{formatTimeAgo(order.createdAt)}</p>
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-neutral-500" />
                 </div>
-                <h3 className="mt-4 text-base font-semibold text-neutral-900">{item.label}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-neutral-700">{item.description}</p>
-              </>
-            );
-
-            const className = `group rounded-xl border bg-gradient-to-br p-5 transition hover:-translate-y-0.5 hover:shadow-lg ${item.accent}`;
-
-            if (item.external) {
-              return (
-                <a key={item.key} href={item.href} target="_blank" rel="noreferrer" className={className}>
-                  {content}
-                </a>
-              );
-            }
-
-            return (
-              <Link key={item.key} to={item.href} className={className}>
-                {content}
-              </Link>
-            );
-          })}
+                <span className="text-sm font-medium text-neutral-900">
+                  {(order.totalPrice + order.shippingFee).toLocaleString()}원
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-      </section>
+
+        {/* 최근 가입자 */}
+        <div className="bg-white rounded-xl border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">최근 가입자</h2>
+          <div className="space-y-4">
+            {recentUsers.map((user) => (
+              <div key={user.id} className="flex items-center justify-between py-2 border-b border-neutral-100 last:border-0">
+                <div className="flex items-center gap-3">
+                  {user.avatar ? (
+                    <img 
+                      src={user.avatar} 
+                      alt={user.nickname}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-primary-600">
+                        {user.nickname.charAt(0)}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-neutral-900">{user.nickname}</p>
+                    <p className="text-xs text-neutral-500">{user.email}</p>
+                  </div>
+                </div>
+                <span className="text-xs text-neutral-500">{formatTimeAgo(user.createdAt)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

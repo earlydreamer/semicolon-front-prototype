@@ -21,16 +21,9 @@ export type {
 
 // 후기 관련
 export type { ShopReview } from './review';
-export type { Category } from './category';
 
 // 장바구니 관련
 export type { CartItem, CartSummary } from './cart';
 
 // 배너 관련
 export type { Banner, BannerInput, BannerImageAlign, BannerImageFit } from './banner';
-export type {
-  CouponStatus,
-  CouponResponse,
-  CouponCreateRequest,
-  CouponUpdateRequest,
-} from './coupon';

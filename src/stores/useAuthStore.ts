@@ -1,220 +1,76 @@
-﻿import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import { authService } from "../services/authService";
-import type { LoginRequest, User, UserRegisterRequest } from "../types/auth";
-
-const normalizeAccessToken = (token: string) => token.replace(/^Bearer\s+/i, "").trim();
-
-const authStorage = {
-  getItem: (name: string) => {
-    return localStorage.getItem(name) ?? sessionStorage.getItem(name);
-  },
-  setItem: (name: string, value: string) => {
-    try {
-      const parsed = JSON.parse(value) as { state?: { rememberMe?: boolean } };
-      const rememberMe = Boolean(parsed?.state?.rememberMe);
-      if (rememberMe) {
-        localStorage.setItem(name, value);
-        sessionStorage.removeItem(name);
-        return;
-      }
-    } catch {
-      // ignore parse errors and fallback to session storage
-    }
-
-    sessionStorage.setItem(name, value);
-    localStorage.removeItem(name);
-  },
-  removeItem: (name: string) => {
-    localStorage.removeItem(name);
-    sessionStorage.removeItem(name);
-  },
-};
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { MOCK_USERS_DATA, type User } from '../mocks/users';
 
 interface AuthState {
   user: User | null;
-  accessToken: string | null;
-  refreshToken: string | null;
   isAuthenticated: boolean;
   isAdminAuthenticated: boolean;
-  isInitialized: boolean;
-  rememberMe: boolean;
-
-  login: (request: LoginRequest, rememberMe?: boolean) => Promise<void>;
-  loginAdmin: (request: LoginRequest, rememberMe?: boolean) => Promise<void>;
-  register: (request: UserRegisterRequest) => Promise<void>;
+  
+  /**
+   * [MOCK] 동적 로그인
+   * - loginId: user1, user2, ... user20
+   * - password: testuser
+   */
+  login: (loginId: string, password: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
-  initialize: () => Promise<void>;
-  refreshUser: () => Promise<void>;
-  socialLogin: (accessToken: string, refreshToken?: string | null) => Promise<void>;
+  
+  /**
+   * [MOCK] 관리자 로그인
+   */
+  adminLogin: (adminId: string, password: string) => boolean;
+  adminLogout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
-      accessToken: null,
-      refreshToken: null,
       isAuthenticated: false,
       isAdminAuthenticated: false,
-      isInitialized: false,
-      rememberMe: false,
+      
+      login: async (loginId: string, password: string) => {
+        // [MOCK] 인증 시뮬레이션
+        await new Promise(resolve => setTimeout(resolve, 800));
 
-      login: async (request: LoginRequest, rememberMe = true) => {
-        try {
-          const { accessToken, refreshToken } = await authService.login(request);
-          set({ 
-            accessToken: normalizeAccessToken(accessToken), 
-            refreshToken: refreshToken || null,
-            rememberMe 
-          });
-          
-          const user = await authService.getMe();
-          set({
-            user: { ...user, id: user.userUuid },
-            isAuthenticated: true,
-            isAdminAuthenticated: user.role === "ADMIN",
-          });
-        } catch (error) {
-          set({
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            isAdminAuthenticated: false,
-            user: null,
-            rememberMe: false,
-          });
-          throw error;
-        }
-      },
-
-      loginAdmin: async (request: LoginRequest, rememberMe = true) => {
-        try {
-          const { accessToken, refreshToken } = await authService.loginAdmin(request);
-          set({ 
-            accessToken: normalizeAccessToken(accessToken), 
-            refreshToken: refreshToken || null,
-            rememberMe 
-          });
-
-          const user = await authService.getMe();
-          set({
-            user: { ...user, id: user.userUuid },
-            isAuthenticated: true,
-            isAdminAuthenticated: user.role === "ADMIN",
-          });
-        } catch (error) {
-          set({
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            isAdminAuthenticated: false,
-            user: null,
-            rememberMe: false,
-          });
-          throw error;
-        }
-      },
-
-      register: async (request: UserRegisterRequest) => {
-        await authService.register(request);
-      },
-
-      logout: () => {
-        set({
-          user: null,
-          accessToken: null,
-          refreshToken: null,
-          isAuthenticated: false,
-          isAdminAuthenticated: false,
-          rememberMe: false,
-        });
-      },
-
-      initialize: async () => {
-        const { accessToken } = get();
-        if (!accessToken) {
-          set({
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            isAdminAuthenticated: false,
-            isInitialized: true,
-          });
-          return;
+        // password 검제
+        if (password !== 'testuser') {
+          return { success: false, message: '비밀번호가 일치하지 않습니다. (testuser 입력 필요)' };
         }
 
-        try {
-          const user = await authService.getMe();
-          set({
-            user: { ...user, id: user.userUuid },
-            isAuthenticated: true,
-            isAdminAuthenticated: user.role === "ADMIN",
-            isInitialized: true,
-          });
-        } catch {
-          set({
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            isAdminAuthenticated: false,
-            isInitialized: true,
-            rememberMe: false,
-          });
+        // user1, user2 패턴 분석하여 인덱스 추출
+        const match = loginId.match(/^user(\d+)$/);
+        if (!match) {
+          return { success: false, message: 'ID 형식이 올바르지 않습니다. (user1 ~ user20)' };
         }
+
+        const index = parseInt(match[1], 10) - 1;
+        const targetUser = MOCK_USERS_DATA[index];
+
+        if (!targetUser) {
+          return { success: false, message: '존재하지 않는 사용자입니다.' };
+        }
+
+        set({ user: targetUser, isAuthenticated: true });
+        return { success: true };
       },
 
-      refreshUser: async () => {
-        try {
-          const user = await authService.getMe();
-          set({
-            user: { ...user, id: user.userUuid },
-            isAdminAuthenticated: user.role === "ADMIN",
-          });
-        } catch (error) {
-          console.error("사용자 정보 새로고침 실패:", error);
-        }
-      },
+      logout: () => set({ user: null, isAuthenticated: false, isAdminAuthenticated: false }),
 
-      socialLogin: async (accessToken: string, refreshToken?: string | null) => {
-        try {
-          set({ 
-            accessToken: normalizeAccessToken(accessToken), 
-            refreshToken: refreshToken || null,
-            rememberMe: true 
-          });
-          const user = await authService.getMe();
-          set({
-            user: { ...user, id: user.userUuid },
-            isAuthenticated: true,
-            isAdminAuthenticated: user.role === "ADMIN",
-          });
-        } catch (error) {
-          set({
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            isAdminAuthenticated: false,
-            user: null,
-            rememberMe: false,
-          });
-          throw error;
+      adminLogin: (adminId: string, password: string) => {
+        if (adminId === 'admin' && password === 'admin123') {
+          set({ isAdminAuthenticated: true });
+          return true;
         }
+        return false;
       },
+      
+      adminLogout: () => set({ isAdminAuthenticated: false }),
     }),
     {
-      name: "auth-storage",
-      storage: createJSONStorage(() => authStorage),
-      partialize: (state) => ({
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
-        isAdminAuthenticated: state.isAdminAuthenticated,
-        user: state.user,
-        rememberMe: state.rememberMe,
-      }),
-    },
-  ),
+      name: 'auth-storage',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
 );
+

@@ -1,81 +1,91 @@
-import { Link, NavLink } from 'react-router-dom';
-import LogOut from 'lucide-react/dist/esm/icons/log-out';
-import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
-import { ADMIN_NAV_ITEMS } from '@/constants/adminNavigation';
+/**
+ * 관리자 사이드바 네비게이션
+ */
+
+import { NavLink } from 'react-router-dom';
+import { 
+  LayoutDashboard, 
+  Package, 
+  Users, 
+  FolderTree,
+  AlertTriangle,
+  Ticket,
+  Wallet,
+  LogOut,
+  Image
+} from 'lucide-react';
+
+const navItems = [
+  { icon: LayoutDashboard, label: '대시보드', href: '/admin' },
+  { icon: Image, label: '배너 관리', href: '/admin/banners' },
+  { icon: Package, label: '상품 관리', href: '/admin/products' },
+  { icon: Users, label: '회원 관리', href: '/admin/users' },
+  { icon: AlertTriangle, label: '신고 관리', href: '/admin/reports' },
+  { icon: Ticket, label: '쿠폰 관리', href: '/admin/coupons' },
+  { icon: Wallet, label: '정산 관리', href: '/admin/settlements' },
+  { icon: FolderTree, label: '카테고리 관리', href: '/admin/categories' },
+];
+
 
 interface AdminSidebarProps {
+  isOpen?: boolean;
   onClose?: () => void;
 }
 
 const AdminSidebar = ({ onClose }: AdminSidebarProps) => {
   return (
     <aside className="w-64 bg-neutral-900 text-white h-full flex flex-col">
+      {/* 로고 및 닫기 버튼 (모바일) */}
       <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
         <h1 className="text-xl font-bold">
-          <span className="text-primary-400">세미콜론</span>
-          <span className="text-sm font-normal text-neutral-400 ml-2">운영자</span>
+          <span className="text-primary-400">덕쿠</span>
+          <span className="text-sm font-normal text-neutral-400 ml-2">Admin</span>
         </h1>
         {onClose && (
-          <button
-            type="button"
+          <button 
             onClick={onClose}
             className="lg:hidden text-neutral-400 hover:text-white p-1"
-            aria-label="사이드바 닫기"
+            aria-label="Close Sidebar"
           >
-            <LogOut className="w-5 h-5 rotate-180" aria-hidden={true} />
+            <LogOut className="w-5 h-5 rotate-180" />
           </button>
         )}
       </div>
 
+      {/* 네비게이션 */}
       <nav className="flex-1 p-4">
         <ul className="space-y-1">
-          {ADMIN_NAV_ITEMS.map((item) => (
-            <li key={item.key}>
-              {item.external ? (
-                <a
-                  href={item.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-neutral-300 hover:bg-neutral-800 hover:text-white transition-[background-color,color]"
-                  onClick={onClose}
-                >
-                  <span className="flex items-center gap-3">
-                    <item.icon className="w-5 h-5" aria-hidden={true} />
-                    <span className="font-medium">{item.label}</span>
-                  </span>
-                  <ExternalLink className="w-4 h-4" aria-hidden={true} />
-                </a>
-              ) : (
-                <NavLink
-                  to={item.href}
-                  end={item.href === '/admin'}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3 rounded-lg transition-[background-color,color,box-shadow] ${
-                      isActive
-                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20'
-                        : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
-                    }`
-                  }
-                  onClick={onClose}
-                >
-                  <item.icon className="w-5 h-5" aria-hidden={true} />
-                  <span className="font-medium">{item.label}</span>
-                </NavLink>
-              )}
+          {navItems.map((item) => (
+            <li key={item.href}>
+              <NavLink
+                to={item.href}
+                end={item.href === '/admin'}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                    isActive
+                      ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20'
+                      : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
+                  }`
+                }
+                onClick={onClose}
+              >
+                <item.icon className="w-5 h-5" />
+                <span className="font-medium">{item.label}</span>
+              </NavLink>
             </li>
           ))}
         </ul>
       </nav>
 
+      {/* 하단 */}
       <div className="p-4 border-t border-neutral-800">
-        <Link
-          to="/"
-          onClick={onClose}
+        <button
+          onClick={() => window.location.href = '/'}
           className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors"
         >
-          <LogOut className="w-5 h-5" aria-hidden={true} />
+          <LogOut className="w-5 h-5" />
           <span className="font-medium">사이트로 돌아가기</span>
-        </Link>
+        </button>
       </div>
     </aside>
   );
