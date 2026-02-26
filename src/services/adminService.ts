@@ -11,6 +11,7 @@ import type {
   AdminSettlementStatisticsParams,
   AdminSettlementStatisticsResponse,
   UserAdminProfileResponse,
+  AdminUserPageResponse,
 } from '@/types/admin';
 
 interface AdminOrderSearchParams {
@@ -31,6 +32,13 @@ interface AdminProductSearchParams {
   minPrice?: number;
   maxPrice?: number;
   sortType?: 'LATEST' | 'LIKES' | 'PRICE_LOW' | 'PRICE_HIGH';
+}
+
+interface AdminUserSearchParams {
+  page?: number;
+  size?: number;
+  keyword?: string;
+  status?: string;
 }
 
 const settlementBaseCandidates = [
@@ -134,5 +142,29 @@ export const adminService = {
     params: AdminSettlementStatisticsParams = {},
   ): Promise<AdminSettlementStatisticsResponse> => {
     return requestSettlementApi<AdminSettlementStatisticsResponse>('/statistics', params);
+  },
+
+  getAdminUsers: async (params: AdminUserSearchParams = {}): Promise<AdminUserPageResponse> => {
+    const { page = 0, size = 20, ...searchParams } = params;
+    const response = await api.get<AdminUserPageResponse>(API_ENDPOINTS.ADMIN_USERS.BASE, {
+      params: { page, size, ...searchParams },
+    });
+    return response.data;
+  },
+
+  suspendAdminProduct: async (productUuid: string): Promise<void> => {
+    await api.post(`${API_ENDPOINTS.ADMIN_PRODUCTS.BASE}/${productUuid}/suspend`);
+  },
+
+  deleteAdminProduct: async (productUuid: string): Promise<void> => {
+    await api.delete(`${API_ENDPOINTS.ADMIN_PRODUCTS.BASE}/${productUuid}`);
+  },
+
+  deactivateAdminCoupon: async (couponUuid: string): Promise<void> => {
+    await api.post(API_ENDPOINTS.ADMIN_COUPONS.DEACTIVATE(couponUuid));
+  },
+
+  deleteAdminCoupon: async (couponUuid: string): Promise<void> => {
+    await api.delete(API_ENDPOINTS.ADMIN_COUPONS.DELETE(couponUuid));
   },
 };
