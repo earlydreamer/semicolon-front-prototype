@@ -110,7 +110,6 @@ export default function ProductDetailPage() {
 
             <ProductActionBar
               saleStatus={product.saleStatus}
-              likeCount={product.likeCount}
               isOwnPendingReservation={isOwnPendingReservation}
               isLiked={isLiked}
               onLike={handleLike}
