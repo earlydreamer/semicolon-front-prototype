@@ -3,7 +3,6 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import { useCartStore } from '../stores/useCartStore';
 import { useOrderStore } from '../stores/useOrderStore';
 import { useToast } from '../components/common/Toast';
@@ -15,7 +14,6 @@ const CartPage = () => {
   const { showToast } = useToast();
   
   const items = useCartStore((state) => state.items);
-  const fetchItems = useCartStore((state) => state.fetchItems);
   const removeItem = useCartStore((state) => state.removeItem);
   const toggleSelect = useCartStore((state) => state.toggleSelect);
   const selectAll = useCartStore((state) => state.selectAll);
@@ -24,85 +22,58 @@ const CartPage = () => {
   const getSelectedItems = useCartStore((state) => state.getSelectedItems);
   const { setOrderItems } = useOrderStore();
 
-  // 데이터 로드
-  useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
-
   const summary = getCartSummary();
-  const selectableItems = items.filter((item) => item.saleStatus === 'ON_SALE');
-  const selectedSelectableCount = selectableItems.filter((item) => item.selected).length;
-  const allSelected = selectableItems.length > 0 && selectedSelectableCount === selectableItems.length;
+  const allSelected = items.length > 0 && items.every((item) => item.selected);
   const hasSelectedItems = items.some((item) => item.selected);
 
   // 선택 삭제 핸들러
-  const handleRemoveSelected = async () => {
+  const handleRemoveSelected = () => {
     if (!hasSelectedItems) {
-      showToast('삭제할 상품을 선택해 주세요', 'error');
+      showToast('삭제할 상품을 선택해주세요', 'error');
       return;
     }
     
     const selectedCount = items.filter((i) => i.selected).length;
-    try {
-      await removeSelectedItems();
-      showToast(`${selectedCount}개 상품이 삭제됐어요`, 'success');
-    } catch {
-      showToast('선택한 상품 삭제에 실패했어요', 'error');
-    }
+    removeSelectedItems();
+    showToast(`${selectedCount}개 상품이 삭제되었습니다`, 'success');
   };
 
   // 주문하기 핸들러 (모바일용)
   const handleOrder = () => {
     if (summary.selectedCount === 0) {
-      showToast('주문할 상품을 선택해 주세요', 'error');
+      showToast('주문할 상품을 선택해주세요', 'error');
       return;
     }
     const selectedItems = getSelectedItems();
-    const hasUnavailable = selectedItems.some((item) => item.saleStatus !== 'ON_SALE');
-    if (hasUnavailable) {
-      showToast('거래중 또는 판매완료 상품은 주문할 수 없습니다.', 'error');
-      return;
-    }
-    
-    // OrderItem 형식에 맞게 변환 (CartItem과 OrderItem 구조 확인 필요)
-    // 현재 OrderItem은 Product 객체를 포함해야 함. 
-    // 하지만 실데이터 장바구니엔 Product 전체 객체가 없으므로 
-    // 최소한의 정보만 넘기거나 OrderStore를 수정해야 함.
-    // 여기서는 일단 기존 구조 유지를 위해 필요한 필드만 맞춰서 넘김.
     setOrderItems(selectedItems);
     navigate('/order');
   };
 
+
   return (
-    <div className="min-h-screen bg-neutral-50 py-6 min-[360px]:py-8">
-      <div className="mx-auto max-w-6xl px-3 min-[360px]:px-4">
+    <div className="min-h-screen bg-neutral-50 py-8">
+      <div className="max-w-6xl mx-auto px-4">
         {/* 페이지 헤더 */}
-        <div className="mb-5 min-[360px]:mb-6">
-          <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">장바구니</h1>
-          <p className="mt-1 text-xs text-neutral-500 min-[360px]:text-sm">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-neutral-900">장바구니</h1>
+          <p className="text-sm text-neutral-500 mt-1">
             총 {items.length}개의 상품이 담겨있습니다
           </p>
         </div>
 
         {/* 메인 콘텐츠 */}
-        <div className="flex flex-col gap-5 lg:flex-row lg:gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* 좌측: 상품 목록 */}
           <div className="flex-1">
             <CartList
               items={items}
-              onRemove={async (cartId) => {
-                try {
-                  await removeItem(cartId);
-                  showToast('상품이 삭제됐어요', 'success');
-                } catch {
-                  showToast('상품 삭제에 실패했어요', 'error');
-                }
+              onRemove={(productId) => {
+                removeItem(productId);
+                showToast('상품이 삭제되었습니다', 'success');
               }}
               onToggleSelect={toggleSelect}
               onSelectAll={selectAll}
               allSelected={allSelected}
-              selectedSelectableCount={selectedSelectableCount}
-              selectableCount={selectableItems.length}
             />
 
             {/* 선택 삭제 버튼 */}
@@ -133,10 +104,7 @@ const CartPage = () => {
 
       {/* 모바일 하단 고정 바 */}
       {items.length > 0 && (
-        <div
-          className="fixed bottom-0 left-0 right-0 z-40 border-t border-neutral-200 bg-white p-3 min-[360px]:p-4 lg:hidden"
-          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
-        >
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 p-4 z-40">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm text-neutral-600">
               선택 {summary.selectedCount}개
@@ -159,7 +127,7 @@ const CartPage = () => {
       )}
 
       {/* 모바일 하단 바 공간 확보 */}
-      {items.length > 0 && <div className="h-28 lg:hidden" />}
+      {items.length > 0 && <div className="lg:hidden h-32" />}
     </div>
   );
 };

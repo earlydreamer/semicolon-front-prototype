@@ -5,15 +5,14 @@
  * 데스크톱/모바일 레이아웃 모두 포함
  */
 
-import Heart from 'lucide-react/dist/esm/icons/heart';
-import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
+import { Heart, ShoppingBag } from 'lucide-react';
 import type { SaleStatus } from '@/types/product';
 
 interface ProductActionBarProps {
   // 상품 정보
   saleStatus: SaleStatus;
   likeCount: number;
-  isOwnPendingReservation?: boolean;
+  isSafe: boolean;
   // 상태
   isLiked: boolean;
   // 핸들러
@@ -25,25 +24,25 @@ interface ProductActionBarProps {
 export const ProductActionBar = ({
   saleStatus,
   likeCount,
-  isOwnPendingReservation = false,
+  isSafe,
   isLiked,
   onLike,
   onAddToCart,
   onPurchase,
 }: ProductActionBarProps) => {
-  const isDisabled = saleStatus === 'SOLD_OUT' || (saleStatus === 'RESERVED' && !isOwnPendingReservation);
+  const isDisabled = saleStatus === 'SOLD_OUT' || saleStatus === 'RESERVED';
   const displayLikeCount = likeCount + (isLiked ? 1 : 0);
 
   const getPurchaseButtonText = () => {
     if (saleStatus === 'SOLD_OUT') return '품절된 상품';
-    if (saleStatus === 'RESERVED') return isOwnPendingReservation ? '결제 계속하기' : '거래중';
-    return '구매하기';
+    if (saleStatus === 'RESERVED') return '예약중';
+    return '안전결제';
   };
 
   const getMobilePurchaseText = () => {
     if (saleStatus === 'SOLD_OUT') return '품절';
-    if (saleStatus === 'RESERVED') return isOwnPendingReservation ? '결제 계속' : '거래중';
-    return '구매하기';
+    if (saleStatus === 'RESERVED') return '예약중';
+    return '안전결제';
   };
 
   return (
@@ -52,7 +51,7 @@ export const ProductActionBar = ({
       <div className="hidden md:flex gap-3 mt-8 pt-6 border-t border-gray-200">
         <button 
           onClick={onLike}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-lg bg-gray-100 py-3 font-semibold text-gray-900 transition-[background-color,color,transform] active:scale-95 hover:bg-neutral-200 ${isLiked ? 'text-red-500' : ''}`}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg bg-gray-100 py-3 font-semibold text-gray-900 transition-all active:scale-95 hover:bg-neutral-200 ${isLiked ? 'text-red-500' : ''}`}
         >
           <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
           찜 {displayLikeCount}
@@ -60,7 +59,7 @@ export const ProductActionBar = ({
         <button 
           onClick={onAddToCart}
           disabled={isDisabled}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold transition-[background-color,color,transform] active:scale-95 ${
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold transition-all active:scale-95 ${
             isDisabled
             ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed' 
             : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
@@ -69,17 +68,19 @@ export const ProductActionBar = ({
           <ShoppingBag className="h-5 w-5" />
           장바구니
         </button>
-        <button 
-          onClick={onPurchase}
-          disabled={isDisabled}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white transition-[background-color,color,transform] active:scale-95 ${
-            isDisabled
-            ? 'bg-neutral-300 cursor-not-allowed'
-            : 'bg-primary-500 hover:bg-primary-600'
-          }`}
-        >
-          {getPurchaseButtonText()}
-        </button>
+        {isSafe && (
+          <button 
+            onClick={onPurchase}
+            disabled={isDisabled}
+            className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white transition-all active:scale-95 ${
+              isDisabled
+              ? 'bg-neutral-300 cursor-not-allowed'
+              : 'bg-primary-500 hover:bg-primary-600'
+            }`}
+          >
+            {getPurchaseButtonText()}
+          </button>
+        )}
       </div>
 
       {/* Mobile Fixed Bar */}
@@ -105,17 +106,19 @@ export const ProductActionBar = ({
           >
             장바구니
           </button>
-          <button 
-            onClick={onPurchase}
-            disabled={isDisabled}
-            className={`flex-1 rounded-md py-2 min-[360px]:py-2.5 text-xs min-[360px]:text-sm font-bold text-white shadow-sm transition-transform active:scale-95 ${
-              isDisabled
-              ? 'bg-neutral-300 cursor-not-allowed'
-              : 'bg-primary-500'
-            }`}
-          >
-            {getMobilePurchaseText()}
-          </button>
+          {isSafe && (
+            <button 
+              onClick={onPurchase}
+              disabled={isDisabled}
+              className={`flex-1 rounded-md py-2 min-[360px]:py-2.5 text-xs min-[360px]:text-sm font-bold text-white shadow-sm transition-transform active:scale-95 ${
+                isDisabled
+                ? 'bg-neutral-300 cursor-not-allowed'
+                : 'bg-primary-500'
+              }`}
+            >
+              {getMobilePurchaseText()}
+            </button>
+          )}
         </div>
       </div>
     </>

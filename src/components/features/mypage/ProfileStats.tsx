@@ -2,17 +2,15 @@
  * 프로필 통계 컴포넌트
  */
 
-import Package from 'lucide-react/dist/esm/icons/package';
-import ShoppingBag from 'lucide-react/dist/esm/icons/shopping-bag';
-import Coins from 'lucide-react/dist/esm/icons/coins';
+import { Package, ShoppingBag, Coins } from 'lucide-react';
 
 interface ProfileStatsProps {
   salesCount: number;
   purchaseCount: number;
-  deposit: number;
+  point: number;
 }
 
-const ProfileStats = ({ salesCount, purchaseCount, deposit }: ProfileStatsProps) => {
+const ProfileStats = ({ salesCount, purchaseCount, point }: ProfileStatsProps) => {
   const stats = [
     {
       label: '판매',
@@ -29,9 +27,9 @@ const ProfileStats = ({ salesCount, purchaseCount, deposit }: ProfileStatsProps)
       bgColor: 'bg-green-50',
     },
     {
-      label: '예치금',
-      value: deposit.toLocaleString('ko-KR'),
-      suffix: '원',
+      label: '포인트',
+      value: point.toLocaleString('ko-KR'),
+      suffix: 'P',
       icon: Coins,
       color: 'text-amber-500',
       bgColor: 'bg-amber-50',

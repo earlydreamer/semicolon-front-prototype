@@ -14,8 +14,6 @@ export const ROUTES = {
   // 인증
   LOGIN: '/login',
   SIGNUP: '/signup',
-  EMAIL_VERIFY: '/email/verify',
-  EMAIL_PENDING: '/email/pending',
 
   // 카테고리/상품
   CATEGORY: '/categories/:categoryId',

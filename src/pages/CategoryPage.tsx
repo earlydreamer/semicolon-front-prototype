@@ -1,163 +1,140 @@
 /**
- * 카테고리 페이지입니다.
- * 상품 목록과 필터를 함께 제공합니다.
+ * 카테고리 페이지
+ * 필터 기능 포함 (가격대, 판매상태)
  */
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
-import Search from 'lucide-react/dist/esm/icons/search';
+import { ChevronRight, Search } from 'lucide-react';
 import { ProductList } from '@/components/features/product/ProductList';
 import { ProductSortDropdown, type SortOption } from '@/components/features/product/ProductSortDropdown';
-import {
-  DesktopProductFilter,
-  MobileFilterButton,
+import { 
+  DesktopProductFilter, 
+  MobileFilterButton, 
   MobileFilterModal,
+  getActiveFilterCount,
+  type ProductFilterState 
 } from '@/components/features/product/ProductFilter';
-import { getActiveFilterCount, type ProductFilterState } from '@/components/features/product/productFilterUtils';
-import { type SaleStatus, type ProductListItem } from '@/types/product';
-import type { Category } from '@/types/category';
+import { MOCK_PRODUCTS, type SaleStatus } from '@/mocks/products';
+import { MOCK_CATEGORIES, type Category } from '@/mocks/categories';
 import { CategorySidebar } from '@/components/features/category/CategorySidebar';
-import { findCategoryPath, getCategoryChildren, transformCategories } from '@/utils/category';
+import { findCategoryPath, getCategoryChildren } from '@/utils/category';
 import { cn } from '@/utils/cn';
 import { sanitizeUrlParam } from '@/utils/sanitize';
-import { productService } from '@/services/productService';
-import { useToast } from '@/components/common/Toast';
-
-const PAGE_SIZE = 20;
-
-const SORT_TYPE_MAP: Record<SortOption, 'LATEST' | 'LIKES' | 'PRICE_LOW' | 'PRICE_HIGH'> = {
-  latest: 'LATEST',
-  popular: 'LIKES',
-  'price-asc': 'PRICE_LOW',
-  'price-desc': 'PRICE_HIGH',
-};
 
 export default function CategoryPage() {
   const { categoryId: rawCategoryId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [products, setProducts] = useState<ProductListItem[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [page, setPage] = useState(0);
-  const [hasNext, setHasNext] = useState(false);
-  const [totalCount, setTotalCount] = useState(0);
-  const { showToast } = useToast();
-
-  // URL 파라미터는 sanitize 후 사용합니다.
+  
+  // URL 파라미터 검증 (XSS 방지)
   const categoryId = sanitizeUrlParam(rawCategoryId);
-
-  const minPrice = parseInt(searchParams.get('minPrice') || '0', 10);
-  const maxPrice = parseInt(searchParams.get('maxPrice') || '0', 10);
+  
+  // URL 파라미터에서 필터 조건 읽기
+  const minPrice = parseInt(searchParams.get('minPrice') || '0');
+  const maxPrice = parseInt(searchParams.get('maxPrice') || '0');
   const status = (searchParams.get('status') || 'all') as SaleStatus | 'all';
   const sortParam = searchParams.get('sort') || 'latest';
+  
+  // SortOption 타입 매핑
+  const sort: SortOption = sortParam === 'price_asc' ? 'price-asc' : 
+                           sortParam === 'price_desc' ? 'price-desc' : 
+                           sortParam as SortOption;
 
-  // URL 정렬값을 드롭다운 정렬값으로 매핑합니다.
-  const sort: SortOption =
-    sortParam === 'price_asc'
-      ? 'price-asc'
-      : sortParam === 'price_desc'
-        ? 'price-desc'
-        : (sortParam as SortOption);
-
+  // 필터 상태
   const filters: ProductFilterState = {
     minPrice,
     maxPrice,
     status,
   };
 
-  // 카테고리 목록을 불러옵니다.
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const data = await productService.getCategories();
-        setCategories(transformCategories(data));
-      } catch (error) {
-        console.error('카테고리를 불러오지 못했어요.', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadCategories();
-  }, []);
-
-  const fetchProductsPage = useCallback(
-    async (targetPage: number, append: boolean) => {
-      const response = await productService.getProducts({
-        categoryId: categoryId && !Number.isNaN(parseInt(categoryId, 10)) ? parseInt(categoryId, 10) : undefined,
-        minPrice: minPrice > 0 ? minPrice : undefined,
-        maxPrice: maxPrice > 0 ? maxPrice : undefined,
-        sortType: SORT_TYPE_MAP[sort],
-        page: targetPage,
-        size: PAGE_SIZE,
-      });
-
-      const nextItems = response.items || [];
-      setProducts((prev) => (append ? [...prev, ...nextItems] : nextItems));
-      setPage(response.page ?? targetPage);
-      setHasNext(response.hasNext ?? false);
-      setTotalCount(response.totalCount ?? nextItems.length);
-    },
-    [categoryId, minPrice, maxPrice, sort]
-  );
-
-  // 카테고리 상품 목록 첫 페이지를 불러옵니다.
-  useEffect(() => {
-    const loadInitialProducts = async () => {
-      setLoading(true);
-      setProducts([]);
-      try {
-        await fetchProductsPage(0, false);
-      } catch (error) {
-        console.error('상품을 불러오지 못했어요.', error);
-        setProducts([]);
-        setHasNext(false);
-        setTotalCount(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadInitialProducts();
-  }, [fetchProductsPage]);
-
-  // 현재 카테고리 경로를 구합니다.
+  // Find current category path
   const categoryPath = useMemo(() => {
-    if (!categoryId || !categories.length) return [];
-    return findCategoryPath(categories, categoryId) || [];
-  }, [categoryId, categories]);
+    if (!categoryId) return [];
+    return findCategoryPath(MOCK_CATEGORIES, categoryId) || [];
+  }, [categoryId]);
 
   const currentCategoryName = categoryPath.length > 0 ? categoryPath[categoryPath.length - 1].name : '전체 상품';
 
-  // 화면 표시용 필터링입니다.
+  // Filter and Sort Products
   const filteredProducts = useMemo(() => {
-    let filtered = [...products];
+    let products = [...MOCK_PRODUCTS];
 
+    if (categoryId) {
+      // Find all descendant category IDs
+      const targetIds = new Set<string>();
+      targetIds.add(categoryId);
+
+      // Helper to find node and collect descendants
+      const queue = [...MOCK_CATEGORIES];
+      let targetNode = null;
+
+      // 1. Find the target node
+      while (queue.length > 0) {
+        const node = queue.shift();
+        if (node?.id === categoryId) {
+          targetNode = node;
+          break;
+        }
+        if (node?.children) queue.push(...node.children);
+      }
+
+      // 2. If found, collect all children IDs
+      if (targetNode) {
+        const childQueue = [targetNode];
+        while (childQueue.length > 0) {
+          const node = childQueue.shift();
+          if (node) {
+            targetIds.add(node.id);
+            if (node.children) {
+              childQueue.push(...node.children);
+            }
+          }
+        }
+      }
+
+      products = products.filter(p => p.categoryId && targetIds.has(p.categoryId));
+    }
+
+    // 가격 필터
     if (minPrice > 0) {
-      filtered = filtered.filter((p) => p.price >= minPrice);
+      products = products.filter((p) => p.price >= minPrice);
     }
     if (maxPrice > 0) {
-      filtered = filtered.filter((p) => p.price <= maxPrice);
+      products = products.filter((p) => p.price <= maxPrice);
     }
 
+    // 상태 필터
     if (status !== 'all') {
-      filtered = filtered.filter((p) => p.saleStatus === status);
+      products = products.filter((p) => p.saleStatus === status);
     }
 
-    return filtered;
-  }, [products, minPrice, maxPrice, status]);
+    // 정렬
+    switch (sort) {
+      case 'price-asc':
+        products.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        products.sort((a, b) => b.price - a.price);
+        break;
+      case 'latest':
+      default:
+        products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
 
+    return products;
+  }, [categoryId, minPrice, maxPrice, status, sort]);
+
+  // 정렬 변경
   const handleSortChange = (newSort: SortOption) => {
     const params = new URLSearchParams(searchParams);
-    const sortValue =
-      newSort === 'price-asc' ? 'price_asc' : newSort === 'price-desc' ? 'price_desc' : newSort;
+    const sortValue = newSort === 'price-asc' ? 'price_asc' : 
+                      newSort === 'price-desc' ? 'price_desc' : newSort;
     params.set('sort', sortValue);
     setSearchParams(params);
   };
 
+  // 필터 변경
   const updateFilter = (key: keyof ProductFilterState, value: string) => {
     const params = new URLSearchParams(searchParams);
     if (value && value !== 'all' && value !== '0') {
@@ -168,31 +145,18 @@ export default function CategoryPage() {
     setSearchParams(params);
   };
 
+  // 필터 초기화
   const clearFilters = () => {
     setSearchParams({});
   };
 
-  const handleLoadMore = async () => {
-    if (!hasNext || isFetchingMore) return;
-    setIsFetchingMore(true);
-    try {
-      await fetchProductsPage(page + 1, true);
-    } catch (error) {
-      console.error('추가 상품을 불러오지 못했어요.', error);
-      showToast('상품을 더 불러오지 못했어요. 잠시 후 다시 시도해 주세요.', 'error');
-    } finally {
-      setIsFetchingMore(false);
-    }
-  };
-  const hasClientOnlyFilter = status !== 'all';
-
   const activeFilterCount = getActiveFilterCount(filters);
 
   return (
-    <div className="container mx-auto px-3 py-6 min-[360px]:px-4 min-[360px]:py-8">
-      {/* 브레드크럼/제목 */}
-      <div className="mb-6 min-[360px]:mb-8">
-        <div className="mb-2 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-xs text-neutral-500 no-scrollbar min-[360px]:text-sm">
+    <div className="container mx-auto px-4 py-8">
+      {/* Breadcrumb / Title */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 text-sm text-neutral-500 mb-2">
           <Link to="/" className="hover:text-neutral-900">홈</Link>
           {categoryPath.map((cat) => (
             <div key={cat.id} className="flex items-center gap-2">
@@ -203,28 +167,33 @@ export default function CategoryPage() {
             </div>
           ))}
         </div>
-        <h1 className="text-xl font-bold text-neutral-900 min-[360px]:text-2xl">{currentCategoryName}</h1>
+        <h1 className="text-2xl font-bold text-neutral-900">{currentCategoryName}</h1>
       </div>
 
-      {/* 모바일 카테고리 탭 */}
-      <div className="sticky top-14 z-20 -mx-3 mb-5 border-b border-neutral-100 bg-white md:hidden min-[360px]:-mx-4 min-[360px]:top-16 min-[360px]:mb-6">
-        <div className="flex gap-3 overflow-x-auto px-3 py-2.5 no-scrollbar min-[360px]:gap-4 min-[360px]:px-4 min-[360px]:py-3">
+      {/* Mobile Category Filter (Horizontal Scroll) */}
+      <div className="md:hidden -mx-4 mb-6 border-b border-neutral-100 bg-white sticky top-16 z-20">
+        <div className="flex gap-4 px-4 py-3 overflow-x-auto no-scrollbar">
           <Link
-            to={categoryPath.length > 1 ? `/categories/${categoryPath[categoryPath.length - 2].id}` : '/'}
+            to={categoryPath.length > 1 
+              ? `/categories/${categoryPath[categoryPath.length - 2].id}` 
+              : '/'}
             className="flex-shrink-0 px-4 py-1.5 rounded-full bg-neutral-100 text-sm font-medium text-neutral-600 hover:bg-neutral-200"
           >
             전체
           </Link>
-
-          {(categoryId ? getCategoryChildren(categories, categoryId) || [] : categories).map((cat: Category) => (
+          {/* Current siblings or children */}
+          {(categoryId ? 
+            (getCategoryChildren(MOCK_CATEGORIES, categoryId) || []) : 
+            MOCK_CATEGORIES
+          ).map((cat: Category) => (
             <Link
               key={cat.id}
               to={`/categories/${cat.id}`}
               className={cn(
-                'flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-[background-color,color,box-shadow]',
+                "flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all",
                 cat.id === categoryId
-                  ? 'bg-primary-600 text-white shadow-md shadow-primary-200'
-                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                  ? "bg-primary-600 text-white shadow-md shadow-primary-200"
+                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
               )}
             >
               {cat.name}
@@ -233,60 +202,50 @@ export default function CategoryPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-        {/* 사이드바 */}
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Sidebar (Category Nav + Filter) */}
         <div className="hidden md:block w-64 flex-shrink-0">
           <div className="sticky top-24 space-y-6">
             <CategorySidebar />
-            <DesktopProductFilter filters={filters} onFilterChange={updateFilter} onClearFilters={clearFilters} />
+            <DesktopProductFilter 
+              filters={filters}
+              onFilterChange={updateFilter}
+              onClearFilters={clearFilters}
+            />
           </div>
         </div>
 
-        {/* 메인 영역 */}
+        {/* Main Content */}
         <main className="flex-1">
-          {/* 툴바 */}
-          <div className="mb-5 flex items-center justify-between border-b border-neutral-200 pb-3 min-[360px]:mb-6 min-[360px]:pb-4">
-            <div className="flex items-center gap-3 min-[360px]:gap-4">
-              {loading ? (
-                <span className="text-sm text-neutral-500">로딩 중...</span>
-              ) : (
-                <span className="text-xs text-neutral-500 min-[360px]:text-sm">
-                  총 <strong className="text-neutral-900">{hasClientOnlyFilter ? filteredProducts.length : totalCount}</strong>개
-                </span>
-              )}
-
+          {/* Toolbar */}
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-neutral-200">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-neutral-500">
+                총 <strong className="text-neutral-900">{filteredProducts.length}</strong>개
+              </span>
+              
               {/* 모바일 필터 버튼 */}
-              <MobileFilterButton activeFilterCount={activeFilterCount} onClick={() => setShowMobileFilters(true)} />
+              <MobileFilterButton 
+                activeFilterCount={activeFilterCount}
+                onClick={() => setShowMobileFilters(true)}
+              />
             </div>
-
-            <div className="shrink-0">
-              <ProductSortDropdown currentSort={sort} onSortChange={handleSortChange} />
-            </div>
+            
+            <ProductSortDropdown currentSort={sort} onSortChange={handleSortChange} />
           </div>
 
-          {/* 상품 목록 */}
+          {/* Product Grid */}
           {filteredProducts.length > 0 ? (
-            <>
-              <ProductList products={filteredProducts} embedded enableInfiniteScroll={false} />
-              {!hasClientOnlyFilter && hasNext && (
-                <div className="mt-6 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={handleLoadMore}
-                    disabled={isFetchingMore}
-                    className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
-                  >
-                    {isFetchingMore ? '불러오는 중...' : '더보기'}
-                  </button>
-                </div>
-              )}
-            </>
+            <ProductList products={filteredProducts} />
           ) : (
             <div className="py-20 text-center text-neutral-500 bg-neutral-50 rounded-lg">
               <Search className="w-12 h-12 mx-auto mb-4 text-neutral-300" />
               <p className="mb-2">해당 조건에 맞는 상품이 없습니다.</p>
               {activeFilterCount > 0 && (
-                <button onClick={clearFilters} className="text-primary-600 hover:underline text-sm">
+                <button
+                  onClick={clearFilters}
+                  className="text-primary-600 hover:underline text-sm"
+                >
                   필터 초기화
                 </button>
               )}

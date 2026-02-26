@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import { Loader2 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 export interface ButtonProps
@@ -30,53 +30,31 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const Comp = asChild ? Slot : 'button';
-    const [pressed, setPressed] = React.useState(false);
-
-    const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-      setPressed(true);
-      props.onPointerDown?.(e);
-    };
-
-    const handlePointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
-      setPressed(false);
-      props.onPointerUp?.(e);
-    };
-
-    const handlePointerLeave = (e: React.PointerEvent<HTMLButtonElement>) => {
-      setPressed(false);
-      props.onPointerLeave?.(e);
-    };
 
     return (
       <Comp
         className={cn(
           // ... (styles remain same)
-          "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-neutral-0 transition-[transform,background-color,color,box-shadow,opacity] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-neutral-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
           
           // Variants
-          variant === 'primary' && "bg-primary-500 text-neutral-0 hover:bg-primary-600 shadow-sm hover:shadow",
-          variant === 'secondary' && "bg-neutral-100 text-neutral-900 hover:bg-neutral-200",
-          variant === 'outline' && "border border-primary-500 bg-neutral-0 text-primary-600 hover:bg-primary-50 hover:text-primary-700",
-          variant === 'ghost' && "hover:bg-neutral-100 hover:text-neutral-900",
-          variant === 'danger' && "bg-error-500 text-neutral-0 hover:bg-error-600 shadow-sm hover:shadow",
+          variant === 'primary' && "bg-primary-500 text-neutral-0 hover:bg-primary-600 active:scale-95",
+          variant === 'secondary' && "bg-neutral-100 text-neutral-900 hover:bg-neutral-200 active:scale-95",
+          variant === 'outline' && "border border-primary-500 bg-neutral-0 text-primary-600 hover:bg-primary-50 hover:text-primary-700 active:scale-95",
+          variant === 'ghost' && "hover:bg-neutral-100 hover:text-neutral-900 active:scale-95",
+          variant === 'danger' && "bg-error-500 text-neutral-0 hover:bg-error-600 active:scale-95",
           
           // Sizes
           size === 'sm' && "h-9 px-3 rounded-md text-xs",
           size === 'md' && "h-11 px-4 py-2 rounded-lg",
           size === 'lg' && "h-14 px-8 rounded-lg text-lg",
           size === 'icon' && "h-11 w-11",
-          pressed && "scale-[0.97]",
-          isLoading && "scale-100",
 
           className
         )}
         ref={ref}
         disabled={isLoading || disabled}
-        aria-busy={isLoading || undefined}
         {...props}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerLeave}
       >
         {asChild ? children : (
           <>

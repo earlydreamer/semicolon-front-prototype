@@ -1,31 +1,15 @@
-import type { Category } from '@/types/category';
-import type { CategoryResponse } from '@/types/product';
+import type { Category } from '@/mocks/categories';
 
 /**
- * 평면 카테고리 목록을 트리 구조로 변환합니다.
- */
-export function transformCategories(items: CategoryResponse[]): Category[] {
-  const buildTree = (parentId: number | null, currentDepth: number): Category[] => {
-    return items
-      .filter((cat) => cat.parentId === parentId)
-      .map((cat) => ({
-        id: String(cat.id),
-        name: cat.name,
-        depth: Math.min(Math.max(currentDepth, 1), 3) as 1 | 2 | 3,
-        parentId: cat.parentId === null ? null : String(cat.parentId),
-        children: buildTree(cat.id, currentDepth + 1),
-      }));
-  };
-
-  return buildTree(null, 1);
-}
-
-/**
- * 특정 카테고리 ID까지의 경로를 재귀적으로 찾습니다.
+ * Recursively finds the path to a specific category ID within the category tree.
+ * @param categories The root category list to search.
+ * @param targetId The ID of the category to find.
+ * @param currentPath internal accumulator for recursion.
+ * @returns An array of Category objects representing the path, or null if not found.
  */
 export function findCategoryPath(
-  categories: Category[],
-  targetId: string,
+  categories: Category[], 
+  targetId: string, 
   currentPath: Category[] = []
 ): Category[] | null {
   for (const cat of categories) {
@@ -41,7 +25,7 @@ export function findCategoryPath(
 }
 
 /**
- * ID로 카테고리를 찾습니다.
+ * Finds a category by its ID.
  */
 export function findCategoryById(categories: Category[], id: string): Category | null {
   for (const cat of categories) {
@@ -55,7 +39,7 @@ export function findCategoryById(categories: Category[], id: string): Category |
 }
 
 /**
- * 하위 카테고리가 있으면 하위를, 없으면 형제 목록을 반환합니다.
+ * Returns subcategories if they exist, otherwise siblings.
  */
 export function getCategoryChildren(categories: Category[], id: string): Category[] {
   const node = findCategoryById(categories, id);
@@ -65,11 +49,12 @@ export function getCategoryChildren(categories: Category[], id: string): Categor
     return node.children;
   }
 
+  // No children, find parent to get siblings
   const path = findCategoryPath(categories, id);
   if (path && path.length > 1) {
     const parent = path[path.length - 2];
     return parent.children || [];
   }
 
-  return categories;
+  return categories; // Fallback to top level
 }

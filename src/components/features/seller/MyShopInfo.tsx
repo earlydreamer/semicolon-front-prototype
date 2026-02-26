@@ -3,13 +3,11 @@
  */
 
 import { useState } from 'react';
-import Camera from 'lucide-react/dist/esm/icons/camera';
-import Save from 'lucide-react/dist/esm/icons/save';
+import { Camera, Save } from 'lucide-react';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { useToast } from '@/components/common/Toast';
 import { useAuthStore } from '@/stores/useAuthStore';
-import type { User } from '@/types/auth';
 
 interface ShopInfo {
   name: string;
@@ -17,21 +15,15 @@ interface ShopInfo {
   avatar: string;
 }
 
-type UserWithProfile = User & {
-  intro?: string;
-  avatar?: string;
-};
-
 const MyShopInfo = () => {
   const { showToast } = useToast();
   const { user } = useAuthStore();
-  const profileUser = user as UserWithProfile | null;
   const [isEditing, setIsEditing] = useState(false);
   
   const initialShopInfo: ShopInfo = {
     name: user?.nickname || '',
-    intro: profileUser?.intro || '',
-    avatar: profileUser?.avatar || '',
+    intro: user?.intro || '',
+    avatar: user?.avatar || '',
   };
 
   const [shopInfo, setShopInfo] = useState<ShopInfo>(initialShopInfo);
@@ -50,7 +42,7 @@ const MyShopInfo = () => {
   const handleSave = () => {
     setShopInfo(editForm);
     setIsEditing(false);
-    showToast('상점 정보를 저장했어요', 'success');
+    showToast('상점 정보가 저장되었습니다', 'success');
   };
 
   const handleAvatarClick = () => {
@@ -85,8 +77,6 @@ const MyShopInfo = () => {
                 <img
                   src={editForm.avatar || 'https://ui-avatars.com/api/?name=Shop&background=random'}
                   alt="상점 아바타"
-                  width={80}
-                  height={80}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -95,7 +85,6 @@ const MyShopInfo = () => {
                 onClick={handleAvatarClick}
                 className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary-500 text-white
                   flex items-center justify-center shadow-lg hover:bg-primary-600 transition-colors"
-                aria-label="상점 프로필 이미지 변경"
               >
                 <Camera className="w-4 h-4" />
               </button>
@@ -110,7 +99,7 @@ const MyShopInfo = () => {
             label="상점명"
             value={editForm.name}
             onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-            placeholder="상점명을 입력해 주세요"
+            placeholder="상점명을 입력해주세요"
           />
 
           {/* 소개 */}
@@ -121,7 +110,7 @@ const MyShopInfo = () => {
               onChange={(e) => setEditForm({ ...editForm, intro: e.target.value })}
               className="w-full min-h-[100px] px-3 py-2 rounded-md border border-neutral-300 bg-neutral-0 
                 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 resize-y"
-              placeholder="상점 소개를 입력해 주세요"
+              placeholder="상점 소개를 입력해주세요"
             />
           </div>
 
@@ -142,8 +131,6 @@ const MyShopInfo = () => {
             <img
               src={shopInfo.avatar || 'https://ui-avatars.com/api/?name=Shop&background=random'}
               alt="상점 아바타"
-              width={80}
-              height={80}
               className="w-full h-full object-cover"
             />
           </div>

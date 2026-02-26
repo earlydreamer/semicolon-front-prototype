@@ -1,179 +1,63 @@
-import { useState, useEffect } from 'react';
+/**
+ * 상점 페이지
+ */
+
+import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
+import { ChevronLeft } from 'lucide-react';
+import { MOCK_SHOPS } from '../mocks/users';
+import { MOCK_PRODUCTS } from '../mocks/products';
 import { sanitizeUrlParam, isValidId } from '../utils/sanitize';
 
 import ShopHeader from '../components/features/shop/ShopHeader';
 import ShopStats from '../components/features/shop/ShopStats';
 import ShopProductList from '../components/features/shop/ShopProductList';
 import { ReviewList } from '../components/features/review/ReviewList';
-import type { ProductListItem } from '@/types/product';
-import type { Review } from '@/components/features/review/ReviewCard';
-import { shopService } from '@/services/shopService';
-import { reviewService } from '@/services/reviewService';
-import { followService } from '@/services/followService';
-import { useToast } from '@/components/common/Toast';
 
 type TabType = 'all' | 'ON_SALE' | 'RESERVED' | 'SOLD_OUT';
-const PAGE_SIZE = 20;
 
 const TABS: { key: TabType; label: string }[] = [
   { key: 'all', label: '전체' },
   { key: 'ON_SALE', label: '판매중' },
-  { key: 'RESERVED', label: '거래중' },
+  { key: 'RESERVED', label: '예약중' },
   { key: 'SOLD_OUT', label: '판매완료' },
 ];
 
 const ShopPage = () => {
   const { shopId: rawShopId } = useParams();
   const [activeTab, setActiveTab] = useState<TabType>('all');
-  const [shop, setShop] = useState<{ shopUuid: string; sellerUuid: string; nickname: string; intro?: string } | null>(null);
-  const [shopProducts, setShopProducts] = useState<ProductListItem[]>([]);
-  const [statusCounts, setStatusCounts] = useState<Record<TabType, number>>({
-    all: 0,
-    ON_SALE: 0,
-    RESERVED: 0,
-    SOLD_OUT: 0,
-  });
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [followerCount, setFollowerCount] = useState(0);
-  const [rating, setRating] = useState(0);
-  const [reviewCount, setReviewCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [productsLoading, setProductsLoading] = useState(false);
-  const [page, setPage] = useState(0);
-  const [hasNext, setHasNext] = useState(false);
-  const { showToast } = useToast();
-
+  
+  // URL 파라미터 검증 (XSS 방지)
   const shopId = sanitizeUrlParam(rawShopId);
+  
+  // 상점 정보 조회
+  const shop = isValidId(shopId) ? MOCK_SHOPS.find((s) => s.id === shopId) : undefined;
+  
+  // 상점의 판매 상품 조회
+  const shopProducts = useMemo(() => 
+    MOCK_PRODUCTS.filter((p) => p.seller.id === shopId),
+    [shopId]
+  );
 
-  useEffect(() => {
-    const loadShopData = async () => {
-      if (!shopId || !isValidId(shopId)) {
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-
-      try {
-        const shopRes = await shopService.getShop(shopId);
-        const [reviewRes, followers] = await Promise.all([
-          reviewService.getSellerReviews(shopRes.sellerUuid, { page: 0, size: 20 }),
-          followService.getSellerFollowers(shopRes.sellerUuid),
-        ]);
-
-        setShop({
-          shopUuid: shopRes.shopUuid,
-          sellerUuid: shopRes.sellerUuid,
-          nickname: shopRes.nickname,
-          intro: shopRes.intro,
-        });
-
-        setFollowerCount(followers.length);
-        setRating(shopRes.averageRating || 0);
-        setReviewCount(shopRes.reviewCount || 0);
-
-        const mappedReviews: Review[] = (reviewRes.items || []).map((item) => ({
-          id: item.reviewUuid,
-          rating: item.rating,
-          content: item.content,
-          buyer: {
-            nickname: item.buyerUuid.slice(0, 8),
-          },
-          productTitle: `상품 ${item.productUuid.slice(0, 8)}`,
-          createdAt: item.createdAt,
-        }));
-
-        setReviews(mappedReviews);
-      } catch (error) {
-        console.error('Failed to load shop page:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadShopData();
-  }, [shopId]);
-
-  useEffect(() => {
-    const loadCounts = async () => {
-      if (!shopId || !isValidId(shopId)) return;
-      try {
-        const [allRes, onSaleRes, reservedRes, soldOutRes] = await Promise.all([
-          shopService.getShopProducts(shopId, { page: 0, size: 1 }),
-          shopService.getShopProducts(shopId, { saleStatus: 'ON_SALE', page: 0, size: 1 }),
-          shopService.getShopProducts(shopId, { saleStatus: 'RESERVED', page: 0, size: 1 }),
-          shopService.getShopProducts(shopId, { saleStatus: 'SOLD_OUT', page: 0, size: 1 }),
-        ]);
-
-        setStatusCounts({
-          all: allRes.totalCount ?? 0,
-          ON_SALE: onSaleRes.totalCount ?? 0,
-          RESERVED: reservedRes.totalCount ?? 0,
-          SOLD_OUT: soldOutRes.totalCount ?? 0,
-        });
-      } catch (error) {
-        console.error('Failed to load shop product counts:', error);
-      }
-    };
-
-    loadCounts();
-  }, [shopId]);
-
-  useEffect(() => {
-    const loadProducts = async () => {
-      if (!shopId || !isValidId(shopId)) return;
-      setProductsLoading(true);
-      setShopProducts([]);
-      try {
-        const response = await shopService.getShopProducts(shopId, {
-          saleStatus: activeTab === 'all' ? undefined : activeTab,
-          page: 0,
-          size: PAGE_SIZE,
-        });
-
-        setShopProducts(response.items || []);
-        setPage(response.page ?? 0);
-        setHasNext(response.hasNext ?? false);
-      } catch (error) {
-        console.error('Failed to load shop products:', error);
-        setShopProducts([]);
-        setHasNext(false);
-      } finally {
-        setProductsLoading(false);
-      }
-    };
-
-    loadProducts();
-  }, [shopId, activeTab]);
-
-  const handleLoadMore = async () => {
-    if (!shopId || !hasNext || isFetchingMore) return;
-    setIsFetchingMore(true);
-    try {
-      const response = await shopService.getShopProducts(shopId, {
-        saleStatus: activeTab === 'all' ? undefined : activeTab,
-        page: page + 1,
-        size: PAGE_SIZE,
-      });
-
-      setShopProducts((prev) => [...prev, ...(response.items || [])]);
-      setPage(response.page ?? page + 1);
-      setHasNext(response.hasNext ?? false);
-    } catch (error) {
-      console.error('Failed to load more shop products:', error);
-      showToast('상품을 더 불러오지 못했어요. 잠시 후 다시 시도해 주세요.', 'error');
-    } finally {
-      setIsFetchingMore(false);
+  // 상태별 상품 카운트 (단일 루프로 최적화)
+  const statusCounts = useMemo(() => {
+    const counts = { all: 0, ON_SALE: 0, RESERVED: 0, SOLD_OUT: 0 };
+    for (const p of shopProducts) {
+      counts.all++;
+      if (p.saleStatus === 'ON_SALE') counts.ON_SALE++;
+      else if (p.saleStatus === 'RESERVED') counts.RESERVED++;
+      else if (p.saleStatus === 'SOLD_OUT') counts.SOLD_OUT++;
     }
-  };
+    return counts;
+  }, [shopProducts]);
 
-  if (loading) {
-    return <div className="min-h-screen bg-neutral-50 flex items-center justify-center">로딩중...</div>;
-  }
+  // 현재 탭에 해당하는 상품만 필터링
+  const filteredProducts = useMemo(() => {
+    if (activeTab === 'all') return shopProducts;
+    return shopProducts.filter(p => p.saleStatus === activeTab);
+  }, [shopProducts, activeTab]);
 
+  // 상점을 찾을 수 없는 경우
   if (!shop) {
     return (
       <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center py-16">
@@ -189,8 +73,9 @@ const ShopPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-5 pb-20 min-[360px]:py-6">
-      <div className="mx-auto max-w-6xl space-y-5 px-3 min-[360px]:space-y-6 min-[360px]:px-4">
+    <div className="min-h-screen bg-neutral-50 py-6 pb-20">
+      <div className="max-w-6xl mx-auto px-4 space-y-6">
+        {/* 뒤로가기 */}
         <Link
           to="/"
           className="inline-flex items-center gap-1 text-sm text-neutral-600 hover:text-neutral-900"
@@ -199,23 +84,26 @@ const ShopPage = () => {
           돌아가기
         </Link>
 
+        {/* 상점 헤더 */}
         <ShopHeader shop={shop} />
 
+        {/* 상점 통계 - 실제 데이터 기반 */}
         <ShopStats
           salesCount={statusCounts.SOLD_OUT}
           activeListingCount={statusCounts.ON_SALE}
-          followerCount={followerCount}
-          rating={rating}
-          reviewCount={reviewCount}
+          followerCount={shop.followerCount}
+          rating={shop.rating}
         />
 
-        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-          <div className="flex overflow-x-auto border-b border-neutral-200 bg-neutral-50 no-scrollbar">
+        {/* 상품 섹션 */}
+        <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
+          {/* 탭 네비게이션 - 배경색 추가 */}
+          <div className="flex border-b border-neutral-200 bg-neutral-50">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`relative min-w-[84px] flex-1 py-3 text-xs font-medium transition-colors min-[360px]:text-sm ${
+                className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
                   activeTab === tab.key
                     ? 'text-primary-600 bg-white'
                     : 'text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100'
@@ -234,34 +122,23 @@ const ShopPage = () => {
             ))}
           </div>
 
+          {/* 상품 리스트 */}
           <div className="p-4">
-            <ShopProductList
-              products={shopProducts}
-              shopName={shop.nickname}
+            <ShopProductList 
+              products={filteredProducts} 
+              shopName={shop.name} 
               statusFilter={activeTab === 'all' ? 'ON_SALE' : activeTab}
             />
-            {productsLoading && <div className="py-6 text-center text-sm text-neutral-500">불러오는 중...</div>}
-            {hasNext && !productsLoading && (
-              <div className="mt-6 flex justify-center">
-                <button
-                  type="button"
-                  onClick={handleLoadMore}
-                  disabled={isFetchingMore}
-                  className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50"
-                >
-                  {isFetchingMore ? '불러오는 중...' : '더보기'}
-                </button>
-              </div>
-            )}
           </div>
         </div>
 
+        {/* 거래 후기 섹션 - 별도 분리 */}
         <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
           <div className="p-4 border-b border-neutral-200 bg-neutral-50">
             <h2 className="text-lg font-semibold text-neutral-900">거래 후기</h2>
           </div>
           <div className="p-4">
-            <ReviewList reviews={reviews} />
+            <ReviewList sellerId={shopId} />
           </div>
         </div>
       </div>
@@ -270,3 +147,4 @@ const ShopPage = () => {
 };
 
 export default ShopPage;
+
