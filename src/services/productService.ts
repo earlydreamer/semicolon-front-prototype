@@ -25,6 +25,28 @@ const resolveApiOrigin = (): string => {
 
 const API_ORIGIN = resolveApiOrigin();
 
+const normalizeLegacyPublicApiUrl = (url: string): string => {
+  if (typeof window === "undefined") {
+    return url;
+  }
+
+  try {
+    const parsed = new URL(url, window.location.origin);
+    if (
+      parsed.hostname === "dukku.shop" &&
+      parsed.pathname.startsWith("/api/v1/products/images/public")
+    ) {
+      parsed.protocol = "https:";
+      parsed.hostname = "api.dukku.shop";
+      return parsed.toString();
+    }
+  } catch {
+    return url;
+  }
+
+  return url;
+};
+
 export const productService = {
   /**
    * 카테고리 목록을 조회합니다.
@@ -151,12 +173,12 @@ export const productService = {
       return trimmed;
     }
 
-    if (
-      trimmed.startsWith("/api/") ||
-      /^https?:\/\//i.test(trimmed) ||
-      trimmed.startsWith("blob:")
-    ) {
+    if (trimmed.startsWith("blob:")) {
       return trimmed;
+    }
+
+    if (trimmed.startsWith("/api/") || /^https?:\/\//i.test(trimmed)) {
+      return normalizeLegacyPublicApiUrl(trimmed);
     }
 
     if (trimmed.startsWith("products/")) {
