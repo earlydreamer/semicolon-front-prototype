@@ -90,7 +90,9 @@ export default function ProductDetailPage() {
 
             <SellerProfileCard
               seller={{
-                id: product.seller.userUuid,
+                sellerUuid: product.seller.sellerUuid,
+                sellerUserUuid: product.seller.sellerUserUuid,
+                shopUuid: product.seller.shopUuid,
                 nickname: product.seller.nickname,
                 rating: product.seller.rating,
                 reviewCount: product.seller.reviewCount,
@@ -104,7 +106,7 @@ export default function ProductDetailPage() {
               <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">{product.description}</div>
             </div>
 
-            <ProductComments comments={product.comments} sellerUserId={product.seller.userUuid} />
+            <ProductComments comments={product.comments} sellerUserId={product.seller.sellerUserUuid} />
 
             <ProductActionBar
               saleStatus={product.saleStatus}

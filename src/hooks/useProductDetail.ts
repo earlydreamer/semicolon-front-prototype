@@ -125,7 +125,9 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       viewCount: apiProduct.viewCount || 0,
       createdAt: new Date().toISOString(),
       seller: {
-        userUuid: apiProduct.seller.sellerUuid,
+        sellerUuid: apiProduct.seller.sellerUuid,
+        sellerUserUuid: apiProduct.sellerUuid,
+        shopUuid: apiProduct.seller.shopUuid,
         nickname: apiProduct.seller.nickname,
         rating: apiProduct.seller.averageRating || 0,
         reviewCount: apiProduct.seller.reviewCount || 0,
@@ -191,7 +193,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
 
   const handlePurchase = useCallback(() => {
     if (!product) return;
-    if (!product.seller.userUuid) {
+    if (!product.seller.sellerUserUuid) {
       showToast("판매자 정보가 없어 주문을 진행할 수 없습니다.", "error");
       return;
     }
@@ -201,7 +203,7 @@ export const useProductDetail = (rawProductId: string | undefined) => {
       const orderItem: CartItem = {
         cartId: -1,
         productUuid: product.id,
-        sellerUuid: product.seller.userUuid,
+        sellerUuid: product.seller.sellerUserUuid,
         title: product.title,
         price: product.price ?? 0,
         saleStatus: product.saleStatus,

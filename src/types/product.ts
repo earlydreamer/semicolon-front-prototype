@@ -123,6 +123,7 @@ export interface ProductDetailResponse {
     depth: number;
   };
   seller?: {
+    shopUuid: string;
     sellerUuid: string;
     nickname: string;
     averageRating: number;

@@ -27,7 +27,7 @@ const TABS: { key: TabType; label: string }[] = [
 const ShopPage = () => {
   const { shopId: rawShopId } = useParams();
   const [activeTab, setActiveTab] = useState<TabType>('all');
-  const [shop, setShop] = useState<{ shopUuid: string; nickname: string; intro?: string } | null>(null);
+  const [shop, setShop] = useState<{ shopUuid: string; sellerUuid: string; nickname: string; intro?: string } | null>(null);
   const [shopProducts, setShopProducts] = useState<ProductListItem[]>([]);
   const [statusCounts, setStatusCounts] = useState<Record<TabType, number>>({
     all: 0,
@@ -58,14 +58,15 @@ const ShopPage = () => {
       setLoading(true);
 
       try {
-        const [shopRes, reviewRes, followers] = await Promise.all([
-          shopService.getShop(shopId),
-          reviewService.getSellerReviews(shopId, { page: 0, size: 20 }),
-          followService.getSellerFollowers(shopId),
+        const shopRes = await shopService.getShop(shopId);
+        const [reviewRes, followers] = await Promise.all([
+          reviewService.getSellerReviews(shopRes.sellerUuid, { page: 0, size: 20 }),
+          followService.getSellerFollowers(shopRes.sellerUuid),
         ]);
 
         setShop({
           shopUuid: shopRes.shopUuid,
+          sellerUuid: shopRes.sellerUuid,
           nickname: shopRes.nickname,
           intro: shopRes.intro,
         });

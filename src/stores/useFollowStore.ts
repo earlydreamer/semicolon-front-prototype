@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import axios from 'axios';
 import { followService } from '../services/followService';
 
 interface FollowState {
   userFollowing: Record<string, string[]>;
 
-  toggleFollow: (userId: string, shopId: string) => Promise<void>;
+  toggleFollow: (userId: string, shopId: string) => Promise<boolean>;
   isFollowing: (userId: string, shopId: string) => boolean;
   removeFollow: (userId: string, shopId: string) => Promise<void>;
   initFollowing: (userId: string) => Promise<void>;
@@ -31,25 +32,53 @@ export const useFollowStore = create<FollowState>()(
       },
 
       toggleFollow: async (userId: string, shopId: string) => {
-        const currentFollowing = get().userFollowing[userId] || [];
-        const isCurrentlyFollowing = currentFollowing.includes(shopId);
-
         try {
+          // 로컬 캐시가 오래됐을 수 있어 서버 상태를 기준으로 토글 방향을 결정한다.
+          const before = await followService.getMyFollowing();
+          const beforeIds = before.map((item) => item.sellerUuid);
+          set((state) => ({
+            userFollowing: { ...state.userFollowing, [userId]: beforeIds },
+          }));
+
+          const isCurrentlyFollowing = beforeIds.includes(shopId);
           if (isCurrentlyFollowing) {
             await followService.unfollowSeller(shopId);
           } else {
             await followService.followSeller(shopId);
           }
-
-          const newFollowing = isCurrentlyFollowing
-            ? currentFollowing.filter((id) => id !== shopId)
-            : [...currentFollowing, shopId];
-
+          const refreshed = await followService.getMyFollowing();
+          const ids = refreshed.map((item) => item.sellerUuid);
           set((state) => ({
-            userFollowing: { ...state.userFollowing, [userId]: newFollowing },
+            userFollowing: { ...state.userFollowing, [userId]: ids },
           }));
+          return ids.includes(shopId);
         } catch (error) {
+          // 중복 팔로우(409)는 서버 상태를 재조회해 정상 상태로 복구한다.
+          if (axios.isAxiosError(error) && error.response?.status === 409) {
+            try {
+              const refreshed = await followService.getMyFollowing();
+              const ids = refreshed.map((item) => item.sellerUuid);
+              set((state) => ({
+                userFollowing: { ...state.userFollowing, [userId]: ids },
+              }));
+              return ids.includes(shopId);
+            } catch {
+              return true;
+            }
+          }
+
           console.error('Failed to toggle follow:', error);
+          try {
+            const refreshed = await followService.getMyFollowing();
+            const ids = refreshed.map((item) => item.sellerUuid);
+            set((state) => ({
+              userFollowing: { ...state.userFollowing, [userId]: ids },
+            }));
+            return ids.includes(shopId);
+          } catch (refreshError) {
+            console.error('Failed to refresh following after toggle error:', refreshError);
+          }
+          throw error;
         }
       },
 
@@ -58,18 +87,19 @@ export const useFollowStore = create<FollowState>()(
       },
 
       removeFollow: async (userId: string, shopId: string) => {
-        const current = get().userFollowing[userId] || [];
-
         try {
           await followService.unfollowSeller(shopId);
+          const refreshed = await followService.getMyFollowing();
+          const ids = refreshed.map((item) => item.sellerUuid);
           set((state) => ({
             userFollowing: {
               ...state.userFollowing,
-              [userId]: current.filter((id) => id !== shopId),
+              [userId]: ids,
             },
           }));
         } catch (error) {
           console.error('Failed to unfollow:', error);
+          throw error;
         }
       },
 

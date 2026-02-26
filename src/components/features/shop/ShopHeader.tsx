@@ -5,6 +5,7 @@ import Store from 'lucide-react/dist/esm/icons/store';
 interface ShopHeaderProps {
   shop: {
     shopUuid: string;
+    sellerUuid: string;
     nickname: string;
     intro?: string;
   };
@@ -12,7 +13,7 @@ interface ShopHeaderProps {
 
 const ShopHeader = ({ shop }: ShopHeaderProps) => {
   const { user: currentUser } = useAuthStore();
-  const isMyShop = currentUser?.id === shop.shopUuid;
+  const isMyShop = currentUser?.id === shop.sellerUuid;
 
   return (
     <div className="bg-white rounded-2xl p-6 border border-neutral-200">
@@ -41,7 +42,7 @@ const ShopHeader = ({ shop }: ShopHeaderProps) => {
         </div>
 
         <div className="flex-shrink-0">
-          {!isMyShop && <FollowButton shopId={shop.shopUuid} />}
+          {!isMyShop && <FollowButton sellerUuid={shop.sellerUuid} />}
         </div>
       </div>
     </div>

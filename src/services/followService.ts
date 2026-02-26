@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from '../constants/apiEndpoints';
 
 export interface FollowedSellerCardResponse {
   sellerUuid: string;
+  shopUuid: string;
   nickname: string;
   intro: string;
   averageRating: number;
