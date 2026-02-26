@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import type { SaleStatus } from '@/types/product';
 import SalesProductCard from './SalesProductCard';
 
@@ -14,6 +14,7 @@ interface SalesTabsProps {
     saleStatus: SaleStatus;
     viewCount: number;
     likeCount: number;
+    commentCount: number;
     createdAt: string;
   }>;
 }
@@ -60,12 +61,12 @@ const SalesTabs = ({ products }: SalesTabsProps) => {
           <button
             key={tab.key}
             onClick={() => handleTabChange(tab.key)}
-            className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
+            className={`flex-1 py-3.5 text-[15px] font-medium transition-colors relative ${
               activeTab === tab.key ? 'text-primary-600' : 'text-neutral-500 hover:text-neutral-700'
             }`}
           >
             {tab.label}
-            <span className={`ml-1 text-xs ${activeTab === tab.key ? 'text-primary-500' : 'text-neutral-400'}`}>
+            <span className={`ml-1 text-sm ${activeTab === tab.key ? 'text-primary-500' : 'text-neutral-400'}`}>
               {counts[tab.key as keyof typeof counts]}
             </span>
             {activeTab === tab.key && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />}
@@ -73,11 +74,11 @@ const SalesTabs = ({ products }: SalesTabsProps) => {
         ))}
       </div>
 
-      <div className="p-4">
+      <div className="p-5">
         {filteredProducts.length === 0 ? (
           <div className="py-12 text-center text-neutral-500">해당 상태의 상품이 없습니다</div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {visibleProducts.map((product) => (
               <SalesProductCard key={product.id} product={product} />
             ))}

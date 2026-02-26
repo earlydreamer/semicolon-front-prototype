@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Plus from 'lucide-react/dist/esm/icons/plus';
 import type { SaleStatus } from '@/types/product';
@@ -42,6 +42,9 @@ const SellerProductList = () => {
     SOLD_OUT: stats.soldOut,
   };
 
+  const activeTabLabel = TABS.find((tab) => tab.key === activeTab)?.label ?? '해당';
+  const isAllTab = activeTab === 'all';
+
   return (
     <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
       <div className="flex items-center justify-between p-4 border-b border-neutral-200">
@@ -59,12 +62,12 @@ const SellerProductList = () => {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
+            className={`flex-1 py-3.5 text-[15px] font-medium transition-colors relative ${
               activeTab === tab.key ? 'text-primary-600' : 'text-neutral-500 hover:text-neutral-700'
             }`}
           >
             {tab.label}
-            <span className={`ml-1 text-xs ${activeTab === tab.key ? 'text-primary-500' : 'text-neutral-400'}`}>
+            <span className={`ml-1 text-sm ${activeTab === tab.key ? 'text-primary-500' : 'text-neutral-400'}`}>
               {counts[tab.key as keyof typeof counts]}
             </span>
             {activeTab === tab.key && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />}
@@ -72,24 +75,26 @@ const SellerProductList = () => {
         ))}
       </div>
 
-      <div className="p-4">
+      <div className="p-5">
         {products.length === 0 && !isLoading ? (
           <div className="py-12 text-center">
-            <p className="text-neutral-500 mb-4">등록된 상품이 없습니다</p>
-            <Link to="/seller/products/new">
-              <Button variant="outline">
-                <Plus className="w-4 h-4 mr-1" />
-                첫 상품 등록하기
-              </Button>
-            </Link>
+            <p className="text-neutral-500 mb-4">
+              {isAllTab ? '등록된 상품이 없습니다' : `${activeTabLabel} 상품이 없습니다`}
+            </p>
+            {isAllTab && (
+              <Link to="/seller/products/new">
+                <Button variant="outline">
+                  <Plus className="w-4 h-4 mr-1" />
+                  첫 상품 등록하기
+                </Button>
+              </Link>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="space-y-3">
-              {products.map((product) => (
-                <SellerProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            {products.map((product) => (
+              <SellerProductCard key={product.id} product={product} />
+            ))}
 
             {hasNext && (
               <div className="pt-4 flex justify-center border-t border-neutral-100">
