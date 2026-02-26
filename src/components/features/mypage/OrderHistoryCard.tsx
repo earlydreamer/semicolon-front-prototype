@@ -18,6 +18,7 @@ import { ReturnTrackingModal } from './ReturnTrackingModal';
 import { orderService } from '@/services/orderService';
 import { useOrderStore } from '@/stores/useOrderStore';
 import { openNaverTrackingSearch, validateTrackingNumber } from '@/utils/shippingTracking';
+import { parseHttpError } from '@/utils/httpError';
 
 interface OrderHistoryCardProps {
   order: OrderHistory | OrderListResponse;
@@ -44,6 +45,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
     (order as OrderListResponse).returnRequestUuid ?? null,
   );
   const [isResumeLoading, setIsResumeLoading] = useState(false);
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false);
   const [isCancelLoading, setIsCancelLoading] = useState(false);
 
   const isApiData = 'orderUuid' in order || 'items' in order;
@@ -80,15 +82,15 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
   const trackingNumber = isApiData ? firstItem?.trackingNumber : (order as OrderHistory).trackingNumber;
 
   const deliveryStatusMatch = itemStatus
-    ? ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING'].includes(itemStatus)
-    : ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED', 'CONFIRM_PENDING'].includes(status as string);
+    ? ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED'].includes(itemStatus)
+    : ['SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CONFIRMED'].includes(status as string);
 
   const showDelivery = !!trackingNumber && deliveryStatusMatch;
   const trackingValidation = validateTrackingNumber(undefined, carrierName, trackingNumber);
   const showReturnTracking = !!returnTrackingNumber;
   const returnTrackingValidation = validateTrackingNumber(undefined, returnCarrierName, returnTrackingNumber);
 
-  const canConfirm = itemStatus === 'DELIVERED' || itemStatus === 'CONFIRM_PENDING';
+  const canConfirm = itemStatus === 'DELIVERED';
   const closedItemStatuses = [
     'CANCELED',
     'CANCEL_REQUESTED',
@@ -116,7 +118,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
     ? !nonCancelableItemStatuses.includes(itemStatus as typeof nonCancelableItemStatuses[number])
     : false;
   const canCancelByOrderStatusFallback = !isClosedItem && (status === 'PENDING' || status === 'PAID');
-  // Item status is the source of truth when present; fallback is only for legacy payloads without item status.
+  // 아이템 상태가 있으면 최우선 사용하고, 없으면 레거시 응답을 위한 주문 상태로 대체 처리한다.
   const canCancel = itemStatus ? canCancelByItemStatus : canCancelByOrderStatusFallback;
   const canReturn = itemStatus === 'DELIVERED';
   const isWaitingSellerFirstApproval = returnStatus
@@ -138,13 +140,17 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
 
   const handleConfirm = async () => {
     if (!orderItemUuid) return;
+
+    setIsConfirmLoading(true);
     try {
       await orderService.updateOrderItemStatus(orderItemUuid, 'CONFIRMED');
       showToast('구매 확정이 완료됐어요. 리뷰를 작성해 주세요.', 'success');
       setShowReviewModal(true);
       onUpdate?.();
-    } catch {
-      showToast('구매 확정에 실패했어요.', 'error');
+    } catch (error) {
+      showToast(parseHttpError(error, '구매 확정에 실패했어요.'), 'error');
+    } finally {
+      setIsConfirmLoading(false);
     }
   };
 
@@ -157,7 +163,7 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
       setIsCancelLoading(true);
       let targetOrderItemUuid = orderItemUuid;
 
-      // Order list payload may miss item UUID in some pending-order cases; re-fetch detail as fallback.
+      // 결제 대기 주문 등 일부 케이스에서 아이템 UUID가 없는 경우 주문 상세를 다시 조회해 보완한다.
       if (!targetOrderItemUuid && id && typeof id === 'string') {
         const orderDetail = await orderService.getOrder(id);
         targetOrderItemUuid = orderDetail.items?.[0]?.orderItemUuid;
@@ -172,8 +178,14 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
       showToast('주문을 취소했어요.', 'success');
       setShowCancelConfirmModal(false);
       onUpdate?.();
-    } catch {
-      showToast('주문 취소에 실패했어요. 잠시 후 다시 시도해 주세요.', 'error');
+    } catch (error) {
+      showToast(
+        parseHttpError(
+          error,
+          '주문 취소에 실패했어요. 잠시 후 다시 시도해 주세요.',
+        ),
+        'error',
+      );
     } finally {
       setIsCancelLoading(false);
     }
@@ -358,8 +370,13 @@ const OrderHistoryCard = ({ order, onUpdate }: OrderHistoryCardProps) => {
               </Button>
             )}
             {canConfirm && (
-              <Button size="sm" onClick={handleConfirm} className="flex-1 min-w-[120px]">
-                구매 확정 및 리뷰 작성
+              <Button
+                size="sm"
+                onClick={handleConfirm}
+                disabled={isConfirmLoading}
+                className="flex-1 min-w-[120px]"
+              >
+                {isConfirmLoading ? '처리 중...' : '구매 확정 및 리뷰 작성'}
               </Button>
             )}
             {canCancel && (
