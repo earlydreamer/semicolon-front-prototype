@@ -126,7 +126,7 @@ export function sanitizeText(
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
     // null 바이트 제거
-    .replace(/\x00/g, '');
+    .replace(/\u0000/g, '');
 
   // 줄바꿈 처리
   if (!preserveNewlines) {

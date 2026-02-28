@@ -2,85 +2,96 @@
  * 마이페이지 메인
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useLikeStore } from '../stores/useLikeStore';
 import { useFollowStore } from '../stores/useFollowStore';
 import { useSellerStore } from '../stores/useSellerStore';
-import { MOCK_ORDER_HISTORY } from '../mocks/users';
+import { useUserStore } from '../stores/useUserStore';
+import { orderService } from '../services/orderService';
+import { shopService } from '../services/shopService';
 
 import ProfileCard from '../components/features/mypage/ProfileCard';
 import ProfileStats from '../components/features/mypage/ProfileStats';
-import SettlementCard from '../components/features/mypage/SettlementCard';
 import SalesTabs from '../components/features/mypage/SalesTabs';
 import MyPageNav from '../components/features/mypage/MyPageNav';
 import { FollowingShops } from '../components/features/mypage/FollowingShops';
 
 const MyPage = () => {
   const { isAuthenticated, user } = useAuthStore();
+  const balance = useUserStore((state) => state.balance);
+  const fetchBalance = useUserStore((state) => state.fetchBalance);
+
+  const [purchaseCount, setPurchaseCount] = useState(0);
+  const [myShopIntro, setMyShopIntro] = useState('');
+
   const likeCount = useLikeStore((state) => state.getLikedCount(user?.id || ''));
   const followingCount = useFollowStore((state) => state.getFollowingCount(user?.id || ''));
   const mySalesProducts = useSellerStore((state) => state.products);
   const initSellerProducts = useSellerStore((state) => state.initSellerProducts);
-  const initUserLikes = useLikeStore((state) => state.initUserLikes);
+  const fetchUserLikes = useLikeStore((state) => state.fetchUserLikes);
   const initFollowing = useFollowStore((state) => state.initFollowing);
 
   useEffect(() => {
     if (user?.id) {
-      // 이미 로드된 데이터가 없을 경우에만 초기화하거나, 
-      // 앱 요구사항에 따라 항상 최신 Mock 데이터를 로드하도록 할 수 있음
-      if (mySalesProducts.length === 0) {
-        initSellerProducts(user.id);
-      }
-      initUserLikes(user.id);
-      initFollowing(user.id);
-    }
-  }, [user?.id, initSellerProducts, initUserLikes, initFollowing, mySalesProducts.length]);
+      initSellerProducts();
+      fetchUserLikes(user.id);
+      initFollowing(user.id).catch(console.error);
+      fetchBalance();
+      shopService
+        .getMyShop()
+        .then((shop) => setMyShopIntro(shop.intro || ''))
+        .catch(() => setMyShopIntro(''));
 
-  // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+      // 주문 내역 개수 조회
+      orderService
+        .getMyOrders(0, 1)
+        .then((res) => {
+          setPurchaseCount(res.totalElements);
+        })
+        .catch(console.error);
+    }
+  }, [user?.id, initSellerProducts, fetchUserLikes, initFollowing, fetchBalance]);
+
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
   }
 
-  // 통계 데이터 - 현재 유저 기반 동적 계산
-  // mySalesProducts는 store에서 가져옴
-  const myPurchases = MOCK_ORDER_HISTORY.filter((o) => o.buyerId === user.id);
-  
   const salesCount = mySalesProducts.length;
-  const purchaseCount = myPurchases.length;
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-6 pb-20">
-      <div className="max-w-2xl mx-auto px-4 space-y-6">
-        {/* 프로필 카드 */}
-        <ProfileCard user={user} />
-
-        {/* 통계 */}
-        <ProfileStats
-          salesCount={salesCount}
-          purchaseCount={purchaseCount}
-          point={user.point}
-        />
-
-        {/* 정산 계좌 */}
-        <SettlementCard user={user} />
-
-        {/* 빠른 메뉴 */}
-        <MyPageNav likeCount={likeCount} orderCount={purchaseCount} />
-
-        {/* 판매 내역 */}
+    <div className="min-h-screen bg-neutral-50 py-5 pb-20 min-[360px]:py-6">
+      <div className="mx-auto max-w-2xl space-y-5 px-3 min-[360px]:space-y-6 min-[360px]:px-4">
         <div>
-          <h2 className="text-lg font-bold text-neutral-900 mb-3">내 판매 상품</h2>
-          <SalesTabs products={mySalesProducts as any} />
+          <h2 className="text-lg font-bold text-neutral-900 mb-3">내 프로필</h2>
+          <ProfileCard user={{ ...user, intro: user.intro || myShopIntro }} />
         </div>
 
-        {/* 팔로우한 상점 */}
+        <div>
+          <h2 className="text-lg font-bold text-neutral-900 mb-3">활동 요약</h2>
+          <ProfileStats
+            salesCount={salesCount}
+            purchaseCount={purchaseCount}
+            deposit={balance?.balance || 0}
+          />
+        </div>
+
+        <div>
+          <h2 className="text-lg font-bold text-neutral-900 mb-3">바로가기</h2>
+          <MyPageNav likeCount={likeCount} orderCount={purchaseCount} />
+        </div>
+
+        <div>
+          <h2 className="text-lg font-bold text-neutral-900 mb-3">내 판매 상품</h2>
+          <SalesTabs products={mySalesProducts} />
+        </div>
+
         <div>
           <h2 className="text-lg font-bold text-neutral-900 mb-3">
             팔로우한 상점 <span className="text-primary-600">{followingCount}</span>
           </h2>
-          <FollowingShops userId={user.id} />
+          <FollowingShops userId={user.id} refreshKey={followingCount} />
         </div>
       </div>
     </div>

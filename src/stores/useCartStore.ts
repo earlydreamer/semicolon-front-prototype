@@ -1,24 +1,27 @@
 /**
  * 장바구니 상태 관리 Store (Zustand)
+ * 백엔드 API 연동 버전
  */
 
 import { create } from 'zustand';
+import axios from 'axios';
+import { cartService } from '../services/cartService';
 import type { CartItem, CartSummary } from '../types/cart';
-import type { Product } from '../mocks/products';
 
 interface CartState {
   items: CartItem[];
-  
-  // Actions
-  addItem: (product: Product) => boolean; // 이미 담긴 상품이면 false 반환
-  removeItem: (productId: string) => void;
-  isInCart: (productId: string) => boolean;
-  toggleSelect: (productId: string) => void;
+  isLoading: boolean;
+  error: string | null;
+
+  fetchItems: () => Promise<void>;
+  addItem: (productUuid: string) => Promise<boolean>;
+  removeItem: (cartId: number) => Promise<void>;
+  isInCart: (productUuid: string) => boolean;
+  toggleSelect: (productUuid: string) => void;
   selectAll: (selected: boolean) => void;
-  removeSelectedItems: () => void;
-  clearCart: () => void;
-  
-  // Computed
+  removeSelectedItems: () => Promise<void>;
+  clearCart: () => Promise<void>;
+
   getSelectedItems: () => CartItem[];
   getCartSummary: () => CartSummary;
   getTotalCount: () => number;
@@ -26,113 +29,114 @@ interface CartState {
 
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
-  
-  /**
-   * 상품 추가 (중고거래 특성상 동일 상품은 1개만 담을 수 있음)
-   * @returns 추가 성공 시 true, 이미 담긴 상품이면 false
-   */
-  addItem: (product: Product) => {
-    const state = get();
-    const exists = state.items.some((item) => item.productId === product.id);
-    
-    if (exists) {
-      return false; // 이미 장바구니에 담긴 상품
-    }
+  isLoading: false,
+  error: null,
 
-    if (product.saleStatus === 'SOLD_OUT' || product.saleStatus === 'RESERVED') {
-      return false; // 품절 또는 예약중인 상품은 담을 수 없음
+  fetchItems: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await cartService.getCartList();
+      const itemsWithSelection: CartItem[] = response.items.map((item) => ({
+        ...item,
+        selected: item.saleStatus === 'ON_SALE',
+      }));
+      set({ items: itemsWithSelection, isLoading: false });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : '장바구니를 불러오는 데 실패했어요.';
+      set({ error: message, isLoading: false });
     }
-    
-    // 새 상품 추가 (수량은 항상 1)
-    const newItem: CartItem = {
-      productId: product.id,
-      product,
-      quantity: 1,
-      addedAt: new Date().toISOString(),
-      selected: true,
-    };
-    
-    set({ items: [...state.items, newItem] });
-    return true;
   },
-  
-  /**
-   * 상품 삭제
-   */
-  removeItem: (productId: string) => {
-    set((state) => ({
-      items: state.items.filter((item) => item.productId !== productId),
-    }));
+
+  addItem: async (productUuid: string) => {
+    const exists = get().items.some((item) => item.productUuid === productUuid);
+    if (exists) return false;
+
+    try {
+      await cartService.addToCart(productUuid);
+      await get().fetchItems();
+      return true;
+    } catch (error: unknown) {
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+
+      if (status === 409) {
+        await get().fetchItems();
+        return false;
+      }
+
+      console.error('Add to cart failed:', error);
+      throw error;
+    }
   },
-  
-  /**
-   * 장바구니에 담긴 상품인지 확인
-   */
-  isInCart: (productId: string) => {
-    return get().items.some((item) => item.productId === productId);
+
+  removeItem: async (cartId: number) => {
+    try {
+      await cartService.removeFromCart([cartId]);
+      set((state) => ({
+        items: state.items.filter((item) => item.cartId !== cartId),
+      }));
+    } catch (error) {
+      console.error('Remove from cart failed:', error);
+      throw error;
+    }
   },
-  
-  /**
-   * 개별 선택/해제 토글
-   */
-  toggleSelect: (productId: string) => {
+
+  isInCart: (productUuid: string) => {
+    return get().items.some((item) => item.productUuid === productUuid);
+  },
+
+  toggleSelect: (productUuid: string) => {
     set((state) => ({
       items: state.items.map((item) =>
-        item.productId === productId
+        item.productUuid === productUuid && item.saleStatus === 'ON_SALE'
           ? { ...item, selected: !item.selected }
-          : item
+          : item,
       ),
     }));
   },
-  
-  /**
-   * 전체 선택/해제
-   */
+
   selectAll: (selected: boolean) => {
     set((state) => ({
-      items: state.items.map((item) => ({ ...item, selected })),
+      items: state.items.map((item) => ({
+        ...item,
+        selected: selected ? item.saleStatus === 'ON_SALE' : false,
+      })),
     }));
   },
-  
-  /**
-   * 선택된 상품 삭제
-   */
-  removeSelectedItems: () => {
-    set((state) => ({
-      items: state.items.filter((item) => !item.selected),
-    }));
+
+  removeSelectedItems: async () => {
+    const selectedItems = get().getSelectedItems();
+    try {
+      const cartIds = selectedItems.map((item) => item.cartId);
+      if (cartIds.length === 0) return;
+
+      await cartService.removeFromCart(cartIds);
+      set((state) => ({
+        items: state.items.filter((item) => !item.selected),
+      }));
+    } catch (error) {
+      console.error('Remove selected items failed:', error);
+      throw error;
+    }
   },
-  
-  /**
-   * 장바구니 비우기
-   */
-  clearCart: () => {
-    set({ items: [] });
+
+  clearCart: async () => {
+    try {
+      await cartService.clearCart();
+      set({ items: [] });
+    } catch (error) {
+      console.error('Clear cart failed:', error);
+    }
   },
-  
-  /**
-   * 선택된 상품 목록 반환
-   */
+
   getSelectedItems: () => {
     return get().items.filter((item) => item.selected);
   },
-  
-  /**
-   * 장바구니 요약 정보 계산
-   */
+
   getCartSummary: (): CartSummary => {
     const selectedItems = get().getSelectedItems();
-    
-    const productTotal = selectedItems.reduce(
-      (sum, item) => sum + item.product.price,
-      0
-    );
-    
-    const shippingTotal = selectedItems.reduce(
-      (sum, item) => sum + item.product.shippingFee,
-      0
-    );
-    
+    const productTotal = selectedItems.reduce((sum, item) => sum + item.price, 0);
+    const shippingTotal = 0;
+
     return {
       selectedCount: selectedItems.length,
       productTotal,
@@ -140,10 +144,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       grandTotal: productTotal + shippingTotal,
     };
   },
-  
-  /**
-   * 장바구니 총 상품 수
-   */
+
   getTotalCount: () => {
     return get().items.length;
   },

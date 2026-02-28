@@ -9,7 +9,7 @@ export interface Address {
   phone: string;
   address: string;
   detailAddress: string;
-  zipCode: string;
+  zonecode: string;
   isDefault: boolean;
 }
 
@@ -21,7 +21,7 @@ export const MOCK_ADDRESSES: Address[] = [
     phone: '010-1234-5678',
     address: '서울시 강남구 테헤란로 123',
     detailAddress: '삼성동 아파트 101동 101호',
-    zipCode: '06234',
+    zonecode: '06234',
     isDefault: true,
   },
   {
@@ -31,7 +31,7 @@ export const MOCK_ADDRESSES: Address[] = [
     phone: '010-1234-5678',
     address: '서울시 강남구 역삼로 456',
     detailAddress: '메가타워 15층',
-    zipCode: '06245',
+    zonecode: '06245',
     isDefault: false,
   },
 ];

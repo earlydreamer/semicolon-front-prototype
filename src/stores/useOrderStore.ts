@@ -1,70 +1,105 @@
 /**
- * 주문 상태 관리 Store (Zustand)
+ * 주문 상태를 관리하는 Store(Zustand)입니다.
  */
 
 import { create } from 'zustand';
 import type { CartItem } from '../types/cart';
-import type { Address } from '../mocks/address';
+import type { Address } from '../types/address';
+
+// 주문 생성 응답의 OrderItem 정보 타입입니다.
+export interface OrderItemResponse {
+  orderItemUuid: string;
+  productUuid: string;
+  sellerUuid: string;
+  productName: string;
+  productPrice: number;
+  imageUrl: string;
+}
 
 interface OrderState {
-  orderItems: CartItem[]; // 주문할 상품 목록
+  orderUuid: string | null; // 주문 고유 식별자
+  orderItems: CartItem[]; // 주문 대상 상품 목록(UI 표시용)
+  orderResponseItems: OrderItemResponse[] | null; // 주문 생성 응답의 실제 OrderItem 목록
   shippingInfo: Address | null; // 선택된 배송지
   paymentMethod: string | null; // 선택된 결제 수단
-  
-  // Actions
+  couponUuid: string | null; // 선택된 쿠폰 UUID
+  couponDiscountAmount: number; // 쿠폰 할인 금액
+  depositUseAmount: number; // 예치금 사용 금액
+
+  // 상태 갱신 액션
+  setOrderUuid: (uuid: string | null) => void;
   setOrderItems: (items: CartItem[]) => void;
+  setOrderResponseItems: (items: OrderItemResponse[] | null) => void;
   setShippingInfo: (address: Address | null) => void;
   setPaymentMethod: (method: string | null) => void;
-  
-  // Computed (helper)
+  setCouponUuid: (uuid: string | null) => void;
+  setCouponDiscountAmount: (amount: number) => void;
+  setDepositUseAmount: (amount: number) => void;
+
+  // 요약 계산 도우미
   getOrderSummary: () => {
     totalProductPrice: number;
     totalShippingFee: number;
+    couponDiscount: number;
+    depositUseAmount: number;
     finalPrice: number;
+    pgPayAmount: number;
   };
   clearOrder: () => void;
 }
 
 export const useOrderStore = create<OrderState>((set, get) => ({
+  orderUuid: null,
   orderItems: [],
+  orderResponseItems: null,
   shippingInfo: null,
   paymentMethod: null,
+  couponUuid: null,
+  couponDiscountAmount: 0,
+  depositUseAmount: 0,
 
+  setOrderUuid: (uuid) => set({ orderUuid: uuid }),
   setOrderItems: (items) => set({ orderItems: items }),
-  
+  setOrderResponseItems: (items) => set({ orderResponseItems: items }),
   setShippingInfo: (address) => set({ shippingInfo: address }),
-  
   setPaymentMethod: (method) => set({ paymentMethod: method }),
+  setCouponUuid: (uuid) => set({ couponUuid: uuid }),
+  setCouponDiscountAmount: (amount) => set({ couponDiscountAmount: amount }),
+  setDepositUseAmount: (amount) => set({ depositUseAmount: amount }),
 
   getOrderSummary: () => {
-    const { orderItems } = get();
-    
-    // 상품 총 가격
-    const totalProductPrice = orderItems.reduce(
-      (sum, item) => sum + item.product.price,
-      0
-    );
+    const { orderItems, depositUseAmount, couponDiscountAmount } = get();
 
-    // 총 배송비 (배송비가 있는 상품들의 합)
-    // 중고거래 특성상 묶음배송 로직이 복잡할 수 있으나, 여기서는 단순 합산으로 처리하거나
-    // 판매자별로 묶어야 하지만, MVP에서는 단순 합산으로 가정
-    const totalShippingFee = orderItems.reduce(
-      (sum, item) => sum + item.product.shippingFee,
-      0
-    );
+    // 상품 합계를 계산합니다.
+    const totalProductPrice = orderItems.reduce((sum, item) => sum + item.price, 0);
 
-    const finalPrice = totalProductPrice + totalShippingFee;
+    // 배송비는 CartItem에 별도 값이 없어 현재 0으로 계산합니다.
+    const totalShippingFee = 0;
+
+    const couponDiscount = Math.min(couponDiscountAmount, totalProductPrice);
+
+    const finalPrice = totalProductPrice + totalShippingFee - couponDiscount;
+    const pgPayAmount = Math.max(0, finalPrice - depositUseAmount);
 
     return {
       totalProductPrice,
       totalShippingFee,
+      couponDiscount,
+      depositUseAmount,
       finalPrice,
+      pgPayAmount,
     };
   },
 
-  clearOrder: () => set({ 
-    orderItems: [], 
-    shippingInfo: null, 
-    paymentMethod: null 
-  }),
+  clearOrder: () =>
+    set({
+      orderUuid: null,
+      orderItems: [],
+      orderResponseItems: null,
+      shippingInfo: null,
+      paymentMethod: null,
+      couponUuid: null,
+      couponDiscountAmount: 0,
+      depositUseAmount: 0,
+    }),
 }));

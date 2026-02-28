@@ -1,32 +1,40 @@
-/**
- * 판매자 상품 목록 (탭 포함)
- */
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus } from 'lucide-react';
-import type { SaleStatus } from '@/mocks/products';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import type { SaleStatus } from '@/types/product';
 import { useSellerStore } from '@/stores/useSellerStore';
 import SellerProductCard from './SellerProductCard';
 import { Button } from '@/components/common/Button';
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down';
 
 type TabType = 'all' | SaleStatus;
 
 const TABS: { key: TabType; label: string }[] = [
   { key: 'all', label: '전체' },
   { key: 'ON_SALE', label: '판매중' },
-  { key: 'RESERVED', label: '예약중' },
+  { key: 'RESERVED', label: '거래중' },
   { key: 'SOLD_OUT', label: '판매완료' },
 ];
 
 const SellerProductList = () => {
-  const { getProductsByStatus, getStats } = useSellerStore();
+  const {
+    products,
+    isLoading,
+    hasNext,
+    initSellerProducts,
+    loadMoreProducts,
+    getStats,
+  } = useSellerStore();
+
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const stats = getStats();
 
-  const filteredProducts = getProductsByStatus(activeTab);
+  useEffect(() => {
+    const status = activeTab === 'all' ? undefined : activeTab;
+    initSellerProducts(status);
+  }, [activeTab, initSellerProducts]);
 
-  // 탭별 카운트
   const counts = {
     all: stats.total,
     ON_SALE: stats.onSale,
@@ -34,9 +42,11 @@ const SellerProductList = () => {
     SOLD_OUT: stats.soldOut,
   };
 
+  const activeTabLabel = TABS.find((tab) => tab.key === activeTab)?.label ?? '해당';
+  const isAllTab = activeTab === 'all';
+
   return (
     <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-      {/* 헤더 */}
       <div className="flex items-center justify-between p-4 border-b border-neutral-200">
         <h2 className="text-lg font-semibold text-neutral-900">내 상품</h2>
         <Link to="/seller/products/new">
@@ -47,51 +57,70 @@ const SellerProductList = () => {
         </Link>
       </div>
 
-      {/* 탭 */}
       <div className="flex border-b border-neutral-200">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 py-3 text-sm font-medium transition-colors relative
-              ${
-                activeTab === tab.key
-                  ? 'text-primary-600'
-                  : 'text-neutral-500 hover:text-neutral-700'
-              }`}
+            className={`flex-1 py-3.5 text-[15px] font-medium transition-colors relative ${
+              activeTab === tab.key ? 'text-primary-600' : 'text-neutral-500 hover:text-neutral-700'
+            }`}
           >
             {tab.label}
-            <span
-              className={`ml-1 text-xs ${
-                activeTab === tab.key ? 'text-primary-500' : 'text-neutral-400'
-              }`}
-            >
+            <span className={`ml-1 text-sm ${activeTab === tab.key ? 'text-primary-500' : 'text-neutral-400'}`}>
               {counts[tab.key as keyof typeof counts]}
             </span>
-            {activeTab === tab.key && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
-            )}
+            {activeTab === tab.key && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />}
           </button>
         ))}
       </div>
 
-      {/* 상품 목록 */}
-      <div className="p-4">
-        {filteredProducts.length === 0 ? (
+      <div className="p-5">
+        {products.length === 0 && !isLoading ? (
           <div className="py-12 text-center">
-            <p className="text-neutral-500 mb-4">등록된 상품이 없습니다</p>
-            <Link to="/seller/products/new">
-              <Button variant="outline">
-                <Plus className="w-4 h-4 mr-1" />
-                첫 상품 등록하기
-              </Button>
-            </Link>
+            <p className="text-neutral-500 mb-4">
+              {isAllTab ? '등록된 상품이 없습니다' : `${activeTabLabel} 상품이 없습니다`}
+            </p>
+            {isAllTab && (
+              <Link to="/seller/products/new">
+                <Button variant="outline">
+                  <Plus className="w-4 h-4 mr-1" />
+                  첫 상품 등록하기
+                </Button>
+              </Link>
+            )}
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredProducts.map((product) => (
+          <div className="space-y-4">
+            {products.map((product) => (
               <SellerProductCard key={product.id} product={product} />
             ))}
+
+            {hasNext && (
+              <div className="pt-4 flex justify-center border-t border-neutral-100">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={loadMoreProducts}
+                  disabled={isLoading}
+                  className="text-neutral-500 hover:text-neutral-900"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 mr-2" />
+                  )}
+                  더보기
+                </Button>
+              </div>
+            )}
+
+            {isLoading && products.length === 0 && (
+              <div className="py-12 flex flex-col items-center justify-center text-neutral-400">
+                <Loader2 className="w-8 h-8 animate-spin mb-4" />
+                <p className="text-sm">상품 목록을 불러오는 중...</p>
+              </div>
+            )}
           </div>
         )}
       </div>
