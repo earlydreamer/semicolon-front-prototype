@@ -1,4 +1,5 @@
 import api from "../utils/api";
+import { resolveApiBaseUrl } from "../utils/runtimeUrls";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
 import type {
   CategoryResponse,
@@ -10,42 +11,7 @@ import type {
 } from "../types/product";
 import axios from "axios";
 
-const resolveApiOrigin = (): string => {
-  const configured = String(import.meta.env.VITE_API_BASE_URL || "").trim();
-  if (configured && configured !== "/") {
-    return configured.replace(/\/+$/, "");
-  }
-
-  if (typeof window !== "undefined" && window.location.hostname === "dukku.shop") {
-    return "https://api.dukku.shop";
-  }
-
-  return "";
-};
-
-const API_ORIGIN = resolveApiOrigin();
-
-const normalizeLegacyPublicApiUrl = (url: string): string => {
-  if (typeof window === "undefined") {
-    return url;
-  }
-
-  try {
-    const parsed = new URL(url, window.location.origin);
-    if (
-      parsed.hostname === "dukku.shop" &&
-      parsed.pathname.startsWith("/api/v1/products/images/public")
-    ) {
-      parsed.protocol = "https:";
-      parsed.hostname = "api.dukku.shop";
-      return parsed.toString();
-    }
-  } catch {
-    return url;
-  }
-
-  return url;
-};
+const API_ORIGIN = resolveApiBaseUrl();
 
 export const productService = {
   /**
@@ -188,8 +154,12 @@ export const productService = {
       return trimmed;
     }
 
-    if (trimmed.startsWith("/api/") || /^https?:\/\//i.test(trimmed)) {
-      return normalizeLegacyPublicApiUrl(trimmed);
+    if (trimmed.startsWith("/api/")) {
+      return `${API_ORIGIN}${trimmed}`;
+    }
+
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
     }
 
     if (trimmed.startsWith("products/")) {

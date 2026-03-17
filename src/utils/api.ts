@@ -1,18 +1,8 @@
 ﻿import axios from 'axios';
 import { useAuthStore } from '../stores/useAuthStore';
+import { resolveApiBaseUrl } from './runtimeUrls';
 
-const resolveApiBaseUrl = (): string => {
-  const configured = String(import.meta.env.VITE_API_BASE_URL || '').trim();
-  if (configured && configured !== '/') {
-    return configured.replace(/\/+$/, '');
-  }
-
-  if (typeof window !== 'undefined' && window.location.hostname === 'dukku.shop') {
-    return 'https://api.dukku.shop';
-  }
-
-  return configured;
-};
+export { resolveApiBaseUrl } from './runtimeUrls';
 
 const BASE_URL = resolveApiBaseUrl();
 

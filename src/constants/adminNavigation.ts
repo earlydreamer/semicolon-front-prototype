@@ -8,6 +8,7 @@ import Ticket from 'lucide-react/dist/esm/icons/ticket';
 import FlaskConical from 'lucide-react/dist/esm/icons/flask-conical';
 import FolderTree from 'lucide-react/dist/esm/icons/folder-tree';
 import ChartNoAxesCombined from 'lucide-react/dist/esm/icons/chart-no-axes-combined';
+import { resolveGrafanaUrl } from '@/utils/runtimeUrls';
 
 export type AdminNavItem = {
   key: string;
@@ -19,7 +20,7 @@ export type AdminNavItem = {
   external?: boolean;
 };
 
-const grafanaUrl = import.meta.env.VITE_GRAFANA_URL || 'http://grafana.api.dukku.shop';
+const grafanaUrl = resolveGrafanaUrl();
 
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   {
