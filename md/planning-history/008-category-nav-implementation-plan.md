@@ -14,17 +14,17 @@
 ## Proposed Changes
 
 ### Mocks (`src/mocks`)
-#### [NEW] [src/mocks/categories.ts](file:///d:/Projects/Programmers/Semi-Project/frontend/src/mocks/categories.ts)
+#### [NEW] [src/mocks/categories.ts](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/mocks/categories.ts)
 - 카테고리 트리 데이터 (대분류 > 중분류 > 소분류)
 - 핵심 타깃: 캠핑, 악기, 카메라, 공연/티켓, 앨범/굿즈
 
 ### Components (`src/components/features/category`)
-#### [NEW] [src/components/features/category/CategoryNav.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/features/category/CategoryNav.tsx)
+#### [NEW] [src/components/features/category/CategoryNav.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/features/category/CategoryNav.tsx)
 - 헤더 하단 또는 오버레이로 뜨는 카테고리 네비게이션 컴포넌트
 - 마우스 호버 또는 클릭 시 하위 카테고리 노출
 
 ### Layout (`src/components/layout`)
-#### [MODIFY] [src/components/layout/Header.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/layout/Header.tsx)
+#### [MODIFY] [src/components/layout/Header.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/layout/Header.tsx)
 - 데스크탑: 로고 옆 '카테고리' 메뉴 버튼 추가
 - 모바일: 모바일 드로어 내 카테고리 메뉴 연동
 

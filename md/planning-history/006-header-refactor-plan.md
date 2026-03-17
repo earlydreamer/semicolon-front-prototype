@@ -13,21 +13,21 @@
 ## Proposed Changes
 
 ### State Management (`src/stores`)
-#### [NEW] [useAuthStore.ts](file:///d:/Projects/Programmers/Semi-Project/frontend/src/stores/useAuthStore.ts)
+#### [NEW] [useAuthStore.ts](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/stores/useAuthStore.ts)
 - **State**: `user` (User | null), `isAuthenticated` (boolean)
 - **Actions**: `login(userData)`, `logout()`
 - **Persistence**: `persist` 미들웨어 사용 (새로고침 시 상태 유지)
 - **Note**: 실제 API 연동 전까지 Mock 데이터로 동작함을 명시
 
 ### Layout Components (`src/components/layout`)
-#### [MODIFY] [Header.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/layout/Header.tsx)
+#### [MODIFY] [Header.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/layout/Header.tsx)
 - '판매하기' 버튼 제거
 - `useAuthStore` 구독
 - 비로그인 시: `로그인`, `회원가입` 버튼 표시 (Link)
 - 로그인 시: `로그아웃` 버튼, `마이페이지` 아이콘 등 표시
 
 ### Feature Components (`src/components/features/auth`)
-#### [MODIFY] [LoginForm.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/features/auth/LoginForm.tsx)
+#### [MODIFY] [LoginForm.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/features/auth/LoginForm.tsx)
 - 로그인 성공 시 `useAuthStore.getState().login()` 호출
 - 로그인 후 메인 페이지(`/`)로 리다이렉트
 

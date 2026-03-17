@@ -433,7 +433,7 @@ DONE → COMPLETE 이동 전 확인 사항:
 ## 🎨 UI/UX 가이드라인
 
 > [!IMPORTANT]
-> **상세한 디자인 시스템은 [`md/design-system.md`](file:///d:/Projects/Programmers/Semi-Project/frontend/md/design-system.md) 참조**
+> **상세한 디자인 시스템은 [`md/design-system.md`](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/md/design-system.md) 참조**
 
 ### 디자인 원칙
 1. **직관적인 네비게이션**: 사용자가 원하는 상품을 3클릭 내 도달

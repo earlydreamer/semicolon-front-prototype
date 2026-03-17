@@ -14,7 +14,7 @@
 ## Proposed Changes
 
 ### 1. Mock Data & Types Update
-#### [MODIFY] [products.ts](file:///d:/Projects/Programmers/Semi-Project/frontend/src/mocks/products.ts)
+#### [MODIFY] [products.ts](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/mocks/products.ts)
 - `Product` 인터페이스 수정:
     - `seller`: `mannerTemp` 삭제 -> `rating` (number, 0-5), `salesCount`, `activeProductCount` 추가.
     - `status` -> `saleStatus` ('ON_SALE', 'RESERVED', 'SOLD_OUT'), `conditionStatus` ('SEALED', 'NO_WEAR', ...) 추가.
@@ -22,7 +22,7 @@
     - `id`, `userId`, `content`, `createdAt`, `parentId` (대댓글용), `user` (작성자 정보).
 
 ### 2. UI Components
-#### [MODIFY] [ProductDetailPage.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/pages/ProductDetailPage.tsx)
+#### [MODIFY] [ProductDetailPage.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/pages/ProductDetailPage.tsx)
 - **Seller Profile**: 매너온도 바 제거 -> 별점(Star Icon) 및 평점 표시. "상품 n개 | 판매 n회" 정보 추가.
 - **Comment Section** (New):
     - 하단에 댓글 리스트 영역 추가.

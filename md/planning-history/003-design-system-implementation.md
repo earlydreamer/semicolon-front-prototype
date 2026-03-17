@@ -13,29 +13,29 @@
 ## Proposed Changes
 
 ### Common Components (`src/components/common`)
-#### [NEW] [Button.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/common/Button.tsx)
+#### [NEW] [Button.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/common/Button.tsx)
 - **Variants**: `primary`, `secondary`, `outline`, `ghost`, `danger`
 - **Sizes**: `sm`, `md`, `lg`
 - **Features**: `isLoading` 상태, 아이콘 지원 (Lucide React)
 - **A11y**: Focus ring, ARIA attributes
 
-#### [NEW] [Input.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/common/Input.tsx)
+#### [NEW] [Input.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/common/Input.tsx)
 - **States**: Default, Focus, Error, Disabled, Success
 - **Features**: Label, Helper text, Error message integration
 
-#### [NEW] [Card.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/common/Card.tsx)
+#### [NEW] [Card.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/common/Card.tsx)
 - **Variants**: `elevated`, `outlined`, `filled`
 - **Interaction**: Hover effects, Touch pressing effects (mobile)
 
 ### Layout Components (`src/components/layout`)
-#### [NEW] [Header.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/layout/Header.tsx)
+#### [NEW] [Header.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/layout/Header.tsx)
 - Navigation links (Logo, Search, User Menu)
 - Responsive design (Mobile hamburger menu)
 
-#### [NEW] [Footer.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/layout/Footer.tsx)
+#### [NEW] [Footer.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/layout/Footer.tsx)
 - Copyright, Links
 
-#### [NEW] [DefaultLayout.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/layout/DefaultLayout.tsx)
+#### [NEW] [DefaultLayout.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/layout/DefaultLayout.tsx)
 - `Header` + `Outlet` + `Footer` 구조
 
 ## Verification Plan

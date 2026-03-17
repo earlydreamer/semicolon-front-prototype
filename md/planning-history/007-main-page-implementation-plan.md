@@ -14,24 +14,24 @@
 ## Proposed Changes
 
 ### Feature Components (`src/components/features`)
-#### [NEW] [src/components/features/home/HeroBanner.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/features/home/HeroBanner.tsx)
+#### [NEW] [src/components/features/home/HeroBanner.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/features/home/HeroBanner.tsx)
 - 큰 이미지 배너와 문구, CTA 버튼 포함
 - 번개장터 스타일의 깔끔한 홍보 영역
 
-#### [NEW] [src/components/features/product/ProductCard.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/features/product/ProductCard.tsx)
+#### [NEW] [src/components/features/product/ProductCard.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/features/product/ProductCard.tsx)
 - **정보**: 썸네일, 제목, 가격(원화 포맷), 등록 시간(N일 전), 안전결제 배지 등
 - **인터랙션**: 호버 시 줌 효과 (디자인 시스템 반영)
 
-#### [NEW] [src/components/features/product/ProductList.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/features/product/ProductList.tsx)
+#### [NEW] [src/components/features/product/ProductList.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/features/product/ProductList.tsx)
 - 상품 카드를 Grid 레이아웃으로 배치 (반응형)
 
 ### Pages (`src/pages`)
-#### [NEW] [src/pages/HomePage.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/pages/HomePage.tsx)
+#### [NEW] [src/pages/HomePage.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/pages/HomePage.tsx)
 - `HeroBanner` + `ProductList` 조합
 - 섹션 타이틀 ("오늘의 상품 추천")
 
 ### Mocks (`src/mocks`)
-#### [NEW] [src/mocks/products.ts](file:///d:/Projects/Programmers/Semi-Project/frontend/src/mocks/products.ts)
+#### [NEW] [src/mocks/products.ts](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/mocks/products.ts)
 - 상품 더미 데이터 (이미지, 가격, 제목 등)
 
 ### Routing (`src/App.tsx`)

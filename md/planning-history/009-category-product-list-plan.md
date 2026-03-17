@@ -14,17 +14,17 @@
 ## Proposed Changes
 
 ### Mocks (`src/mocks`)
-#### [MODIFY] [src/mocks/products.ts](file:///d:/Projects/Programmers/Semi-Project/frontend/src/mocks/products.ts)
+#### [MODIFY] [src/mocks/products.ts](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/mocks/products.ts)
 - `Product` 인터페이스에 `categoryId` 속성 추가 (Optional for now, but will populate for testing).
 - 기존 Mock 데이터에 적절한 `categoryId` 할당.
 
 ### Pages (`src/pages`)
-#### [NEW] [src/pages/CategoryPage.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/pages/CategoryPage.tsx)
+#### [NEW] [src/pages/CategoryPage.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/pages/CategoryPage.tsx)
 - 레이아웃: 2컬럼 구조 (사이드바: 카테고리 네비, 메인: 상품 목록)
 - 기능: URL 파라미터(`categoryId`)를 읽어 상품 필터링, 정렬 옵션(최신순/저가순 등 - UI만 구현)
 
 ### Components (`src/components/features/product`)
-#### [NEW] [src/components/features/product/ProductSortDropdown.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/features/product/ProductSortDropdown.tsx)
+#### [NEW] [src/components/features/product/ProductSortDropdown.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/features/product/ProductSortDropdown.tsx)
 - 정렬 옵션 선택 드롭다운 (최신순, 인기순, 저가순, 고가순)
 
 ### Routing (`src/App.tsx`)

@@ -15,7 +15,7 @@
 ## Proposed Changes
 
 ### 1. Mock Data & Types Update
-#### [MODIFY] [products.ts](file:///d:/Projects/Programmers/Semi-Project/frontend/src/mocks/products.ts)
+#### [MODIFY] [products.ts](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/mocks/products.ts)
 - `Product` 인터페이스 확장:
     - `description`: 상품 설명 (HTML or Text)
     - `images`: 추가 이미지 배열 (string[])
@@ -25,7 +25,7 @@
 - `MOCK_PRODUCTS` 데이터 업데이트 (상세 데이터 추가)
 
 ### 2. UI Components
-#### [NEW] [ProductDetailPage.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/pages/ProductDetailPage.tsx)
+#### [NEW] [ProductDetailPage.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/pages/ProductDetailPage.tsx)
 - 레이아웃 구조:
     - **Header**: 기존 헤더 사용
     - **Main Content**:
@@ -41,7 +41,7 @@
     - **Related Products**: 같은 카테고리 상품 추천 (기존 ProductList 컴포넌트 재사용)
 
 ### 3. Routing
-#### [MODIFY] [App.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/App.tsx)
+#### [MODIFY] [App.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/App.tsx)
 - `/products/:productId` 라우트 추가
 - `ProductDetailPage` Lazy Loading 적용
 

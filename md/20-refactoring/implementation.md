@@ -73,5 +73,5 @@
 
 ## 참조 문서
 
-- [AGENTS.md](file:///d:/Projects/Programmers/Semi-Project/frontend/AGENTS.md)
-- [design-system.md](file:///d:/Projects/Programmers/Semi-Project/frontend/md/design-system.md)
+- [AGENTS.md](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/AGENTS.md)
+- [design-system.md](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/md/design-system.md)

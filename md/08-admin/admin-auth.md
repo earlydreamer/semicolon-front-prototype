@@ -68,5 +68,5 @@ adminLogin: async (adminId: string, password: string) => {
 
 ## 참조
 
-- [useAuthStore.ts](file:///d:/Projects/Programmers/Semi-Project/frontend/src/stores/useAuthStore.ts)
-- [AdminAuthGuard.tsx](file:///d:/Projects/Programmers/Semi-Project/frontend/src/components/layout/AdminAuthGuard.tsx)
+- [useAuthStore.ts](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/stores/useAuthStore.ts)
+- [AdminAuthGuard.tsx](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/components/layout/AdminAuthGuard.tsx)

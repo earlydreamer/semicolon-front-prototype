@@ -13,7 +13,7 @@
 ## Proposed Changes
 
 ### Project Setup
-#### [NEW] [package.json](file:///d:/Projects/Programmers/Semi-Project/frontend/package.json)
+#### [NEW] [package.json](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/package.json)
 - React 19, ReactDOM 19
 - Vite
 - TypeScript
@@ -25,17 +25,17 @@
     - `clsx`, `tailwind-merge`
     - `lucide-react`
 
-#### [NEW] [vite.config.ts](file:///d:/Projects/Programmers/Semi-Project/frontend/vite.config.ts)
+#### [NEW] [vite.config.ts](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/vite.config.ts)
 - Alias 설정 (`@/*` -> `./src/*`)
 
-#### [NEW] [tsconfig.json](file:///d:/Projects/Programmers/Semi-Project/frontend/tsconfig.json)
+#### [NEW] [tsconfig.json](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/tsconfig.json)
 - Base URL 및 Paths 설정
 
 ### Styling
-#### [NEW] [tailwind.config.js](file:///d:/Projects/Programmers/Semi-Project/frontend/tailwind.config.js)
+#### [NEW] [tailwind.config.js](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/tailwind.config.js)
 - `md/design-system.md`의 컬러 팔레트, 폰트, 스페이싱 등 설정 파일로 이관
 
-#### [NEW] [src/index.css](file:///d:/Projects/Programmers/Semi-Project/frontend/src/index.css)
+#### [NEW] [src/index.css](/mnt/d/Projects/Programmers/Final-Project-Fork/frontend/src/index.css)
 - Tailwind Directives 및 Base styles (`@layer base`)
 
 ### Directory Structure
