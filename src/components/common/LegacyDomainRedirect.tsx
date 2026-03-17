@@ -44,9 +44,10 @@ export function LegacyDomainRedirect({
           </div>
 
           <div className="space-y-3">
-            <div className="mx-auto h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-neutral-200">
-              <div className="h-full w-1/2 animate-pulse rounded-full bg-primary-500" />
-            </div>
+            <div
+              className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"
+              aria-hidden="true"
+            />
             <p className="text-sm text-neutral-500">
               새 도메인으로 이동 중입니다...
             </p>
