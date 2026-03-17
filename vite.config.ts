@@ -29,17 +29,17 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: "http://100.99.145.22:80",
+        target: "http://localhost:80",
         changeOrigin: true,
         secure: false,
       },
       "/oauth2": {
-        target: "http://100.99.145.22:80",
+        target: "http://localhost:80",
         changeOrigin: true,
         secure: false,
       },
       "/login/oauth2": {
-        target: "http://100.99.145.22:80",
+        target: "http://localhost:80",
         changeOrigin: true,
         secure: false,
       },

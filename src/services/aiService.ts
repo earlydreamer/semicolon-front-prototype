@@ -1,3 +1,4 @@
+import { resolveApiBaseUrl } from '@/utils/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 export interface ChatRequest {
@@ -6,7 +7,7 @@ export interface ChatRequest {
   message: string;
 }
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const BASE_URL = resolveApiBaseUrl();
 const AI_API_BASE_URL = `${BASE_URL}/api/v1/ai`;
 
 export const aiApi = {

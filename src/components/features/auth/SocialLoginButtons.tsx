@@ -1,11 +1,9 @@
 ﻿import { Button } from "@/components/common/Button";
+import { resolveApiBaseUrl } from "@/utils/api";
 
 export function SocialLoginButtons() {
   const handleSocialLogin = (provider: string) => {
-    const apiBase = (import.meta.env.VITE_API_BASE_URL || "").replace(
-      /\/$/,
-      "",
-    );
+    const apiBase = resolveApiBaseUrl();
     window.location.assign(
       `${apiBase}/oauth2/authorization/${provider.toLowerCase()}`,
     );
