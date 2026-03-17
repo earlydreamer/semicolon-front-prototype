@@ -20,6 +20,10 @@ const DIRECT_GRAFANA_URL = normalizeUrl(String(import.meta.env.VITE_GRAFANA_URL 
 const PUBLIC_API_BASE_URL = normalizeUrl(String(import.meta.env.VITE_PUBLIC_API_BASE_URL || ""));
 const PUBLIC_GRAFANA_URL = normalizeUrl(String(import.meta.env.VITE_PUBLIC_GRAFANA_URL || ""));
 const PUBLIC_WEB_HOSTS = parseHostList(String(import.meta.env.VITE_PUBLIC_WEB_HOSTS || ""));
+const LEGACY_WEB_HOSTS = parseHostList(String(import.meta.env.VITE_LEGACY_WEB_HOSTS || ""));
+const LEGACY_REDIRECT_BASE_URL = normalizeUrl(
+  String(import.meta.env.VITE_LEGACY_REDIRECT_BASE_URL || ""),
+);
 
 export const isPublicWebHost = (hostname?: string): boolean => {
   if (!hostname) {
@@ -27,6 +31,35 @@ export const isPublicWebHost = (hostname?: string): boolean => {
   }
 
   return PUBLIC_WEB_HOSTS.has(hostname);
+};
+
+export const isLegacyWebHost = (hostname?: string): boolean => {
+  if (!hostname) {
+    return false;
+  }
+
+  return LEGACY_WEB_HOSTS.has(hostname);
+};
+
+export const resolveLegacyRedirectTarget = (): string => {
+  if (
+    typeof window === "undefined" ||
+    !LEGACY_REDIRECT_BASE_URL ||
+    !isLegacyWebHost(window.location.hostname)
+  ) {
+    return "";
+  }
+
+  const target = new URL(LEGACY_REDIRECT_BASE_URL);
+  const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  target.pathname = window.location.pathname;
+  target.search = window.location.search;
+  target.hash = window.location.hash;
+
+  const resolvedCurrent = `${window.location.origin}${currentPath}`;
+  const resolvedTarget = target.toString();
+
+  return resolvedCurrent === resolvedTarget ? "" : resolvedTarget;
 };
 
 export const resolveApiBaseUrl = (): string => {

@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { DefaultLayout } from "@/components/layout/DefaultLayout";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useCartStore } from "@/stores/useCartStore";
+import { LegacyDomainRedirect } from "@/components/common/LegacyDomainRedirect";
+import { resolveLegacyRedirectTarget } from "@/utils/runtimeUrls";
 
 // 페이지 컴포넌트를 지연 로딩합니다.
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -76,13 +78,18 @@ const basename = import.meta.env.BASE_URL;
 function App() {
   const { initialize, isInitialized, isAuthenticated, accessToken } = useAuthStore();
   const { fetchItems } = useCartStore();
+  const legacyRedirectTarget = resolveLegacyRedirectTarget();
 
   useEffect(() => {
+    if (legacyRedirectTarget) {
+      return;
+    }
+
     initialize();
-  }, [initialize]);
+  }, [initialize, legacyRedirectTarget]);
 
   useEffect(() => {
-    if (!isInitialized) {
+    if (legacyRedirectTarget || !isInitialized) {
       return;
     }
 
@@ -92,7 +99,25 @@ function App() {
       // 로그아웃 시 장바구니 상태를 초기화합니다.
       useCartStore.setState({ items: [] });
     }
-  }, [isInitialized, isAuthenticated, accessToken, fetchItems]);
+  }, [legacyRedirectTarget, isInitialized, isAuthenticated, accessToken, fetchItems]);
+
+  useEffect(() => {
+    if (!legacyRedirectTarget || typeof window === "undefined") {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      window.location.replace(legacyRedirectTarget);
+    }, 1400);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [legacyRedirectTarget]);
+
+  if (legacyRedirectTarget) {
+    return <LegacyDomainRedirect targetUrl={legacyRedirectTarget} />;
+  }
 
   if (!isInitialized) {
     return (
