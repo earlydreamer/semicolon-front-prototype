@@ -7,38 +7,50 @@ const normalizeUrl = (value: string): string => {
   return trimmed.replace(/\/+$/, "");
 };
 
+const normalizeHostname = (value?: string): string => String(value || "").trim().toLowerCase();
+
 const parseHostList = (value: string): Set<string> =>
   new Set(
     String(value || "")
       .split(",")
-      .map((host) => host.trim())
+      .map((host) => normalizeHostname(host))
       .filter(Boolean),
   );
+
+const DEFAULT_PUBLIC_WEB_HOSTS = "dukku.earlydreamer.dev,www.dukku.earlydreamer.dev";
+const DEFAULT_LEGACY_WEB_HOSTS = "dukku.shop,www.dukku.shop";
+const DEFAULT_LEGACY_REDIRECT_BASE_URL = "https://dukku.earlydreamer.dev";
 
 const DIRECT_API_BASE_URL = normalizeUrl(String(import.meta.env.VITE_API_BASE_URL || ""));
 const DIRECT_GRAFANA_URL = normalizeUrl(String(import.meta.env.VITE_GRAFANA_URL || ""));
 const PUBLIC_API_BASE_URL = normalizeUrl(String(import.meta.env.VITE_PUBLIC_API_BASE_URL || ""));
 const PUBLIC_GRAFANA_URL = normalizeUrl(String(import.meta.env.VITE_PUBLIC_GRAFANA_URL || ""));
-const PUBLIC_WEB_HOSTS = parseHostList(String(import.meta.env.VITE_PUBLIC_WEB_HOSTS || ""));
-const LEGACY_WEB_HOSTS = parseHostList(String(import.meta.env.VITE_LEGACY_WEB_HOSTS || ""));
+const PUBLIC_WEB_HOSTS = parseHostList(
+  String(import.meta.env.VITE_PUBLIC_WEB_HOSTS || DEFAULT_PUBLIC_WEB_HOSTS),
+);
+const LEGACY_WEB_HOSTS = parseHostList(
+  String(import.meta.env.VITE_LEGACY_WEB_HOSTS || DEFAULT_LEGACY_WEB_HOSTS),
+);
 const LEGACY_REDIRECT_BASE_URL = normalizeUrl(
-  String(import.meta.env.VITE_LEGACY_REDIRECT_BASE_URL || ""),
+  String(import.meta.env.VITE_LEGACY_REDIRECT_BASE_URL || DEFAULT_LEGACY_REDIRECT_BASE_URL),
 );
 
 export const isPublicWebHost = (hostname?: string): boolean => {
-  if (!hostname) {
+  const normalizedHostname = normalizeHostname(hostname);
+  if (!normalizedHostname) {
     return false;
   }
 
-  return PUBLIC_WEB_HOSTS.has(hostname);
+  return PUBLIC_WEB_HOSTS.has(normalizedHostname);
 };
 
 export const isLegacyWebHost = (hostname?: string): boolean => {
-  if (!hostname) {
+  const normalizedHostname = normalizeHostname(hostname);
+  if (!normalizedHostname) {
     return false;
   }
 
-  return LEGACY_WEB_HOSTS.has(hostname);
+  return LEGACY_WEB_HOSTS.has(normalizedHostname);
 };
 
 export const resolveLegacyRedirectTarget = (): string => {
