@@ -82,9 +82,13 @@ export const productService = {
   },
 
   /**
-   * S3 업로드를 위한 Presigned URL을 요청합니다.
+   * 객체 스토리지 업로드를 위한 Presigned URL을 요청합니다.
    */
-  getPresignedUrl: async (extension: string): Promise<string> => {
+  getPresignedUrl: async (extension: string): Promise<{
+    presignedUrl: string;
+    key?: string;
+    publicUrl?: string;
+  }> => {
     const response = await api.get<PresignedUrlResponse>(
       API_ENDPOINTS.PRODUCTS.IMAGE_PRESIGNED_URL,
       {
@@ -99,11 +103,15 @@ export const productService = {
       throw new Error("Presigned URL is missing in response");
     }
 
-    return presignedUrl;
+    return {
+      presignedUrl,
+      key: payload.key,
+      publicUrl: payload.publicUrl,
+    };
   },
 
   /**
-   * S3에 파일을 직접 업로드합니다.
+   * 객체 스토리지에 파일을 직접 업로드합니다.
    */
   uploadImageToS3: async (
     presignedUrl: string,
@@ -158,18 +166,9 @@ export const productService = {
       return `${API_ORIGIN}${trimmed}`;
     }
 
-    if (/^https?:\/\//i.test(trimmed)) {
-      return trimmed;
-    }
-
-    if (trimmed.startsWith("products/")) {
-      return productService.buildPublicImageUrl(trimmed);
-    }
-
-    if (/^[^/]+\.(s3\.)[a-z0-9-]+\.amazonaws\.com\/products\//i.test(trimmed)) {
-      const withScheme = `https://${trimmed}`;
-      const key = productService.extractImageKey(withScheme);
-      return key ? productService.buildPublicImageUrl(key) : withScheme;
+    const key = productService.extractImageKey(trimmed);
+    if (key) {
+      return productService.buildPublicImageUrl(key);
     }
 
     return trimmed;
@@ -184,12 +183,9 @@ export const productService = {
         return key && key.startsWith("products/") ? key : null;
       }
 
-      if (parsed.hostname.includes(".s3.") && parsed.pathname.startsWith("/products/")) {
-        return parsed.pathname.replace(/^\/+/, "");
-      }
-
-      if (parsed.pathname.startsWith("/products/")) {
-        return parsed.pathname.replace(/^\/+/, "");
+      const productPathIndex = parsed.pathname.indexOf("/products/");
+      if (productPathIndex >= 0) {
+        return parsed.pathname.slice(productPathIndex + 1);
       }
     } catch {
       return null;
@@ -230,4 +226,3 @@ export const productService = {
     );
   },
 };
-

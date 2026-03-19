@@ -125,12 +125,23 @@ const ProductImageUploader = ({
         const { extension, contentType } = getImageMeta(file);
 
         try {
-          const presignedUrl = await productService.getPresignedUrl(extension);
-          await productService.uploadImageToS3(presignedUrl, file, contentType);
+          const uploadTarget = await productService.getPresignedUrl(extension);
+          await productService.uploadImageToS3(uploadTarget.presignedUrl, file, contentType);
 
-          const objectUrl = presignedUrl.split("?")[0];
-          const key = new URL(objectUrl).pathname.replace(/^\/+/, "");
-          return productService.buildPublicImageUrl(key);
+          if (uploadTarget.publicUrl) {
+            return productService.normalizeImageUrl(uploadTarget.publicUrl);
+          }
+
+          if (uploadTarget.key) {
+            return productService.buildPublicImageUrl(uploadTarget.key);
+          }
+
+          const key = productService.extractImageKey(uploadTarget.presignedUrl);
+          if (key) {
+            return productService.buildPublicImageUrl(key);
+          }
+
+          throw new Error("Uploaded image key is missing");
         } catch (error) {
           if (productService.shouldFallbackToBackendUpload(error)) {
             return await productService.uploadImageViaBackend(file);

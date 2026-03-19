@@ -144,6 +144,8 @@ export interface ShopResponse {
 export interface PresignedUrlResponse {
   presignedUrl?: string;
   url?: string;
+  key?: string;
+  publicUrl?: string;
 }
 
 export interface ImageUploadResponse {
