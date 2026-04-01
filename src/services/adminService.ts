@@ -70,6 +70,30 @@ const requestSettlementApi = async <T>(path: string, params?: object): Promise<T
   throw lastError ?? new Error('정산 API 호출에 실패했어요.');
 };
 
+const requestSettlementMutation = async (path: string): Promise<void> => {
+  let lastError: unknown;
+
+  for (const [index, base] of settlementBaseCandidates.entries()) {
+    try {
+      await api.post(`${base}${path}`);
+      return;
+    } catch (error) {
+      lastError = error;
+
+      const isLastCandidate = index === settlementBaseCandidates.length - 1;
+      if (!axios.isAxiosError(error)) {
+        throw error;
+      }
+
+      if (isLastCandidate || error.response?.status !== 404) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError ?? new Error('정산 API 호출에 실패했어요.');
+};
+
 const getSellerProfiles = async (productUuids: string[]) => {
   const uniqueProductUuids = Array.from(new Set(productUuids));
   const profileMap = new Map<string, UserAdminProfileResponse>();
@@ -142,6 +166,10 @@ export const adminService = {
     params: AdminSettlementStatisticsParams = {},
   ): Promise<AdminSettlementStatisticsResponse> => {
     return requestSettlementApi<AdminSettlementStatisticsResponse>('/statistics', params);
+  },
+
+  runAdminSettlementImmediate: async (settlementUuid: string): Promise<void> => {
+    await requestSettlementMutation(`/${settlementUuid}/batch/immediate`);
   },
 
   getAdminUsers: async (params: AdminUserSearchParams = {}): Promise<AdminUserPageResponse> => {

@@ -8,9 +8,10 @@ import { useToast } from '@/components/common/Toast';
 import { adminService } from '@/services/adminService';
 import type {
   AdminSettlementDetailResponse,
-  AdminSettlementStatus,
   AdminSettlementStatisticsResponse,
+  AdminSettlementStatus,
 } from '@/types/admin';
+import { parseHttpError } from '@/utils/httpError';
 
 const STATUS_LABELS: Record<AdminSettlementStatus, { text: string; color: string }> = {
   CREATED: { text: '생성됨', color: 'bg-neutral-100 text-neutral-700' },
@@ -26,6 +27,8 @@ const parseDate = (value: string) => {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
+const canTriggerImmediate = (status: AdminSettlementStatus) => status === 'PENDING';
+
 export function AdminSettlementList() {
   const [settlements, setSettlements] = useState<AdminSettlementDetailResponse[]>([]);
   const [statistics, setStatistics] = useState<AdminSettlementStatisticsResponse | null>(null);
@@ -33,6 +36,7 @@ export function AdminSettlementList() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [triggeringSettlementUuid, setTriggeringSettlementUuid] = useState<string | null>(null);
   const { showToast } = useToast();
 
   const loadSettlements = useCallback(async () => {
@@ -87,8 +91,43 @@ export function AdminSettlementList() {
     return parsed.toLocaleDateString('ko-KR');
   };
 
+  const handleImmediateTrigger = async (settlement: AdminSettlementDetailResponse) => {
+    if (!canTriggerImmediate(settlement.status)) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `정산 건을 즉시 처리하시겠습니까?\n정산 UUID: ${settlement.settlementUuid}`,
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    setTriggeringSettlementUuid(settlement.settlementUuid);
+    try {
+      await adminService.runAdminSettlementImmediate(settlement.settlementUuid);
+      showToast('즉시 정산 트리거를 요청했습니다. 배치 로그에서 진행 상태를 확인하세요.', 'success');
+      await loadSettlements();
+    } catch (error) {
+      showToast(parseHttpError(error, '정산 즉시 트리거 요청에 실패했어요.'), 'error');
+    } finally {
+      setTriggeringSettlementUuid(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
+      <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="text-sm text-blue-800">
+          <p className="font-medium mb-1">정산 자동 처리 안내</p>
+          <ul className="list-disc list-inside space-y-1 text-blue-700">
+            <li>구매확정 완료 시 자동으로 정산 대기 목록에 등록됩니다.</li>
+            <li>매일 자정(00:00 KST) 일괄 지급 처리됩니다.</li>
+            <li>관리자 테스트 목적의 즉시 트리거는 PENDING 건에서만 가능합니다.</li>
+          </ul>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-neutral-200">
           <p className="text-sm text-neutral-500">정산 대기/예정</p>
@@ -141,7 +180,7 @@ export function AdminSettlementList() {
           </div>
         ) : filteredSettlements.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[980px]">
+            <table className="w-full min-w-[1150px]">
               <thead className="bg-neutral-50 border-b border-neutral-200">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">상태</th>
@@ -150,6 +189,7 @@ export function AdminSettlementList() {
                   <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">정산금액</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">생성일</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-neutral-700">처리일</th>
+                  <th className="px-4 py-3 text-center text-sm font-medium text-neutral-700">즉시트리거</th>
                   <th className="px-4 py-3 text-right text-sm font-medium text-neutral-700">상세</th>
                 </tr>
               </thead>
@@ -175,6 +215,26 @@ export function AdminSettlementList() {
                           ? formatDate(settlement.completedAt)
                           : `${formatDateOnly(settlement.settlementReservationDate)} 예정`}
                       </td>
+                      <td className="px-4 py-3 text-center">
+                        {canTriggerImmediate(settlement.status) ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            isLoading={triggeringSettlementUuid === settlement.settlementUuid}
+                            disabled={
+                              triggeringSettlementUuid !== null &&
+                              triggeringSettlementUuid !== settlement.settlementUuid
+                            }
+                            onClick={() => {
+                              void handleImmediateTrigger(settlement);
+                            }}
+                          >
+                            즉시 실행
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-neutral-400">-</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-right">
                         <button
                           type="button"
@@ -194,8 +254,12 @@ export function AdminSettlementList() {
                     </tr>
                     {expandedId === settlement.settlementUuid && (
                       <tr id={`admin-settlement-detail-${settlement.settlementUuid}`} className="bg-neutral-50">
-                        <td colSpan={7} className="px-4 py-4">
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <td colSpan={8} className="px-4 py-4">
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div>
+                              <p className="text-xs text-neutral-500">정산 UUID</p>
+                              <p className="text-sm font-medium">{settlement.settlementUuid}</p>
+                            </div>
                             <div>
                               <p className="text-xs text-neutral-500">주문번호</p>
                               <p className="text-sm font-medium">{settlement.orderUuid}</p>
