@@ -69,3 +69,6 @@ coverage/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+# Codex local temp
+.codex-tmp/
