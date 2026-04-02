@@ -5,6 +5,7 @@ import Package from 'lucide-react/dist/esm/icons/package';
 import Users from 'lucide-react/dist/esm/icons/users';
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import Ticket from 'lucide-react/dist/esm/icons/ticket';
+import Wallet from 'lucide-react/dist/esm/icons/wallet';
 import FlaskConical from 'lucide-react/dist/esm/icons/flask-conical';
 import FolderTree from 'lucide-react/dist/esm/icons/folder-tree';
 import ChartNoAxesCombined from 'lucide-react/dist/esm/icons/chart-no-axes-combined';
@@ -70,6 +71,14 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     icon: Ticket,
     description: '쿠폰 생성과 활성 여부를 관리합니다.',
     accent: 'from-orange-400/20 to-orange-500/5 border-orange-200',
+  },
+  {
+    key: 'settlements',
+    label: '정산 관리',
+    href: '/admin/settlements',
+    icon: Wallet,
+    description: '정산 상태를 조회하고 개별 즉시 실행을 트리거합니다.',
+    accent: 'from-lime-400/20 to-lime-500/5 border-lime-200',
   },
   {
     key: 'test-tools',

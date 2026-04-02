@@ -3,7 +3,7 @@
  */
 
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -17,7 +17,14 @@ const AdminLoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { loginAdmin, logout } = useAuthStore();
+  const redirectTarget =
+    (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ||
+    searchParams.get('returnUrl') ||
+    '/admin';
+  const sessionExpired = searchParams.get('error') === 'expired';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +41,7 @@ const AdminLoginPage = () => {
         return;
       }
 
-      navigate('/admin');
+      navigate(redirectTarget);
     } catch (loginError) {
       console.error('관리자 로그인 실패:', loginError);
       setError('로그인 정보가 올바르지 않습니다.');
@@ -87,6 +94,12 @@ const AdminLoginPage = () => {
               자동 로그인
             </label>
           </div>
+
+          {sessionExpired && !error && (
+            <p className="mt-4 text-sm text-amber-300" role="status">
+              관리자 세션이 만료되어 다시 로그인이 필요합니다.
+            </p>
+          )}
 
           {error && (
             <p className="mt-4 text-sm text-red-400" role="alert" aria-live="polite">{error}</p>

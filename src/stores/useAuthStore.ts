@@ -1,35 +1,137 @@
-﻿import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { authService } from "../services/authService";
 import type { LoginRequest, User, UserRegisterRequest } from "../types/auth";
 
-const normalizeAccessToken = (token: string) => token.replace(/^Bearer\s+/i, "").trim();
+export const normalizeAccessToken = (token: string) => token.replace(/^Bearer\s+/i, "").trim();
 
-const authStorage = {
+export const isAdminUser = (user: Pick<User, "role"> | null) => user?.role === "ADMIN";
+
+const AUTH_STORAGE_NAME = "auth-storage";
+const AUTH_REFRESH_TOKEN_STORAGE_KEY = `${AUTH_STORAGE_NAME}:refresh-token`;
+
+type AuthSnapshot = {
+  user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  isAuthenticated: boolean;
+  isAdminAuthenticated: boolean;
+  rememberMe: boolean;
+};
+
+type PersistedAuthEnvelope = {
+  state?: Partial<AuthSnapshot>;
+  version?: number;
+};
+
+type StorageAdapter = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+
+const withUserId = (user: User): User => ({
+  ...user,
+  id: user.userUuid,
+});
+
+const createClearedSnapshot = (rememberMe = false): AuthSnapshot => ({
+  user: null,
+  accessToken: null,
+  refreshToken: null,
+  isAuthenticated: false,
+  isAdminAuthenticated: false,
+  rememberMe,
+});
+
+const createAuthenticatedSnapshot = (
+  user: User,
+  accessToken: string,
+  refreshToken: string | null,
+  rememberMe: boolean,
+): AuthSnapshot => ({
+  user: withUserId(user),
+  accessToken: normalizeAccessToken(accessToken),
+  refreshToken,
+  isAuthenticated: true,
+  isAdminAuthenticated: isAdminUser(user),
+  rememberMe,
+});
+
+const parseAuthEnvelope = (value: string | null): PersistedAuthEnvelope | null => {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as PersistedAuthEnvelope;
+  } catch {
+    return null;
+  }
+};
+
+const getAuthBaseStorage = (
+  rememberMe: boolean,
+  localStorageAdapter: StorageAdapter,
+  sessionStorageAdapter: StorageAdapter,
+) => (rememberMe ? localStorageAdapter : sessionStorageAdapter);
+
+export const createAuthStorage = (
+  localStorageAdapter: StorageAdapter = localStorage,
+  sessionStorageAdapter: StorageAdapter = sessionStorage,
+) => ({
   getItem: (name: string) => {
-    return localStorage.getItem(name) ?? sessionStorage.getItem(name);
-  },
-  setItem: (name: string, value: string) => {
-    try {
-      const parsed = JSON.parse(value) as { state?: { rememberMe?: boolean } };
-      const rememberMe = Boolean(parsed?.state?.rememberMe);
-      if (rememberMe) {
-        localStorage.setItem(name, value);
-        sessionStorage.removeItem(name);
-        return;
-      }
-    } catch {
-      // ignore parse errors and fallback to session storage
+    const storedValue =
+      localStorageAdapter.getItem(name) ?? sessionStorageAdapter.getItem(name);
+
+    if (!storedValue) {
+      return null;
     }
 
-    sessionStorage.setItem(name, value);
-    localStorage.removeItem(name);
+    const parsed = parseAuthEnvelope(storedValue);
+    if (!parsed?.state) {
+      return storedValue;
+    }
+
+    const sessionRefreshToken = sessionStorageAdapter.getItem(AUTH_REFRESH_TOKEN_STORAGE_KEY);
+
+    return JSON.stringify({
+      ...parsed,
+      state: {
+        ...parsed.state,
+        refreshToken: sessionRefreshToken ?? parsed.state.refreshToken ?? null,
+      },
+    });
+  },
+  setItem: (name: string, value: string) => {
+    const parsed = parseAuthEnvelope(value);
+    const state = parsed?.state ?? null;
+    const rememberMe = Boolean(state?.rememberMe);
+    const baseStorage = getAuthBaseStorage(rememberMe, localStorageAdapter, sessionStorageAdapter);
+    const oppositeStorage = rememberMe ? sessionStorageAdapter : localStorageAdapter;
+    const refreshToken = state?.refreshToken?.trim() || null;
+
+    const basePayload = parsed
+      ? JSON.stringify({
+          ...parsed,
+          state: {
+            ...state,
+            refreshToken: null,
+          },
+        })
+      : value;
+
+    baseStorage.setItem(name, basePayload);
+    oppositeStorage.removeItem(name);
+
+    if (refreshToken) {
+      sessionStorageAdapter.setItem(AUTH_REFRESH_TOKEN_STORAGE_KEY, refreshToken);
+    } else {
+      sessionStorageAdapter.removeItem(AUTH_REFRESH_TOKEN_STORAGE_KEY);
+    }
   },
   removeItem: (name: string) => {
-    localStorage.removeItem(name);
-    sessionStorage.removeItem(name);
+    localStorageAdapter.removeItem(name);
+    sessionStorageAdapter.removeItem(name);
+    sessionStorageAdapter.removeItem(AUTH_REFRESH_TOKEN_STORAGE_KEY);
   },
-};
+});
 
 interface AuthState {
   user: User | null;
@@ -49,6 +151,19 @@ interface AuthState {
   socialLogin: (accessToken: string, refreshToken?: string | null) => Promise<void>;
 }
 
+const applyUserSession = (
+  user: User,
+  accessToken: string,
+  refreshToken: string | null,
+  rememberMe: boolean,
+): AuthSnapshot => ({
+  ...createAuthenticatedSnapshot(user, accessToken, refreshToken, rememberMe),
+  user: withUserId(user),
+});
+
+const clearUserSession = (rememberMe = false): AuthSnapshot =>
+  createClearedSnapshot(rememberMe);
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -63,27 +178,20 @@ export const useAuthStore = create<AuthState>()(
       login: async (request: LoginRequest, rememberMe = true) => {
         try {
           const { accessToken, refreshToken } = await authService.login(request);
-          set({ 
-            accessToken: normalizeAccessToken(accessToken), 
+          set({
+            ...clearUserSession(rememberMe),
+            accessToken: normalizeAccessToken(accessToken),
             refreshToken: refreshToken || null,
-            rememberMe 
+            rememberMe,
           });
-          
+
           const user = await authService.getMe();
           set({
-            user: { ...user, id: user.userUuid },
-            isAuthenticated: true,
-            isAdminAuthenticated: user.role === "ADMIN",
+            ...applyUserSession(user, accessToken, refreshToken || null, rememberMe),
+            isInitialized: true,
           });
         } catch (error) {
-          set({
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            isAdminAuthenticated: false,
-            user: null,
-            rememberMe: false,
-          });
+          set(clearUserSession());
           throw error;
         }
       },
@@ -91,27 +199,20 @@ export const useAuthStore = create<AuthState>()(
       loginAdmin: async (request: LoginRequest, rememberMe = true) => {
         try {
           const { accessToken, refreshToken } = await authService.loginAdmin(request);
-          set({ 
-            accessToken: normalizeAccessToken(accessToken), 
+          set({
+            ...clearUserSession(rememberMe),
+            accessToken: normalizeAccessToken(accessToken),
             refreshToken: refreshToken || null,
-            rememberMe 
+            rememberMe,
           });
 
           const user = await authService.getMe();
           set({
-            user: { ...user, id: user.userUuid },
-            isAuthenticated: true,
-            isAdminAuthenticated: user.role === "ADMIN",
+            ...applyUserSession(user, accessToken, refreshToken || null, rememberMe),
+            isInitialized: true,
           });
         } catch (error) {
-          set({
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            isAdminAuthenticated: false,
-            user: null,
-            rememberMe: false,
-          });
+          set(clearUserSession());
           throw error;
         }
       },
@@ -121,25 +222,14 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        set({
-          user: null,
-          accessToken: null,
-          refreshToken: null,
-          isAuthenticated: false,
-          isAdminAuthenticated: false,
-          rememberMe: false,
-        });
+        set(clearUserSession());
       },
 
       initialize: async () => {
         const { accessToken } = get();
         if (!accessToken) {
           set({
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            isAdminAuthenticated: false,
+            ...clearUserSession(),
             isInitialized: true,
           });
           return;
@@ -148,20 +238,13 @@ export const useAuthStore = create<AuthState>()(
         try {
           const user = await authService.getMe();
           set({
-            user: { ...user, id: user.userUuid },
-            isAuthenticated: true,
-            isAdminAuthenticated: user.role === "ADMIN",
+            ...applyUserSession(user, accessToken, get().refreshToken, get().rememberMe),
             isInitialized: true,
           });
         } catch {
           set({
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            isAdminAuthenticated: false,
+            ...clearUserSession(),
             isInitialized: true,
-            rememberMe: false,
           });
         }
       },
@@ -170,8 +253,9 @@ export const useAuthStore = create<AuthState>()(
         try {
           const user = await authService.getMe();
           set({
-            user: { ...user, id: user.userUuid },
-            isAdminAuthenticated: user.role === "ADMIN",
+            user: withUserId(user),
+            isAuthenticated: true,
+            isAdminAuthenticated: isAdminUser(user),
           });
         } catch (error) {
           console.error("사용자 정보 새로고침 실패:", error);
@@ -180,33 +264,26 @@ export const useAuthStore = create<AuthState>()(
 
       socialLogin: async (accessToken: string, refreshToken?: string | null) => {
         try {
-          set({ 
-            accessToken: normalizeAccessToken(accessToken), 
+          set({
+            ...clearUserSession(true),
+            accessToken: normalizeAccessToken(accessToken),
             refreshToken: refreshToken || null,
-            rememberMe: true 
+            rememberMe: true,
           });
           const user = await authService.getMe();
           set({
-            user: { ...user, id: user.userUuid },
-            isAuthenticated: true,
-            isAdminAuthenticated: user.role === "ADMIN",
+            ...applyUserSession(user, accessToken, refreshToken || null, true),
+            isInitialized: true,
           });
         } catch (error) {
-          set({
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            isAdminAuthenticated: false,
-            user: null,
-            rememberMe: false,
-          });
+          set(clearUserSession());
           throw error;
         }
       },
     }),
     {
-      name: "auth-storage",
-      storage: createJSONStorage(() => authStorage),
+      name: AUTH_STORAGE_NAME,
+      storage: createJSONStorage(() => createAuthStorage()),
       partialize: (state) => ({
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,

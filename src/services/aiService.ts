@@ -1,4 +1,4 @@
-import { resolveApiBaseUrl } from '@/utils/api';
+import { buildAuthorizationHeader, refreshAccessTokenOnce, resolveApiBaseUrl } from '@/utils/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 export interface ChatRequest {
@@ -7,8 +7,23 @@ export interface ChatRequest {
   message: string;
 }
 
-const BASE_URL = resolveApiBaseUrl();
-const AI_API_BASE_URL = `${BASE_URL}/api/v1/ai`;
+const AI_API_BASE_URL = `${resolveApiBaseUrl()}/api/v1/ai`;
+
+const buildChatRequestInit = (request: ChatRequest, accessToken: string | null): RequestInit => {
+  const authorizationHeader = buildAuthorizationHeader(accessToken);
+
+  return {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(authorizationHeader ? { Authorization: authorizationHeader } : {}),
+    },
+    body: JSON.stringify(request),
+  };
+};
+
+const performChatFetch = async (request: ChatRequest, accessToken: string | null) =>
+  fetch(`${AI_API_BASE_URL}/chat`, buildChatRequestInit(request, accessToken));
 
 export const aiApi = {
   /**
@@ -18,28 +33,21 @@ export const aiApi = {
     request: ChatRequest,
     onMessage: (chunk: string) => void,
     onError: (error: unknown) => void,
-    onComplete: () => void
+    onComplete: () => void,
   ) {
-    const accessToken = useAuthStore.getState().accessToken;
+    const currentAccessToken = useAuthStore.getState().accessToken;
 
     try {
-      const response = await fetch(`${AI_API_BASE_URL}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-        },
-        body: JSON.stringify(request),
-      });
+      let response = await performChatFetch(request, currentAccessToken);
+
+      if (!response.ok && response.status === 401) {
+        const refreshedAccessToken = await refreshAccessTokenOnce('/api/v1/ai/chat');
+        if (refreshedAccessToken) {
+          response = await performChatFetch(request, refreshedAccessToken);
+        }
+      }
 
       if (!response.ok) {
-        if (response.status === 401) {
-          useAuthStore.getState().logout();
-          if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
-            window.location.href = `/login?error=expired&returnUrl=${encodeURIComponent(window.location.pathname)}`;
-          }
-          throw new Error('401_UNAUTHORIZED');
-        }
         throw new Error(`API 오류: ${response.status}`);
       }
 
