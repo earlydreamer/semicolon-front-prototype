@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Card } from "@/components/common/Card";
 import { Button } from "@/components/common/Button";
+import { readOAuthCallbackTokens } from "@/utils/oauthCallback";
 
 export default function SocialLoginCallbackPage() {
   const navigate = useNavigate();
@@ -10,9 +11,18 @@ export default function SocialLoginCallbackPage() {
   const { provider } = useParams();
   const { socialLogin } = useAuthStore();
 
-  const accessToken = searchParams.get("accessToken");
-  const refreshToken = searchParams.get("refreshToken");
+  // 주소창에서 토큰을 지운 뒤에도 값을 유지하도록 첫 렌더에서 한 번만 읽는다.
+  const [{ accessToken, refreshToken }] = useState(() =>
+    readOAuthCallbackTokens(window.location.hash, window.location.search),
+  );
   const error = searchParams.get("error");
+
+  useEffect(() => {
+    if (accessToken) {
+      // 토큰이 브라우저 히스토리에 남지 않도록 fragment·쿼리스트링을 즉시 제거한다.
+      window.history.replaceState(window.history.state, "", window.location.pathname);
+    }
+  }, [accessToken]);
 
   useEffect(() => {
     const processLogin = async () => {
